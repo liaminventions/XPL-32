@@ -1,0 +1,332 @@
+
+;;; input multiple values into memory
+;;; takes a single parameter, which is the starting address
+;;; print out the address as a prompt, then read a line of input
+;;; parse the line of input into a sequence of bytes
+;;; write those bytes into memory starting at the address
+;;; begin a new line with the next address
+;;; if the entered line is blank, stop
+
+* = $0300
+
+;;; test this out as an app
+;;; once it works, incorporate it into the monitor
+
+;;; much of the code here is lifted direct from the monitor as it
+;;; currently stands. For instance, they share an input buffer and
+;;; a parser setup, since the expectation is that I'll continue to
+;;; use those (although they may need to be reorganized as subroutines).
+
+#include "../decl.a65"
+
+stackaccess = $0080
+stackbase   = $0000
+
+
+SCRATCH    = $0010  ; through to $001F
+ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
+INPUT      = $0200  ; block out this page for monitor command input
+BASE       = $0050  ; and $0051
+
+
+start
+  lda BASE          ; first, print the current address as a prompt
+  sta stackaccess   
+  lda BASE+1
+  sta stackaccess+1
+  jsr push16        ; put it onto the stack
+  jsr print16hex    ; print it in hex
+  lda #$20          ; output a space
+  jsr puta
+
+  jsr readline      ; read a line of input into the buffer
+  jsr crlf          ; echo newline
+
+  cpy #0            ; is the line blank?
+  beq endinput      ; if so, then end the routine
+  jsr parseinput    ; otherwise, parse the input into byte strings
+
+  ;; write those bytes into memory starting at the address
+  ;; begin a new line with the next address
+  ldy #1
+  inc ARGINDEX      ; change from count to sentinel value
+
+nextbyte
+  cpy ARGINDEX      ; have we done all the arguments?
+  beq donebytes     ; if so, jump to the end of this round
+
+  clc
+  lda #<INPUT       ; load the base address for the input buffer
+  adc ARGINDEX,y    ; and add the offset to the y'th argument
+  sta stackaccess   ; store at stackaccess
+  lda #>INPUT       ; then the upper byte
+  adc #0            ; in case we cross page boundary (but we shouldn't)
+  sta stackaccess+1
+  jsr push16        ; push the address for the byte string
+  jsr read8hex      ; interpret as an eight-bit hex value
+  jsr pop16         ; pull off the stack
+  lda stackaccess   ; this is the byte, in the lower 8 bits
+  phx
+  ldx #0            ; needed  because there's no non-index indirect mode
+  sta (BASE,x)      ; store it at the address pointed to by BASE
+  inc BASE          ; increment BASE (and possibly BASE+1)
+  bne endloop
+  inc BASE+1
+endloop
+  plx               ; restore X before we use the stack routines again
+  iny               ; move on to next entered type
+  jmp nextbyte
+
+donebytes
+  bra start         ; again with the next line
+
+endinput
+  rts               ; return (X already restored)
+
+
+
+
+;;;
+;;; utility subroutines
+;;;
+
+;;; read a line of input from the console, putting it into the buffer
+;;; at INPUT. processes backspaces and ends with a carriage return.
+;;; on exit, y holds the number of characters entered but string is
+;;; NOT null-terminated (maybe it should be...)
+;;; 
+readline
+  ldy #0
+readchar
+.(
+wait_rxd_full    
+  lda ACIA_STATUS
+  and #$08
+  beq wait_rxd_full
+.)
+  lda ACIA_DATA
+  cmp #$08           ; check for backspace
+  beq backspace
+  cmp #$0D           ; check for newline
+  beq done
+  sta INPUT,y        ; track the input
+  iny
+  jsr puta           ; echo the typed character
+  jmp readchar       ; loop to repeat
+backspace
+  cpy #0             ; beginning of line?
+  beq readchar
+  dey                ; if not, go back one character
+  jsr puta           ; move cursor back
+  jmp readchar
+
+  ;; this is where we land if the line input has finished
+  ;;
+done
+  rts
+
+
+;;; parse the input buffer. this is copied directly from the monitor
+;;; which means it can disappear later
+;;; on exit, each word in the input buffer is null-terminated and
+;;; indexed by an entry in ARGINDEX. ARGINDEX itself holds the number
+;;; of words encountered.
+;;;
+parseinput
+  phx               ; preserve x, since it's our private stack pointer
+  ldx #0
+  ldy #0
+
+.(
+;; look for non-space
+nextchar
+  lda INPUT,x
+  cmp #32
+  bne nonspace
+  inx
+  jmp nextchar
+
+;; mark the start of the word
+nonspace
+  iny               ; maintain a count of words in y
+  stx ARGINDEX,y
+;; look for space
+lookforspace
+  inx
+  lda INPUT,x
+  beq endofline     ; check for null termination
+  cmp #32           ; only looking for spaces. Tab?
+  beq endofword
+  jmp lookforspace
+;; didn't hit a terminator, so there must be more.
+;; terminate this word with a zero and then continue
+endofword
+  lda #0
+  sta INPUT,x         ; null-terminate
+  inx
+  jmp nextchar        ; repeat
+endofline
+  ;; we're done
+  ;; cache the arg count
+  sty ARGINDEX
+
+  ;; restore x and return
+  plx
+  rts
+.)
+
+puta
+.(
+  pha
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  pla
+  sta ACIA_DATA
+.)
+  rts
+
+putax
+.(
+  phy
+
+  pha
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  pla
+  pha             ; put a copy back
+  clc
+  and #$f0
+  ror
+  ror
+  ror
+  ror
+  tay
+  lda hextable,y
+  sta ACIA_DATA
+wait_txd_empty2
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty2
+  pla
+  clc
+  and #$0f
+  tay
+  lda hextable,y
+  sta ACIA_DATA
+.)
+  ply
+  rts
+
+
+
+crlf
+  pha
+.(
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+.)
+  lda #$0d
+  sta ACIA_DATA
+.(
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+.)
+  lda #$0a
+  sta ACIA_DATA
+  pla
+  rts
+
+hextable:        .byte "0123456789ABCDEF"
+
+
+push16
+  lda stackaccess+1          ; first byte (big end)
+  sta stackbase,x
+  dex
+  lda stackaccess            ; second byte (little end)
+  sta stackbase,x
+  dex
+  rts
+
+pop16
+  lda stackbase+1,x          ; the little end
+  sta stackaccess
+  inx
+  lda stackbase+1,x          ; retrieve second byte
+  sta stackaccess+1
+  inx
+  rts
+
+read8hex
+  jsr pop16                ; address into stackaccess (and off stack)
+  lda (stackaccess)        ; first nybble
+.(
+  cmp #$60
+  bcc upper
+  ;; lower case character, so substract $57
+  sec
+  sbc #$57
+  bra next
+upper
+  cmp #$40
+  bcc number
+  ;; upper case character, so substract $37
+  sec
+  sbc #$037
+  bra next
+number
+  ;; numeric character, so subtract $30
+  sec
+  sbc #$30
+next
+  asl
+  asl
+  asl
+  asl
+  sta SCRATCH+4          ; assembling result here
+.)
+  inc stackaccess        ; BUG won't work if string crosses a page boundary
+  lda (stackaccess)      ; second nybble
+.(
+  cmp #$60
+  bcc upper
+  ;; lower case character, so substract $57
+  sec
+  sbc #$57
+  jmp next
+upper
+  cmp #$40
+  bcc number
+  ;; upper case character, so substract $37
+  sec
+  sbc #$037
+  jmp next
+number
+  ;; numeric character, so subtract $30
+  sec
+  sbc #$30
+next
+  clc
+  adc SCRATCH+4
+  sta SCRATCH+4
+.)
+  sta stackaccess
+  stz stackaccess+1
+  jsr push16
+  rts
+
+print16hex
+  jsr pop16
+  lda stackaccess+1
+  jsr putax
+  lda stackaccess
+  jsr putax
+  rts

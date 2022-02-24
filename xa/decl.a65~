@@ -1,0 +1,37 @@
+;; Declarations of general use
+;; Mainly, these define where things are in the memory map of the
+;; 6502 Mite.
+;;
+;; Paul Dourish, January 1, 2017
+;;
+
+
+;; ACIA (6551) registers
+;;
+ACIA_DATA    = $8000
+ACIA_STATUS  = $8001
+ACIA_COMMAND = $8002
+ACIA_CONTROL = $8003
+
+;; VIA (6522) registers
+;;
+VIA_PORTB = $B800
+PORTB     = $B800
+VIA_PORTA = $B801
+VIA_DDRB  = $B802
+VIA_DDRA  = $B803
+VIA_T1CL  = $B804
+VIA_T1CH  = $B805
+VIA_T1LL  = $B806
+VIA_T1LH  = $B807
+VIA_T2LL  = $B808
+VIA_T2CL  = $B808
+VIA_T2CH  = $B809 
+VIA_SR    = $B80A
+VIA_ACR   = $B80B
+VIA_PCR   = $B80C
+VIA_IFR   = $B80D
+VIA_IER   = $B80E
+VIA_ORAX  = $B80F
+
+

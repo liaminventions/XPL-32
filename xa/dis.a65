@@ -1,0 +1,1198 @@
+
+;;; 65C02 disassembler
+;;;
+;;; This will be incorporated into my monitor eventually, but for now
+;;; is written as a separate program.
+;;;
+;;; Handles all original 6502 opcodes and (almost) all of the 65C02
+;;; opcodes. It may occasionally interpret things overly generously,
+;;; ie take a nonsense byte and give it a meaning... but such a byte
+;;; shouldn't be in a program anyway, right?
+;;;
+;;; Paul Dourish, October 2017
+;;;
+
+* = $0300
+
+#include "decl.a65"
+
+;;;
+;;; I'm following details and logic from
+;;; http://www.llx.com/~nparker/a2/opcodes.html
+;;;
+;;; Most instructions are of the form aaabbbcc, where cc signals
+;;; a block of instructons that operate in a similar way, with aaa
+;;; indicating the instructoon and bbb indicating the addressing mode.
+;;; Each of those blocks is handled by two tables, one of which
+;;; indicates the opcode strings and one of which handles the
+;;; addressing modes (by storing entry points into the processing
+;;; routines).
+;;;
+
+;;; Working variables
+;;;
+SCRATCH=$0010       ; through $001F
+BASE=$0050          ; and $0051
+COUNT=$0060         ; stores no of instructions to decode (tuned to testcode)
+
+setup
+  phx               ; preserve X (it's a stack pointer elsewhere)
+  lda #<testcode    ; load testcode as our BASE for disassembly
+  sta BASE
+  lda #>testcode
+  sta BASE+1
+  lda #$36          ; number of instructions to decode
+  sta COUNT
+  ldy #0            ; y will track bytes as we go
+
+start
+nextinst
+  ;; start the line by printing the address and a couple of spaces
+  ;;
+  lda BASE+1
+  jsr putax
+  lda BASE
+  jsr putax
+  lda #$20
+  jsr puta
+  jsr puta
+  jsr puta
+
+  ;; before we handle the regular cases, check the table
+  ;; of special cases which are harder to detect via regular
+  ;; patterns
+  ldx #0
+nextspecial
+  lda specialcasetable,x
+  cmp #$FF
+  beq endspecial
+  cmp (BASE),y
+  beq foundspecial
+  inx
+  inx
+  inx
+  bra nextspecial
+foundspecial
+  inx
+  jmp (specialcasetable,x)
+endspecial
+  lda (BASE),y
+  
+  and #%00011111    ; checking if it's a branch
+  cmp #%00010000
+  beq jbranch       ; jump to code for branches
+
+  ;; block of single byte instructions where the lower nybble is 8
+  ;;
+  lda (BASE),y      ; get the instruction again (last test was destructive)
+  and #%00001111
+  cmp #$08          ; single-byte instructions with 8 in lower nybble
+  beq jsingle8
+
+  ;; block of single byte instructions at 8A, 9A, etc
+  lda (BASE),y      ; get the instruction again (last test was destructive)
+  and #%10001111
+  cmp #$8A          ; 8A, 9A, etc
+  beq jsinglexa
+
+  ;; otherwise, process according to the regular scheme of aaabbbcc
+  ;;
+  lda (BASE),y      ; get the instruction again (last test was destructive)
+  and #%00000011    ; look at the "cc" bits -- what sort of opcode?
+  beq jbranch00     ; go to branch for cc=00
+  cmp #%00000010
+  beq jbranch10     ; go to branch for cc=10
+  cmp #%00000001
+  bne jothers       ; go to branch for remaining opcodes
+  jmp branch01
+
+jbranch00
+  jmp branch00
+jbranch10
+  jmp branch10
+jbranch
+  jmp branch
+jdobrk
+  jmp dobrk
+jdojsr
+  jmp dojsr
+jdorti
+  jmp dorti
+jdorts
+  jmp dorts
+jdobra
+  jmp dobra
+jsingle8
+  jmp single8
+jsinglexa
+  jmp singlexa
+jothers
+  jmp others
+
+;;; interpret according to the pattern for cc=01
+;;;
+branch01
+  lda (BASE),y      ; reload instruction
+  and #%11100000    ; grab top three bits
+  lsr               ; shift right for times
+  lsr
+  lsr               ; result is the aaa code * 2, ...
+  lsr               ; ... the better to use as index into opcode table
+  tax
+  ; so now cc01optable,x is the pointer to the right string
+  lda cc01optable,x
+  sta SCRATCH
+  lda cc01optable+1,x
+  sta SCRATCH+1
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+  
+  ;;; handle each addressing mode
+  ;;; the addressing mode is going to determine how many
+  ;;; bytes we need to consume overall
+  ;;; so we do something similar... grab the bits, shift them down
+  ;;; and use that to look up a table which will tell us where
+  ;;; to jump to to interpret it correctly.
+  
+  lda (BASE),y      ; get the instruction again
+  and #%00011100    ; extract the bbb bits -- addressing mode
+  lsr               ; shift just once
+  ;; acc now holds the offset of the right entry in the table
+  ;; now add in the base address of the table, and store it in SCRATCH
+  clc
+  adc #<cc01adtable
+  sta SCRATCH       ; less significant byte
+  lda #>cc01adtable
+  adc #0
+  sta SCRATCH+1     ; most significant byte
+  ;; one more level of indirection -- fetch the address listed there
+  phy
+  ldy #0
+  lda (SCRATCH),y
+  sta SCRATCH+2
+  iny
+  lda (SCRATCH),y
+  sta SCRATCH+3
+  ply
+  jmp (SCRATCH+2)   ; jump to address specified in table
+  
+
+;;;
+;;; Routines to handle the output for different addressing modes.
+;;; Each addressing mode has its own entry point; entries in the
+;;; addressing tables for each instruction block point here directly.
+;;; On entry and exit, Y indicates the last byte processed.
+;;;
+
+acc
+  ;; accumulator
+  lda #'A
+  jsr puta
+  jmp endline
+
+absx                ; absolute, X -- consumes two more bytes
+  lda #'$
+  jsr puta
+  iny               ; get the second (most-sig) byte first
+  iny
+  lda (BASE),y
+  jsr putax
+  dey               ; then the less-significant byte
+  lda (BASE),y
+  jsr putax
+  iny               ; leave Y pointing to last byte consumed
+  lda #',
+  jsr puta
+  lda #'X
+  jsr puta
+  jmp endline
+
+izpx                ; (zero page,X), consumes one more byte
+  iny
+  lda #'(
+  jsr puta
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  lda #',
+  jsr puta
+  lda #'X
+  jsr puta
+  lda #')
+  jsr puta
+  jmp endline
+
+zp                  ; zero page, consumes one more byte
+  iny
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  jmp endline
+
+izp                 ; indirect zero page, only on 65C02, consumes 1 byte
+  iny
+  lda #'(
+  jsr puta
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  lda #')
+  jsr puta
+  jmp endline
+
+imm                 ; immediate mode, consumes one byte
+  iny
+  lda #'#
+  jsr puta
+  lda #'$
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  jmp endline
+
+immb                ; like immediate, but for branches (so ditch the "#")
+  iny
+  lda #'$
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  jmp endline
+
+abs
+  ;; absolute -- consumes two more bytes
+  lda #'$
+  jsr puta
+  iny               ; get the second (most-sig) byte first
+  iny
+  lda (BASE),y
+  jsr putax
+  dey               ; then the less-significant byte
+  lda (BASE),y
+  jsr putax
+  iny
+  jmp endline
+
+izpy
+  ;; (zero page),Y -- consumes one more byte
+  iny
+  lda #'(
+  jsr puta
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  lda #')
+  jsr puta
+  lda #',
+  jsr puta
+  lda #'Y
+  jsr puta
+  jmp endline
+
+ind
+  ;; (addr) -- consumes two more bytes
+  iny
+  iny
+  lda #'(
+  jsr puta
+  lda #'$
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  dey
+  lda (BASE),y
+  jsr putax
+  lda #')
+  jsr puta
+  iny
+  jmp endline
+
+indx                ; only the JMP on 65C02?
+  iny
+  iny
+  lda #'(
+  jsr puta
+  lda #'$
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  dey
+  lda (BASE),y
+  jsr putax
+  lda #',
+  jsr puta
+  lda #'X
+  jsr puta
+  lda #')
+  jsr puta
+  iny
+  jmp endline
+
+zpx
+  ;; zero page,X -- consumes one more byte
+  iny
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  lda #',
+  jsr puta
+  lda #'X
+  jsr puta
+  jmp endline
+
+zpy
+  ;; zero page,Y -- consumes one more byte
+  iny
+  lda #'$
+  jsr puta
+  lda #'0
+  jsr puta
+  jsr puta
+  lda (BASE),y
+  jsr putax
+  lda #',
+  jsr puta
+  lda #'Y
+  jsr puta
+  jmp endline
+
+absy
+  ;; absolute,Y -- consumes two more bytes
+  lda #'$
+  jsr puta
+  iny               ; get the second (most-sig) byte first
+  iny
+  lda (BASE),y
+  jsr putax
+  dey               ; then the less-significant byte
+  lda (BASE),y
+  jsr putax
+  iny               ; leave Y pointing to last byte consumed
+  lda #',
+  jsr puta
+  lda #'Y
+  jsr puta
+  jmp endline
+
+err
+  ;; can't interpret the opcode
+  lda #'?
+  jsr puta
+  jsr puta
+  jsr puta
+  jmp endline
+
+;;; the next major block of addresses is those where the two
+;;; bottom bits are 10. Processing is very similar to those
+;;; where cc=01, above.
+;;; almost all this code is just reproduced from above.
+;;; TODO-- restructure to share more of the mechanics.
+;;;
+branch10
+
+  ;; first, take care of the unusual case of the 65C02 instructions
+  ;; which use a different logic
+
+  ;; look up and process opcode
+  ;;
+  lda (BASE),y      ; reload instruction
+  and #%11100000    ; grab top three bits
+  lsr               ; shift right for times
+  lsr
+  lsr               ; result is the aaa code * 2, ...
+  lsr               ; ... the better to use as index into opcode table
+  tax
+
+  ;; before we proceed, decide which table to look up. the 65C02 codes
+  ;; in the range bbb=100 use a differnt logic
+  lda (BASE),y
+  and #%00011100
+  cmp #%00010000
+  beq specialb10
+
+  ; so now cc10optable,x is the pointer to the right string
+  lda cc10optable,x
+  sta SCRATCH
+  lda cc10optable+1,x
+  sta SCRATCH+1
+  jmp b10opcode
+
+specialb10
+  lda cc01optable,x ; not an error... we're using the cc01 table for 65c02
+  sta SCRATCH
+  lda cc01optable+1,x
+  sta SCRATCH+1
+
+b10opcode
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+
+  ;; handle each addressing mode
+  ;;
+  lda (BASE),y      ; get the instruction again
+  cmp #$96          ; check fos special cases
+  beq specialstx    ; STX in ZP,X mode becomes ZP,Y
+  cmp #$b6
+  beq specialldx1   ; LDX in ZP,X mode becomes ZP,Y
+  cmp #$be
+  beq specialldx2   ; LDX in ZP,X mode becomes ZP,Y
+
+  ;; otherwise, proceed as usual
+  and #%00011100    ; extract the bbb bits -- addressing mode
+  lsr               ; shift just once
+  ;; acc now holds the offset of the right entry in the table
+  ;; now add in the base address of the table, and store it in SCRATCH
+  clc
+  adc #<cc10adtable
+  sta SCRATCH       ; less significant byte
+  lda #>cc10adtable
+  adc #0
+  sta SCRATCH+1     ; most significant byte
+  ;; one more level of indirection -- fetch the address listed there
+  phy
+  ldy #0
+  lda (SCRATCH),y
+  sta SCRATCH+2
+  iny
+  lda (SCRATCH),y
+  sta SCRATCH+3
+  ply
+  jmp (SCRATCH+2)   ; jump to address specified in table
+
+specialstx
+specialldx1
+  jmp zpy
+specialldx2
+  jmp absy
+
+;;; This code for the block of instructions with cc=00. Note again
+;;; that this is simply repeated from above and should be fixed.
+;;; TODO-- refactor this code to eliminate duplication
+;;;
+branch00
+  lda (BASE),y      ; reload instruction
+  and #%11100000    ; grab top three bits
+  lsr               ; shift right for times
+  lsr
+  lsr               ; result is the aaa code * 2, ...
+  lsr               ; ... the better to use as index into opcode table
+  tax
+  ; so now cc00optable,x is the pointer to the right string
+  lda cc00optable,x
+  sta SCRATCH
+  lda cc00optable+1,x
+  sta SCRATCH+1
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+
+  ;; handle each addressing mode
+  ;;
+  lda (BASE),y      ; get the instruction again
+  cmp #$89          ; special case for BIT #
+  beq specialbit
+  cmp #$6C          ; indirect JMP is a special case, handle separately
+  beq specialindjmp 
+  cmp #$7C          ; similarly for indirect JMP,X
+  beq specialindxjmp  
+  and #%00011100    ; extract the bbb bits -- addressing mode
+  lsr               ; shift just once
+  ;; acc now holds the offset of the right entry in the table
+  ;; now add in the base address of the table, and store it in SCRATCH
+  clc
+  adc #<cc00adtable
+  sta SCRATCH       ; less significant byte
+  lda #>cc00adtable
+  adc #0
+  sta SCRATCH+1     ; most significant byte
+  ;; one more level of indirection -- fetch the address listed there
+  phy
+  ldy #0
+  lda (SCRATCH),y
+  sta SCRATCH+2
+  iny
+  lda (SCRATCH),y
+  sta SCRATCH+3
+  ply
+  jmp (SCRATCH+2)   ; jump to address specified in table
+
+specialbit
+  ;; treat this specially -- 65C02 opcode slightly out of place
+  jmp imm
+
+specialindjmp
+  ;; treat JMP (address) specially
+  jmp ind
+
+specialindxjmp
+  ;; treat JMP (address,X) specially
+  jmp indx
+
+
+;;; branch instructions -- actually, these don't follow pattern so do FIRST
+;;; branches have the form xxy10000
+;;; xxy*2 should index into branchtable
+branch
+  lda (BASE),y
+  and #%11100000
+  lsr
+  lsr
+  lsr
+  lsr
+  tax
+
+  ;; now index into table
+  ; so now branchoptable,x is the pointer to the right string
+  lda branchoptable,x
+  sta SCRATCH
+  lda branchoptable+1,x
+  sta SCRATCH+1
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+
+  ;; we use a variant form of immediate mode to print the operand
+  ;; for branch instructions
+  jmp immb
+
+;;; these are the single-byte instructions with 8 in their lower nybble
+;;; again, code borrowed from above (branch) -- TODO -- refactor.
+single8
+  lda (BASE),y
+  and #%11110000
+  lsr
+  lsr
+  lsr
+  tax
+
+  ;; now index into table
+  ;; so now single08table,x is the pointer to the right string
+  lda single08table,x
+  sta SCRATCH
+  lda single08table+1,x
+  sta SCRATCH+1
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+  jmp endline
+
+;;; these are the single-byte instructions at 8A, 9A, etc.
+;;; again, code borrowed from above (branch) -- TODO -- refactor.
+singlexa
+  lda (BASE),y
+  and #%01110000
+  lsr
+  lsr
+  lsr
+  tax
+
+  ;; now index into table
+  ;; so now singlexatable,x is the pointer to the right string
+  lda singlexatable,x
+  sta SCRATCH
+  lda singlexatable+1,x
+  sta SCRATCH+1
+  phy
+  ; print the three characters pointed to there
+  ldy #0
+  lda (SCRATCH),y   ; first character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; second character...
+  jsr puta          ; print it
+  iny
+  lda (SCRATCH),y   ; third character...
+  jsr puta          ; print it
+  lda #$20          ; print a space
+  jsr puta
+  ply
+  jmp endline
+
+;;; this is where we end up if we haven't figured anything else out
+;;;
+others
+  lda #'?
+  jsr puta
+  jsr puta
+  jsr puta
+  jmp endline
+
+;; special cases go here
+;;
+dobrk
+  lda #'B
+  jsr puta
+  lda #'R
+  jsr puta
+  lda #'K
+  jsr puta
+  jmp endline
+
+dojsr
+  lda #'J
+  jsr puta
+  lda #'S
+  jsr puta
+  lda #'R
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp abs
+
+dorti
+  lda #'R
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'I
+  jsr puta
+  jmp endline
+
+dorts
+  lda #'R
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'S
+  jsr puta
+  jmp endline
+
+dobra
+  lda #'B
+  jsr puta
+  lda #'R
+  jsr puta
+  lda #'A
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp immb
+
+dotrbzp
+  lda #'T
+  jsr puta
+  lda #'R
+  jsr puta
+  lda #'B
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp zp
+
+dotrbabs
+  lda #'T
+  jsr puta
+  lda #'R
+  jsr puta
+  lda #'B
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp abs
+
+dostzzp
+  lda #'S
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'Z
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp zp
+
+dostzabs
+  lda #'S
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'Z
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp abs
+
+dostzzpx
+  lda #'S
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'Z
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp zpx
+
+dostzabsx
+  lda #'S
+  jsr puta
+  lda #'T
+  jsr puta
+  lda #'Z
+  jsr puta
+  lda #$20
+  jsr puta
+  jmp absx
+
+doplx
+  lda #'P
+  jsr puta
+  lda #'L
+  jsr puta
+  lda #'X
+  jsr puta
+  jmp endline
+
+dophx
+  lda #'P
+  jsr puta
+  lda #'H
+  jsr puta
+  lda #'X
+  jsr puta
+  jmp endline
+
+doply
+  lda #'P
+  jsr puta
+  lda #'L
+  jsr puta
+  lda #'Y
+  jsr puta
+  jmp endline
+
+dophy
+  lda #'P
+  jsr puta
+  lda #'H
+  jsr puta
+  lda #'Y
+  jsr puta
+  jmp endline
+
+doinca
+  lda #'I
+  jsr puta
+  lda #'N
+  jsr puta
+  lda #'C
+  jsr puta
+  lda #$20
+  jsr puta
+  lda #'A
+  jsr puta
+  jmp endline
+
+dodeca
+  lda #'I
+  jsr puta
+  lda #'N
+  jsr puta
+  lda #'C
+  jsr puta
+  lda #$20
+  jsr puta
+  lda #'A
+  jsr puta
+  jmp endline
+
+
+endline
+  jsr crlf
+
+  ;; at this point, Y points to the last processed byte. Increment
+  ;; to move on, and add it to base.
+  iny
+  clc
+  tya               ; move Y to ACC and add to BASE address
+  adc BASE
+  sta BASE          ; low byte
+  lda BASE+1
+  adc #0
+  sta BASE+1        ; high byte
+  ldy #0            ; reset Y
+
+  ;; test if we should terminate... goes here...
+  dec COUNT
+  beq finish
+
+  jmp nextinst
+
+finish
+  rts
+
+
+
+cc01optable
+  .word ORAstr, ANDstr, EORstr, ADCstr, STAstr, LDAstr, CMPstr, SBCstr
+cc01adtable
+  .word izpx, zp, imm, abs, izpy, zpx, absy, absx
+
+cc10optable
+  .word ASLstr, ROLstr, LSRstr, RORstr, STXstr, LDXstr, DECstr, INCstr
+cc10adtable
+  .word imm, zp, acc, abs, izp, zpx, err, absx
+
+cc00optable
+  ;; yes, JMP appears here twice... it's not a mistake...
+  .word TSBstr, BITstr, JMPstr, JMPstr, STYstr, LDYstr, CPYstr, CPXstr
+cc00adtable
+  .word imm, zp, err, abs, err, zpx, err, absx
+
+branchoptable
+  .word BPLstr, BMIstr, BVCstr, BVSstr, BCCstr, BCSstr, BNEstr, BEQstr
+
+single08table
+  .word PHPstr, CLCstr, PLPstr, SECstr, PHAstr, CLIstr, PLAstr, SEIstr
+  .word DEYstr, TYAstr, TAYstr, CLVstr, INYstr, CLDstr, INXstr, SEDstr
+
+singlexatable
+  .word TXAstr, TXSstr, TAXstr, TSXstr, DEXstr, PHXstr, NOPstr, PLXstr
+
+specialcasetable
+  .byte $00
+  .word dobrk
+  .byte $20
+  .word dojsr
+  .byte $40
+  .word dorti
+  .byte $60
+  .word dorts
+  .byte $80
+  .word dobra
+  .byte $14
+  .word dotrbzp
+  .byte $1C
+  .word dotrbabs
+  .byte $64
+  .word dostzzp
+  .byte $9C
+  .word dostzabs
+  .byte $74
+  .word dostzzpx
+  .byte $9E
+  .word dostzabsx
+  .byte $1A
+  .word doinca
+  .byte $3A
+  .word dodeca
+  .byte $5A
+  .word dophy
+  .byte $7A
+  .word doply
+  .byte $DA
+  .word dophx
+  .byte $FA
+  .word doplx
+  .byte $FF
+  .word $FFFF
+
+
+ORAstr .byte "ORA"
+ANDstr .byte "AND"
+EORstr .byte "EOR"
+ADCstr .byte "ADC"
+STAstr .byte "STA"
+LDAstr .byte "LDA"
+CMPstr .byte "CMP"
+SBCstr .byte "SBC"
+ASLstr .byte "ASL"
+ROLstr .byte "ROL"
+LSRstr .byte "LSR"
+RORstr .byte "ROR"
+STXstr .byte "STX"
+LDXstr .byte "LDX"
+DECstr .byte "DEC"
+INCstr .byte "INC"
+NONstr .byte "???"
+BITstr .byte "BIT"
+JMPstr .byte "JMP"
+STYstr .byte "STY"
+LDYstr .byte "LDY"
+CPYstr .byte "CPY"
+CPXstr .byte "CPX"
+BPLstr .byte "BPL"
+BMIstr .byte "BMI"
+BVCstr .byte "BVC"
+BVSstr .byte "BVS"
+BCCstr .byte "BCC"
+BCSstr .byte "BCS"
+BNEstr .byte "BNE"
+BEQstr .byte "BEQ"
+
+PHPstr .byte "PHP"
+CLCstr .byte "CLC"
+PLPstr .byte "PLP"
+SECstr .byte "SEC"
+PHAstr .byte "PHA"
+CLIstr .byte "CLI"
+PLAstr .byte "PLA"
+SEIstr .byte "SEI"
+DEYstr .byte "DEY"
+TYAstr .byte "TYA"
+TAYstr .byte "TAY"
+CLVstr .byte "CLV"
+INYstr .byte "INY"
+CLDstr .byte "CLD"
+INXstr .byte "INX"
+SEDstr .byte "SED"
+
+TXAstr .byte "TXA"
+TXSstr .byte "TXS"
+TAXstr .byte "TAX"
+TSXstr .byte "TSX"
+DEXstr .byte "DEX"
+NOPstr .byte "NOP"
+
+PLXstr .byte "PLA"
+PHXstr .byte "PHX"
+TSBstr .byte "TSB"
+
+errstr .byte "???"
+
+puta
+.(
+  pha
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  pla
+  sta ACIA_DATA
+.)
+  rts
+
+;;;
+;;; output the value in the accumulator as a hex pattern
+;;; NB x cannot be guaranteed to be stack ptr during this... check...
+;;;
+putax
+.(
+  phy
+
+  pha
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  pla
+  pha             ; put a copy back
+  clc
+  and #$f0
+  ror
+  ror
+  ror
+  ror
+  tay
+  lda hextable,y
+  sta ACIA_DATA
+wait_txd_empty2
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty2
+  pla
+  clc
+  and #$0f
+  tay
+  lda hextable,y
+  sta ACIA_DATA
+.)
+  ply
+  rts
+
+crlf
+  pha
+.(
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+.)
+  lda #$0d
+  sta ACIA_DATA
+.(
+wait_txd_empty
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+.)
+  lda #$0a
+  sta ACIA_DATA
+  pla
+  rts
+
+hextable:        .byte "0123456789ABCDEF"
+
+
+;;; this code makes no sense; it's here purely for test purposes
+;;; as a disassembler target
+;;; at first, let's have a bunch of instructions from the cc01 table.
+testcode
+; testing cc=10
+  lda ($01,x)
+  lda $23
+;  lda #45
+;  lda $6789
+;  lda ($ab),y
+  lda $cd,x
+;  lda $ef01,y
+  lda $2345,x
+
+  adc ($01,x)
+  and $23
+  cmp #45
+  eor $6789
+;  lda ($ab),y
+;  ora $cd,x
+  sbc $ef01,y
+  sta $2345,x
+
+; testing cc=01
+  asl
+  dec $1234
+  inc $5678
+;  inc     ;; this is a 65C02 instruction... don't handle it yet?
+  ldx #$9a
+  rol
+  lsr
+; special cases for LDX and STX
+  ldx $00,y
+  stx $01,y
+  ldx $2345,y
+
+; testing cc=00
+  sty $1234
+;  sty $56
+  jmp $789a
+;  cpy #$bc
+  cpx $def0
+
+addr
+; testing branches
+  bne addr
+;  bvc addr
+;  bpl addr
+  beq addr
+
+; testing single-byte instructions
+  php
+;  dey
+;  inx
+;  clc
+  cld
+  pla
+
+; second block
+  tax
+;  dex
+  phx               ; first 65C02 instruction!
+
+; test JSR and indirect jmp
+  jsr $1234
+  jmp ($5678)
+
+; some 65C02 instructions
+  ora ($00AB)
+  lda ($00CD)
+  jmp ($1234,X)
+;  tsb $56
+  tsb $789a
+  bit #$bc
+;  bit $00de,x
+  bit $f012,x
+  bra addr
+  stz $3456,x
+  trb $78
+  phx
+  plx
+  phy
+  ply
+
+; testing special cases (plus padding)
+  rts
+  brk
+  brk
+  brk
+  brk
+  brk
+  brk
+  brk
+  brk
+  brk
+  brk
