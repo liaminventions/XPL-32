@@ -33,6 +33,12 @@
 ; * Thanks to Joe Zbicak for help with Intellision Keyboard BASIC
 ; * This work is dedicated to the memory of my dear hacking pal Michael "acidity" Kollmann.
 
+fat32_workspace = $200      ; two pages
+
+buffer = $400               ; 512 bytes
+endbuf = $600
+
+
 .debuginfo +
 
 .setcpu "6502"
@@ -78,6 +84,12 @@ CRLF_2 := LF
 .zeropage
 .org $0000
 .org ZP_START1
+charbuffer:
+	.res 1
+zp_sd_address:
+	.res 2
+zp_sd_currentsector:
+	.res 4
 GORESTART:
 	.res 3
 GOSTROUT:
@@ -224,6 +236,8 @@ STRNG2:
 	.res 2
 XYLODSAV2:
 	.res 2
+zp_fat32_variables:
+	.res 24
 CHRGET:
 TXTPTR = <(GENERIC_TXTPTR-GENERIC_CHRGET + CHRGET)
 CHRGOT = <(GENERIC_CHRGOT-GENERIC_CHRGET + CHRGET)

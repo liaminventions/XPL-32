@@ -109,13 +109,13 @@ loop:
   jmp loop
 
 
-sd_cmd0_bytes:
+sd_cmd0_bytes
   .byte $40, $00, $00, $00, $00, $95
-sd_cmd8_bytes:
+sd_cmd8_bytes
   .byte $48, $00, $00, $01, $aa, $87
-sd_cmd55_bytes:
+sd_cmd55_bytes
   .byte $77, $00, $00, $00, $00, $01
-sd_cmd41_bytes:
+sd_cmd41_bytes
   .byte $69, $40, $00, $00, $00, $01
 
 

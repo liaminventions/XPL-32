@@ -33,6 +33,12 @@
 ; * Thanks to Joe Zbicak for help with Intellision Keyboard BASIC
 ; * This work is dedicated to the memory of my dear hacking pal Michael "acidity" Kollmann.
 
+fat32_workspace = $200      ; two pages
+
+buffer = $400               ; 512 bytes
+endbuf = $600
+
+
 .debuginfo +
 
 .setcpu "6502"
@@ -78,6 +84,12 @@ CRLF_2 := LF
 .zeropage
 .org $0000
 .org ZP_START1
+charbuffer:
+	.res 1
+zp_sd_address:
+	.res 2
+zp_sd_currentsector:
+	.res 4
 GORESTART:
 	.res 3
 GOSTROUT:
@@ -224,6 +236,8 @@ STRNG2:
 	.res 2
 XYLODSAV2:
 	.res 2
+zp_fat32_variables:
+	.res 24
 CHRGET:
 TXTPTR = <(GENERIC_TXTPTR-GENERIC_CHRGET + CHRGET)
 CHRGOT = <(GENERIC_CHRGOT-GENERIC_CHRGET + CHRGET)
@@ -447,6 +461,17 @@ QT_OK:
 QT_BREAK:
 		.byte CR,LF,"BREAK"
         .byte   0
+
+	.include "hwconfig.s"
+ 	.include "libsd.s"
+  	.include "libfat32.s"
+  	.include "libacia.s"
+	.include "errors.s"
+dirname:
+	.asciiz "FOLDER     "
+errormsg:
+	.byte CR,LF,"ERROR!",CR,LF
+	.byte 0
 		
 ; generic stack and memory management code
 ; this code is identical across all versions of
@@ -5799,12 +5824,14 @@ END_LOAD_MSG:
 	BCC	END_LOAD_MSG
 	LDA	ACIAData
 	STA	XYLODSAV2	; save to tmp var
-	SBC	#$73		; If "s" is pressed
+	CLC
+	SBC	#'s'		; If "s" is pressed
 	BEQ	SERIAL_LOAD	; then load from serial
 	JSR	MONRDKEY
 	BCC	END_LOAD_MSG
 	LDA	XYLODSAV2	; load tmp
-	SBC	#$6D		; If "m" is pressed
+	CLC
+	SBC	#'m'		; If "m" is pressed
 	BEQ	MEMORY_LOAD	; then load from a memory card
 	JMP	END_LOAD_MSG
 JMP_MEMORY_LOAD:
@@ -5874,6 +5901,7 @@ esl2:
   	rts
 
 MEMORY_LOAD:
+
   	pla
   	sta 	XYLODSAV2
   	pla
