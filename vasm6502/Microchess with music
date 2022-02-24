@@ -1,8 +1,8 @@
-;***********************************************************************
+;**************************************************************************
 ;
-;  Kim-1 MicroChess (c) 1976-2005 Peter Jennings, www.benlo.com 
+;  XPL-32 MicroChess (c) 1976-2005-2022 Peter Jennings and Liam Oppenheimer
 ;
-;***********************************************************************
+;**************************************************************************
 
 ; All rights reserved.
 
@@ -39,14 +39,20 @@
 ;
 ; 6551 I/O Port Addresses
 ;
-ACIAdat	= $8000
+
+; haha its me wavrud
+;
+; xpl werks now
+; hehe
+
+ACIAdat	= $8000                  ;screen
 ACIAsta	= $8001
 ACIAcmd	= $8002
 ACIActl	= $8003
 ;
 ; 6581 SID Addresses
 ;
-d400_sVoc1FreqLo = $b800
+d400_sVoc1FreqLo = $b800         ;msuc
 d401_sVoc1FreqHi = $b801
 d402_sVoc1PWidthLo = $b802
 d403_sVoc1PWidthHi = $b803
@@ -129,29 +135,37 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
-  stz $b00c
   lda #0 ; Song Number
-  jsr InitSid
+  jsr InitSid2
+  lda #$40
+  sta $b00d
   cli
   nop
-; You can put code you want to run in the backround here.
 loop:
-  jmp START
+  jmp START ; start microchess
 irq:
-  ; IRQ code goes here
   pha
   phy
   phx
-  lda #$10
-  sta $b00d
+  jsr putbut
   jsr PlaySid
-  nop
   plx
   ply
   pla
   rti
+
+putbut              ldx #$96
+                    stx $b004
+                    stx $b006
+                    ldx #$3a	;60Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
+
+InitSid2            jsr putbut
+                    jmp InitSid
 
   .org $1006
 PlaySid             ldx #$18
@@ -1088,4 +1102,4 @@ OPNING:  	.db $99, $25, $0B, $25, $01, $00, $33, $25
 
 ;
 ; end of file
-;
+

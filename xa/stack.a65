@@ -1,0 +1,106 @@
+;; 16-bit stack stuff -- core functionality
+
+;; Rather like the hadware stack, this stack lives on a dedicated page, and
+;; grows downwards. Unlike the regular stack, this one is a 16-bit stack, used
+;; for operands and parameters.
+;;
+;; the stack lives in the top half of the zero page, and grows downward,
+;; indexed by the x register (so $80+x indicates the next free byte).
+;; $80 and $81 hold the 16-bit value that is either going on to or coming
+;; off the stack.
+;;
+;; since $80,x gives us the next available stack slot, $81,x is the item
+;; on the top of the stack
+;;
+;; We push the big end first, so that the data is on the stack in little-
+;; endian format, which means we can do indirect addressing directly
+;; through objects on the stack.
+
+stackaccess = $0080
+stackbase   = $0000
+
+
+initstack
+  ldx #$FF
+  rts
+
+push16
+  lda stackaccess+1          ; first byte (big end)
+  sta stackbase,x
+  dex
+  lda stackaccess            ; second byte (little end)
+  sta stackbase,x
+  dex
+  rts
+
+pop16
+  lda stackbase+1,x          ; the little end
+  sta stackaccess
+  inx
+  lda stackbase+1,x          ; retrieve second byte
+  sta stackaccess+1
+  inx
+  rts
+
+dup16
+  lda stackbase+2,x          ; copy big end byte to next available slot
+  sta stackbase,x
+  dex
+  lda stackbase+2,x          ; do again for little end
+  sta stackbase,x
+  dex
+  rts
+
+swap16
+  // first, do a dup
+  lda stackbase+2,x          ; copy big end byte to next available slot
+  sta stackbase,x
+  dex
+  lda stackbase+2,x          ; do again for little end
+  sta stackbase,x
+  dex
+  // stack has now grown by one
+  // now copy item from slot 3 to slot 2
+  // low end byte is already in accumulator
+  lda stackbase+5,x
+  sta stackbase+3,x
+  lda stackbase+6,x
+  sta stackbase+4,x
+  // now copy top-of-stack item into slot 3
+  lda stackbase+1,x
+  sta stackbase+5,x
+  lda stackbase+2,x
+  sta stackbase+6,x
+  // discard temporary value on the top of the stack
+  inx
+  inx
+  rts
+
+;; Add the two 16-byte words on the top of the stack, leaving
+;; the result on the stack in their place.
+add16
+  clc                        ; clear carry
+  lda stackbase+1,x          ; add the lower byte
+  adc stackbase+3,x
+  sta stackbase+3,x          ; put it back in the second slot
+  lda stackbase+2,x          ; then the upper byte
+  adc stackbase+4,x
+  sta stackbase+4,x          ; again, back in the second slot
+  inx                        ; shink the stack so that sum is now
+  inx                        ; in the top slot
+  rts
+
+;; Subtract the two 16-byte words on the top of the stack, leaving
+;; the result on the stack in their place.
+sub16
+  sec                        ; set the carry
+  lda stackbase+3,x          ; substract the lower byte
+  sbc stackbase+1,x
+  sta stackbase+3,x          ; put it back in the second slot
+  lda stackbase+4,x          ; then the upper byte
+  sbc stackbase+2,x
+  sta stackbase+4,x          ; again, back in the second slot
+  inx                        ; shink the stack so that result is now
+  inx                        ; in the top slot
+  rts
+

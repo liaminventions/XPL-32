@@ -38,7 +38,7 @@ vdp_reset:
   rts
   rts
   rts
-  rts
+  ets
 
 vdp_reg_reset:
   pha

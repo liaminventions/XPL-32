@@ -24,18 +24,17 @@ d416_sFiltFreqHi = $b816
 d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
-  .org $0fd0
+  .org $0f00
 init:
   sei
   lda #<irq
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
   ; IRQ Inits Go Here
-  lda #0 ; Song Number
-  sta $b00c
+  lda #0 ; Song Numbehr
   jsr InitSid
   cli
   nop
@@ -43,16 +42,33 @@ init:
 loop:
   jmp loop
 irq:
+  pha
+  phx
+  phy
   ; IRQ code goes here
-  lda #$10
+  lda #$40
   sta $b00d
+  jsr putbut
   jsr PlaySid
   nop
+  ply
+  plx
+  pla
   rti
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
 
-  .org $1000
+InitSid             jsr putbut
+                    jmp InitSid2
 
-InitSid             jmp L115b
+	.org $1000
+
+InitSid2            jmp L115b
                     
 PlaySid             jmp L11d7
                     

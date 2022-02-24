@@ -1,0 +1,274 @@
+
+
+;;;
+;;; Basic xmodem implementation (receive only)
+;;; Super simplistic. So far, this (1) doesn't implement any timeouts, and
+;;; (2) bascially presumes that everything goes great or all it all just
+;;; konks out... it presumes blocks will keep on going up and that there
+;;; will never be re-transmissions, etc. All these are reasonable
+;;; assumptions over a USB serial line that's only a couple of feet long.
+;;;
+;;; Paul Dourish, September 2017
+;;;
+
+XBLOCKNO    = $0030
+XBLOCKINV   = $0031
+XBLOCKCOUNT = $0032
+XCHKSUM     = $0033
+XDESTADDR   = $0034 ; and $0035
+BUFFER      = $0036 ; and $0037
+
+
+
+;; entry point
+;;
+xmodemrecv
+  ;; first, print a message announcing that we're listening
+  ldy #0
+.(
+next_char
+wait_txd_empty  
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  lda startstr,y
+  beq endstr
+  sta ACIA_DATA
+  iny
+  bra next_char
+endstr
+  jsr crlf
+.)
+
+.(
+  phx               ; preserve operand stack pointer
+
+  stz XBLOCKCOUNT
+  ldy #$0
+  ldx #0
+
+  ;; okay, now we wait for transmission to start. the deal here is that
+  ;; we are meant to listen with 10-second timeouts, and sent a NACK
+  ;; every ten seconds, one of which will signal to the other end that
+  ;; we are ready to go. However, we don't have a timer set up anywhere.
+  ;; so I'm going to cheat -- we will basically listen for 256x256 loops,
+  ;; and send an ACK after that. it will actually just be a second or two.
+waitstart
+  ldy #$0
+  ldx #$0
+.(
+wait_rxd_full    
+  inx               ; counting up to 256
+  beq bumpy         ; count cycled, so increment Y
+  lda ACIA_STATUS
+  and #$08
+  beq wait_rxd_full
+  jmp gotfirstchar
+bumpy
+  iny               ; counting up to 256
+  beq sendnack      ; Y has cycled, so we've looped 256*256 times
+  bra wait_rxd_full  
+sendnack
+  ;; send a nack
+  lda #$15
+  jsr puta
+  bra wait_rxd_full
+.)
+gotfirstchar
+  ldx #$0           ; reset X and Y
+  ldy #$0
+
+nextblock
+;; check header data and block number
+processbuffer
+  jsr getserial     ; get first character (if we don't already have it)
+  cmp #$04          ; end-of-transmission?
+  beq endoftransmission
+  cmp #$01          ; start-of-header?
+  beq processblock
+  jsr headererror
+  jmp xmerror
+
+processblock
+  ;; get block number and inverse block number
+  jsr getserial
+  sta XBLOCKNO
+  jsr getserial
+  sta XBLOCKINV
+  sec
+  lda #255
+  sbc XBLOCKNO
+  cmp XBLOCKINV     ; does block number match inverse block number?
+  beq checkblockcount
+  jsr blockcounterror
+  jmp xmerror
+
+checkblockcount
+  inc XBLOCKCOUNT
+  lda XBLOCKCOUNT
+  cmp XBLOCKNO      ; does it match what we were expecting?
+  beq processdata
+  jsr blockcounterror
+  jmp xmerror
+
+processdata
+  stz XCHKSUM
+  ldy #0
+nextbyte
+  jsr getserial
+  sta (XDESTADDR),y
+  clc
+  adc XCHKSUM
+  sta XCHKSUM
+  iny
+  cpy #$80
+  bne nextbyte
+endofblock
+  jsr getserial
+  cmp XCHKSUM
+  beq checksumok
+  jsr putax
+  lda XCHKSUM
+  jsr putax
+  jsr checksumerror
+  jmp xmerror
+checksumok
+  ;; send an ACK
+  lda #$06
+  jsr puta
+
+  ;; update the destination address by 128 ($80)
+  lda #$80
+  clc
+  adc XDESTADDR
+  sta XDESTADDR
+  lda XDESTADDR+1
+  adc #0
+  sta XDESTADDR+1
+  ;; and loop for next block
+
+  bra nextblock
+
+;; Send an ACK. Pause briefly to allow the connection to be torn down.
+;; Then print a message to signal successful completion.
+endoftransmission
+  ;; send an ACK
+  lda #$06
+  jsr puta
+
+.(
+  ;; this is just to generate a pause. entirely arbitrary.
+  ;; (had to make this longer after i upped the clock speed)
+  ;; i've seen other code flush the buffer and just wait until there's
+  ;; been no new transmission for a period of a second or so. that might
+  ;; work better...
+  ;;
+  lda #$30
+fullloop
+  ldy #$0
+busywait
+  iny
+  bne busywait
+  dec
+  bne fullloop
+.)  
+
+  jsr crlf
+  ldy #0
+.(
+next_char
+wait_txd_empty  
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  lda recvdstr,y
+  beq endstr
+  sta ACIA_DATA
+  iny
+  bra next_char
+endstr
+  jsr crlf
+.)
+  jmp endxmodem
+
+xmerror
+
+endxmodem
+  plx               ; restore operand stack pointer in x
+  rts
+.)
+
+
+;; get a character from the serial port
+;;
+getserial
+.(
+wait_rxd_full    
+  lda ACIA_STATUS
+  and #$08
+  beq wait_rxd_full
+.)
+  lda ACIA_DATA
+  rts
+
+
+checksumerror
+  ldy #0
+.(
+next_char
+wait_txd_empty  
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  lda chksmerrstr,y
+  beq endstr
+  sta ACIA_DATA
+  iny
+  bra next_char
+endstr
+  jsr crlf
+.)
+  rts
+
+headererror
+  ldy #0
+.(
+next_char
+wait_txd_empty  
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  lda headerrstr,y
+  beq endstr
+  sta ACIA_DATA
+  iny
+  bra next_char
+endstr
+  jsr crlf
+.)
+  rts
+
+blockcounterror
+  ldy #0
+.(
+next_char
+wait_txd_empty  
+  lda ACIA_STATUS
+  and #$10
+  beq wait_txd_empty
+  lda blockerrstr,y
+  beq endstr
+  sta ACIA_DATA
+  iny
+  bra next_char
+endstr
+  jsr crlf
+.)
+  rts
+
+
+startstr:   .byte "xmodem listening", $00
+recvdstr:   .byte "xmodem received", $00
+blockerrstr:.byte "block count error", $00
+chksmerrstr:.byte "checksum errror", $00
+headerrstr: .byte "header error", $00

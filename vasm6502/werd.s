@@ -3,6 +3,8 @@ d404_sVoc1Control = $b804
 d40b_sVoc2Control = $b80b
 d412_sVoc3Control = $b812
 
+poll = $8001
+
   .org $0f00
 init:
   sei
@@ -10,26 +12,53 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
-  ; IRQ Inits Go Here
   lda #0 ; Song Number
-  sta $b00c
-  jsr InitSid
+  jsr InitSid2
+  lda #$40
+  sta $b00d
   cli
   nop
 ; You can put code you want to run in the backround here.
 loop:
   jmp loop
 irq:
-  ; IRQ code goes here
-  lda #$10
-  sta $b00d
+  jsr putbut
+check:
+  sei
+  lda poll
+  and #$08
+  beq cont
+  jmp clear
+cont:
   jsr PlaySid
-  nop
+  cli
   rti
+clear:
+  ldx #$18
+  lda #$00
+cloop:
+  sta d400_sVoc1FreqLo,x
+  dex
+  beq end
+  jmp cloop
+end:
+  jmp ($fffc)
+
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
+
+InitSid2            jsr putbut
+                    jmp InitSid
 
   .org $1006
+
 PlaySid             ldx #$18
 L1008               lda $04,x
                     sta d400_sVoc1FreqLo,x

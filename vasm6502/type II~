@@ -1,5 +1,5 @@
 ; XPL-32 <FOLDER> type loading code
-; Copyleft 2021 Liam Oppenheimer
+; (c) 2022 Liam Oppenheimer
 
 charbuffer = $601            ; 1 byte
 
@@ -118,7 +118,7 @@ donemsg:
 loadmsg:
   .byte "          -------- SD Loader --------     ", $0d, $0a, $00
 lodmm:
-  .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $00
+  .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
 
 typemsg:
   .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 9 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
@@ -231,6 +231,7 @@ end:
   ldx #<donemsg
   ldy #>donemsg
   jsr w_acia_full
+  jsr $0f00
   rts
   rts
   rts
