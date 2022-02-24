@@ -1,0 +1,14 @@
+LIST
+
+ 5 PRINT CHR$(12)
+ 10 PRINT "Text Game Test"
+ 20 PRINT "You Land In Ebut Field. You see a Ha in
+ 30 PRINT "The Ha has a pitchfork."
+ 40 PRINT "What do you want to do?"
+ 50 INPUT A$
+ 60 IF A$ = "walk to ha" : GOTO 80
+ 70 IF A$="walk away from ha"
+ 80 PRINT "You walk to the Ha."
+ 90 PRINT "'AAAAAAHHH!!' The Ha says."
+ 100 PRINT "'I guess my prediction was correct!'"
+OK

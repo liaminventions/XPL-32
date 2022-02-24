@@ -1,0 +1,62 @@
+SID = $b800
+FREQ_LO1 = SID
+FREQ_HI1 = SID + 1
+PW_LO1 = SID + 2
+PW_HI1 = SID + 3
+CONTROL1 = SID + 4
+AD1 = SID + 5
+SR1 = SID + 6
+
+FREQ_LO2 = SID + 7
+FREQ_HI2 = SID + 8
+PW_LO2 = SID + 9
+PW_HI2 = SID + 10
+CONTROL2 = SID + 11
+AD2 = SID + 12
+SR2 = SID + 13
+
+FREQ_LO3 = SID + 14
+FREQ_HI3 = SID + 15
+PW_LO3 = SID + 16
+PW_HI3 = SID + 17
+CONTROL3 = SID + 18
+AD3 = SID + 19
+SR3 = SID + 20
+
+FC_LO = SID + 21
+FC_HI = SID + 22
+RST_FTR = SID + 23
+MOD_VOL = SID + 24
+
+POTX = SID + 25
+POTY = SID + 26
+RND = SID + 27
+ENV3 = SID + 28
+
+  
+
+  .org $1000
+
+reset:
+  ldx #$ff
+  txs
+
+  lda #$0f
+  sta MOD_VOL
+  
+  lda #0
+  sta FREQ_LO1
+
+  lda #$10
+  sta FREQ_HI1
+  
+  lda #$44
+  sta CONTROL1
+ 
+  lda #$ff
+  sta AD1
+
+  jmp loop
+
+loop:
+  jmp loop

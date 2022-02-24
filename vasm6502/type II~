@@ -1,0 +1,238 @@
+; XPL-32 <FOLDER> type loading code
+; Copyleft 2021 Liam Oppenheimer
+
+charbuffer = $601            ; 1 byte
+
+seed = $01
+
+zp_sd_address = $40         ; 2 bytes
+zp_sd_currentsector = $42   ; 4 bytes
+zp_fat32_variables = $46    ; 24 bytes
+
+fat32_workspace = $200      ; two pages
+
+buffer = $400               ; 512 bytes
+endbuf = $600
+
+
+  .org $0600
+jumptoit:
+  jmp sdstart
+  .include "hwconfig.s"
+  .include "libsd.s"
+  .include "libfat32.s"
+  .include "libacia.s"
+  .include "errors.s"
+
+dirname:
+  .asciiz "FOLDER     "
+
+errormsg:
+  .byte $0d, $0a, "ERROR!", $0d, $0a, $00
+
+sdstart:
+  stz $00
+
+  lda #$55
+  sta seed
+
+  jsr cleardisplay
+
+  ldx  #<loadmsg
+  ldy  #>loadmsg
+  jsr  w_acia_full
+
+  ldx  #<lodmm
+  ldy  #>lodmm
+  jsr  w_acia_full
+
+  jsr rootsetup
+
+findrau:
+  jmp type
+
+rootsetup:
+  pha
+  phx
+  phy
+  ; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<dirname
+  ldy #>dirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+error:
+
+  ; Subdirectory not found
+  ldy #>errormsg
+  ldx #<errormsg
+  jsr w_acia_full
+  jsr error_sound
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent
+
+  ply
+  plx 
+  pla
+  rts
+
+
+type:
+  ldx #<typemsg
+  ldy #>typemsg
+  jsr w_acia_full
+  ldx #0
+  lda #' '
+  sta $04
+  jmp typeloop
+
+rxpol:
+  lda $8001
+  and #$08
+  beq rxpol
+  rts
+
+rxput:
+  lda $8001
+  and #$08
+  beq typelop
+  rts
+typelop:
+  jmp typeloop
+
+lodmsg:
+  .byte $0d, $0a, "Loading...", $0d, $0a, $00
+donemsg:
+  .byte "Done. You can run this file by typing 'go 0f00' <ENTER>", $0d, $0a, $00
+
+loadmsg:
+  .byte "          -------- SD Loader --------     ", $0d, $0a, $00
+lodmm:
+  .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $00
+
+typemsg:
+  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 9 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+
+loadbuf:
+  .byte $20, $20, $20, $20, $20, $20, $20, $20
+  .byte "XPL"
+
+other:
+  jsr txpoll
+  lda (zp_sd_address),y
+  sta $8000
+  iny
+  rts
+
+list:
+  jsr fat32_readdirent
+  bcs nofiles
+  and #$40
+  beq arc
+dir:
+  lda #'D'
+  jmp ebut
+arc:
+  lda #'F'
+ebut:
+  jsr print_chara
+  lda #$20
+  jsr print_chara
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda #'.'
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara
+  jmp list ; go again
+nofiles:
+endlist:
+  jsr crlf
+  jmp type
+
+jumptolist:
+  jsr crlf
+  jmp list
+
+typeloop:
+
+  jsr rxpol
+  lda $8000
+  sta charbuffer
+
+  cmp #$0d
+  beq exitloop
+
+  lda charbuffer
+  cmp #'l'
+  beq jumptolist
+
+  lda charbuffer
+  sta $8000
+
+  lda charbuffer
+  sta loadbuf,x
+  inx
+  jmp typeloop
+
+exitloop:
+
+  jsr crlf
+  jsr rootsetup
+  
+  ldy #>loadbuf
+  ldx #<loadbuf
+  jsr fat32_finddirent
+  bcc foundfile
+  
+  ; File not found
+  jmp error
+
+foundfile
+ 
+  ; Open file
+  jsr fat32_opendirent
+
+  ldx #<lodmsg
+  ldy #>lodmsg
+  jsr w_acia_full
+
+  lda #$00
+  sta fat32_address
+  lda #$0f
+  sta fat32_address+1
+
+  jsr fat32_file_read  ; Yes. It is finally time to read the file.
+
+end:
+  ldx #<donemsg
+  ldy #>donemsg
+  jsr w_acia_full
+  rts
+  rts
+  rts
+  rts
+; end of code

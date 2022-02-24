@@ -1,0 +1,53 @@
+CHAR = $4000
+VRAM = $5000
+VREG = $5001
+PORTB = $6000
+PORTA = $6001
+DDRB = $6002
+DDRA = $6003
+PCR = $600c
+IFR = $600d
+IER = $600e
+SADDR = $7000
+SDTA = $7001
+
+
+K = %00000001
+
+  .org $8000
+
+reset:
+  ldx #$ff
+  txs
+
+
+  lda #%00000000 ; Set pins on Port B (Columns and Rows)
+  sta DDRB
+  lda #%00101001 ; Set pins on port A (KEY, U, D, nope, A, nope, R, L)
+  sta DDRA
+
+  ; On the left in DDRA/B, That is PA/B D7. Therefore, On the right is D0. (On 65C22)
+  
+  ldx #0
+code:
+  lda #$0b
+  sta VREG
+  
+  lda #$87
+  sta VREG
+
+  jsr loop
+
+loop
+  jmp loop
+
+nmi:
+  rti
+
+irq:
+  rti
+
+  .org $fffa
+  .word nmi
+  .word reset
+  .word irq

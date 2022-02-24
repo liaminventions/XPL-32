@@ -1,0 +1,81 @@
+VERA = $9f20
+ADDRL = VERA
+ADDRM = VERA + 1
+ADDRH = VERA + 2
+VDATA0 = VERA + 3
+VDATA1 = VERA + 4
+CTRL = VERA + 5
+IEN = VERA + 6
+ISR = VERA + 7
+IRQLINE_L = VERA + 7
+DC_VIDEO = VERA + 8
+DC_HSCALE = VERA + 9
+DC_VSCALE = VERA + 10
+DC_BORDER = VERA + 11
+DC_HSTART = VERA + 12
+DC_HSTOP = VERA + 13
+DC_VSTART = VERA + 14
+DC_VSTOP = VERA + 15
+LO_CONFIG = VERA + 16
+LO_MAPBASE = VERA + 17
+LO_TILEBASE = VERA + 18
+LO_HSCROLL_L = VERA + 19
+LO_HSCROLL_H = VERA + 20
+LO_VSCROLL_L = VERA + 21
+LO_VSCROLL_H = VERA + 22
+LI_CONFIG = VERA + 23
+LI_MAPBASE = VERA + 24
+LI_TILEBASE = VERA + 25
+LI_HSCROLL_L = VERA + 26
+LI_HSCROLL_H = VERA + 27
+LI_VSCROLL_L = VERA + 28
+LI_VSCROLL_H = VERA + 29
+AUDIO_CTRL = VERA + 30
+AUDIO_RATE = VERA + 31
+AUDIO_DATA = VERA + 32
+SPI_DATA = VERA + 33
+SPI_CTRL = VERA + 34
+
+VIA1 = $9f60
+PORTB1 = VIA1
+PORTA1 = VIA1 + 1
+DDRB1 = VIA1 + 2
+DDRA1 = VIA1 + 3
+
+VIA2 = $9f70
+PORTB2 = VIA2
+PORTA2 = VIA2 + 1
+DDRB2 = VIA2 + 2
+DDRA2 = VIA2 + 3
+
+
+ .org $0800
+
+start:
+
+  ldx #$ff
+  txs
+ 
+  lda #$80 ; Reset VERA
+  sta CTRL
+ 
+  lda #0
+  sta CTRL
+  sta ADDRL
+  sta ADDRM
+
+  lda #$10 ; Auto-Increment
+  sta ADDRH 
+
+  ldy #$ff
+  lda #$ff
+
+fill:
+  sta VDATA0
+  dey
+  beq loop
+  jmp fill
+
+loop:
+  jmp loop
+  

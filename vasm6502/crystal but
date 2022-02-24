@@ -1,0 +1,731 @@
+InitSid             jmp L0807
+                    
+PlaySid             jmp L0894
+                    
+                    00 
+L0807               asl a
+                    asl a
+                    asl a
+                    tay
+                    ldx #$84
+                    lda #$00
+L080f               dex
+                    sta $0e96,x
+                    bne L080f
+                    lda #$00
+                    sta $0f18
+                    sta $0f15
+                    sta $0892
+                    sta $0806
+                    lda #$01
+                    sta $0e93
+                    sta $0f19
+                    lda #$0f
+                    sta $0893
+                    sta $0f14
+                    lda $0ff2,y
+                    sta $0e94
+                    sta $0e95
+                    cmp #$02
+                    bpl L0847
+                    tay
+                    lda $132e,y
+                    sta $0e95
+L0847               ldx #$00
+                    jsr S0853
+                    ldx #$07
+                    jsr S0853
+                    ldx #$0e
+S0853               lda $0fec,y
+                    sta $0f1a,x
+                    sta $0f1c,x
+                    lda $0fed,y
+                    sta $0f1b,x
+                    sta $0f1d,x
+                    iny
+                    iny
+                    lda #$01
+                    sta $0e9a,x
+                    sta $0eea,x
+                    sta $0eec,x
+                    sta $0ec6,x
+                    lda #$00
+                    sta $0ed8,x
+                    rts
+                    
+                                                     00 00 00 00 00 
+                    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+                    00 00 00 00 
+L0894               jsr S08e6
+                    lda $0890
+                    sta d415_sFiltFreqLo
+                    lda $0891
+                    sta d416_sFiltFreqHi
+                    lda $0892
+                    sta d417_sFiltControl
+                    lda $0893
+                    sta d418_sFiltMode
+                    ldx #$00
+                    jsr S08bb
+                    ldx #$07
+                    jsr S08bb
+                    ldx #$0e
+S08bb               lda $087b,x
+                    sta d400_sVoc1FreqLo,x
+                    lda $087c,x
+                    sta d401_sVoc1FreqHi,x
+                    lda $0881,x
+                    sta d406_sVoc1SusRel,x
+                    lda $0880,x
+                    sta d405_sVoc1AttDec,x
+                    lda $087d,x
+                    sta d402_sVoc1PWidthLo,x
+                    lda $087e,x
+                    sta d403_sVoc1PWidthHi,x
+                    lda $087f,x
+                    sta d404_sVoc1Control,x
+                    rts
+                    
+S08e6               dec $0e93
+                    bpl L091d
+                    lda $0f19
+                    beq L08fb
+                    dec $0f19
+                    lda #$01
+                    sta $0e93
+                    jmp L091d
+                    
+L08fb               lda $0e94
+                    cmp #$02
+                    bpl L091a
+                    ldy $0f18
+                    lda $132e,y
+                    sta $0e95
+                    iny
+                    lda $132e,y
+                    bpl L0914
+                    and #$7f
+                    tay
+L0914               sty $0f18
+                    lda $0e95
+L091a               sta $0e93
+L091d               ldy #$00
+                    bne L0924
+                    jmp L098f
+                    
+L0924               dec $0f16
+                    bpl L097b
+                    ldy $0f17
+                    sty L091d + 1
+                    beq L098f
+                    lda $1234,y
+                    bpl L0959
+                    and #$70
+                    sta $0f15
+                    ora $0f14
+                    sta $0893
+                    lda $1235,y
+                    sta $0892
+                    lda $1236,y
+                    cmp #$ff
+                    beq L0954
+                    sta $0985
+                    sta $0891
+L0954               lda #$00
+                    sta L097b + 1
+L0959               sta $0f16
+                    lda $1237,y
+                    bne L096a
+                    lda $0f17
+                    clc
+                    adc #$04
+                    jmp L0975
+                    
+L096a               cmp #$7f
+                    bne L0973
+                    lda #$00
+                    jmp L0975
+                    
+L0973               asl a
+                    asl a
+L0975               sta $0f17
+                    jmp L098f
+                    
+L097b               lda #$00
+                    clc
+                    adc $1235,y
+                    sta L097b + 1
+                    lda #$00
+                    adc $1236,y
+                    sta $0985
+                    sta $0891
+L098f               lda $0e93
+                    bne L0997
+                    jmp L0a6b
+                    
+L0997               cmp $0e95
+                    bne L099f
+                    jmp L0ad9
+                    
+L099f               ldx #$00
+                    jsr S09ab
+                    ldx #$07
+                    jsr S09ab
+                    ldx #$0e
+S09ab               lda $0e93
+                    cmp $0e96,x
+                    bne L09b8
+                    dec $0e98,x
+                    bmi L09bb
+L09b8               jmp L0bd3
+                    
+L09bb               lda #$00
+                    sta $0e9a,x
+                    sta $0a2c
+                    ldy $0ec0,x
+                    lda $1088,y
+                    sta $fe
+                    lda $10b8,y
+                    sta $ff
+                    ldy $0ec1,x
+L09d3               lda ($fe),y
+                    cmp #$c0
+                    bcs L0a0a
+                    cmp #$5f
+                    bcc L09f2
+                    sbc #$60
+                    bpl L09ea
+                    lda #$80
+                    sta $0e9a,x
+                    iny
+                    jmp L09d3
+                    
+L09ea               pha
+                    iny
+                    lda ($fe),y
+                    sta $0a2c
+                    pla
+L09f2               cmp #$03
+                    bcs L0a23
+                    inc $0e9a,x
+                    sbc #$00
+                    bmi L0a02
+                    eor #$fe
+                    sta $0ec2,x
+L0a02               lda $0a2c
+                    beq L0a3f
+                    jmp L0a2d
+                    
+L0a0a               cmp #$f0
+                    bmi L0a17
+                    and #$0f
+                    sta $0eb1,x
+                    iny
+                    jmp L09d3
+                    
+L0a17               sbc #$bf
+                    sta $0ead,x
+                    inc $0eec,x
+                    iny
+                    jmp L09d3
+                    
+L0a23               sta $0eae,x
+                    lda #$00
+                    sta $0e9c,x
+                    lda #$00
+L0a2d               cmp #$40
+                    bcc L0a37
+                    sta $0e9b,x
+                    jmp L0a3f
+                    
+L0a37               sta $0e9c,x
+                    lda #$00
+                    sta $0eac,x
+L0a3f               iny
+                    beq L0a4c
+                    tya
+                    sta $0ec1,x
+                    lda ($fe),y
+                    cmp #$bf
+                    bne L0a4f
+L0a4c               inc $0eea,x
+L0a4f               lda $0eb1,x
+                    sta $0e98,x
+                    lda $0eeb,x
+                    sta $0e99,x
+                    lda $0e9a,x
+                    bpl L0a63
+                    jmp L0bb5
+                    
+L0a63               bne L0a68
+                    jmp L0b1e
+                    
+L0a68               jmp L0bdb
+                    
+L0a6b               ldx #$00
+                    jsr S0a77
+                    ldx #$07
+                    jsr S0a77
+                    ldx #$0e
+S0a77               lda $0eea,x
+                    beq L0ace
+                    sec
+                    sbc #$01
+                    sta $0ec1,x
+                    lda $0f1c,x
+                    sta $fe
+                    lda $0f1d,x
+                    sta $ff
+                    ldy #$00
+                    lda ($fe),y
+                    bpl L0a9b
+                    sec
+                    sbc #$a0
+                    sta $0eeb,x
+                    iny
+                    lda ($fe),y
+L0a9b               sta $0ec0,x
+                    iny
+                    lda ($fe),y
+                    cmp #$f0
+                    bcc L0abc
+                    and #$03
+                    pha
+                    iny
+                    lda ($fe),y
+                    clc
+                    adc $0f1a,x
+                    sta $0f1c,x
+                    pla
+                    adc $0f1b,x
+                    sta $0f1d,x
+                    jmp L0ac9
+                    
+L0abc               tya
+                    clc
+                    adc $0f1c,x
+                    sta $0f1c,x
+                    bcc L0ac9
+                    inc $0f1d,x
+L0ac9               lda #$00
+                    sta $0eea,x
+L0ace               lda $0ec6,x
+                    beq L0ad6
+                    jmp L0b47
+                    
+L0ad6               jmp L0bdb
+                    
+L0ad9               ldx #$00
+                    jsr S0ae5
+                    ldx #$07
+                    jsr S0ae5
+                    ldx #$0e
+S0ae5               lda $0eae,x
+                    clc
+                    adc $0e99,x
+                    sta $0eaf,x
+                    lda $0ec2,x
+                    beq L0af7
+                    sta $0eb0,x
+L0af7               ldy $0e9a,x
+                    beq L0b08
+                    lda $0eb0,x
+                    and $0ec5,x
+                    sta $087f,x
+                    jmp L0b13
+                    
+L0b08               lda #$ff
+                    sta $0eb0,x
+                    and $0ec5,x
+                    sta $087f,x
+L0b13               lda #$00
+                    sta $0ec6,x
+                    sta $0ec2,x
+                    jmp L0c65
+                    
+L0b1e               ldy $0ead,x
+                    lda $1139,y
+                    sta $0881,x
+                    lda #$0f
+                    sta $0880,x
+                    lda $111e,y
+                    sta $0ec6,x
+                    bmi L0b3b
+                    and #$10
+                    lsr a
+                    sta $087f,x
+                    rts
+                    
+L0b3b               lda #$fe
+                    sta $0eb0,x
+                    and $0ec5,x
+                    sta $087f,x
+                    rts
+                    
+L0b47               ldy $0ead,x
+                    lda $0eec,x
+                    beq L0b62
+                    lda #$00
+                    sta $0eec,x
+                    lda $1154,y
+                    sta $0eee,x
+                    lda $111e,y
+                    and #$0f
+                    sta $0e96,x
+L0b62               lda $1103,y
+                    sta $0881,x
+                    lda $10e8,y
+                    sta $0880,x
+                    lda #$01
+                    sta $087f,x
+                    lda $11a5,y
+                    sta $0eef,x
+                    lda $118a,y
+                    beq L0b9e
+                    bpl L0b8e
+                    sta $087e,x
+                    lda #$00
+                    sta $087d,x
+                    sta $0ed7,x
+                    jmp L0b9e
+                    
+L0b8e               asl a
+                    asl a
+                    sta $0ed7,x
+                    sta $0ed9,x
+                    lda #$00
+                    sta $0ed8,x
+                    ldy $0ead,x
+L0b9e               lda $116f,y
+                    beq L0bb5
+                    bpl L0ba8
+                    jmp L0bb5
+                    
+L0ba8               asl a
+                    asl a
+                    sta L091d + 1
+                    sta $0f17
+                    lda #$00
+                    sta $0f16
+L0bb5               lda #$80
+                    sta $0eff,x
+                    lda #$00
+                    sta $0f00,x
+                    sta $0eed,x
+                    sta $0eac,x
+                    lda $0eae,x
+                    clc
+                    adc $0e99,x
+                    cmp $0eaf,x
+                    ror $0f03,x
+                    rts
+                    
+L0bd3               lda $0ec6,x
+                    beq L0bdb
+                    bmi L0bdb
+                    rts
+                    
+L0bdb               ldy $0ed7,x
+                    beq L0c27
+                    dec $0ed8,x
+                    bpl L0c2a
+                    lda $0ed9,x
+                    sta $0ed7,x
+                    beq L0c27
+                    tay
+                    lda $12b9,y
+                    cmp #$ff
+                    beq L0c03
+                    sta $0ed6,x
+                    sta $087e,x
+                    and #$f0
+                    sta $0ed5,x
+                    sta $087d,x
+L0c03               lda $12b7,y
+                    and #$7f
+                    sta $0ed8,x
+                    lda $12ba,y
+                    bne L0c19
+                    lda $0ed9,x
+                    clc
+                    adc #$04
+                    jmp L0c24
+                    
+L0c19               cmp #$7f
+                    bne L0c22
+                    lda #$00
+                    jmp L0c24
+                    
+L0c22               asl a
+                    asl a
+L0c24               sta $0ed9,x
+L0c27               jmp L0ce0
+                    
+L0c2a               lda $12b7,y
+                    bmi L0c4a
+                    lda $0ed5,x
+                    clc
+                    adc $12b8,y
+                    sta $0ed5,x
+                    sta $087d,x
+                    lda $0ed6,x
+                    adc #$00
+                    sta $0ed6,x
+                    sta $087e,x
+                    jmp L0ce0
+                    
+L0c4a               lda $0ed5,x
+                    sec
+                    sbc $12b8,y
+                    sta $0ed5,x
+                    sta $087d,x
+                    lda $0ed6,x
+                    sbc #$00
+                    sta $0ed6,x
+                    sta $087e,x
+                    jmp L0ce0
+                    
+L0c65               lda $0e9b,x
+                    bne L0c6d
+                    jmp L0ce0
+                    
+L0c6d               cmp #$a0
+                    bcs L0c7d
+                    and #$1f
+                    tay
+                    lda $133b,y
+                    sta $0eff,x
+                    jmp L0cdb
+                    
+L0c7d               cmp #$b0
+                    bcs L0c97
+                    asl a
+                    asl a
+                    asl a
+                    asl a
+                    sta $fe
+                    ldy $0ead,x
+                    lda $10e8,y
+                    and #$0f
+                    ora $fe
+                    sta $0880,x
+                    jmp L0cdb
+                    
+L0c97               cmp #$d0
+                    bcs L0cb1
+                    asl a
+                    asl a
+                    asl a
+                    asl a
+                    sta $fe
+                    ldy $0ead,x
+                    lda $1103,y
+                    and #$0f
+                    ora $fe
+                    sta $0881,x
+                    jmp L0cdb
+                    
+L0cb1               cmp #$e0
+                    bcs L0cc9
+                    and #$0f
+                    sta $fe
+                    ldy $0ead,x
+                    lda $1103,y
+                    and #$f0
+                    ora $fe
+                    sta $0881,x
+                    jmp L0cdb
+                    
+L0cc9               cmp #$f0
+                    bcs L0cdb
+                    and #$0f
+                    sta $0f14
+                    ora $0f15
+                    sta $0893
+                    jmp L0cdb
+                    
+L0cdb               lda #$00
+                    sta $0e9b,x
+L0ce0               ldy $0eef,x
+                    beq L0ce8
+                    jmp L0e09
+                    
+L0ce8               lda $0e9c,x
+                    bne L0cf9
+                    ldy $0eaf,x
+                    lda $0e9a,x
+                    bmi L0cf6
+                    rts
+                    
+L0cf6               jmp L0e80
+                    
+L0cf9               cmp #$20
+                    bcs L0d4f
+                    ldy $0eac,x
+                    bne L0d17
+                    and #$0f
+                    tay
+                    inc $0eac,x
+                    lda $130e,y
+                    sta $0f01,x
+                    lda $131e,y
+                    sta $0f02,x
+                    lda $0e9c,x
+L0d17               cmp #$10
+                    bcs L0d35
+L0d1b               lda $0ec3,x
+                    clc
+                    adc $0f01,x
+                    sta $0ec3,x
+                    sta $087b,x
+                    lda $0ec4,x
+                    adc $0f02,x
+                    sta $0ec4,x
+                    sta $087c,x
+                    rts
+                    
+L0d35               lda $0ec3,x
+                    sec
+                    sbc $0f01,x
+                    sta $0ec3,x
+                    sta $087b,x
+                    lda $0ec4,x
+                    sbc $0f02,x
+                    sta $0ec4,x
+                    sta $087c,x
+                    rts
+                    
+L0d4f               cmp #$30
+                    bcs L0d96
+                    ldy $0eac,x
+                    bne L0d7b
+                    inc $0eac,x
+                    and #$0f
+                    asl a
+                    tay
+                    lda #$00
+                    sta $0f03,x
+                    sta $0f02,x
+                    lda $12ee,y
+                    sta $0eda,x
+                    lsr a
+                    sta $0edb,x
+                    lda $12ef,y
+                    asl a
+                    rol $0f02,x
+                    sta $0f01,x
+L0d7b               dec $0edb,x
+                    bpl L0d8e
+                    lda $0eda,x
+                    sta $0edb,x
+                    lda $0f03,x
+                    eor #$80
+                    sta $0f03,x
+L0d8e               lda $0f03,x
+                    bmi L0d35
+                    jmp L0d1b
+                    
+L0d96               and #$0f
+                    tay
+                    lda $0f03,x
+                    bpl L0dc5
+                    lda $0ec3,x
+                    clc
+                    adc $130e,y
+                    sta $0ec3,x
+                    lda $0ec4,x
+                    adc $131e,y
+                    sta $0ec4,x
+                    ldy $0eaf,x
+                    lda $0ec3,x
+                    cmp $0f2c,y
+                    lda $0ec4,x
+                    sbc $0f8c,y
+                    bcc L0dfc
+                    jmp L0de9
+                    
+L0dc5               lda $0ec3,x
+                    sec
+                    sbc $130e,y
+                    sta $0ec3,x
+                    lda $0ec4,x
+                    sbc $131e,y
+                    sta $0ec4,x
+                    ldy $0eaf,x
+                    lda $0ec3,x
+                    cmp $0f2c,y
+                    lda $0ec4,x
+                    sbc $0f8c,y
+                    bcs L0dfc
+L0de9               lda $0f2c,y
+                    sta $0ec3,x
+                    sta $087b,x
+                    lda $0f8c,y
+                    sta $0ec4,x
+                    sta $087c,x
+                    rts
+                    
+L0dfc               lda $0ec3,x
+                    sta $087b,x
+                    lda $0ec4,x
+                    sta $087c,x
+                    rts
+                    
+L0e09               dec $0eed,x
+                    bpl L0e6e
+                    lda $0eee,x
+                    sta $0eed,x
+                    lda $11bf,y
+                    sta $0ef0,x
+                    lda $11fb,y
+                    cmp #$10
+                    bcc L0e30
+                    cmp #$e0
+                    bcc L0e27
+                    and #$0f
+L0e27               sta $0ec5,x
+                    and $0eb0,x
+                    sta $087f,x
+L0e30               lda $11c0,y
+                    cmp #$7e
+                    beq L0e4c
+                    iny
+                    cmp #$7f
+                    bne L0e40
+                    lda $11fb,y
+                    tay
+L0e40               lda $11fb,y
+                    beq L0e4c
+                    cmp #$10
+                    bcs L0e4c
+                    sta $0eed,x
+L0e4c               tya
+                    sta $0eef,x
+                    ldy $0eff,x
+                    bmi L0e6e
+                    lda $132e,y
+                    cmp #$40
+                    bcc L0e5e
+                    ora #$80
+L0e5e               sta $0f00,x
+                    inc $0eff,x
+                    lda $132f,y
+                    bpl L0e6e
+                    and #$7f
+                    sta $0eff,x
+L0e6e               lda $0ef0,x
+                    bpl L0e78
+                    and #$7f
+                    jmp L0e7f
+                    
+L0e78               clc
+                    adc $0eaf,x
+                    adc $0f00,x
+L0e7f               tay
+L0e80               lda $0f2c,y
+                    sta $0ec3,x
+                    sta $087b,x
+                    lda $0f8c,y
+                    sta $0ec4,x
+                    sta $087c,x
+                    rts

@@ -1,0 +1,89 @@
+list:
+  jsr fat32_openroot
+
+  jmp header_time
+
+crlf:
+  lda #$0d
+  jsr w_acia_full
+  lda #$0a
+  jsr w_acia_full
+  rts
+
+header_time:
+  jsr crlf
+nextdirblock:
+  ldy #>buffer
+  ldx #<buffer
+  jsr poit_time
+  jmp start_the_actual_type
+
+poit_time:
+  pha
+  lda $00
+  pha
+  lda $01
+  pha
+  sty $01
+  stx $00
+printdirent:
+  lda ($00)
+  beq endofdir
+  cmp #$e5
+  beq nextdirent
+
+  ldy #11
+  lda ($00),y
+  and #2
+  bne nextdirent
+
+  lda $20
+  jsr print_chara
+  jsr print_chara
+
+  ldy #0
+nextchar:
+  lda ($00),y
+  jsr print_chara
+  iny
+  cpy #8
+  bne nextchar
+
+  lda #'.'
+  jsr print_chara
+
+printext:
+  lda ($00),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne printext
+
+  jsr crlf
+
+nextdirent:
+  clc
+  lda $00
+  adc #32
+  sta $00
+  inc $01
+donelist:
+  lda $01
+  cmp #>endbuf
+  bne endnext
+  lda zp_sd_currentsector
+  adc #1
+  sta zp_sd_currentsector
+  jsr sd_readsector
+  bcc nextdirblock
+  jmp error
+endnext:
+  bra printdirent
+endofdir:
+  jsr crlf
+  pla
+  sta $01
+  pla
+  sta $00
+  pla
+  rts

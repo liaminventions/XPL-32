@@ -1,0 +1,112 @@
+LOAD:
+	PHA	; Push registers on the stack
+	TXA
+	PHA
+	TYA
+	PHA
+	JSR	WRITE_TRANSFER_MSG
+END_LOAD_MSG:
+	JSR	MONRDKEY	
+	BCC	END_LOAD_MSG
+	LDA	ACIAData
+	SBC	#$73		; If "s" is pressed
+	BEQ	SERIAL_LOAD	; then load from serial
+	JSR	MONRDKEY
+	BCC	END_LOAD_MSG
+	LDA	ACIAData
+	SBC	#$6D		; If "m" is pressed
+	BEQ	MEMORY_LOAD	; then load from a memory card
+	JMP	END_LOAD_MSG
+SERIAL_LOAD:
+	LDX	#0
+WRSMSG:
+	LDA	SERIAL_MSG,X
+	BEQ	RECEIVE_SERIAL
+	JSR	MONCOUT
+	INX
+	JMP	WRSMSG
+RECEIVE_SERIAL:	
+	LDX	#$00		; Set to start of RAM
+	LDY	#$02
+RECEIVE_SERIAL_LOOP:
+	JSR	MONRDKEY	; If a byte is received
+	BCC	RECEIVE_SERIAL_LOOP
+	LDA	#$2E		; then print a period,
+	JSR	MONCOUT
+	STY	XYLODSAV2+1	; update current address
+	STX	XYLODSAV2
+	TYA
+	PHA
+	LDY	#0
+	LDA	ACIAData
+	STA	(XYLODSAV2),Y	; and put the byte in RAM
+	PLA
+	TAY
+	LDA	XYLODSAV2
+	SBC	#$FF		; is x full?
+	BEQ	RESET_X_INC_Y	; if so, then reset x to 0 and increment y (exp. 02ff-0300 logic)
+	INX			; otherwise, increment x
+	STX	XYLODSAV2
+CSER1:
+	JMP	IF8000		; if 32kb RAM is full then end.
+CONT_SER:
+	JMP	END_SERIAL_LOAD ; end
+RESET_X_INC_Y:
+	LDX	#0
+	STX	XYLODSAV2	; reset x
+	INY
+	STY	XYLODSAV2+1	; increment y
+	JMP	CSER1
+IF8000:
+	LDA	XYLODSAV2
+	SBC	#$00		; if the lower bits of the addr are $00
+	BNE	END8000
+	LDA	XYLODSAV2+1
+	SBC	#$80		; and the upper bits are $80
+	BNE	END8000
+	JMP	END_SERIAL_LOOP	; then end.
+END8000:
+	JMP	RECEIVE_SERIAL_LOOP
+END_SERIAL_LOOP:
+	LDX	#0
+SDONE:
+	LDA	LOAD_DONE,X
+	BEQ	END_SERIAL_LOAD
+	JSR	MONCOUT
+	INX
+	JMP	SDONE
+END_SERIAL_LOAD:
+	PLA
+	TAY
+	PLA
+	TAX			; pull registers off stack
+	PLA
+	RTS
+	
+MEMORY_LOAD:
+	PLA
+	TAY
+	PLA
+	TAX	; Not complete...
+	PLA
+	RTS
+	
+WRITE_TRANSFER_MSG:
+	PHA
+	TXA
+	PHA
+	LDX	#0
+TML:
+	LDA	TRANSFER_MSG,X
+	BEQ	END_TRANSFER_MSG
+	JSR	MONCOUT
+	INX
+	JMP	JMPTML
+END_TRANSFER_MSG:
+	PLA
+	TAX
+	PLA
+	RTS
+JMPTML:
+	JMP	TML
+

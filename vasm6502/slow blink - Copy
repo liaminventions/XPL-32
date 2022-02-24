@@ -1,0 +1,52 @@
+PORTB = $6000
+PORTA = $6001
+DDRB = $6002
+DDRA = $6003
+
+
+  .org $8000
+
+reset:
+  ldx #$ff
+  txs
+
+  lda #%00000000 ; Turn Off Port B
+  sta DDRB
+  lda #%11111111 ; Set pins on port A  (leds)
+  sta DDRA
+
+  ; On the left in DDRA/B, That is PA/B D7. Therefore, On the right is D0. (On 65C22) 
+
+  ldx #0
+  
+  lda #0    ; Reset Ports
+  sta PORTA
+  lda #0
+  sta PORTB
+
+main:
+  lda #$aa
+  sta PORTA
+
+
+  ldx #$0c
+  ldy #$0c
+  jsr delay
+  lda #$aa
+  ror
+  sta PORTA
+  ldx #$0c
+  ldy #$0c
+  jsr delay
+  jmp main
+
+delay:
+  dex
+  bne delay
+  dey
+  bne delay
+
+  
+  .org $fffc
+  .word reset
+  .word $0000

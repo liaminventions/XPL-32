@@ -1,0 +1,5 @@
+input 7ffe
+3b 3b
+
+echo go 0900 to start
+

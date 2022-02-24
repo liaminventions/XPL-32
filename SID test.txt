@@ -1,0 +1,5 @@
+input 1000
+a2 ff 9a a9 0f 8d 18 b8 a9 00 8d 00 b8 a9 10 8d
+01 b8 a9 44 8d 04 b8 a9 ff 8d 05 b8 4c 1f 10 4c
+1f 10
+

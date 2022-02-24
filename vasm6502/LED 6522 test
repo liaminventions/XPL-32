@@ -1,0 +1,15 @@
+  .org $c000
+
+reset:
+  lda #$01
+  sta $b000
+  lda #$01
+  sta $b003
+  jmp loop
+
+loop:
+  jmp loop
+
+  .org $fffc
+  .word reset
+  .word $0000
