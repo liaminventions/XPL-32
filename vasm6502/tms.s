@@ -35,10 +35,14 @@ vdp_reset:
   jsr vdp_initialize_pattern_table
   jsr vdp_initialize_name_table
   jsr vdp_enable_display
+  lda $ff
+  sta $b002
+  sta $b000
+  sta $b001
   rts
   rts
   rts
-  ets
+  rts
 
 vdp_reg_reset:
   pha
