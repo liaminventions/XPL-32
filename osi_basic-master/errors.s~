@@ -37,8 +37,9 @@ freq_table:
 
 clear_sid:
 	ldx #$18
+	lda #0
 csid:
-	stz $B800,X
+	sta $B800,X
 	dex
 	bne csid
 	rts

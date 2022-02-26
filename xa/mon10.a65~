@@ -2490,27 +2490,6 @@ loadtable:
 	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
 
 sd_sendcommand 
- ; Debug print which command is being executed
- ; jsr lcd_cleardisplay
- ; jsr cleardisplay
-
- ; phx
- ; phy
- ; ldx #<cmsg
- ; ldy #>cmsg
- ; jsr w_acia_full
- ; ply
- ; plx
-
- ; ldx #0
- ; lda (zp_sd_address,x)
- ; jsr print_hex_acia
-
- ; lda #$20
- ; jsr print_chara
-  
- ; lda #$20
- ; jsr print_chara
 
   lda #SD_MOSI           ; pull CS low to begin command
   sta VIA_PORTA
@@ -2536,23 +2515,6 @@ sd_sendcommand
 
   jsr sd_waitresult
   pha
-
-;  phy
-;  phx
-;  ldy #>respmsg
-;  ldx #<respmsg
-;  jsr w_acia_full
-;  ply
-;  plx
-
-  ; Debug print the result code
- ; jsr print_hex_acia
-
-;  lda #$0d
-;  jsr print_chara
-  
-;  lda #$0a
-;  jsr print_chara
 
   ; End command
   lda #SD_CS | SD_MOSI   ; set CS high again

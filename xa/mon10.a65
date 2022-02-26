@@ -176,6 +176,8 @@ startup
 
 #include "init.a65"
 
+
+
 init_acia
   lda #%00001011		;No parity, no echo, no interrupt
   sta ACIA_COMMAND
@@ -3640,17 +3642,6 @@ endstr
   rts
 
 
-;;; Handle interrupts. Since the Mite doens't have interrupt lines
-;;; connected, we don't even bother decoding the interrupt; instead,
-;;; we just presume that it's a software interrupt (ie, a BRK),
-;;; print the registers, and jump back into the command loop for the
-;;; monitor.
-
-;;; NOPE!!!!
-interrupt
-  jmp ($7ffe)  
-  rti
-
 ;;;
 ;;; Various string constants
 ;;;
@@ -3674,6 +3665,20 @@ transferstring:   .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
 serialstring:    .byte "Start Serial Load. (Fill all RAM.)", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
+
+;;; Handle interrupts. Since the Mite doens't have interrupt lines
+;;; connected, we don't even bother decoding the interrupt; instead,
+;;; we just presume that it's a software interrupt (ie, a BRK),
+;;; print the registers, and jump back into the command loop for the
+;;; monitor.
+
+;;; NOPE!!!!
+interrupt
+  jmp ($7ffe)  
+  rti
+
+* = $E000
+
 
 * = $FFFA
 .word interrupt
