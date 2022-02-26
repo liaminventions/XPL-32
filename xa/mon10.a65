@@ -3711,3 +3711,7 @@ serialstring:    .byte "Start Serial Load. (Fill all RAM.)", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 
+* = $FFFA
+.word interrupt
+.word reset
+.word interrupt
