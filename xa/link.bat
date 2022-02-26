@@ -1,3 +1,4 @@
+@echo=off
 set /p msg= "Commit Message: "
 copy xpl.BIN ..\osi_basic_master
 cd ..\osi_basic-master
