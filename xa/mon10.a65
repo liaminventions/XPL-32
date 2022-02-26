@@ -2489,16 +2489,7 @@ sd_waitresult
 loadtable:
 	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
 
-sd_sendcommand
- pha
- phx
- phy
- lda loadtable,x
- jsr print_chara
- inx
- lda loadtable,x
- jsr print_chara
- 
+sd_sendcommand 
  ; Debug print which command is being executed
  ; jsr lcd_cleardisplay
  ; jsr cleardisplay
