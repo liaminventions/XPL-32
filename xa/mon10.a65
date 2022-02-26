@@ -2486,9 +2486,20 @@ sd_waitresult
   beq sd_waitresult
   rts
 
+loadtable:
+	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
 
 sd_sendcommand
-  ; Debug print which command is being executed
+ pha
+ phx
+ phy
+ lda loadtable,x
+ jsr print_chara
+ inx
+ lda loadtable,x
+ jsr print_chara
+ 
+ ; Debug print which command is being executed
  ; jsr lcd_cleardisplay
  ; jsr cleardisplay
 
@@ -2500,15 +2511,15 @@ sd_sendcommand
  ; ply
  ; plx
 
-  ldx #0
-  lda (zp_sd_address,x)
-  jsr print_hex_acia
+ ; ldx #0
+ ; lda (zp_sd_address,x)
+ ; jsr print_hex_acia
 
-  lda #$20
-  jsr print_chara
+ ; lda #$20
+ ; jsr print_chara
   
-  lda #$20
-  jsr print_chara
+ ; lda #$20
+ ; jsr print_chara
 
   lda #SD_MOSI           ; pull CS low to begin command
   sta VIA_PORTA
@@ -2615,7 +2626,7 @@ faill
   ldy #>failedmsg  ; Failed!
   jsr w_acia_full
 failloop
-  jmp failloop
+  jmp $c000
 
 
 readpage
