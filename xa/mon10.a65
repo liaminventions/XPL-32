@@ -3672,15 +3672,12 @@ char:		 .byte "."
 ;;; print the registers, and jump back into the command loop for the
 ;;; monitor.
 
-;;; NOPE!!!!
+;;; NOPE!!!
 interrupt
   jmp ($7ffe)  
   rti
 
-* = $E000
-
-
-* = $FFFA
-.word interrupt
-.word reset
-.word interrupt
+	* = $fffa
+	.word interrupt
+	.word reset
+	.word interrupt
