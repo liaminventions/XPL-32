@@ -10,5 +10,6 @@ cd ..
 git add *
 git status
 git commit -m "%msg%"
-git push -u orgin main
+git push -u origin main
+cd xa
 pause
