@@ -30,15 +30,14 @@ runthesound:		; thats done, now to play the sound
   lda #$c0		; enable timer1 for VIA
   sta $b00e		
   lda #0 		; Song Number
+  jsr putbut
   jsr $1103 		; goto initsid subroutine addr
-  lda #$40		; start the count
-  sta $b00d
   cli			; enable irqs again
 startupsoundloop:	
   lda donefact		; loop only if the sound is not done
   bne startupsoundloop
   stz $b00e		; if done disable irqs
-  sta $b00d
+  stz $b00d
   sei
   lda $c0		; clear irq vectors
   sta $7fff
@@ -50,14 +49,16 @@ startupsoundloop:
   jmp init_acia		; (continue)
 
 irq:
+  lda #$40		; refresh the count
+  sta $b00d
   jsr putbut		; refresh timers
   inc irqcount		; a irq has occurred
   cmp #120     		; if 120 irqs (end of the startup sound)
   bne continue24542 	; end the stream
   stz donefact		; its done, tell the loop
+  sei
 continue24542:
-  jsr $1003		; jump to playsid addr
-  sei			; disable irqs		
+  jsr $1003		; jump to playsiid addr	
   rti			; exit
 
 putbut:
