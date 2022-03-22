@@ -4,6 +4,9 @@ dostartupsound:
   phy
 
   cli			; enable irqs
+  jsr clear_sid		; clear sid
+  lda #$0f		; volume 100%
+  sta $b818
   ldx #0		; reset counter
 loopbring:		; write the sid to $1003
   lda sounddata,x	; load the first 256 bytes
