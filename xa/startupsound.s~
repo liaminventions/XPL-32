@@ -58,15 +58,17 @@ continue24542:
   sei			; disable irqs		
   rti			; exit
 
-putbut              ldx #$c2
-                    stx $b004
-                    stx $b006
-                    ldx #$09	; 250Hz IRQ
-                    stx $b005
-                    stx $b007
-                    rts
+putbut:
+  ldx #$c2
+  stx $b004
+  stx $b006
+  ldx #$09		; 250Hz IRQ
+  stx $b005
+  stx $b007
+  rts
+
 irqcount:
-  .byte $00		; data to count up to 250 irqs
+  .byte $00		; data will count up to 250 irqs
 donefact:
   .byte $55		; will be zero when the transmission is complete
 sounddata:

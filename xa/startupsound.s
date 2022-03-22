@@ -45,7 +45,8 @@ startupsoundloop:
   ply
   plx			; load state
   pla
-  rts			; and return.
+;  rts			; and return.
+  jmp init_acia		; (continue)
 
 irq:
   jsr putbut		; refresh timers
