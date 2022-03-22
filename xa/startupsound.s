@@ -1,38 +1,45 @@
+donefact = $00
+irqcount = $01
+
 dostartupsound:
   pha
   phx			; save state
   phy
+  lda $00
+  pha
+  lda $01
+  pha
+
+  lda #$55
+  sta donefact
+  stz irqcount
 
   cli			; enable irqs
-  lda #$0f		; volume 100%
-  sta $b818
-  ldx #0		; reset counter
+  ldy #$ff		; reset counter
 loopbring:		; write the sid to $1006
-  lda sounddata,x	; load the first 256 bytes
-  sta $1006,x		; store it
-  lda sounddata+100,x	; load the second 256 bytes
-  sta $1106,x		; store it
-  inx			; increment counter
-  bne loopbring		; jump back until done
-almost:			; almost there! just some extra bytes to store
-  lda sounddata+200,x	; load the bytes
-  sta $1206,x		; store it
-  inx			; increment counter
-  txa			
-  cmp #$3a		; is it 3a? (done)
-  bne almost		; if not, jump back
+  lda sounddata,y
+  sta $1006,y
+  lda sounddata+100,y
+  sta $1006+100,y
+  lda sounddata+200,y
+  sta $1006+200,y
+  dey
+  bpl loopbring
+
 runthesound:		; thats done, now to play the sound
-  sei			; temporaraly disable irqs
-  lda #<irq		; store irq vectors
+  sei
+  lda #<irq
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$c0		; enable timer1 for VIA
-  sta $b00e	
-  lda #0 		; Song Number
-  jsr putbut
-  jsr $1103 		; goto initsid subroutine addr
-  cli			; enable irqs again
+  lda #$c0
+  sta $b00e
+  lda #0 ; Song Number
+  jsr InitSid
+  lda #$40
+  sta $b00d
+  cli
+  nop
 startupsoundloop:	
   lda donefact		; loop only if the sound is not done
   bne startupsoundloop
@@ -42,6 +49,12 @@ startupsoundloop:
   lda $c0		; clear irq vectors
   sta $7fff
   stz $7ffe
+  jsr clear_sid
+
+  pla
+  sta $01
+  pla
+  sta $00
   ply
   plx			; load state
   pla
@@ -49,33 +62,29 @@ startupsoundloop:
   jmp init_acia		; (continue)
 
 irq:
-  lda #$40		; refresh the count
-  sta $b00d
   jsr putbut		; refresh timers
-  jsr $1006
+  sei
   inc irqcount		; a irq has occurred
   cmp #120     		; if 120 irqs (end of the startup sound)
   bne continue24542 	; end the stream
   stz donefact		; its done, tell the loop
   sei
 continue24542:
+  jsr $1006
+  cli
   rti			; exit
 
 putbut:
-;  ldx #$c2
-  ldx #$9e
-  stx $b004
-  stx $b006
-;  ldx #$09		; 250Hz IRQ
-  ldx #$0f
-  stx $b005
-  stx $b007
-  rts
+		    ldx #$9e
+                    stx $b004
+                    stx $b006
+		    ldx #$0f  ; 250Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
+InitSid             jsr putbut
+                    jmp $1103
 
-irqcount:
-  .byte $00		; data will count up to 250 irqs
-donefact:
-  .byte $55		; will be zero when the transmission is complete
 sounddata:
 
           .BYTE $A2,$18,$B5,$04,$9D,$00,$B8,$CA,$10,$F8,$C6,$02,$30,$01,$60,$86

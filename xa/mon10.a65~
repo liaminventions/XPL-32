@@ -1,7 +1,7 @@
 ;;;
-;;; MITEMON
+;;; MITEMON (for XPL-32)
 ;;; 
-;;; Very simple ROM monitor for the 6502 Mite single-board computer.
+;;; Very simple ROM monitor for the 6502 Mite single-board computer. (but also for xpl)
 ;;; Just basically enough to poke around and make sure that things
 ;;; are working.
 ;;;
@@ -15,14 +15,13 @@
 ;;; v10 software interrupt handling
 ;;;
 ;;; Paul Dourish, March-October 2017
-;;;
+;;; Liam Oppenheimer, 2020-2022
 
 ;;; My ROM is actually 32K, but the lower half ($8000-$BFFF) is masked
 ;;; by IO. So, everything starts at $C000.
-;;;
-* = $C000
+;;; (true)
 
-#include "startupsound.s"
+* = $C000
 
 LCD_E  = %10000000
 LCD_RW = %01000000
@@ -75,7 +74,7 @@ XYLODSAV2	= $0000  ; temporary address for save command
 ;;;
 ;;;;;;;;;;;;;;;;;
 ;;; Er, you forgot a start address...
-;;; Better add it in the hex editor!
+;;; Better add it in the good ol' hex editor!
 reset
 #include "decl.a65"
 jmp startup
@@ -161,7 +160,7 @@ startup
   ;; the stack!
 ;clearmem
 ;.(
-;  stz $00  What the heck is STZ!?!?!?
+;  stz $00  
 ;  stz $01
 ;nextpage
 ;  ldy #0
@@ -178,7 +177,7 @@ startup
 
 #include "init.a65"
 
-jsr dostartupsound
+;#include "startupsound.s"
 
 init_acia
   lda #%00001011		;No parity, no echo, no interrupt
