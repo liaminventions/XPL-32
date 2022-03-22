@@ -4,7 +4,6 @@ dostartupsound:
   phy
 
   cli			; enable irqs
-  jsr clear_sid		; clear sid
   lda #$0f		; volume 100%
   sta $b818
   ldx #0		; reset counter
@@ -32,7 +31,6 @@ runthesound:		; thats done, now to play the sound
   sta $b00e		
   lda #0 		; Song Number
   jsr $1103 		; goto initsid subroutine addr
-  jsr putbut		; send 250hz timer freq
   lda #$40		; start the count
   sta $b00d
   cli			; enable irqs again
