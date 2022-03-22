@@ -52,20 +52,22 @@ irq:
   lda #$40		; refresh the count
   sta $b00d
   jsr putbut		; refresh timers
+  jsr $1006
   inc irqcount		; a irq has occurred
   cmp #120     		; if 120 irqs (end of the startup sound)
   bne continue24542 	; end the stream
   stz donefact		; its done, tell the loop
   sei
 continue24542:
-  jsr $1006		; jump to playsid addr	
   rti			; exit
 
 putbut:
-  ldx #$c2
+;  ldx #$c2
+  ldx #$9e
   stx $b004
   stx $b006
-  ldx #$09		; 250Hz IRQ
+;  ldx #$09		; 250Hz IRQ
+  ldx #$0f
   stx $b005
   stx $b007
   rts
