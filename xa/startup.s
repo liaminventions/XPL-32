@@ -3,7 +3,7 @@ d404_sVoc1Control = $b804
 d40b_sVoc2Control = $b80b
 d412_sVoc3Control = $b812
 
-  .org $1003
+  .org $1006
 
 PlaySid             ldx #$18
 L1008               lda $04,x
