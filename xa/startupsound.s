@@ -7,16 +7,16 @@ dostartupsound:
   lda #$0f		; volume 100%
   sta $b818
   ldx #0		; reset counter
-loopbring:		; write the sid to $1003
+loopbring:		; write the sid to $1006
   lda sounddata,x	; load the first 256 bytes
-  sta $1003,x		; store it
+  sta $1006,x		; store it
   lda sounddata+100,x	; load the second 256 bytes
-  sta $1103,x		; store it
+  sta $1106,x		; store it
   inx			; increment counter
   bne loopbring		; jump back until done
 almost:			; almost there! just some extra bytes to store
   lda sounddata+200,x	; load the bytes
-  sta $1203,x		; store it
+  sta $1206,x		; store it
   inx			; increment counter
   txa			
   cmp #$3a		; is it 3a? (done)
@@ -29,9 +29,6 @@ runthesound:		; thats done, now to play the sound
   sta $7fff
   lda #$c0		; enable timer1 for VIA
   sta $b00e		
-  lda #$40		; start the count
-  sta $b00d		
-  sta $b00b
   lda #0 		; Song Number
   jsr $1103 		; goto initsid subroutine addr
   cli			; enable irqs again
@@ -51,6 +48,8 @@ startupsoundloop:
   jmp init_acia		; (continue)
 
 irq:
+  lda #$40		; refresh the count
+  sta $b00d
   jsr putbut		; refresh timers
   inc irqcount		; a irq has occurred
   cmp #120     		; if 120 irqs (end of the startup sound)
@@ -58,7 +57,7 @@ irq:
   stz donefact		; its done, tell the loop
   sei
 continue24542:
-  jsr $1003		; jump to playsiid addr	
+  jsr $1006		; jump to playsid addr	
   rti			; exit
 
 putbut:
