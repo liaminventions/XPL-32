@@ -29,8 +29,10 @@ runthesound:		; thats done, now to play the sound
   sta $7fff
   lda #$c0		; enable timer1 for VIA
   sta $b00e		
+  lda #$40		; start the count
+  sta $b00d		
+  sta $b00b
   lda #0 		; Song Number
-  jsr putbut
   jsr $1103 		; goto initsid subroutine addr
   cli			; enable irqs again
 startupsoundloop:	
@@ -49,8 +51,6 @@ startupsoundloop:
   jmp init_acia		; (continue)
 
 irq:
-  lda #$40		; refresh the count
-  sta $b00d
   jsr putbut		; refresh timers
   inc irqcount		; a irq has occurred
   cmp #120     		; if 120 irqs (end of the startup sound)
