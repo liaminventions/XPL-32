@@ -18,7 +18,7 @@ dostartupsound:
   ldy #$ff		; reset counter
 loopbring:		; write the sid to $1006
   lda sounddata,y
-  sta $1006,yi
+  sta $1006,y
   lda sounddata+100,y
   sta $1006+100,y
   lda sounddata+200,y
