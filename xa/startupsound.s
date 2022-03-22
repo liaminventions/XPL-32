@@ -28,8 +28,9 @@ runthesound:		; thats done, now to play the sound
   lda #>irq
   sta $7fff
   lda #$c0		; enable timer1 for VIA
-  sta $b00e		
+  sta $b00e	
   lda #0 		; Song Number
+  jsr putbut
   jsr $1103 		; goto initsid subroutine addr
   cli			; enable irqs again
 startupsoundloop:	
