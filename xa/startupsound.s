@@ -14,17 +14,20 @@ dostartupsound:
   sta donefact
   stz irqcount
 
+  lda #$0f
+  sta $b818
+
   cli			; enable irqs
-  ldy #$ff		; reset counter
+  ldy #0		; reset counter
 loopbring:		; write the sid to $1006
   lda sounddata,y
   sta $1006,y
-  lda sounddata+100,y
-  sta $1006+100,y
-  lda sounddata+200,y
-  sta $1006+200,y
-  dey
-  bpl loopbring
+  lda sounddata1,y
+  sta $1006+$100,y
+  lda sounddata2,y
+  sta $1006+$200,y
+  iny
+  bne loopbring
 
 runthesound:		; thats done, now to play the sound
   sei
@@ -86,7 +89,6 @@ InitSid             jsr putbut
                     jmp $1103
 
 sounddata:
-
           .BYTE $A2,$18,$B5,$04,$9D,$00,$B8,$CA,$10,$F8,$C6,$02,$30,$01,$60,$86
           .BYTE $02,$A5,$03,$D0,$18,$20,$1F,$00,$F0,$18,$C9,$A0,$B0,$0A,$85,$2A
           .BYTE $20,$1F,$00,$85,$29,$4C,$76,$10,$38,$E9,$9F,$85,$03,$C6,$03,$4C
@@ -103,6 +105,7 @@ sounddata:
           .BYTE $20,$1F,$00,$8D,$05,$DC,$20,$1F,$00,$85,$29,$20,$1F,$00,$85,$2A
           .BYTE $E6,$26,$D0,$02,$E6,$27,$A5,$26,$8D,$95,$10,$A5,$27,$8D,$96,$10
           .BYTE $A2,$1C,$A9,$00,$95,$02,$CA,$10,$FB,$20,$A1,$10,$60,$A0,$09,$A2
+sounddata1:
           .BYTE $11,$4C,$B2,$10,$F0,$0F,$88,$11,$04,$05,$01,$00,$0D,$12,$0B,$14
           .BYTE $08,$09,$07,$06,$0C,$03,$0E,$0F,$10,$11,$17,$13,$0A,$15,$16,$18
           .BYTE $02,$00,$00,$00,$00,$00,$00,$00,$FF,$41,$0C,$0B,$9D,$F0,$20,$20
@@ -119,6 +122,7 @@ sounddata:
           .BYTE $4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A1,$11,$5C,$11,$4A,$A0
           .BYTE $11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11
           .BYTE $4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A
+sounddata2:
           .BYTE $A0,$11,$4A,$A0,$11,$4A,$A0,$11,$4A,$11,$61,$A0,$11,$61,$A0,$11
           .BYTE $61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61
           .BYTE $A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0
