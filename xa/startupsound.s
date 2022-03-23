@@ -1,15 +1,12 @@
 donefact = $00
 irqcount = $01
 
-dostartupsound:
-  pha
-  phx			; save state
-  phy
-  lda $00
-  pha
-  lda $01
-  pha
+;;; Play a startup sound
+;;;
+;;;
+;;; (du du du!)
 
+dostartupsound:
   lda #$55
   sta donefact
   stz irqcount
@@ -42,27 +39,7 @@ runthesound:		; thats done, now to play the sound
   lda #$40
   sta $b00d
   cli
-  nop
-startupsoundloop:	
-  lda donefact		; loop only if the sound is not done
-  bne startupsoundloop
-  stz $b00e		; if done disable irqs
-  stz $b00d
-  sei
-  lda $c0		; clear irq vectors
-  sta $7fff
-  stz $7ffe
-  jsr clear_sid
-
-  pla
-  sta $01
-  pla
-  sta $00
-  ply
-  plx			; load state
-  pla
-;  rts			; and return.
-  jmp init_acia		; (continue)
+  jmp startupsoundloop
 
 irq:
   jsr putbut		; refresh timers
@@ -127,3 +104,15 @@ sounddata2:
           .BYTE $61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61
           .BYTE $A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0,$11,$61,$A0
           .BYTE $11,$61,$A0,$11,$61,$11,$65,$A0,$00,$FE
+
+startupsoundloop:	
+  lda donefact		; loop only if the sound is not done
+  bne startupsoundloop
+  stz $b00e		; if done disable irqs
+  stz $b00d
+  sei
+  lda $c0		; clear irq vectors
+  sta $7fff
+  stz $7ffe
+  jsr clear_sid
+
