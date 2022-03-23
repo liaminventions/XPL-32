@@ -1,6 +1,11 @@
 donefact = $00
 irqcount = $01
 
+;;; Play a startup sound
+;;;
+;;;
+;;; (du du du!)
+
 dostartupsound:
   lda #$55
   sta donefact
