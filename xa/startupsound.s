@@ -45,8 +45,8 @@ irq:
   jsr putbut		; refresh timers
   sei
   inc irqcount		; a irq has occurred
-  cmp #32     		; if this amount of irqs (end of the startup sound)
-  bne continue24542 	; end the stream
+  cmp #8     		; if this amount of irqs (end of the startup sound)
+  beq continue24542 	; end the stream
   stz donefact		; its done, tell the loop
   sei
 continue24542:
