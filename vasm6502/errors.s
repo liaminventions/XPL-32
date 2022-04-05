@@ -1,39 +1,63 @@
 error_sound:
-	jsr clear_sid
-	lda #$0f
-	sta $b818
-	lda #$e7
-	sta $b802
-	lda #$0f
-	sta $b805
-	lda #$f8
-	sta $b806
-	lda freq_table
-	sta $b800
-	lda freq_table+1
-	sta $b801
-	lda #$41
-	sta $b804
+  stz irqcount	; reset irq count
+  lda #$55	
+  sta donefact	; its not done yet
+  lda #$0f
+  sta $b818	; full volume
 
-outer:
-	ldy #$ff
-inner:
-	ldx #$ff
+  sei		; turn off irqs
+  lda #<irq
+  sta $7ffe
+  lda #>irq
+  sta $7fff	; store vectors
+  lda #$c0
+  sta $b00e	
+  lda #0 ; Song Number
+  jsr InitSid
+  lda #$40
+  sta $b00d
+  cli
+  nop
+startupsoundloop:	
+  lda donefact		; loop only if the sound is not done
+  bne startupsoundloop
+  stz $b00e		; if done disable irqs
+  stz $b00d
+  sei
+  lda $c0		; clear irq vectors
+  sta $7fff
+  stz $7ffe
+  jsr clear_sid
+  rts
+  rts
+  rts
+  rts
 
-innerloop:
-	dex
-	bne innerloop
+irq:
+  jsr putbut		; refresh timers
+  sei
+  inc irqcount		; a irq has occurred
+  lda irqcount
+  cmp #120     		; if this amount of irqs (end of the startup sound)
+  bne continue24542 	; end the stream
+  stz donefact		; its done, tell the loop
+  sei
+continue24542:
+  jsr $1006
+  cli
+  rti			; exit
 
-	dey
-	beq ende
-	jmp inner
-ende:
-	lda #$40
-	sta $b804
-	rts
-	
-freq_table:
-	.byte $50, $50
+putbut:
+  ldx #$9e
+  stx $b004
+  stx $b006
+  ldx #$0f  ; 250Hz IRQ
+  stx $b005
+  stx $b007
+  rts
+InitSid             
+  jsr putbut
+  jmp $1103
 
 clear_sid:
 	ldx #$18
