@@ -17,7 +17,7 @@ dostartupsound:
   cli			; enable irqs
   ldy #0		; reset counter
 loopbring:		; write the sid to $1006
-  lda sounddata,y	; disclaimer: THIS WILL OVERWRITE WHATEVER THE USER HAS AT $1006-$1300!
+  lda sounddata,y  
   sta $1006,y
   lda sounddata1,y
   sta $1006+$100,y
