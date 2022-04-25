@@ -1,0 +1,99 @@
+
+; text part of demo
+;
+;
+;
+; he he he ha
+
+  .include "libacia.s"
+
+text:
+  ldx #0
+loop1:
+  lda text_01,x
+  sta $8001
+  beq loop_end
+  inx
+  jmp loop1
+loop_end:
+  ldy #4
+waitloop:
+  jsr wait
+  dey
+  bne waitloop
+  ldx #64
+  lda #8
+downloop:
+  sta $8001
+  lda $14
+  sta $8001
+  dex
+  bne downloop
+
+text2:
+  ldx #0
+loop1:
+  lda text_03,x
+  sta $8001
+  beq loop_end2
+  inx
+  jmp loop1
+loop_end2:
+  ldy #4
+waitloop2:
+  jsr wait
+  dey
+  bne waitloop2
+  ldx #64
+  lda #8
+downloop2:
+  sta $8001
+  lda $14
+  sta $8001
+  dex
+  bne downloop2
+
+text_ii:
+  lda text_data,x
+  sta $8001
+  beq loop_end
+  inx
+  ldy #$aa ; AAAAAAAAAAAAAAAAA
+notdelay:
+  iny
+  bne notdelay
+
+  jmp text_ii
+  
+  ldx #<text_02
+  ldy #>text_02
+  jsr w_acia_full
+
+  ldx #<endtext
+  ldy #>endtext
+  jsr w_acia_full
+
+loope:
+  jmp loop
+
+text_data:
+  .byte $18, $08, "40 character text", $0d, $0a
+  .byte $18, $01, "80 character text", $0d, $0a
+  .byte $18, $02, "40 character bold text", $0d, $0a
+  .byte $18, $03, "80 character bold text", $0d, $0a
+  .byte $18, $04, "40 character double height text", $0d, $0a
+  .byte $18, $05, "80 character double height text", $0d, $0a
+  .byte $18, $06, "40 character double height bold text", $0d, $0a
+  .byte $18, $07, "80 character double height bold text", $0d, $0a
+  .byte $00
+
+text_01:
+;   empty cursor|clear| column | Row      |
+  .byte $01, $20, $0c, $0e, $12, $0f, $0c, "This is a demonstration of the capabilities of the XPL-32.", $00
+text_02:
+  .byte $18, $06, $0c, $0e, $10, $0f, $0c, "And graphics...", $00
+text_03:
+  .byte $18, $06, $0c, $0e, $10, $0f, $0c, "   Text Mode...", $00
+
+endtext:
+  .byte $08, $16, $00

@@ -15,12 +15,25 @@ VDP_REGISTER_BITS      = %10000000  	; pattern of second register write: 10000RR
 VDP_NAME_TABLE_BASE = $0000
 VDP_PATTERN_TABLE_BASE = $0800
 
+TEXT_LOC		= $00FF
+
 ; zero page addresses
 VDP_PATTERN_INIT    	= $30
 VDP_PATTERN_INIT_HI 	= $31
 
-  .org $c000
+VDP_NAME_POINTER        = $32
 
+  .org $0f00
+  .include "groove_code.s"
+
+  .macro vdp_write_vram			; macro to store address in vdp_reg for write
+  pha
+  lda #<(\1)
+  sta VDP_REG
+  lda #(VDP_WRITE_VRAM_BIT | >\1)
+  sta VDP_REG
+  pla
+  .endm
 ;;;;;;;;;;;;;;;;;;; reset ;;;;;;;;;;;;;;;;;;;
 
 reset:
@@ -30,10 +43,12 @@ reset:
 
   jsr vdp_set_registers
   jsr vdp_setup
-  lda #255
-  sta $b000
+  lda #255	; activate display
+  sta $b003
   sta $b001
 holding:
+  jsr wait
+  jsr changecolor
   jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
@@ -41,6 +56,7 @@ holding:
 vdp_setup:
   jsr vdp_initialize_pattern_table
   jsr vdp_initialize_name_table
+  jsr vdp_write_name_table
   jsr vdp_enable_display
   rts
 
@@ -57,9 +73,32 @@ vdp_set_registers:
   ora #VDP_REGISTER_BITS 				; combine the register number with the second write pattern
   sta VDP_REG
   inx
-  cpx #(vdp_end_register_inits - vdp_register_inits) 	; compute number of registers
+  cpx #8
   bne .loop
   plx
+  pla
+  rts
+
+wait:
+	phx
+	phy
+        ldy  #$ff
+        ldx  #$ff
+delay   dex          ; (2 cycles)
+        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+        dey          ; (2 cycles)
+        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+	ply
+	plx
+	rts
+
+changecolor:
+  pha
+  inc vdp_register_7
+  lda vdp_register_7
+  sta VDP_REG
+  lda #$87
+  sta VDP_REG
   pla
   rts
 
@@ -71,7 +110,7 @@ vdp_register_3: .byte $00       ; Color table base (currently unused)
 vdp_register_4: .byte $01       ; Pattern table base / $800. $01 = $0800
 vdp_register_5: .byte $00       ; Sprite attribute table base (currently unused)
 vdp_register_6: .byte $00       ; Sprite pattern generator (currently unused)
-vdp_register_7: .byte $1E       ; FG/BG. 1=>Black, E=>Gray
+vdp_register_7: .byte $4E       ; FG/BG. 1=>Black, E=>Gray
 vdp_end_register_inits:
 
 
@@ -79,17 +118,40 @@ vdp_end_register_inits:
 
 vdp_initialize_name_table:
   pha
-  pha
-  lda #<VDP_NAME_TABLE_BASE
-  sta VDP_REG
-  lda #$40
-  sta VDP_REG
-  pla
-  lda #0
+  phx
+  phy
+  vdp_write_vram VDP_NAME_TABLE_BASE
+  stz VDP_NAME_POINTER
+  lda #$20
+  ldy #0
 vdp_name_table_loop:
   sta VDP_VRAM
-  inc
-  bne vdp_name_table_loop ; will be true after $FF
+  iny
+  bne vdp_name_table_loop
+
+  inc VDP_NAME_POINTER
+  ldx VDP_NAME_POINTER
+  cpx #7
+  bne vdp_name_table_loop
+  
+  ply
+  plx
+  pla
+  rts
+
+vdp_write_name_table:
+  pha
+  phx
+  vdp_write_vram TEXT_LOC
+  ldx #0
+.loop:
+  lda text_vdp,x
+  sta VDP_VRAM
+  beq end_write
+  inx
+  jmp .loop
+end_write:
+  plx
   pla
   rts
 
@@ -98,12 +160,7 @@ vdp_name_table_loop:
 vdp_initialize_pattern_table:
   pha
   phx
-  pha
-  lda #<VDP_PATTERN_TABLE_BASE
-  sta VDP_REG
-  lda #$48
-  sta VDP_REG
-  pla
+  vdp_write_vram VDP_PATTERN_TABLE_BASE
   lda #<vdp_patterns                      ; load the start address of the patterns to zero page
   sta VDP_PATTERN_INIT
   lda #>vdp_patterns
@@ -137,6 +194,9 @@ vdp_enable_display:
   sta VDP_REG
   pla
   rts
+
+text_vdp:
+  .byte "Hello, World!", $00
 
 
 ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
@@ -277,15 +337,3 @@ vdp_patterns:
 vdp_end_patterns:
 
   .byte $00
-
-;;;;;;;;;;;;;;;;;;; interrupts ;;;;;;;;;;;;;;;;;;;;;;;;;
-
-nmi: 
-  rti
-irq:
-  rti
-
-  .org $FFFA
-  .word nmi
-  .word reset
-  .word irq
