@@ -24,7 +24,6 @@ d416_sFiltFreqHi = $b816
 d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
-  .org $0f00
 init:
   sei
   lda #<irq
@@ -40,7 +39,7 @@ init:
   nop
 ; You can put code you want to run in the backround here.
 loop:
-  jmp loop
+  jmp textstart
 irq:
   pha
   phx

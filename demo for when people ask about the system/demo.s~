@@ -1,48 +1,133 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;                                     ;
-;      Modified_VDP.s                 ;
-;      Written in 6502 assembly       ;
-;      Started 7/27/21 by tramlaw101  ;
-;                                     ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; TMS9918A
-VDP_VRAM               = $8800		; address to set MODE low for a video ram operation on the TMS9918A Video Display Processor
-VDP_REG                = $8801		; address to set MODE high for a video register operation on the TMS9918A Video Display Processor
-VDP_WRITE_VRAM_BIT     = %01000000  	; pattern of second vram address write: 01AAAAAA
-VDP_REGISTER_BITS      = %10000000  	; pattern of second register write: 10000RRR
-
-VDP_NAME_TABLE_BASE = $0000
-VDP_PATTERN_TABLE_BASE = $0800
-
-TEXT_LOC		= $00FF
-
-; zero page addresses
-VDP_PATTERN_INIT    	= $30
-VDP_PATTERN_INIT_HI 	= $31
-
-VDP_NAME_POINTER        = $32
 
   .org $0f00
-  .include "sys.s"
-  .include "text.s"
-
-;  .macro vdp_write_vram			; macro to store address in vdp_reg for write
-;  pha
-;  lda #<(\1)
-;  sta VDP_REG
-;  lda #(VDP_WRITE_VRAM_BIT | >\1)
-;  sta VDP_REG
-;  pla
-;  .endm
-;;;;;;;;;;;;;;;;;;; reset ;;;;;;;;;;;;;;;;;;;
+;  .include "sys.s"
+;  .include "text.s"
+  .include "libacia.s"
 
 reset:
 
-;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
+textstart:
+  ldx #0
+loop1:
+  lda text_01,x
+  sta $8001
+  beq loop_end
+  inx
+  jmp loop1
+loop_end:
+  ldy #4
+waitloop:
+  jsr wait
+  dey
+  bne waitloop
+  ldx #64
+  lda #8
+downloop:
+  sta $8001
+  lda $14
+  sta $8001
+  dex
+  bne downloop
 
-jmp textstart
+text2:
+  ldx #0
+loop2:
+  lda text_03,x
+  sta $8001
+  beq loop_end2
+  inx
+  jmp loop2
+loop_end2:
+  ldy #4
+waitloop2:
+  jsr wait
+  dey
+  bne waitloop2
+  ldx #64
+  lda #8
+downloop2:
+  sta $8001
+  lda $14
+  sta $8001
+  dex
+  bne downloop2
 
+text_ii:
+  lda text_data,x
+  sta $8001
+  beq loop_end3
+  inx
+  ldy #$aa ; AAAAAAAAAAAAAAAAA
+notdelay:
+  iny
+  bne notdelay
+
+  jmp text_ii
+
+loop_end3:
+  
+  ldx #<text_02
+  ldy #>text_02
+  jsr w_acia_full
+
+  ldx #<endtext
+  ldy #>endtext
+  jsr w_acia_full
+
+loope:
+  jmp loope
+
+txpoll:
+  lda $8001
+  and #$10    ; Poll the TX bit
+  beq txpoll
+  rts
+
+w_acia_full:
+  pha
+  lda $ff
+  pha        ; Push Previous States onto the stack
+  lda $fe
+  pha
+  sty $ff    ; Set Y as the Upper Address (8-15)
+  stx $fe    ; Set X as the Lower Adderss (0-7)
+  ldy #0
+acia_man:
+  jsr txpoll   ; Poll TX
+  lda ($fe),y  ; Load the Address
+  sta $8000    ; Print what is at the address
+  beq endwacia ; If Done, End
+  iny          ; Next Character
+  jmp acia_man ; Back to the top
+endwacia:
+  pla
+  sta $fe
+  pla          ; Restore Variables
+  sta $ff
+  pla
+  rts
+
+text_data:
+  .byte $18, $08, "40 character text", $0d, $0a
+  .byte $18, $01, "80 character text", $0d, $0a
+  .byte $18, $02, "40 character bold text", $0d, $0a
+  .byte $18, $03, "80 character bold text", $0d, $0a
+  .byte $18, $04, "40 character double height text", $0d, $0a
+  .byte $18, $05, "80 character double height text", $0d, $0a
+  .byte $18, $06, "40 character double height bold text", $0d, $0a
+  .byte $18, $07, "80 character double height bold text", $0d, $0a
+  .byte $00
+
+text_01:
+;   empty cursor|clear| column | Row      |
+  .byte $01, $20, $0c, $0e, $12, $0f, $0c, "This is a demonstration of the capabilities of the XPL-32.", $00
+text_02:
+  .byte $18, $06, $0c, $0e, $10, $0f, $0c, "And graphics...", $00
+text_03:
+  .byte $18, $06, $0c, $0e, $10, $0f, $0c, "   Text Mode...", $00
+
+endtext:
+  .byte $08, $16, $00
 wait:
 	phx
 	phy
