@@ -1,0 +1,389 @@
+; XPL-32 <FOLDER> type loading code
+; (c) 2022 Liam Oppenheimer
+
+charbuffer = $601            ; 1 byte
+
+d400_sVoc1FreqLo = $b800
+d404_sVoc1Control = $b804
+d40b_sVoc2Control = $b80b
+d412_sVoc3Control = $b812
+
+seed = $01
+donefact = $02
+irqcount = $03
+
+zp_sd_address = $40         ; 2 bytes
+zp_sd_currentsector = $42   ; 4 bytes
+zp_fat32_variables = $46    ; 24 bytes
+
+fat32_workspace = $200      ; two pages
+
+buffer = $400               ; 512 bytes
+endbuf = $600
+
+
+  .org $0600
+jumptoit:
+  jmp sdstart
+  .include "hwconfig.s"
+  .include "libsd.s"
+  .include "libfat32.s"
+  .include "libacia.s"
+  .include "errors.s"
+
+dirname:
+  .asciiz "FOLDER     "
+
+errormsg:
+  .byte $0d, $0a, "ERROR!", $0d, $0a, $00
+
+sdstart:
+  stz $00
+
+  lda #$55
+  sta seed
+
+  jsr cleardisplay
+
+  ldx  #<loadmsg
+  ldy  #>loadmsg
+  jsr  w_acia_full
+
+  ldx  #<lodmm
+  ldy  #>lodmm
+  jsr  w_acia_full
+
+  jsr rootsetup
+
+findrau:
+  jmp type
+
+rootsetup:
+  pha
+  phx
+  phy
+  ; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<dirname
+  ldy #>dirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+error:
+
+  ; Subdirectory not found
+  ldy #>errormsg
+  ldx #<errormsg
+  jsr w_acia_full
+  jsr error_sound
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent
+
+  ply
+  plx 
+  pla
+  rts
+
+
+type:
+  ldx #<typemsg
+  ldy #>typemsg
+  jsr w_acia_full
+  ldx #0
+  lda #' '
+  sta $04
+  jmp typeloop
+
+rxpol:
+  lda $8001
+  and #$08
+  beq rxpol
+  rts
+
+rxput:
+  lda $8001
+  and #$08
+  beq typelop
+  rts
+typelop:
+  jmp typeloop
+
+lodmsg:
+  .byte $0d, $0a, "Loading...", $0d, $0a, $00
+donemsg:
+  .byte $0c, $00
+
+loadmsg:
+  .byte "          -------- SD Loader --------     ", $0d, $0a, $00
+lodmm:
+  .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
+
+typemsg:
+  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 9 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+
+loadbuf:
+  .byte $20, $20, $20, $20, $20, $20, $20, $20
+  .byte "XPL"
+
+other:
+  jsr txpoll
+  lda (zp_sd_address),y
+  sta $8000
+  iny
+  rts
+
+list:
+  jsr fat32_readdirent
+  bcs nofiles
+  and #$40
+  beq arc
+dir:
+  lda #'D'
+  jmp ebut
+arc:
+  lda #'F'
+ebut:
+  jsr print_chara
+  lda #$20
+  jsr print_chara
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda #'.'
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara
+  jmp list ; go again
+nofiles:
+endlist:
+  jsr crlf
+  jmp type
+
+jumptolist:
+  jsr crlf
+  jmp list
+
+typeloop:
+
+  jsr rxpol
+  lda $8000
+  sta charbuffer
+
+  cmp #$0d
+  beq exitloop
+
+  lda charbuffer
+  cmp #'l'
+  beq jumptolist
+
+  lda charbuffer
+  sta $8000
+
+  lda charbuffer
+  sta loadbuf,x
+  inx
+  jmp typeloop
+
+exitloop:
+
+  jsr crlf
+  jsr rootsetup
+  
+  ldy #>loadbuf
+  ldx #<loadbuf
+  jsr fat32_finddirent
+  bcc foundfile
+  
+  ; File not found
+  jmp error
+
+foundfile
+ 
+  ; Open file
+  jsr fat32_opendirent
+
+  ldx #<lodmsg
+  ldy #>lodmsg
+  jsr w_acia_full
+
+  lda #$00
+  sta fat32_address
+  lda #$0f
+  sta fat32_address+1
+
+  jsr fat32_file_read  ; Yes. It is finally time to read the file.
+
+end:
+  ldx #<donemsg
+  ldy #>donemsg
+  jsr w_acia_full
+  jsr $0f00
+  rts
+  rts
+  rts
+  rts
+
+  .org $1006
+PlaySid             ldx #$18
+L1008               lda $04,x
+                    sta d400_sVoc1FreqLo,x
+                    dex
+                    bpl L1008
+                    dec $02
+                    bmi L1015
+                    rts
+                    
+L1015               stx $02
+                    lda $03
+                    bne L1033
+                    jsr $001f
+                    beq L1038
+                    cmp #$a0
+                    bcs L102e
+                    sta $2a
+                    jsr $001f
+                    sta $29
+                    jmp L1076
+                    
+L102e               sec
+                    sbc #$9f
+                    sta $03
+L1033               dec $03
+                    jmp L1076
+                    
+L1038               jsr $001f
+                    cmp #$fd
+                    beq L106b
+                    cmp #$fe
+                    beq L1060
+                    cmp #$ff
+                    beq L104a
+                    sta $02
+                    rts
+                    
+L104a               lda #$00
+                    sta d404_sVoc1Control
+                    sta d40b_sVoc2Control
+                    sta d412_sVoc3Control
+                    lda #$5e
+                    sta $26
+                    lda #$10
+                    sta $27
+                    rts
+                    
+                      .byte $ff, $00 
+L1060               lda $1d
+                    sta $26
+                    lda $1e
+                    sta $27
+                    jmp L1015
+                    
+L106b               lda $26
+                    sta $1d
+                    lda $27
+                    sta $1e
+                    jmp L1015
+                    
+L1076               jsr S10a1
+                    lda #$f8
+L107b               clc
+                    adc #$07
+                    pha
+                    tax
+                    jsr $001f
+                    lsr a
+                    php
+L1085               inx
+                    lsr a
+                    bcs L1093
+                    bne L1085
+                    plp
+                    pla
+                    bcs L107b
+                    jsr S10a1
+                    rts
+                    
+L1093               pha
+                    ldy $ffff,x
+                    jsr $001f
+                    sta $0004,y
+                    pla
+                    jmp L1085
+                    
+S10a1               ldy $26
+                    ldx $29
+                    sty $29
+                    stx $26
+                    ldy $27
+                    ldx $2a
+                    sty $2a
+                    stx $27
+                    rts
+                    
+L10b2               sty $26
+                    stx $27
+                    ldx #$06
+L10b8               lda $10c6,x
+                    sta $1f,x
+                    dex
+                    bpl L10b8
+                    lda #$60
+                    sta $28
+                    bne L10d0
+                    inc $26
+                    bne L10cc
+                    inc $27
+L10cc               lda $ffff
+                    rts
+                    
+L10d0               jsr $001f
+                    sta $dc04
+                    jsr $001f
+                    sta $dc05
+                    jsr $001f
+                    sta $29
+                    jsr $001f
+                    sta $2a
+                    inc $26
+                    bne L10ec
+                    inc $27
+L10ec               lda $26
+                    sta $1095
+                    lda $27
+                    sta $1096
+                    ldx #$1c
+                    lda #$00
+L10fa               sta $02,x
+                    dex
+                    bpl L10fa
+                    jsr S10a1
+                    rts
+                    
+InitSid2            ldy #$09
+                    ldx #$11
+                    jmp L10b2
+
+  .binary "errorsound.bin"
+;          ^^^^^^^^^^^
+; put your data file here.

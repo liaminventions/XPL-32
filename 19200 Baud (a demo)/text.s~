@@ -42,18 +42,87 @@ text_ii_end:
 
   jsr wait_beat
 
-  ldx #0
-doomed:
   ldx #<endtext
   ldy #>endtext
   jsr w_acia_full
-  inx
-  txa
-  clc
-  sbc #$10
-  beq greee
+  ldx #<endtext
+  ldy #>endtext		; bUt!11
+  jsr w_acia_full
+  ldx #<endtext
+  ldy #>endtext
+  jsr w_acia_full
+  ldx #<endtext
+  ldy #>endtext
+  jsr w_acia_full
 
-greee:
+greeee:
+  jsr graphics		; write a screen
+
+  jsr rootsetup		; setup <FOLDER>
+
+  ldy #>imagefile	; setup image load
+  ldx #<imagefile
+  jsr fat32_finddirent
+
+  bcs nono		; no no no...
+
+  ldx #<poketable
+  stx fat32_address
+  ldy #>poketable
+  sty fat32_address+1
+
+  jsr fat32_file_read
+
+  bcs nono
+
+  jsr graphics
+
+  jmp reset		; done?
+
+nono:			; ded
+  lda "E"
+  jsr print_chara
+not:
+  jmp not
+         		; say goodbye!
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; SUBROUTINES ;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+rootsetup:
+  pha
+  phx
+  phy
+  ; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<dirname
+  ldy #>dirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+error:
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent
+
+  ply
+  plx 
+  pla
+  rts
+
+graphics:
+  pha
+  phx
+  phy
 
   lda #$02
   jsr print_chara
@@ -65,7 +134,7 @@ greee:
   jsr w_acia_full
 
 ; graphics code
-graphics:
+greee:
   ldx #<poketable	; addr setup
   stx $fe
   ldy #>poketable
@@ -99,7 +168,12 @@ inchi:
 back:
   jmp gloop
 endit:
-  jmp reset
+  ply
+  plx
+  pla
+  rts
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 out:
   pha
@@ -117,6 +191,8 @@ downloop:
   plx
   pla
   rts
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 wait_beat:
   phy
@@ -142,6 +218,16 @@ long_loop
   plx
   rts
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;  DATA  ;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+dirname:
+  .asciiz "FOLDER     "
+
+imagefile:
+  .byte "I2      DAT"
+
 text_data:
   .byte $0c
   .byte $18, $08, "40 character text", $0d, $0a
@@ -154,6 +240,8 @@ text_data:
   .byte $18, $07, "80 character double height bold text", $0d, $0a
 text_end:
   .byte $00
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 text_01:
 ;   empty cursor|clear| column | Row      |

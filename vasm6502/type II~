@@ -3,6 +3,11 @@
 
 charbuffer = $601            ; 1 byte
 
+d400_sVoc1FreqLo = $b800
+d404_sVoc1Control = $b804
+d40b_sVoc2Control = $b80b
+d412_sVoc3Control = $b812
+
 seed = $01
 donefact = $02
 irqcount = $03
