@@ -5,7 +5,6 @@
 ; fat32_workspace    - a large page-aligned 512-byte workspace
 ; zp_fat32_variables - 24 bytes of zero-page storage for variables etc
 
-
 fat32_readbuffer = fat32_workspace
 
 fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
@@ -626,3 +625,4 @@ fat32_file_read:
 
 .done
   rts
+

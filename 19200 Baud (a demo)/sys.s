@@ -25,6 +25,10 @@ d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
 init:
+
+bypass:
+  jmp loop
+
   sei
   lda #<irq
   sta $7ffe

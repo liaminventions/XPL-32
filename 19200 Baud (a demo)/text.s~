@@ -17,7 +17,6 @@ textstart:
 
   jsr out
 
-
   ldx #<text_03
   ldy #>text_03
   jsr w_acia_full	; second text
@@ -55,7 +54,15 @@ text_ii_end:
   ldy #>endtext
   jsr w_acia_full
 
-greeee:
+  lda #$02
+  jsr print_chara
+  lda #0
+  jsr print_chara
+
+  ldx #<setup
+  ldy #>setup
+  jsr w_acia_full
+
   jsr graphics		; write a screen
 
   jsr rootsetup		; setup <FOLDER>
@@ -66,21 +73,19 @@ greeee:
 
   bcs nono		; no no no...
 
-  ldx #<poketable
-  stx fat32_address
-  ldy #>poketable
-  sty fat32_address+1
+  lda #<poketable
+  sta fat32_address
+  lda #>poketable
+  sta fat32_address+1
 
   jsr fat32_file_read
-
-  bcs nono
 
   jsr graphics
 
   jmp reset		; done?
 
 nono:			; ded
-  lda "E"
+  lda "!"
   jsr print_chara
 not:
   jmp not
@@ -123,18 +128,6 @@ graphics:
   pha
   phx
   phy
-
-  lda #$02
-  jsr print_chara
-  lda #0
-  jsr print_chara
-
-  ldx #<setup
-  ldy #>setup
-  jsr w_acia_full
-
-; graphics code
-greee:
   ldx #<poketable	; addr setup
   stx $fe
   ldy #>poketable
@@ -171,6 +164,7 @@ endit:
   ply
   plx
   pla
+  clc
   rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

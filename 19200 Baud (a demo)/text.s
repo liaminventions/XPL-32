@@ -17,7 +17,6 @@ textstart:
 
   jsr out
 
-
   ldx #<text_03
   ldy #>text_03
   jsr w_acia_full	; second text
@@ -55,7 +54,15 @@ text_ii_end:
   ldy #>endtext
   jsr w_acia_full
 
-greeee:
+  lda #$02
+  jsr print_chara
+  lda #0
+  jsr print_chara
+
+  ldx #<setup
+  ldy #>setup
+  jsr w_acia_full
+
   jsr graphics		; write a screen
 
   jsr rootsetup		; setup <FOLDER>
@@ -64,18 +71,7 @@ greeee:
   ldx #<imagefile
   jsr fat32_finddirent
 
-  bcs nono		; no no no...
-
-  ldx #<poketable
-  stx fat32_address
-  ldy #>poketable
-  sty fat32_address+1
-
-  jsr fat32_file_read
-
-  jsr graphics
-
-  jmp reset		; done?
+  bcc ee		; no no no...
 
 nono:			; ded
   lda "!"
@@ -83,6 +79,20 @@ nono:			; ded
 not:
   jmp not
          		; say goodbye!
+  
+ee:
+
+  lda #<poketable
+  sta fat32_address
+  lda #>poketable
+  sta fat32_address+1
+
+  jsr fat32_file_read
+
+  jsr graphics
+
+  jmp reset		; done?
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; SUBROUTINES ;;;;;;;;;;;
@@ -121,18 +131,6 @@ graphics:
   pha
   phx
   phy
-
-  lda #$02
-  jsr print_chara
-  lda #0
-  jsr print_chara
-
-  ldx #<setup
-  ldy #>setup
-  jsr w_acia_full
-
-; graphics code
-greee:
   ldx #<poketable	; addr setup
   stx $fe
   ldy #>poketable
@@ -169,6 +167,7 @@ endit:
   ply
   plx
   pla
+  clc
   rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
