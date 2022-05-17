@@ -4,12 +4,12 @@
 charbuffer = $601            ; 1 byte
 
 d400_sVoc1FreqLo = $b800
-d404_sVoc1Control = $b804
+d404_sVoc1Control = $b804    ; SID
 d40b_sVoc2Control = $b80b
 d412_sVoc3Control = $b812
 
 seed = $01
-donefact = $02
+donefact = $02		     ; vars
 irqcount = $03
 
 zp_sd_address = $40         ; 2 bytes
@@ -25,6 +25,7 @@ endbuf = $600
   .org $0600
 jumptoit:
   jmp sdstart
+
   .include "hwconfig.s"
   .include "libsd.s"
   .include "libfat32.s"
@@ -32,20 +33,20 @@ jumptoit:
   .include "errors.s"
 
 dirname:
-  .asciiz "FOLDER     "
+  .asciiz "FOLDER     "	     ; standard directory name, SHORT format
 
 errormsg:
-  .byte $0d, $0a, "ERROR!", $0d, $0a, $00
+  .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
 
 sdstart:
-  stz $00
+  stz $00		; 0
 
-  lda #$55
+  lda #$55		; shftable value
   sta seed
+	
+  jsr cleardisplay	; clear display
 
-  jsr cleardisplay
-
-  ldx  #<loadmsg
+  ldx  #<loadmsg	; title screen
   ldy  #>loadmsg
   jsr  w_acia_full
 
@@ -53,19 +54,20 @@ sdstart:
   ldy  #>lodmm
   jsr  w_acia_full
 
-  jsr rootsetup
+  jsr rootsetup		; setup sd card
 
 findrau:
-  jmp type
+  jmp type		; start "type" program
 
-rootsetup:
+rootsetup:		; setup <ROOT>
   pha
   phx
   phy
+
   ; Open root directory
   jsr fat32_openroot
 
-  ; Find subdirectory by name
+  ; Find the subdirectory by name
   ldx #<dirname
   ldy #>dirname
   jsr fat32_finddirent
@@ -86,7 +88,7 @@ error:
 foundsubdir
 
   ; Open subdirectory
-  jsr fat32_opendirent
+  jsr fat32_opendirent	; open folder
 
   ply
   plx 
@@ -94,24 +96,24 @@ foundsubdir
   rts
 
 
-type:
-  ldx #<typemsg
+type:			; typing a filename
+  ldx #<typemsg		; Filename:_
   ldy #>typemsg
   jsr w_acia_full
   ldx #0
   lda #' '
-  sta $04
-  jmp typeloop
+  sta $04		; I frogor
+  jmp typeloop		; start loop
 
 rxpol:
   lda $8001
-  and #$08
+  and #$08		; non-irq rx polling code
   beq rxpol
   rts
 
 rxput:
   lda $8001
-  and #$08
+  and #$08		; it loops
   beq typelop
   rts
 typelop:
@@ -128,32 +130,32 @@ lodmm:
   .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
 
 typemsg:
-  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 9 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
 
 loadbuf:
   .byte $20, $20, $20, $20, $20, $20, $20, $20
   .byte "XPL"
 
 other:
-  jsr txpoll
+  jsr txpoll		; Write a letter of the filename currently being read
   lda (zp_sd_address),y
   sta $8000
   iny
   rts
 
-list:
-  jsr fat32_readdirent
+list:			; list file dir
+  jsr fat32_readdirent	; files?
   bcs nofiles
   and #$40
   beq arc
 dir:
-  lda #'D'
-  jmp ebut
+  lda #'D'		; directorys show up as 
+  jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
 arc:
-  lda #'F'
-ebut:
-  jsr print_chara
-  lda #$20
+  lda #'F'		; files show up as
+ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+  jsr print_chara	; f or d
+  lda #$20		; space
   jsr print_chara
   ; At this point, we know that there are no files, files, or a suddir
   ; Now for the name
@@ -164,19 +166,19 @@ nameloop:
   jsr other
   jmp nameloop
 dot:
-  lda #'.'
+  lda #'.'		; shows a file extention
   jsr print_chara
 lopii:
   cpy #11
-  beq endthat
+  beq endthat		; print 3-letter file extention
   jsr other
   jmp lopii
 endthat:
   lda #$09 ; Tab
-  jsr print_chara
-  jmp list ; go again
-nofiles:
-endlist:
+  jsr print_chara	; tab
+  jmp list ; go again	; next file if there are any left
+nofiles:		; if not,
+endlist:		; exit listing code
   jsr crlf
   jmp type
 
@@ -184,23 +186,23 @@ jumptolist:
   jsr crlf
   jmp list
 
-typeloop:
+typeloop:		; loop to type filenames
 
-  jsr rxpol
+  jsr rxpol		; read a charactor
   lda $8000
   sta charbuffer
 
-  cmp #$0d
-  beq exitloop
-
-  lda charbuffer
-  cmp #'l'
-  beq jumptolist
-
-  lda charbuffer
+  cmp #$0d		; enter?
+  beq exitloop		; if so, load
+			; if not...
+  lda charbuffer	
+  cmp #'l'		; check if it's "l"
+  beq jumptolist	; if so, list files
+			; if not,
+  lda charbuffer	; echo back
   sta $8000
 
-  lda charbuffer
+  lda charbuffer	; and store it in the filename buffer
   sta loadbuf,x
   inx
   jmp typeloop
@@ -245,6 +247,7 @@ end:
   rts
 
   .org $1006
+
 PlaySid             ldx #$18
 L1008               lda $04,x
                     sta d400_sVoc1FreqLo,x

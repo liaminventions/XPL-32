@@ -1,7 +1,9 @@
 error_sound:
+
   stz irqcount	; reset irq count
   lda #$55	
   sta donefact	; its not done yet
+  jsr clear_sid
   lda #$0f
   sta $b818	; full volume
 
@@ -38,12 +40,12 @@ irq:
   sei
   inc irqcount		; a irq has occurred
   lda irqcount
-  cmp #120     		; if this amount of irqs (end of the startup sound)
+  cmp #120     		; if 120 irqs (end of the error sound)
   bne continue24542 	; end the stream
   stz donefact		; its done, tell the loop
   sei
 continue24542:
-  jsr $1006
+  jsr PlaySid
   cli
   rti			; exit
 
@@ -57,7 +59,7 @@ putbut:
   rts
 InitSid             
   jsr putbut
-  jmp $1103
+  jmp InitSid2
 
 clear_sid:
 	ldx #$18

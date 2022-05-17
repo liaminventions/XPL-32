@@ -25,11 +25,10 @@ d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
 init:
-
-bypass:
-  jmp loop
-
   sei
+  lda #$55
+  sta scroll
+  stz count
   lda #<irq
   sta $7ffe
   lda #>irq
@@ -53,11 +52,55 @@ irq:
   sta $b00d
   jsr putbut
   jsr PlaySid
-  nop
+  lda scroll
+  beq scrollercheck
   ply
   plx
   pla
   rti
+
+scrollercheck:
+  lda count
+  sec
+  sbc #10
+  beq nott
+  inc count
+  ply
+  plx
+  pla
+  rti
+nott
+  stz count
+
+scroller:
+  lda sco
+  bne eeeee
+  lda #$18
+  jsr print_chara
+  lda #6
+  jsr print_chara
+  ldx #0
+eeeee:
+  ldx sco
+  lda #$16
+  jsr print_chara
+  lda scrollmsg,x
+  beq endscroll
+  jsr print_chara
+  inx
+  stx sco
+  ply
+  plx
+  pla
+  rti
+endscroll:
+  lda #$55
+  sta scroll
+  ply
+  plx
+  pla
+  rti  
+
 InitSid             ldx #$63
                     stx $b004
                     stx $b007

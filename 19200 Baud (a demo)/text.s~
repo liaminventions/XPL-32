@@ -65,13 +65,32 @@ text_ii_end:
 
   jsr graphics		; write a screen
 
+  sei
+  stz scroll		; scroll on
+  stz sco
+
   jsr rootsetup		; setup <FOLDER>
 
   ldy #>imagefile	; setup image load
   ldx #<imagefile
   jsr fat32_finddirent
+  jsr fat32_opendirent  ; open filename addr
+  lda #<poketable
+  sta fat32_address	; host addr
+  lda #>poketable
+  sta fat32_address+1
+  jsr fat32_file_read	; read
+  jsr graphics
+  jmp not
 
-  bcs nono		; no no no...
+nono:			; ded
+  lda "!"
+  jsr print_chara
+not:
+  jmp not
+         		; say goodbye!
+  
+ee:
 
   lda #<poketable
   sta fat32_address
@@ -84,12 +103,6 @@ text_ii_end:
 
   jmp reset		; done?
 
-nono:			; ded
-  lda "!"
-  jsr print_chara
-not:
-  jmp not
-         		; say goodbye!
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; SUBROUTINES ;;;;;;;;;;;
@@ -109,16 +122,17 @@ rootsetup:
   bcc foundsubdir
 
 error:
+  clc
   rts
   rts
   rts
   rts
 
-foundsubdir
+foundsubdir:
 
   ; Open subdirectory
   jsr fat32_opendirent
-
+  sec
   ply
   plx 
   pla

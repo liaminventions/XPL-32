@@ -65,13 +65,24 @@ text_ii_end:
 
   jsr graphics		; write a screen
 
+  sei
+  stz scroll		; scroll on
+  stz sco
+  cli
+
   jsr rootsetup		; setup <FOLDER>
 
   ldy #>imagefile	; setup image load
   ldx #<imagefile
   jsr fat32_finddirent
-
-  bcc ee		; no no no...
+  jsr fat32_opendirent  ; open filename addr
+  lda #<poketable
+  sta fat32_address	; host addr
+  lda #>poketable
+  sta fat32_address+1
+  jsr fat32_file_read	; read
+  jsr graphics
+  jmp not
 
 nono:			; ded
   lda "!"
@@ -112,16 +123,17 @@ rootsetup:
   bcc foundsubdir
 
 error:
+  clc
   rts
   rts
   rts
   rts
 
-foundsubdir
+foundsubdir:
 
   ; Open subdirectory
   jsr fat32_opendirent
-
+  sec
   ply
   plx 
   pla

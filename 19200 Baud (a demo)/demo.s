@@ -1,3 +1,8 @@
+scroll = $00
+scrollinc = $01
+sco = $02
+count = $03
+
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
 zp_fat32_variables = $46 ; 24
@@ -54,4 +59,8 @@ delay   dex          ; (2 cycles)
 
 reset:
   jmp reset
+
+scrollmsg:
+
+  .byte "6502 Power! I know that the graphics look simple, but under the hood, it is crazy. Just wait till you see the color video part a bit later...           A retro laptop with 4 expansion slots just like a standard PC slot...", $00
 
