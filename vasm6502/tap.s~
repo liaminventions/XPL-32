@@ -1,0 +1,180 @@
+thing = $00
+odd   = $01
+
+  .org $0f00
+
+start:
+  jsr via_init		; init VIA
+  ldx #0
+datlop:
+  txa
+  sta dat,x		; store data that counts
+  inx
+  bne datlop
+
+  ldx #<msg
+  ldy #>msg		; press rec and play
+  jsr w_acia_full
+
+  jsr rxpoll
+  lda $8000		; space?
+  cmp #$20
+  
+  jsr inout		; intro sound
+
+  ldy #1
+  sty thing		; first bit
+wop:
+  lda dat,x		; load data
+  and thing		; mask it
+  bne jsrone		; one
+  jsr zero		; or zero
+oner:
+  lda thing		; load the bitmask
+  sec
+  sbc #$80		; end of byte?
+  beq noo
+  asl thing		; no, bitshift left
+  jmp wop		; next bit
+jsrone:
+  jsr one		; a one
+  jmp oner
+noo:
+  lda #1		; byte done
+  sta thing
+  jsr zero		; end prev. byte, start new byte
+  jsr one
+  inx			; next byte
+  bne wop
+
+  jsr inout		; we are done, ending sound  
+
+  ; done
+  ldx #<msg2
+  ldy #>msg2		; "Done!"
+  jsr w_acia_full
+  rts
+  rts
+  rts			; return
+  rts
+  rts
+
+
+
+; subs
+
+inout:
+  pha
+  phx
+  stz PORTA
+  ldx #50		; ff-50 times make the sound
+starter:
+  jsr one		; sound
+  inx
+  bne starter
+  plx
+  pla
+  rts
+
+one:			; 2349 hz sound 8x (aprox. 3.33ms)
+  pha
+  phx
+  lda #$55		; asl thing
+  sta odd
+  lda #0
+  sta PORTA		; 0
+  ldx #$7e		; cycle 8 times
+loop1:
+  stz $b00b
+  lda #$2a
+  sta $b004		; freq
+  lda #$00
+  sta $b005
+intro:
+  bit $b00d		; delay complete?
+  bvc intro
+  lda odd
+  sec
+  sbc #$55		; odd?
+  bne decer		; if so, 0 in PA
+  lda #1		; if even, 1 in PA
+  sta PORTA
+  asl odd		; shift odd
+  jmp loop1
+decer:
+  stz PORTA
+  asl odd		; shift even
+  dex			; a cycle is done
+  bne loop1
+  plx
+  pla
+  rts
+
+zero:
+  pha 
+  phx
+  lda #$55
+  sta odd
+  lda #0
+  sta PORTA
+  ldx #$ff
+loop2:
+  stz $b00b
+  lda #$b0
+  sta $b004
+  lda #$00
+  sta $b005
+intro2:
+  bit $b00d
+  bvc intro2
+
+  lda odd
+  sec
+  sbc #$55
+  bne decer2
+  lda #1
+  sta PORTA
+  asl odd
+  jmp loop2
+decer2:
+  stz PORTA
+  asl odd
+  dex
+  bne loop2
+  plx
+  pla
+  rts
+
+
+  .include "hwtape.s"
+  .include "libacia.s"
+msg:
+  .byte "Pres Record And play on Tape, then Press Space.", $0d, $0a, $00
+msg2:
+  .byte "Done!", $0d, $0a, $00
+dat:
+  .byte $00
+
+  .org $1200
+
+clear:
+  ldx #0
+clearlop:
+  stz dat,x
+  dex
+  bne clearlop
+  ldx #<clearmsg
+  ldy #>clearmsg
+  jsr w_acia_full
+  rts
+  rts
+  rts
+  rts
+
+clearmsg:
+  .byte "Cleared!", $0d, $0a, $00
+
+  .org $1300
+
+load:
+  stz DDRA

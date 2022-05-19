@@ -82,11 +82,14 @@ scroller:
   ldx #0
 eeeee:
   ldx sco
-  lda #$16
-  jsr print_chara
+  ldx #<thingy
+  ldy #>thingy
+  jsr w_acia_full
   lda scrollmsg,x
   beq endscroll
   jsr print_chara
+ ; lda #$16
+ ; jsr print_chara
   inx
   stx sco
   ply
@@ -100,6 +103,9 @@ endscroll:
   plx
   pla
   rti  
+
+thingy:
+  .byte $0e, $01, $08, $0e, $4e, $00
 
 InitSid             ldx #$63
                     stx $b004

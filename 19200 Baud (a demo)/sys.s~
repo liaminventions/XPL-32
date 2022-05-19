@@ -28,6 +28,7 @@ init:
   sei
   lda #$55
   sta scroll
+  stz count
   lda #<irq
   sta $7ffe
   lda #>irq
@@ -59,7 +60,17 @@ irq:
   rti
 
 scrollercheck:
-  
+  lda count
+  sec
+  sbc #10
+  beq nott
+  inc count
+  ply
+  plx
+  pla
+  rti
+nott
+  stz count
 
 scroller:
   lda sco
@@ -71,11 +82,14 @@ scroller:
   ldx #0
 eeeee:
   ldx sco
-  lda #$16
-  jsr print_chara
+  ldx #<thingy
+  ldy #>thingy
+  jsr acia_full
   lda scrollmsg,x
   beq endscroll
   jsr print_chara
+ ; lda #$16
+ ; jsr print_chara
   inx
   stx sco
   ply
@@ -89,6 +103,9 @@ endscroll:
   plx
   pla
   rti  
+
+thingy:
+  .byte $0e, $01, $08, $0e, $4e
 
 InitSid             ldx #$63
                     stx $b004
