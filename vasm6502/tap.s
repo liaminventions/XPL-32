@@ -1,10 +1,14 @@
 thing = $00
 odd   = $01
+buf   = $02
+eorr  = $03
 
   .org $0f00
 
 start:
   jsr via_init		; init VIA
+  lda #0
+  sta $b00e
   ldx #0
 datlop:
   txa
@@ -16,11 +20,17 @@ datlop:
   ldy #>msg		; press rec and play
   jsr w_acia_full
 
+check:
   jsr rxpoll
   lda $8000		; space?
-  cmp #$20
+  sec
+  sbc #$20
+  bne check
   
   jsr inout		; intro sound
+
+  jsr zero
+  jsr one
 
   ldy #1
   sty thing		; first bit
@@ -178,3 +188,173 @@ clearmsg:
 
 load:
   stz DDRA
+  jsr wait1
+  jsr wait0		; header
+  jsr wait1
+  jsr readbits 
+  sta dat
+  ldx #1
+loadloop
+  jsr wait0
+  jsr 3cyc
+  jsr wait1
+  jsr 7cyc
+  jsr readbits
+  sta dat,x
+  inx
+  bne loadloop
+  rts
+  rts
+  rts
+  rts
+; subs
+
+irqsetup1:
+  stz $b00b
+  lda #$b0	; a little more for good measure
+  sta $b004
+  lda #$01
+  sta $b005
+  rts
+
+wait1:
+  pha
+  phx
+  phy
+h:
+  lda PORTA
+  beq h
+  jsr irqsetup1
+isit:
+  bit $b00d
+  bvc isit
+qq1:
+  lda PORTA
+  bne h
+  jsr irqsetup1			; it is the right freq..?
+itss:
+  bit $b00d
+  bvc itss
+  lda PORTA
+  beq qq1
+  sec
+  ply
+  plx
+  pla
+  rts				; it is.
+
+huh:
+  jmp $c000
+
+irqsetup0:
+  stz $b00b
+  lda #$60	; a little more for good measure
+  sta $b004
+  lda #$03
+  sta $b005
+  rts
+
+wait0:
+  pha
+  phx
+  phy
+h0:
+  lda PORTA
+  beq h0
+  jsr irqsetup0
+isit0:
+  bit $b00d
+  bvc isit0
+qq:
+  lda PORTA
+  bne h0
+  jsr irqsetup0 		; it is the right freq..?
+itss0:
+  bit $b00d
+  bvc itss0
+  lda PORTA
+  beq qq
+  ply
+  plx
+  pla
+  rts				; it is.
+
+read:
+  pha
+  phx
+  phy
+hr:
+  lda PORTA
+  beq hr
+  jsr irqsetup1
+isitr:
+  bit $b00d
+  bvc isitr
+  lda PORTA
+  bne notiq
+  jsr irqsetup1			; it is the right freq..?
+itssr:
+  bit $b00d
+  bvc itssr
+  lda PORTA
+  beq notiq
+  sec
+  ply
+  plx
+  pla
+  rts				; it is.
+notiq:
+  clc
+  ply
+  plx 
+  pla
+  rts
+
+readbits:
+  phx
+  phy
+  stz buf
+  lda #$fe
+  sta thing
+ag:
+  jsr read
+  bcs itsa1
+itsa0:
+  lda buf
+  and thing
+  sta buf
+  jsr 3cyc
+  jmp nxt
+itsa1:
+  lda thing
+  eor #$ff
+  sta eorr
+  lda buf
+  ora eorr
+  sta buf
+  jsr 7cyc
+nxt:
+  asl thing
+  lda thing
+  sec
+  sbc #$7f
+  bne ag
+  ply
+  plx
+  rts
+
+3cyc:
+  jsr wait1
+  jsr wait1
+  jsr wait1
+  rts
+
+7cyc:
+  jsr wait1os
+  jsr wait1
+  jsr wait1
+  jsr wait1
+  jsr wait1
+  jsr wait1
+  jsr wait1  
+  rts
