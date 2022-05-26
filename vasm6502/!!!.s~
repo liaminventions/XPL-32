@@ -35,9 +35,8 @@ init:
   sta $7fff
   lda #$90
   sta $b00e
-  ; IRQ Inits Go Here
+  stz $b00c
   lda #0 ; Song Number
-  sta $b00c
   jsr InitSid
   cli
   nop

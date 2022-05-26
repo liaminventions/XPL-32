@@ -68,6 +68,7 @@ text_ii_end:
   sei
   stz scroll		; scroll on
   stz sco
+  cli
 
   jsr rootsetup		; setup <FOLDER>
 

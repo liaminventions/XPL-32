@@ -1,12 +1,12 @@
 error_sound:
+  lda #$55
+  sta $00	; its not done yet
+  stz $01	; reset irq count
 
-  stz irqcount	; reset irq count
-  lda #$55	
-  sta donefact	; its not done yet
-  jsr clear_sid
   lda #$0f
   sta $b818	; full volume
 
+runthesound:
   sei		; turn off irqs
   lda #<irq
   sta $7ffe
@@ -19,7 +19,37 @@ error_sound:
   lda #$40
   sta $b00d
   cli
-  nop
+  jmp startupsoundloop
+
+irq:
+  jsr putbut		; refresh timers
+  sei
+  inc $01		; a irq has occurred
+  lda $01
+  cmp #120		; if 120 irqs (end of the error sound)
+  bne continue24542 	; end the stream
+  stz $00		; its done, tell the loop
+  sei
+continue24542:
+  jsr $1006
+  cli
+  rti			; exit
+
+putbut:
+		ldx #$9e
+		stx $b004
+		stx $b006
+		ldx #$0f  ; 250Hz IRQ
+		stx $b005
+		stx $b007
+		rts
+InitSid		jsr putbut
+		jmp $1103
+
+  .org $1006
+
+  .include "errorsound.s"
+
 startupsoundloop:	
   lda donefact		; loop only if the sound is not done
   bne startupsoundloop
@@ -34,38 +64,3 @@ startupsoundloop:
   rts
   rts
   rts
-
-irq:
-  jsr putbut		; refresh timers
-  sei
-  inc irqcount		; a irq has occurred
-  lda irqcount
-  cmp #120     		; if 120 irqs (end of the error sound)
-  bne continue24542 	; end the stream
-  stz donefact		; its done, tell the loop
-  sei
-continue24542:
-  jsr PlaySid
-  cli
-  rti			; exit
-
-putbut:
-  ldx #$9e
-  stx $b004
-  stx $b006
-  ldx #$0f  ; 250Hz IRQ
-  stx $b005
-  stx $b007
-  rts
-InitSid             
-  jsr putbut
-  jmp InitSid2
-
-clear_sid:
-	ldx #$18
-csid:
-	stz $b800,x
-	dex
-	bne csid
-	rts
-	

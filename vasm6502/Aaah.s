@@ -73,6 +73,13 @@ dobut               jmp L111c
 
 PlaySid
                     jsr poitt
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
                     jmp L1120
                     
 L1006               jmp L1083

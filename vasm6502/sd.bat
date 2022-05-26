@@ -1,0 +1,1 @@
+vasm6502_oldstyle -Fbin -dotdir -c02 sd_handeler.s -o D:\folder\code.xpl

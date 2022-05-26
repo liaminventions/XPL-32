@@ -1,3 +1,29 @@
+d400_sVoc1FreqLo = $b800
+d401_sVoc1FreqHi = $b801
+d402_sVoc1PWidthLo = $b802
+d403_sVoc1PWidthHi = $b803
+d404_sVoc1Control = $b804
+d405_sVoc1AttDec = $b805
+d406_sVoc1SusRel = $b806
+d407_sVoc2FreqLo = $b807
+d408_sVoc2FreqHi = $b808
+d409_sVoc2PWidthLo = $b809
+d40a_sVoc2PWidthHi = $b80a
+d40b_sVoc2Control = $b80b
+d40c_sVoc2AttDec = $b80c
+d40d_sVoc2SusRel = $b80d
+d40e_sVoc3FreqLo = $b80e
+d40f_sVoc3FreqHi = $b80f
+d410_sVoc3PWidthLo = $b810
+d411_sVoc3PWidthHi = $b811
+d412_sVoc3Control = $b812
+d413_sVoc3AttDec = $b813
+d414_sVoc3SusRel = $b814
+d415_sFiltFreqLo = $b815
+d416_sFiltFreqHi = $b816
+d417_sFiltControl = $b817
+d418_sFiltMode = $b818
+
   .org $0f00
 init:
   sei

@@ -26,7 +26,7 @@ check:
   sec
   sbc #$20
   bne check
-  
+
   jsr inout		; intro sound
 
   jsr zero
@@ -43,8 +43,9 @@ oner:
   lda thing		; load the bitmask
   sec
   sbc #$80		; end of byte?
+  sec
   beq noo
-  asl thing		; no, bitshift left
+  asl thing
   jmp wop		; next bit
 jsrone:
   jsr one		; a one
@@ -91,12 +92,11 @@ one:			; 2349 hz sound 8x (aprox. 3.33ms)
   phx
   lda #$55		; asl thing
   sta odd
-  lda #0
-  sta PORTA		; 0
+  stz PORTA		; 0
   ldx #8		; cycle 8 times
 loop1:
   stz $b00b
-  lda #$a7
+  lda #$a8
   sta $b004		; freq
   lda #$01
   sta $b005
@@ -107,13 +107,17 @@ intro:
   sec
   sbc #$55		; odd?
   bne decer		; if so, 0 in PA
-  lda #1		; if even, 1 in PA
+  lda #$02		; if even, 1 in PA
   sta PORTA
-  asl odd		; shift odd
+  lda odd
+  eor #$ff		; shift odd
+  sta odd
   jmp loop1
 decer:
   stz PORTA
-  asl odd		; shift even
+  lda odd
+  eor #$ff		; shift even
+  sta odd
   dex			; a cycle is done
   bne loop1
   plx
@@ -125,30 +129,32 @@ zero:
   phx
   lda #$55
   sta odd
-  lda #0
-  sta PORTA
+  stz PORTA
   ldx #4
 loop2:
   stz $b00b
-  lda #$50
+  lda #$51
   sta $b004
   lda #$03
   sta $b005
 intro2:
   bit $b00d
   bvc intro2
-
   lda odd
   sec
   sbc #$55
   bne decer2
-  lda #1
+  lda #$02
   sta PORTA
-  asl odd
+  lda odd
+  eor #$ff
+  sta odd 
   jmp loop2
 decer2:
   stz PORTA
-  asl odd
+  lda odd
+  eor #$ff
+  sta odd
   dex
   bne loop2
   plx
@@ -159,7 +165,7 @@ decer2:
   .include "hwtape.s"
   .include "libacia.s"
 msg:
-  .byte "Pres Record And play on Tape, then Press Space.", $0d, $0a, $00
+  .byte "Press Record And play on Tape, then Press Space.", $0d, $0a, $00
 msg2:
   .byte "Done!", $0d, $0a, $00
 dat:
@@ -188,6 +194,18 @@ clearmsg:
 
 load:
   stz DDRA
+  stz PORTA
+  ldx #<loadmsg
+  ldy #>loadmsg
+  jsr w_acia_full
+
+spac:
+  jsr rxpoll
+  lda $8000
+  sec
+  sbc #$20
+  bne spac
+
   jsr wait1
   jsr wait0		; header
   jsr wait1
@@ -196,13 +214,18 @@ load:
   ldx #1
 loadloop
   jsr wait0
-  jsr 3cyc
+  jsr cyc3
   jsr wait1
-  jsr 7cyc
+  jsr cyc7
   jsr readbits
   sta dat,x
   inx
   bne loadloop
+
+  ldx #<msg2
+  ldy #>msg2
+  jsr w_acia_full
+
   rts
   rts
   rts
@@ -323,7 +346,7 @@ itsa0:
   lda buf
   and thing
   sta buf
-  jsr 3cyc
+  jsr cyc3
   jmp nxt
 itsa1:
   lda thing
@@ -332,7 +355,7 @@ itsa1:
   lda buf
   ora eorr
   sta buf
-  jsr 7cyc
+  jsr cyc7
 nxt:
   asl thing
   lda thing
@@ -343,14 +366,14 @@ nxt:
   plx
   rts
 
-3cyc:
+cyc3:
   jsr wait1
   jsr wait1
   jsr wait1
   rts
 
-7cyc:
-  jsr wait1os
+cyc7:
+  jsr wait1
   jsr wait1
   jsr wait1
   jsr wait1
@@ -358,3 +381,6 @@ nxt:
   jsr wait1
   jsr wait1  
   rts
+
+loadmsg:
+  .byte "Press Play And Space.", $0d, $0a, $00

@@ -66,7 +66,7 @@ text_ii_end:
   jsr graphics		; write a screen
 
   sei
-  stz scroll		; scroll on
+  stz scroll		; scroll on+
   stz sco
   cli
 

@@ -12,7 +12,7 @@ d416_sFiltFreqHi = $b816
 d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
-  .org $0fd0
+  .org $0f00
 
 init:
   sei
@@ -20,12 +20,11 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
   ; IRQ Inits Go Here
   lda #0 ; Song Number
-  sta $b00c
-  jsr InitSid
+  jsr InitSid2
   cli
   nop
 ; You can put code you want to run in the backround here.
@@ -33,11 +32,26 @@ loop:
   jmp loop
 irq:
   ; IRQ code goes here
-  lda #$10
+  lda #$40
   sta $b00d
+  jsr putbut
   jsr PlaySid
   nop
   rti
+
+InitSid2	    phx
+		    jsr putbut
+		    plx
+		    jsr InitSid
+		    rts
+
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
 
   .org $0fff
 

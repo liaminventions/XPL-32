@@ -71,23 +71,19 @@ scrollercheck:
   rti
 nott
   stz count
-
-scroller:
   lda sco
   bne eeeee
-  lda #$18
-  jsr print_chara
-  lda #6
-  jsr print_chara
+scroller:
+  lda #$ff
   ldx #0
 eeeee:
   ldx sco
-  ldx #<thingy
-  ldy #>thingy
-  jsr w_acia_full
   lda scrollmsg,x
   beq endscroll
   jsr print_chara
+  ldx #<thingy
+  ldy #>thingy
+  jsr w_acia_full
  ; lda #$16
  ; jsr print_chara
   inx
@@ -105,7 +101,7 @@ endscroll:
   rti  
 
 thingy:
-  .byte $0e, $01, $08, $0e, $4e, $00
+  .byte $ff, $16, $1d, $00
 
 InitSid             ldx #$63
                     stx $b004

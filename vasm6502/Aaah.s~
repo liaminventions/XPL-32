@@ -35,7 +35,7 @@ init:
   sta $7fff
   lda #$c0
   sta $b00e
-  ; IRQ Inits Go Here
+
   lda #0 ; Song Numbehr
   jsr InitSid
   cli

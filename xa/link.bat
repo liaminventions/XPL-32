@@ -1,4 +1,3 @@
-
 set /p msg= "Commit Message: "
 copy xpl.BIN ..\osi_basic-master\
 cd ..\osi_basic-master\
