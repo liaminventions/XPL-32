@@ -16,14 +16,14 @@ init:
   sta $b00e
   lda #0 ; Song Number
   jsr InitSid2
-  lda #$40
-  sta $b00d
   cli
   nop
 ; You can put code you want to run in the backround here.
 loop:
   jmp loop
 irq:
+  lda #$40
+  sta $b00d
   jsr putbut
 check:
   sei

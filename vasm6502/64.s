@@ -33,9 +33,9 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
-  stz $b00c
+  jsr putbut
   lda #0 ; Song Number
   jsr InitSid
   cli
@@ -47,8 +47,9 @@ loop:
   jmp loop
 
 irq:
-  lda #$10
+  lda #$40
   sta $b00d
+  jsr putbut
 check:
   sei
   lda poll
@@ -69,6 +70,14 @@ cloop:
   jmp cloop
 end:
   jmp ($fffc)
+
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
 
   .org $1000
 
