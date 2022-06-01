@@ -77,7 +77,7 @@ noo:
 inout:
   pha
   phx
-  ldx #50		; 50 times make the sound
+  ldx #$ff		; 255 times make the sound
 starter:
   jsr one		; sound
   inx
@@ -86,7 +86,7 @@ starter:
   pla
   rts
 
-one:			; 2349 hz sound 8x (aprox. 3.33ms)
+one:			; 2 khz sound 1 cyc
   pha
   phx
   stz tapest
