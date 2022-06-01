@@ -77,7 +77,7 @@ noo:
 inout:
   pha
   phx
-  ldx #$ff		; 255 times make the sound
+  ldx #0		; 256 times make the sound
 starter:
   jsr one		; sound
   inx
@@ -90,7 +90,7 @@ one:			; 2 khz sound 1 cyc
   pha
   phx
   stz tapest
-  stz PORTA		; 0
+  stz PORTA
   ldx #2		; cycle 2 times
 loop1:
   jsr onefreq
@@ -195,20 +195,34 @@ RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
         JSR     RD2BIT          ; Look for two tape state transitions
         PLA
         ROL                     ; Roll the read bit into A (from carry)
-        LDY     #$3A            ; Set the compensated read width
+;	LDY     #$3A            ; Set the compensated read width
         DEX
         BNE     RDBYT2          ; Keep going until 8 bits read.
         RTS
 
 RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
-RDBIT   DEY
+RDBIT   JSR 	waitfreq
+;	DEY
         LDA     PORTA
         EOR     tapest
         BEQ     RDBIT           ; Keep looping until state changes.
         EOR     tapest
         STA     tapest
-        CPY     #$80            ; If Y went negative, set carry (this is a '1')
-        RTS
+	BIT 	$b00d
+	BVC	RDBIT0
+	SEC			; sec if 1
+	RTS
+RDBIT0	CLC			; clc if 0
+	RTS
+;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
+
+waitfreq:
+  stz $b00b
+  lda #$ef
+  sta $b004		; freq
+  lda #$01
+  sta $b005
+  rts
 
   .org $1300
 
@@ -259,22 +273,6 @@ wait1:
 wait0:
   jsr RDBIT
   bcc wait0
-  rts
-
-cyc3:
-  jsr wait0
-  jsr wait0
-  jsr wait0
-  rts
-
-cyc7:
-  jsr wait1
-  jsr wait1
-  jsr wait1
-  jsr wait1
-  jsr wait1
-  jsr wait1
-  jsr wait1  
   rts
 
 loadmsg:
