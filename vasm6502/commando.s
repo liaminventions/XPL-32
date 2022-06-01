@@ -1,21 +1,83 @@
-  .org $1000
-SYS2064:
-  lda #$40
-  sta $b00b
-  sta $b00d
-  lda #$80
+d400_sVoc1FreqLo = $b800
+d401_sVoc1FreqHi = $b801
+d402_sVoc1PWidthLo = $b802
+d403_sVoc1PWidthHi = $b803
+d404_sVoc1Control = $b804
+d405_sVoc1AttDec = $b805
+d406_sVoc1SusRel = $b806
+d407_sVoc2FreqLo = $b807
+d408_sVoc2FreqHi = $b808
+d409_sVoc2PWidthLo = $b809
+d40a_sVoc2PWidthHi = $b80a
+d40b_sVoc2Control = $b80b
+d40c_sVoc2AttDec = $b80c
+d40d_sVoc2SusRel = $b80d
+d40e_sVoc3FreqLo = $b80e
+d40f_sVoc3FreqHi = $b80f
+d410_sVoc3PWidthLo = $b810
+d411_sVoc3PWidthHi = $b811
+d412_sVoc3Control = $b812
+d413_sVoc3AttDec = $b813
+d414_sVoc3SusRel = $b814
+d415_sFiltFreqLo = $b815
+d416_sFiltFreqHi = $b816
+d417_sFiltControl = $b817
+d418_sFiltMode = $b818
+
+poll = $8001
+
+  .org $0f00
+init:
+  sei
+  lda #<irq
+  sta $7ffe
+  lda #>irq
+  sta $7fff
+  lda #$c0
   sta $b00e
-
-  lda #$24
-  sta $b004
-  lda $f4
-  sta $b005
-  
-  lda #0
-  jsr L5000
+  jsr putbut
+  lda #0 ; Song Number
+  jsr InitSid
   cli
+  nop
 
-  jmp $c000
+; You can put code you want to run in the backround here.
+
+loop:
+  jmp loop
+
+irq:
+  lda #$40
+  sta $b00d
+  jsr putbut
+check:
+  sei
+  lda poll
+  and #$08
+  beq cont
+  jmp clear
+cont:
+  jsr PlaySid
+  cli
+  rti
+clear:
+  ldx #$18
+  lda #$00
+cloop:
+  sta d400_sVoc1FreqLo,x
+  dex
+  beq end
+  jmp cloop
+end:
+  jmp ($fffc)
+
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
 
   .org $5000
 L5000:
@@ -657,33 +719,3 @@ L5f87:
                     
                     .byte $00, $00, $00, $01, $02, $04, $05, $09, $0b, $0c 
 
-irq:
-  pha
-  phx
-  inc $0200
-  lda $0200
-  sbc #$20
-  beq Norm_irq
-  jmp reload
-end_irq:
-  pla
-  plx
-  rti
-reload:
-  lda #$24
-  sta $b004
-  lda #$f4
-  sta $b005
-  jmp end_irq
-Norm_irq:
-  lda #$24
-  sta $b004
-  lda #$f4
-  sta $b005
-  jsr $5003
-  rti
-
-  .org $7ffe
-  .word irq
-
-; end

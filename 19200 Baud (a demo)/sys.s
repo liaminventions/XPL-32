@@ -74,18 +74,15 @@ nott
   lda sco
   bne eeeee
 scroller:
-  lda #$ff
   ldx #0
 eeeee:
   ldx sco
-  lda scrollmsg,x
-  beq endscroll
-  jsr print_chara
   ldx #<thingy
   ldy #>thingy
   jsr w_acia_full
- ; lda #$16
- ; jsr print_chara
+  lda scrollmsg,x
+  jsr print_chara
+  beq endscroll
   inx
   stx sco
   ply
@@ -98,10 +95,10 @@ endscroll:
   ply
   plx
   pla
-  rti  
+  rti
 
 thingy:
-  .byte $ff, $16, $1d, $00
+  .byte $17, $0e, $40, $00
 
 InitSid             ldx #$63
                     stx $b004
@@ -264,6 +261,7 @@ L1275               lda $116b,x
                     iny
                     lda ($a7),y
                     sta $1168,x
+
                     tay
                     lda ($a7),y
 L128f               bpl L12b3

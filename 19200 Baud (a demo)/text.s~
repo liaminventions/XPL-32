@@ -66,8 +66,12 @@ text_ii_end:
   jsr graphics		; write a screen
 
   sei
-  stz scroll		; scroll on
+  stz scroll		; scroll on+
   stz sco
+  lda #$0e
+  jsr print_chara
+  lda #$4f
+  jsr print_chara
   cli
 
   jsr rootsetup		; setup <FOLDER>

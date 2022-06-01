@@ -89,9 +89,11 @@ starter:
 one:			; 2349 hz sound 8x (aprox. 3.33ms)
   pha
   phx
+  lda #$55		; asl thing
+  sta odd
   stz tapest
   stz PORTA		; 0
-  ldx #2		; cycle 2 times
+  ldx #8		; cycle 8 times
 loop1:
   jsr onefreq
   jsr togtap
@@ -114,7 +116,7 @@ zero:
   lda #$55
   sta odd
   stz PORTA
-  ldx #2
+  ldx #4
 loop2:
   jsr zerofreq
   jsr togtap

@@ -28,6 +28,10 @@ datlop:
   ldy #>saving_msg
   jsr w_acia_full
 
+  lda #$02
+  sta PORTA
+  sta tapest
+
   jsr inout		; intro sound
 
   jsr zero
@@ -86,49 +90,26 @@ starter:
   pla
   rts
 
-one:			; 2349 hz sound 8x (aprox. 3.33ms)
+one:			; 2khz sound 8x
   pha
   phx
-  stz tapest
-  stz PORTA		; 0
-  ldx #2		; cycle 2 times
+  ldx #8		; cycle 8 times
 loop1:
   jsr onefreq
-  jsr togtap
+  jsr WRTAP
+  jsr onefreq
+  jsr WRTAP
   dex			; a cycle is done
   bne loop1
   plx
   pla
   rts
 
-togtap:
-  lda tapest
-  eor #$01
-  sta tapest
-  sta PORTA
-  rts
-
-zero:
-  pha 
-  phx
-  lda #$55
-  sta odd
-  stz PORTA
-  ldx #2
-loop2:
-  jsr zerofreq
-  jsr togtap
-  dex
-  bne loop2
-  plx
-  pla
-  rts
-
 onefreq:
   stz $b00b
-  lda #$f8
+  lda #$f2
   sta $b004		; freq
-  lda #$00
+  lda #$01
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -137,13 +118,28 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$f2
+  lda #$e6
   sta $b004
-  lda #$01
+  lda #$03
   sta $b005
 intro2:
   bit $b00d
   bvc intro2
+  rts
+
+zero:
+  pha 
+  phx
+  ldx #4
+loop2:
+  jsr zerofreq
+  jsr WRTAP
+  jsr zerofreq
+  jsr WRTAP
+  dex
+  bne loop2
+  plx
+  pla
   rts
 
 TDELAY  LDX     #$FF            ; wait for ye fumble.
@@ -155,6 +151,12 @@ RD3     DEX
         DEY
         BNE     TDELAY
         RTS
+
+WRTAP   LDA	tapest
+	EOR	#$02
+	STA	tapest
+	STA	PORTA
+	RTS
 
   .include "hwtape.s"
   .include "libacia.s"
@@ -202,9 +204,9 @@ RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
 
 RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
 RDBIT   DEY
-        LDA     PORTA
+        LDA     PORTA 
         EOR     tapest
-        BEQ     RDBIT           ; Keep looping until state changes.
+        BPL     RDBIT           ; Keep looping until state changes.
         EOR     tapest
         STA     tapest
         CPY     #$80            ; If Y went negative, set carry (this is a '1')

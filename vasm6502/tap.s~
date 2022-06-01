@@ -89,23 +89,31 @@ starter:
 one:			; 2349 hz sound 8x (aprox. 3.33ms)
   pha
   phx
-  stz tapest
+  lda #$55		; asl thing
+  sta odd
   stz PORTA		; 0
-  ldx #2		; cycle 2 times
+  ldx #8		; cycle 8 times
 loop1:
   jsr onefreq
-  jsr togtap
+  lda odd
+  sec
+  sbc #$55		; odd?
+  bne decer		; if so, 0 in PA
+  lda #$01		; if even, 1 in PA
+  sta PORTA
+  lda odd
+  eor #$ff		; shift odd
+  sta odd
+  jmp loop1
+decer:
+  stz PORTA
+  lda odd
+  eor #$ff		; shift evesetn
+  sta odd
   dex			; a cycle is done
   bne loop1
   plx
   pla
-  rts
-
-togtap:
-  lda tapest
-  eor #$01
-  sta tapest
-  sta PORTA
   rts
 
 zero:
@@ -114,10 +122,24 @@ zero:
   lda #$55
   sta odd
   stz PORTA
-  ldx #2
+  ldx #4
 loop2:
   jsr zerofreq
-  jsr togtap
+  lda odd
+  sec
+  sbc #$55
+  bne decer2
+  lda #$01
+  sta PORTA
+  lda odd
+  eor #$ff
+  sta odd 
+  jmp loop2
+decer2:
+  stz PORTA
+  lda odd
+  eor #$ff
+  sta odd
   dex
   bne loop2
   plx
@@ -202,7 +224,7 @@ RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
 
 RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
 RDBIT   DEY
-        LDA     PORTA
+        LDA     PORTA 
         EOR     tapest
         BEQ     RDBIT           ; Keep looping until state changes.
         EOR     tapest
