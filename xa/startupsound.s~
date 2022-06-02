@@ -66,6 +66,8 @@ putbut:
 InitSid             jsr putbut
                     jmp $1103
 
+  .org $d500
+
 sounddata:
           .BYTE $A2,$18,$B5,$04,$9D,$00,$B8,$CA,$10,$F8,$C6,$02,$30,$01,$60,$86
           .BYTE $02,$A5,$03,$D0,$18,$20,$1F,$00,$F0,$18,$C9,$A0,$B0,$0A,$85,$2A

@@ -125,9 +125,9 @@ zero:
 
 onefreq:
   stz $b00b
-  lda #$f2
+  lda #$f8
   sta $b004		; freq
-  lda #$01
+  lda #$00
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -136,9 +136,9 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$e8
+  lda #$f2
   sta $b004
-  lda #$03
+  lda #$01
   sta $b005
 intro2:
   bit $b00d
@@ -261,7 +261,7 @@ loadloop:
 
   ldx #<msg2
   ldy #>msg2
-  jsr w_acia_full373
+  jsr w_acia_full
 
   rts
   rts

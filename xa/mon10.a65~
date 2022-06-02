@@ -177,7 +177,7 @@ startup
 
 #include "init.a65"
 
-;#include "startupsound.s"
+#include "startupsound.s"
 
 init_acia
   lda #%00001011		;No parity, no echo, no interrupt
@@ -2188,16 +2188,16 @@ receivecmd
   phy
   lda XYLODSAV2
   pha
-  jsr WRITE_TRANSFER_MSG
+  ldx #<transferstring
+  ldy #>transferstring
+  jsr w_acia_full
 END_LOAD_MSG
 SERIAL_LOAD
   ldx #0
 WRMSG
-  lda serialstring,x
-  beq receive_serial
-  jsr MONCOUT
-  inx
-  jmp WRMSG
+  ldx #<serialstring
+  ldy #>serialstring
+  jsr w_acia_full
 receive_serial
   ldx #$03
 rcloopadd
@@ -2247,22 +2247,6 @@ esl2
   plx
   pla
   rts
-
-WRITE_TRANSFER_MSG
-  PHA
-  PHX
-  LDX #0
-TML
-  LDA transferstring,x
-  BEQ END_TRANSFER_MSG
-  JSR MONCOUT
-  INX
-  JMP TML
-END_TRANSFER_MSG
-  PLA
-  TAX
-  PLA
-  RTS
 
 MONCOUT
   PHA
@@ -3526,7 +3510,7 @@ filmsg
 filmsg2
   .byte "'code.xpl' Not Found!", $00
 lds
-  .byte "Loading SD Handeler...", $00
+  .byte "Loading SD Handler...", $00
 ends
   .byte "Done.", $0d, $0a, $0d, $0a, $00
   
@@ -3648,7 +3632,7 @@ endstr
 ;;;
 
 hextable:	 .byte "0123456789ABCDEF"
-greeting:	 .byte "6502 monitor v10", $0d, $0a, $00
+greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
 prompt:		 .byte ">"
 helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, receive, load, rti", $0d, $0a, $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
@@ -3663,7 +3647,7 @@ inputerrstring:  .byte "Usage: input hexaddress", $00
 memerrstr:	 .byte "Memory test failed", $00
 diserrorstring:  .byte "Usage: dis hexaddress [count: 10]",$00
 transferstring:   .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
-serialstring:    .byte "Start Serial Load. (Fill all RAM.)", $0d, $0a, $00
+serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 
