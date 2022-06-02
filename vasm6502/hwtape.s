@@ -18,7 +18,7 @@ PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI | TAPE_EAR
 via_init:
   lda #%11111111          ; Set all pins on port B to output
   sta DDRB
-  lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+  lda #$ff   ; Set various pins on port A to output
   sta DDRA
   rts
 

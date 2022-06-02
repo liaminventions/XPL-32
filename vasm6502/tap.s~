@@ -33,6 +33,7 @@ datlop:
   jsr zero
   jsr one
 
+  ldx #0
   ldy #1
   sty thing		; first bit
 wop:
@@ -77,58 +78,56 @@ noo:
 inout:
   pha
   phx
-  ldx #0		; 256 times make the sound
+  phy
+  ldy #16
+outer:
+  ldx $ff		; 16 * 255 times make the sound
 starter:
   jsr one		; sound
-  inx
+  dex
   bne starter
+  dey
+  bne outer
+  ply
   plx
   pla
   rts
 
 one:			; 2 khz sound 1 cyc
   pha
-  phx
   stz tapest
   stz PORTA
-  ldx #2		; cycle 2 times
-loop1:
   jsr onefreq
   jsr togtap
-  dex			; a cycle is done
-  bne loop1
-  plx
+  jsr onefreq
+  jsr togtap
   pla
   rts
 
 togtap:
   lda tapest
-  eor #$01
+  eor #%00000010
   sta tapest
   sta PORTA
   rts
 
 zero:
   pha 
-  phx
   lda #$55
   sta odd
   stz PORTA
-  ldx #2
-loop2:
   jsr zerofreq
   jsr togtap
-  dex
-  bne loop2
-  plx
+  jsr zerofreq
+  jsr togtap
   pla
   rts
 
 onefreq:
   stz $b00b
-  lda #$f8
+  lda #$f2
   sta $b004		; freq
-  lda #$00
+  lda #$01
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -137,9 +136,9 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$f2
+  lda #$e8
   sta $b004
-  lda #$01
+  lda #$03
   sta $b005
 intro2:
   bit $b00d
@@ -203,12 +202,14 @@ RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
 RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
 RDBIT   JSR 	waitfreq
 ;	DEY
+hmmm:
         LDA     PORTA
         EOR     tapest
-        BEQ     RDBIT           ; Keep looping until state changes.
-        EOR     tapest
+        BEQ     hmmm            ; Keep looping until state changes.
+	LDA	PORTA
+;        EOR     tapest
         STA     tapest
-	BIT 	$b00d
+	BIT 	$b00d		; is the counter 750 us?
 	BVC	RDBIT0
 	SEC			; sec if 1
 	RTS
@@ -218,9 +219,9 @@ RDBIT0	CLC			; clc if 0
 
 waitfreq:
   stz $b00b
-  lda #$ef
+  lda #$ec
   sta $b004		; freq
-  lda #$01
+  lda #$02
   sta $b005
   rts
 
@@ -241,13 +242,16 @@ load:
   ldy #>loading_msg
   jsr w_acia_full
 
+  lda PORTA
+  sta tapest
+
   jsr wait1
   jsr wait0		; header
   jsr wait1
   jsr RDBYTE
   sta dat
   ldx #1
-loadloop
+loadloop:
   jsr wait0
   jsr wait1
   jsr RDBYTE
@@ -257,7 +261,7 @@ loadloop
 
   ldx #<msg2
   ldy #>msg2
-  jsr w_acia_full
+  jsr w_acia_full373
 
   rts
   rts
@@ -266,12 +270,12 @@ loadloop
 ; subs
 
 wait1:
-  jsr RDBIT
+  jsr RD2BIT
   bcs wait1
   rts
 
 wait0:
-  jsr RDBIT
+  jsr RD2BIT
   bcc wait0
   rts
 
