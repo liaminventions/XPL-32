@@ -71,7 +71,7 @@ STARTADDR	= $02  ; for start addr for receive
 ENDADDR		= $04
 serialvar	= $06
 
-SEN		= $fffd
+SEN		= $7ffd
 
 ;;;;;;;;;;;;;;;;;
 ;;;
