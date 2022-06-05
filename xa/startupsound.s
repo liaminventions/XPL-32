@@ -7,6 +7,11 @@ irqcount = $01
 ;;; (du du du!)
 
 dostartupsound:
+  lda SEN
+  cmp #$43
+  bne notender
+  jmp ender
+notender:
   lda #$55
   sta donefact
   stz irqcount
@@ -116,4 +121,6 @@ startupsoundloop:
   sta $7fff
   stz $7ffe
   jsr clear_sid
-
+  lda #$43
+  sta SEN
+ender:

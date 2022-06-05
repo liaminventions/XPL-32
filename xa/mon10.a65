@@ -66,7 +66,12 @@ MEMTESTBASE= $0046  ; and $0047
 INPUT      = $0200  ; block out this page for monitor command input
 ;; $0300-03FF is blocked for xmodem buffer
 ;; $0400-04FF is blocked for xmodem testing (temporary)
-XYLODSAV2	= $0000  ; temporary address for save command
+XYLODSAV2	= $00  ; temporary address for save command
+STARTADDR	= $02  ; for start addr for receive
+ENDADDR		= $04
+serialvar	= $06
+
+SEN		= $ff
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -470,7 +475,9 @@ echocmd
   ldy #1                  ; start at 1 because we ignore the command itself
 echonext
   cpy ARGINDEX            ; have we just done the last?
-  beq end                 ; yes, so end
+  bne nottend                 ; yes, so end
+  jmp end
+nottend
   iny                     ; no, so move on to the next
   ldx ARGINDEX,y
   ;; not using printvecstr for this because we're printing
@@ -525,7 +532,7 @@ pokecmd
   sta (stackaccess)
   jsr putax
   jsr pop16
-  bra end
+  bra ende
 
 error
   lda #<pokeerrstring
@@ -533,7 +540,7 @@ error
   lda #>pokeerrstring
   sta PRINTVEC+1
   jsr printvecstr
-end
+ende
 .)
   jsr crlf
   rts
@@ -2181,7 +2188,7 @@ done
   rts
 
 ;; data receive
-;; receives data from serial or a XPL-32 memory card.
+;; receives data from serial
 receivecmd
   pha
   phx  ; save registers
@@ -2190,9 +2197,9 @@ receivecmd
   pha
   lda XYLODSAV2+1
   pha
-  ldx #<transferstring
-  ldy #>transferstring
-  jsr w_acia_full
+;  ldx #<transferstring
+;  ldy #>transferstring
+;  jsr w_acia_full
 END_LOAD_MSG
 SERIAL_LOAD
   ldx #0
@@ -2201,16 +2208,72 @@ WRMSG
   ldy #>serialstring
   jsr w_acia_full
 receive_serial
-;  ldx #$03
+  lda $0208
+  cmp #$68
+  bcc rcloopstart
+  jmp serialheader
+rcloopstart
+  ldx #$04		; 4 bytes
 rcloopadd
-;  lda $0208,x
-;  sbc #$30
-;  sta XYLODSAV2
-  lda #0
-  sta XYLODSAV2
-  lda #$0f
+  lda $0208,x		; operand addr
+  pha			; preserve a
+  cmp #$41		; alphabet?
+  bcc rcloopadd1	; no
+  pla			; yes, restore a
+  sec			; $37 cuz $A = #10
+  sbc #$37		; $41 - $A = $37
+  bra rcle
+rcloopadd1
+  pla			; not crash
+rcle:
+  sec
+  sbc #$30		; it is a number
+rcloopadd2
+  sta $0208,x
+  dex
+  bne rcloopadd
+  lda $0208
+  asl
+  asl			; readable (little endian)
+  asl
+  asl
+  ora $0209
   sta XYLODSAV2+1
+  lda $020a
+  asl
+  asl
+  asl
+  asl
+  ora $020b
+  sta XYLODSAV2
+;  lda #0
+;  sta XYLODSAV2
+;  lda #$0f
+;  sta XYLODSAV2+1
   ldy #0
+  jmp rsl
+
+wop:
+  jsr MONRDKEY
+  bcc wop
+  lda ACIA_DATA
+  rts
+serialheader:
+  jsr wop
+  sta XYLODSAV2
+  jsr wop
+  sta XYLODSAV2+1
+  jsr wop
+  sta STARTADDR
+  jsr wop
+  sta STARTADDR+1
+  jsr wop
+  sta ENDADDR
+  jsr wop
+  sta ENDADDR+1
+  stz serialvar
+  ldy #0
+
 rsl
   jsr MONRDKEY
   bcc rsl
@@ -2218,28 +2281,23 @@ rsl
   jsr MONCOUT
   lda ACIA_DATA
   sta (XYLODSAV2),y
-  lda XYLODSAV2
-  sec
-  sbc #$ff
-  beq rliu
   inc XYLODSAV2
-cs1
-  jmp if8000
-rliu
-  stz XYLODSAV2
-  inc XYLODSAV2+1
-  jmp cs1
-if8000
   lda XYLODSAV2
-  cmp #0
-  bne end8000
+  bne rsl 
+  inc XYLODSAV2+1
+  lda serialvar
+  bne rsl
+  lda XYLODSAV2
+  cmp ENDADDR
+  bcs rsl
   lda XYLODSAV2+1
-  cmp #$80
-  bne end8000
-  jmp esl
-end8000
-  jmp rsl
-esl
+  cmp ENDADDR+1
+  bcs rsl
+
+  ;done
+  jmp (STARTADDR)
+
+serialdone:
   ldx #0
 sdone
   lda loaddonestring,x
