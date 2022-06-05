@@ -2210,7 +2210,7 @@ WRMSG
 receive_serial
   lda $0208		; if "receive h"
   cmp #'h'
-  beq rcloopstart	; then header mode
+  bne rcloopstart	; then header mode
   jmp serialheader
   lda #$55		; otherwize, receive <addr>
   sta serialvar		; let rsl know
