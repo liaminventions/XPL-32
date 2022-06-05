@@ -2208,12 +2208,14 @@ WRMSG
   ldy #>serialstring	; Start serial load. <CRLF>
   jsr w_acia_full
 receive_serial
+  lda #0
+  sta serialvar
   lda $0208		; if "receive h"
   cmp #'h'
   bne rcloopstart	; then header mode
-  jmp serialheader
   lda #$55		; otherwize, receive <addr>
   sta serialvar		; let rsl know
+  jmp serialheader
 rcloopstart
   ldx #$04		; 4 bytes
 rcloopadd
@@ -2222,8 +2224,8 @@ rcloopadd
   cmp #$41		; alphabet? (operand >= $41)
   bcc rcloopadd1	; no
   pla			; yes, restore a
-  sec			; $37 cuz $A = #10
-  sbc #$37		; $41 - $A = $37
+  sec			; $57 cuz $A = #10
+  sbc #$57		; $61 - $A = $57
   jmp rcloopadd2	; continue
 rcloopadd1		; it is a number
   pla			; restore a so we can compare it

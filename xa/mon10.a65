@@ -2208,12 +2208,14 @@ WRMSG
   ldy #>serialstring	; Start serial load. <CRLF>
   jsr w_acia_full
 receive_serial
+  lda #0
+  sta serialvar
   lda $0208		; if "receive h"
   cmp #'h'
   bne rcloopstart	; then header mode
-  jmp serialheader
   lda #$55		; otherwize, receive <addr>
   sta serialvar		; let rsl know
+  jmp serialheader
 rcloopstart
   ldx #$04		; 4 bytes
 rcloopadd
@@ -2285,7 +2287,7 @@ rsl
   inc XYLODSAV2+1
 checkit:
   lda serialvar		; header mode?
-  bne rsl
+  beq rsl
 			; if so,
   lda XYLODSAV2		; check if we are done.
   cmp ENDADDR
