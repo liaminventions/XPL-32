@@ -2208,12 +2208,12 @@ WRMSG
   ldy #>serialstring	; Start serial load. <CRLF>
   jsr w_acia_full
 receive_serial
-  lda #0
+  lda #$55
   sta serialvar
   lda $0208		; if "receive h"
   cmp #'h'
   bne rcloopstart	; then header mode
-  lda #$55		; otherwize, receive <addr>
+  lda #0		; otherwize, receive <addr>
   sta serialvar		; let rsl know
   jmp serialheader
 rcloopstart

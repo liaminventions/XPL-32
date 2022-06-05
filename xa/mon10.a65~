@@ -2280,8 +2280,8 @@ rsl
   ldy #0
   lda ACIA_DATA		; then load it,
   sta (XYLODSAV2),y	; and store it at the address (indexed because "sta (XYLODSAV2)" is illegal)
- ; lda #$2e		; print a period
- ; jsr MONCOUT		; to show it is working
+  lda #$2e		; print a period
+  jsr MONCOUT		; to show it is working
   inc XYLODSAV2
   lda XYLODSAV2		; increment 16-bit address
   bne checkit
