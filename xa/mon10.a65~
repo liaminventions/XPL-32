@@ -2302,7 +2302,7 @@ serialdone:
 sdone
   lda loaddonestring,x
   beq esl2		; idk
-  jsr MONCOUT
+  jsr MONCOUT		; not used
   inx
   jmp sdone
 esl2
