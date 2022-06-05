@@ -2277,6 +2277,7 @@ serialheader:
 rsl
   jsr MONRDKEY		; byte received?
   bcc rsl
+  ldy #0
   lda ACIA_DATA		; then load it,
   sta (XYLODSAV2),y	; and store it at the address (indexed because "sta (XYLODSAV2)" is illegal)
   lda #$2e		; print a period
@@ -2287,7 +2288,7 @@ rsl
   inc XYLODSAV2+1
 checkit:
   lda serialvar		; header mode?
-  beq rsl
+  bne rsl
 			; if so,
   lda XYLODSAV2		; check if we are done.
   cmp ENDADDR
