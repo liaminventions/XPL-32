@@ -71,7 +71,7 @@ STARTADDR	= $02  ; for start addr for receive
 ENDADDR		= $04
 serialvar	= $06
 
-SEN		= $ff
+SEN		= $fffd
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -2205,36 +2205,38 @@ SERIAL_LOAD
   ldx #0
 WRMSG
   ldx #<serialstring
-  ldy #>serialstring
+  ldy #>serialstring	; Start serial load. <CRLF>
   jsr w_acia_full
 receive_serial
-  lda $0208
-  cmp #$68
-  bcc rcloopstart
+  lda $0208		; if "receive h"
+  cmp #'h'
+  beq rcloopstart	; then header mode
   jmp serialheader
+  lda #$55		; otherwize, receive <addr>
+  sta serialvar		; let rsl know
 rcloopstart
   ldx #$04		; 4 bytes
 rcloopadd
-  lda $0208,x		; operand addr
+  lda $0207,x		; operand addr -1 (because of the loop)
   pha			; preserve a
-  cmp #$41		; alphabet?
+  cmp #$41		; alphabet? (operand >= $41)
   bcc rcloopadd1	; no
   pla			; yes, restore a
   sec			; $37 cuz $A = #10
   sbc #$37		; $41 - $A = $37
-  bra rcle
-rcloopadd1
-  pla			; not crash
-rcle:
-  sec
-  sbc #$30		; it is a number
+  jmp rcloopadd2	; continue
+rcloopadd1		; it is a number
+  pla			; restore a so we can compare it
+  sec			; (operand - $30)
+  sbc #$30
 rcloopadd2
-  sta $0208,x
+  sta $0207,x		; store the created nibble, one per byte...
   dex
   bne rcloopadd
-  lda $0208
-  asl
-  asl			; readable (little endian)
+
+  lda $0208		; load the 4 nibbles into 2 bytes
+  asl			; a nibble per byte to 2 nibbles per byte
+  asl			; so it can be readable (little endian)
   asl
   asl
   ora $0209
@@ -2246,63 +2248,61 @@ rcloopadd2
   asl
   ora $020b
   sta XYLODSAV2
-;  lda #0
-;  sta XYLODSAV2
-;  lda #$0f
-;  sta XYLODSAV2+1
+
   ldy #0
   jmp rsl
 
 wop:
-  jsr MONRDKEY
+  jsr MONRDKEY		; read a byte
   bcc wop
   lda ACIA_DATA
   rts
 serialheader:
-  jsr wop
-  sta XYLODSAV2
+  jsr wop		; load addr
+  sta XYLODSAV2		; (where the load to)
   jsr wop
   sta XYLODSAV2+1
-  jsr wop
-  sta STARTADDR
+  jsr wop		; start addr
+  sta STARTADDR		; (where to jump to)
   jsr wop
   sta STARTADDR+1
-  jsr wop
-  sta ENDADDR
+  jsr wop		; end addr
+  sta ENDADDR		; (when the program ends)
   jsr wop
   sta ENDADDR+1
-  stz serialvar
+  stz serialvar		; a zero here means header mode
   ldy #0
-
 rsl
-  jsr MONRDKEY
+  jsr MONRDKEY		; byte received?
   bcc rsl
-  lda #$2e
-  jsr MONCOUT
-  lda ACIA_DATA
-  sta (XYLODSAV2),y
+  lda ACIA_DATA		; then load it,
+  sta (XYLODSAV2),y	; and store it at the address (indexed because "sta (XYLODSAV2)" is illegal)
+  lda #$2e		; print a period
+  jsr MONCOUT		; to show it is working
   inc XYLODSAV2
-  lda XYLODSAV2
-  bne rsl 
+  lda XYLODSAV2		; increment 16-bit address
+  bne checkit
   inc XYLODSAV2+1
-  lda serialvar
+checkit:
+  lda serialvar		; header mode?
   bne rsl
-  lda XYLODSAV2
+			; if so,
+  lda XYLODSAV2		; check if we are done.
   cmp ENDADDR
-  bcs rsl
+  bne rsl
   lda XYLODSAV2+1
   cmp ENDADDR+1
-  bcs rsl
+  bne rsl
 
-  ;done
-  jmp (STARTADDR)
+  ; done
+  jmp (STARTADDR)	; jump to the start address.
 
 serialdone:
   ldx #0
 sdone
   lda loaddonestring,x
-  beq esl2
-  jsr MONCOUT
+  beq esl2		; idk
+  jsr MONCOUT		; not used
   inx
   jmp sdone
 esl2
