@@ -9,5 +9,5 @@ Peronal
 Laptop 
 with 32k ram
 
-You can lean more about updates at the [blog](https:\\unstinkableinventions.wordpress.com).
+You can lean more about updates at the blog: https:\\unstinkableinventions.wordpress.com
 
