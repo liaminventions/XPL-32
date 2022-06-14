@@ -69,7 +69,7 @@ scrollercheck:
   plx
   pla
   rti
-nott
+nott:
   stz count
   lda sco
   bne eeeee

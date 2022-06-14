@@ -15,7 +15,7 @@
 ;;; v10 software interrupt handling
 ;;;
 ;;; Paul Dourish, March-October 2017
-;;; Liam Oppenheimer, 2020-2022
+;;; Waverider, 2020-2022
 
 ;;; My ROM is actually 32K, but the lower half ($8000-$BFFF) is masked
 ;;; by IO. So, everything starts at $C000.
