@@ -184,7 +184,7 @@ norm:
   lda bitdex
   cmp #1
   beq bytedone
-  ror bitdex
+  lsr bitdex
   jmp gloop
 bytedone:
   lda #$80

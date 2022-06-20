@@ -20,14 +20,14 @@ a:cmp irqst		; allign main thread to IRQ
   ldy #>text_01
   jsr w_acia_full	; first text
 
-  jsr wait24
+  jsr wait_beat
 
   jsr out
 
   ldx #<text_03
   ldy #>text_03
   jsr w_acia_full	; second text
-  jsr wait24
+  jsr wait_beat
 
   jsr out
 
@@ -184,7 +184,7 @@ norm:
   lda bitdex
   cmp #1
   beq bytedone
-  ror bitdex
+  lsr bitdex
   jmp gloop
 bytedone:
   lda #$80
