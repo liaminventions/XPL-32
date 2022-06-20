@@ -173,16 +173,12 @@ gloop1:
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
-  inx
-  sec			; next x
-  txa
-  sbc #160
+  inx			; next x
+  cpx #160
   bne norm		; x=160? (x-max)
   ldx #0		; then inc col
   iny			; are we done?
-  sec
-  tya
-  sbc #80
+  cmp #80
   beq endit		; then done!!11!
 norm:
   lda bitdex

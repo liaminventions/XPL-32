@@ -1910,7 +1910,7 @@ F04:0084         ldy #>thingy
 F04:0085         jsr w_acia_full
                S02:00000F5A:  20 C3 0A
 F04:0086         lda scrollmsg,x
-               S02:00000F5D:  BD 84 2D
+               S02:00000F5D:  BD 80 2D
 F04:0087         jsr print_chara
                S02:00000F60:  20 AF 0A
 F04:0088         beq endscroll
@@ -3427,29 +3427,29 @@ F05:0017         bne a
                S03:0000268D:  D0 FC
 F05:0018       
 F05:0019         ldx #<text_01
-               S03:0000268F:  A2 0E
+               S03:0000268F:  A2 0A
 F05:0020         ldy #>text_01
                S03:00002691:  A0 29
 F05:0021         jsr w_acia_full	; first text
                S03:00002693:  20 C3 0A
 F05:0022       
 F05:0023         jsr wait_beat
-               S03:00002696:  20 C4 27
+               S03:00002696:  20 C0 27
 F05:0024       
 F05:0025         jsr out
-               S03:00002699:  20 AA 27
+               S03:00002699:  20 A6 27
 F05:0026       
 F05:0027         ldx #<text_03
-               S03:0000269C:  A2 69
+               S03:0000269C:  A2 65
 F05:0028         ldy #>text_03
                S03:0000269E:  A0 29
 F05:0029         jsr w_acia_full	; second text
                S03:000026A0:  20 C3 0A
 F05:0030         jsr wait_beat
-               S03:000026A3:  20 C4 27
+               S03:000026A3:  20 C0 27
 F05:0031       
 F05:0032         jsr out
-               S03:000026A6:  20 AA 27
+               S03:000026A6:  20 A6 27
 F05:0033       
 F05:0034         ldx #0
                S03:000026A9:  A2 00
@@ -3457,7 +3457,7 @@ F05:0035       text_ii:
 F05:0036         jsr txpoll
                S03:000026AB:  20 9F 0A
 F05:0037         lda text_data,x
-               S03:000026AE:  BD 18 28
+               S03:000026AE:  BD 14 28
 F05:0038         beq text_ii_end
                S03:000026B1:  F0 07
 F05:0039         sta $8000
@@ -3469,38 +3469,38 @@ F05:0041         jmp text_ii
 F05:0042       
 F05:0043       text_ii_end:
 F05:0044         jsr wait_beat
-               S03:000026BA:  20 C4 27
+               S03:000026BA:  20 C0 27
 F05:0045         
 F05:0046         ldx #<text_02
-               S03:000026BD:  A2 52
+               S03:000026BD:  A2 4E
 F05:0047         ldy #>text_02
                S03:000026BF:  A0 29
 F05:0048         jsr w_acia_full
                S03:000026C1:  20 C3 0A
 F05:0049       
 F05:0050         jsr wait_beat
-               S03:000026C4:  20 C4 27
+               S03:000026C4:  20 C0 27
 F05:0051       
 F05:0052         ldx #<endtext
-               S03:000026C7:  A2 84
+               S03:000026C7:  A2 80
 F05:0053         ldy #>endtext
                S03:000026C9:  A0 29
 F05:0054         jsr w_acia_full
                S03:000026CB:  20 C3 0A
 F05:0055         ldx #<endtext
-               S03:000026CE:  A2 84
+               S03:000026CE:  A2 80
 F05:0056         ldy #>endtext		; bUt!11
                S03:000026D0:  A0 29
 F05:0057         jsr w_acia_full
                S03:000026D2:  20 C3 0A
 F05:0058         ldx #<endtext
-               S03:000026D5:  A2 84
+               S03:000026D5:  A2 80
 F05:0059         ldy #>endtext
                S03:000026D7:  A0 29
 F05:0060         jsr w_acia_full
                S03:000026D9:  20 C3 0A
 F05:0061         ldx #<endtext
-               S03:000026DC:  A2 84
+               S03:000026DC:  A2 80
 F05:0062         ldy #>endtext
                S03:000026DE:  A0 29
 F05:0063         jsr w_acia_full
@@ -3516,7 +3516,7 @@ F05:0068         jsr print_chara
                S03:000026EA:  20 AF 0A
 F05:0069       
 F05:0070         ldx #<setup
-               S03:000026ED:  A2 87
+               S03:000026ED:  A2 83
 F05:0071         ldy #>setup
                S03:000026EF:  A0 29
 F05:0072         jsr w_acia_full
@@ -3540,13 +3540,13 @@ F05:0082
 F05:0083         ldy #>imagefile	; setup image load
                S03:00002700:  A0 27
 F05:0084         ldx #<imagefile
-               S03:00002702:  A2 F9
+               S03:00002702:  A2 F5
 F05:0085         jsr fat32_finddirent
                S03:00002704:  20 DF 09
 F05:0086         jsr fat32_opendirent  ; open filename addr
                S03:00002707:  20 76 09
 F05:0087         lda #<poketable
-               S03:0000270A:  A9 8F
+               S03:0000270A:  A9 8B
 F05:0088         sta fat32_address	; host addr
                S03:0000270C:  85 54
 F05:0089         lda #>poketable
@@ -3573,7 +3573,7 @@ F05:0101
 F05:0102       ee:
 F05:0103       
 F05:0104         lda #<poketable
-               S03:00002723:  A9 8F
+               S03:00002723:  A9 8B
 F05:0105         sta fat32_address
                S03:00002725:  85 54
 F05:0106         lda #>poketable
@@ -3588,7 +3588,7 @@ F05:0111         jsr graphics
                S03:0000272E:  20 50 27
 F05:0112       
 F05:0113         jmp reset		; done?
-               S03:00002731:  4C 81 2D
+               S03:00002731:  4C 7D 2D
 F05:0114       
 F05:0115       
 F05:0116       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3608,7 +3608,7 @@ F05:0125         jsr fat32_openroot
 F05:0126       
 F05:0127         ; Find subdirectory by name
 F05:0128         ldx #<dirname
-               S03:0000273A:  A2 ED
+               S03:0000273A:  A2 E9
 F05:0129         ldy #>dirname
                S03:0000273C:  A0 27
 F05:0130         jsr fat32_finddirent
@@ -3656,7 +3656,7 @@ F05:0154         lda #$80
 F05:0155         sta bitdex
                S03:00002755:  85 06
 F05:0156         ldx #<poketable	; addr setup
-               S03:00002757:  A2 8F
+               S03:00002757:  A2 8B
 F05:0157         stx graph
                S03:00002759:  86 FE
 F05:0158         ldy #>poketable
@@ -3692,362 +3692,354 @@ F05:0174         tya			; ,
                S03:00002777:  98
 F05:0175         jsr print_chara	; y
                S03:00002778:  20 AF 0A
-F05:0176         inx
+F05:0176         inx			; next x
                S03:0000277B:  E8
-F05:0177         sec			; next x
-               S03:0000277C:  38
-F05:0178         txa
-               S03:0000277D:  8A
-F05:0179         sbc #160
-               S03:0000277E:  E9 A0
-F05:0180         bne norm		; x=160? (x-max)
-               S03:00002780:  D0 09
-F05:0181         ldx #0		; then inc col
-               S03:00002782:  A2 00
-F05:0182         iny			; are we done?
-               S03:00002784:  C8
-F05:0183         sec
-               S03:00002785:  38
-F05:0184         tya
-               S03:00002786:  98
-F05:0185         sbc #80
-               S03:00002787:  E9 50
-F05:0186         beq endit		; then done!!11!
-               S03:00002789:  F0 1A
-F05:0187       norm:
-F05:0188         lda bitdex
-               S03:0000278B:  A5 06
-F05:0189         cmp #1
-               S03:0000278D:  C9 01
-F05:0190         beq bytedone
-               S03:0000278F:  F0 05
-F05:0191         ror bitdex
-               S03:00002791:  66 06
-F05:0192         jmp gloop
-               S03:00002793:  4C 63 27
-F05:0193       bytedone:
-F05:0194         lda #$80
-               S03:00002796:  A9 80
-F05:0195         sta bitdex
-               S03:00002798:  85 06
-F05:0196         inc graph
-               S03:0000279A:  E6 FE
-F05:0197         lda graph
-               S03:0000279C:  A5 FE
-F05:0198         bne back
-               S03:0000279E:  D0 02
-F05:0199       inchi:
-F05:0200         inc graph+1
-               S03:000027A0:  E6 FF
-F05:0201       back:
-F05:0202         jmp gloop
-               S03:000027A2:  4C 63 27
-F05:0203       endit:
-F05:0204         ply
-               S03:000027A5:  7A
-F05:0205         plx
-               S03:000027A6:  FA
-F05:0206         pla
-               S03:000027A7:  68
-F05:0207         clc
-               S03:000027A8:  18
-F05:0208         rts
-               S03:000027A9:  60
-F05:0209       
-F05:0210       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0211       
-F05:0212       out:
-F05:0213         pha
-               S03:000027AA:  48
-F05:0214         phx
-               S03:000027AB:  DA
-F05:0215         ldx #64
-               S03:000027AC:  A2 40
-F05:0216       downloop:
-F05:0217         jsr txpoll
-               S03:000027AE:  20 9F 0A
-F05:0218         lda #$08
-               S03:000027B1:  A9 08
-F05:0219         sta $8000
-               S03:000027B3:  8D 00 80
-F05:0220         jsr txpoll
-               S03:000027B6:  20 9F 0A
-F05:0221         lda #$14
-               S03:000027B9:  A9 14
-F05:0222         sta $8000
-               S03:000027BB:  8D 00 80
-F05:0223         dex
-               S03:000027BE:  CA
-F05:0224         bne downloop
-               S03:000027BF:  D0 ED
-F05:0225         plx
-               S03:000027C1:  FA
-F05:0226         pla
-               S03:000027C2:  68
-F05:0227         rts
-               S03:000027C3:  60
-F05:0228       
-F05:0229       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0230       
-F05:0231       wait_beat:
-F05:0232         phy
-               S03:000027C4:  5A
-F05:0233         ldy #9
-               S03:000027C5:  A0 09
-F05:0234       waitloop:
-F05:0235         jsr wait
-               S03:000027C7:  20 E6 0A
-F05:0236         dey
-               S03:000027CA:  88
-F05:0237         bne waitloop
-               S03:000027CB:  D0 FA
-F05:0238         ply
-               S03:000027CD:  7A
-F05:0239         rts
-               S03:000027CE:  60
-F05:0240       
-F05:0241       long_wait:
-F05:0242         phx
-               S03:000027CF:  DA
-F05:0243         phy
-               S03:000027D0:  5A
-F05:0244         pha
-               S03:000027D1:  48
-F05:0245         ldx #$ff
-               S03:000027D2:  A2 FF
-F05:0246       long_loop
-F05:0247         jsr wait
-               S03:000027D4:  20 E6 0A
-F05:0248         dex
-               S03:000027D7:  CA
-F05:0249         bne long_loop
-               S03:000027D8:  D0 FA
-F05:0250         pla
-               S03:000027DA:  68
-F05:0251         ply
-               S03:000027DB:  7A
-F05:0252         plx
-               S03:000027DC:  FA
-F05:0253         rts
-               S03:000027DD:  60
-F05:0254       
-F05:0255       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0256       
-F05:0257       wait24:
-F05:0258         pha
-               S03:000027DE:  48
-F05:0259         phx
-               S03:000027DF:  DA
-F05:0260         phy
-               S03:000027E0:  5A
-F05:0261         stz framecount
-               S03:000027E1:  64 05
-F05:0262       b:inc framecount
-               S03:000027E3:  E6 05
-F05:0263         lda framecount
-               S03:000027E5:  A5 05
-F05:0264         bne b
-               S03:000027E7:  D0 FA
-F05:0265         ply
-               S03:000027E9:  7A
-F05:0266         plx
-               S03:000027EA:  FA
-F05:0267         pla
-               S03:000027EB:  68
-F05:0268         rts
-               S03:000027EC:  60
+F05:0177         cpx #160
+               S03:0000277C:  E0 A0
+F05:0178         bne norm		; x=160? (x-max)
+               S03:0000277E:  D0 07
+F05:0179         ldx #0		; then inc col
+               S03:00002780:  A2 00
+F05:0180         iny			; are we done?
+               S03:00002782:  C8
+F05:0181         cmp #80
+               S03:00002783:  C9 50
+F05:0182         beq endit		; then done!!11!
+               S03:00002785:  F0 1A
+F05:0183       norm:
+F05:0184         lda bitdex
+               S03:00002787:  A5 06
+F05:0185         cmp #1
+               S03:00002789:  C9 01
+F05:0186         beq bytedone
+               S03:0000278B:  F0 05
+F05:0187         ror bitdex
+               S03:0000278D:  66 06
+F05:0188         jmp gloop
+               S03:0000278F:  4C 63 27
+F05:0189       bytedone:
+F05:0190         lda #$80
+               S03:00002792:  A9 80
+F05:0191         sta bitdex
+               S03:00002794:  85 06
+F05:0192         inc graph
+               S03:00002796:  E6 FE
+F05:0193         lda graph
+               S03:00002798:  A5 FE
+F05:0194         bne back
+               S03:0000279A:  D0 02
+F05:0195       inchi:
+F05:0196         inc graph+1
+               S03:0000279C:  E6 FF
+F05:0197       back:
+F05:0198         jmp gloop
+               S03:0000279E:  4C 63 27
+F05:0199       endit:
+F05:0200         ply
+               S03:000027A1:  7A
+F05:0201         plx
+               S03:000027A2:  FA
+F05:0202         pla
+               S03:000027A3:  68
+F05:0203         clc
+               S03:000027A4:  18
+F05:0204         rts
+               S03:000027A5:  60
+F05:0205       
+F05:0206       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F05:0207       
+F05:0208       out:
+F05:0209         pha
+               S03:000027A6:  48
+F05:0210         phx
+               S03:000027A7:  DA
+F05:0211         ldx #64
+               S03:000027A8:  A2 40
+F05:0212       downloop:
+F05:0213         jsr txpoll
+               S03:000027AA:  20 9F 0A
+F05:0214         lda #$08
+               S03:000027AD:  A9 08
+F05:0215         sta $8000
+               S03:000027AF:  8D 00 80
+F05:0216         jsr txpoll
+               S03:000027B2:  20 9F 0A
+F05:0217         lda #$14
+               S03:000027B5:  A9 14
+F05:0218         sta $8000
+               S03:000027B7:  8D 00 80
+F05:0219         dex
+               S03:000027BA:  CA
+F05:0220         bne downloop
+               S03:000027BB:  D0 ED
+F05:0221         plx
+               S03:000027BD:  FA
+F05:0222         pla
+               S03:000027BE:  68
+F05:0223         rts
+               S03:000027BF:  60
+F05:0224       
+F05:0225       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F05:0226       
+F05:0227       wait_beat:
+F05:0228         phy
+               S03:000027C0:  5A
+F05:0229         ldy #9
+               S03:000027C1:  A0 09
+F05:0230       waitloop:
+F05:0231         jsr wait
+               S03:000027C3:  20 E6 0A
+F05:0232         dey
+               S03:000027C6:  88
+F05:0233         bne waitloop
+               S03:000027C7:  D0 FA
+F05:0234         ply
+               S03:000027C9:  7A
+F05:0235         rts
+               S03:000027CA:  60
+F05:0236       
+F05:0237       long_wait:
+F05:0238         phx
+               S03:000027CB:  DA
+F05:0239         phy
+               S03:000027CC:  5A
+F05:0240         pha
+               S03:000027CD:  48
+F05:0241         ldx #$ff
+               S03:000027CE:  A2 FF
+F05:0242       long_loop
+F05:0243         jsr wait
+               S03:000027D0:  20 E6 0A
+F05:0244         dex
+               S03:000027D3:  CA
+F05:0245         bne long_loop
+               S03:000027D4:  D0 FA
+F05:0246         pla
+               S03:000027D6:  68
+F05:0247         ply
+               S03:000027D7:  7A
+F05:0248         plx
+               S03:000027D8:  FA
+F05:0249         rts
+               S03:000027D9:  60
+F05:0250       
+F05:0251       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F05:0252       
+F05:0253       wait24:
+F05:0254         pha
+               S03:000027DA:  48
+F05:0255         phx
+               S03:000027DB:  DA
+F05:0256         phy
+               S03:000027DC:  5A
+F05:0257         stz framecount
+               S03:000027DD:  64 05
+F05:0258       b:inc framecount
+               S03:000027DF:  E6 05
+F05:0259         lda framecount
+               S03:000027E1:  A5 05
+F05:0260         bne b
+               S03:000027E3:  D0 FA
+F05:0261         ply
+               S03:000027E5:  7A
+F05:0262         plx
+               S03:000027E6:  FA
+F05:0263         pla
+               S03:000027E7:  68
+F05:0264         rts
+               S03:000027E8:  60
+F05:0265       
+F05:0266       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F05:0267       ;;;;;;;;;;;;;  DATA  ;;;;;;;;;;;;;;;;
+F05:0268       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 F05:0269       
-F05:0270       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0271       ;;;;;;;;;;;;;  DATA  ;;;;;;;;;;;;;;;;
-F05:0272       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0273       
-F05:0274       dirname:
-F05:0275         .asciiz "FOLDER     "
-               S03:000027ED:  46 4F 4C 44 45 52 20 20 20 20 20
-F05:0276       
-F05:0277       imagefile:
-F05:0278         .byte "IB      DAT"
-               S03:000027F9:  49 42 20 20 20 20 20 20 44 41 54
-F05:0279       
-F05:0280       text_pointers:
-F05:0281         .word text_data
-               S03:00002804:  18 28
-F05:0282         .word text_data1
-               S03:00002806:  2E 28
-F05:0283         .word text_data2
-               S03:00002808:  43 28
-F05:0284         .word text_data3
-               S03:0000280A:  5D 28
-F05:0285         .word text_data4
-               S03:0000280C:  77 28
-F05:0286         .word text_data5
-               S03:0000280E:  9A 28
-F05:0287         .word text_data6
-               S03:00002810:  BD 28
-F05:0288         .word text_data7
-               S03:00002812:  E5 28
-F05:0289         .word 0,0
-               S03:00002814:  00 00
-               S03:00002816:  00 00
-F05:0290       
-F05:0291       text_data:
-F05:0292         .byte $0c
-               S03:00002818:  0C
-F05:0293         .byte $18, $08, "40 character text", $0d, $0a;,0
-               S03:00002819:  18
-               S03:0000281A:  08
-               S03:0000281B:  34 30 20 63 68 61 72 61 63 74 65 72 20 74 65 78
-               S03:0000282B:  74
-               S03:0000282C:  0D
-               S03:0000282D:  0A
-F05:0294       text_data1:
-F05:0295         .byte $18, $01, "80 character text", $0d, $0a;,0
-               S03:0000282E:  18
-               S03:0000282F:  01
-               S03:00002830:  38 30 20 63 68 61 72 61 63 74 65 72 20 74 65 78
-               S03:00002840:  74
-               S03:00002841:  0D
-               S03:00002842:  0A
-F05:0296       text_data2:
-F05:0297         .byte $18, $02, "40 character bold text", $0d, $0a;,0
-               S03:00002843:  18
-               S03:00002844:  02
-               S03:00002845:  34 30 20 63 68 61 72 61 63 74 65 72 20 62 6F 6C
-               S03:00002855:  64 20 74 65 78 74
-               S03:0000285B:  0D
-               S03:0000285C:  0A
-F05:0298       text_data3:
-F05:0299         .byte $18, $03, "80 character bold text", $0d, $0a;,0
-               S03:0000285D:  18
-               S03:0000285E:  03
-               S03:0000285F:  38 30 20 63 68 61 72 61 63 74 65 72 20 62 6F 6C
-               S03:0000286F:  64 20 74 65 78 74
-               S03:00002875:  0D
-               S03:00002876:  0A
-F05:0300       text_data4:
-F05:0301         .byte $18, $04, "40 character double height text", $0d, $0a;,0
-               S03:00002877:  18
-               S03:00002878:  04
-               S03:00002879:  34 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
-               S03:00002889:  62 6C 65 20 68 65 69 67 68 74 20 74 65 78 74
-               S03:00002898:  0D
-               S03:00002899:  0A
-F05:0302       text_data5:
-F05:0303         .byte $18, $05, "80 character double height text", $0d, $0a;,0
-               S03:0000289A:  18
-               S03:0000289B:  05
-               S03:0000289C:  38 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
-               S03:000028AC:  62 6C 65 20 68 65 69 67 68 74 20 74 65 78 74
-               S03:000028BB:  0D
-               S03:000028BC:  0A
-F05:0304       text_data6:
-F05:0305         .byte $18, $06, "40 character double height bold text", $0d, $0a;,0
-               S03:000028BD:  18
-               S03:000028BE:  06
-               S03:000028BF:  34 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
-               S03:000028CF:  62 6C 65 20 68 65 69 67 68 74 20 62 6F 6C 64 20
-               S03:000028DF:  0D
-               S03:000028E0:  0A
-F05:0306       text_data7:
-F05:0307         .byte $18, $07, "80 character double height bold text", $0d, $0a;,0
-               S03:000028E5:  18
-               S03:000028E6:  07
-               S03:000028E7:  38 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
-               S03:000028F7:  62 6C 65 20 68 65 69 67 68 74 20 62 6F 6C 64 20
-               S03:00002907:  0D
-               S03:00002908:  0A
-F05:0308       text_end:
-F05:0309         .byte 0
-               S03:0000290D:  00
-F05:0310       
-F05:0311       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F05:0312       
-F05:0313       text_01:
-F05:0314       ;   empty cursor|clear| column | Row      |
-F05:0315         .byte $02, $ff, $18, $03, $0c, $0e, $0a, $0f, $0a, "This is a demonstration of the capabilities of the XPL-32.", $00
-               S03:0000290E:  02
-               S03:0000290F:  FF
-               S03:00002910:  18
-               S03:00002911:  03
-               S03:00002912:  0C
-               S03:00002913:  0E
-               S03:00002914:  0A
-               S03:00002915:  0F
-               S03:00002916:  0A
-               S03:00002917:  54 68 69 73 20 69 73 20 61 20 64 65 6D 6F 6E 73
-               S03:00002927:  74 72 61 74 69 6F 6E 20 6F 66 20 74 68 65 20 63
-               S03:00002937:  00
-F05:0316       text_02:
-F05:0317         .byte $18, $06, $0c, $0e, $0c, $0f, $0c, "And graphics...", $00
-               S03:00002952:  18
-               S03:00002953:  06
+F05:0270       dirname:
+F05:0271         .asciiz "FOLDER     "
+               S03:000027E9:  46 4F 4C 44 45 52 20 20 20 20 20
+F05:0272       
+F05:0273       imagefile:
+F05:0274         .byte "IB      DAT"
+               S03:000027F5:  49 42 20 20 20 20 20 20 44 41 54
+F05:0275       
+F05:0276       text_pointers:
+F05:0277         .word text_data
+               S03:00002800:  14 28
+F05:0278         .word text_data1
+               S03:00002802:  2A 28
+F05:0279         .word text_data2
+               S03:00002804:  3F 28
+F05:0280         .word text_data3
+               S03:00002806:  59 28
+F05:0281         .word text_data4
+               S03:00002808:  73 28
+F05:0282         .word text_data5
+               S03:0000280A:  96 28
+F05:0283         .word text_data6
+               S03:0000280C:  B9 28
+F05:0284         .word text_data7
+               S03:0000280E:  E1 28
+F05:0285         .word 0,0
+               S03:00002810:  00 00
+               S03:00002812:  00 00
+F05:0286       
+F05:0287       text_data:
+F05:0288         .byte $0c
+               S03:00002814:  0C
+F05:0289         .byte $18, $08, "40 character text", $0d, $0a;,0
+               S03:00002815:  18
+               S03:00002816:  08
+               S03:00002817:  34 30 20 63 68 61 72 61 63 74 65 72 20 74 65 78
+               S03:00002827:  74
+               S03:00002828:  0D
+               S03:00002829:  0A
+F05:0290       text_data1:
+F05:0291         .byte $18, $01, "80 character text", $0d, $0a;,0
+               S03:0000282A:  18
+               S03:0000282B:  01
+               S03:0000282C:  38 30 20 63 68 61 72 61 63 74 65 72 20 74 65 78
+               S03:0000283C:  74
+               S03:0000283D:  0D
+               S03:0000283E:  0A
+F05:0292       text_data2:
+F05:0293         .byte $18, $02, "40 character bold text", $0d, $0a;,0
+               S03:0000283F:  18
+               S03:00002840:  02
+               S03:00002841:  34 30 20 63 68 61 72 61 63 74 65 72 20 62 6F 6C
+               S03:00002851:  64 20 74 65 78 74
+               S03:00002857:  0D
+               S03:00002858:  0A
+F05:0294       text_data3:
+F05:0295         .byte $18, $03, "80 character bold text", $0d, $0a;,0
+               S03:00002859:  18
+               S03:0000285A:  03
+               S03:0000285B:  38 30 20 63 68 61 72 61 63 74 65 72 20 62 6F 6C
+               S03:0000286B:  64 20 74 65 78 74
+               S03:00002871:  0D
+               S03:00002872:  0A
+F05:0296       text_data4:
+F05:0297         .byte $18, $04, "40 character double height text", $0d, $0a;,0
+               S03:00002873:  18
+               S03:00002874:  04
+               S03:00002875:  34 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
+               S03:00002885:  62 6C 65 20 68 65 69 67 68 74 20 74 65 78 74
+               S03:00002894:  0D
+               S03:00002895:  0A
+F05:0298       text_data5:
+F05:0299         .byte $18, $05, "80 character double height text", $0d, $0a;,0
+               S03:00002896:  18
+               S03:00002897:  05
+               S03:00002898:  38 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
+               S03:000028A8:  62 6C 65 20 68 65 69 67 68 74 20 74 65 78 74
+               S03:000028B7:  0D
+               S03:000028B8:  0A
+F05:0300       text_data6:
+F05:0301         .byte $18, $06, "40 character double height bold text", $0d, $0a;,0
+               S03:000028B9:  18
+               S03:000028BA:  06
+               S03:000028BB:  34 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
+               S03:000028CB:  62 6C 65 20 68 65 69 67 68 74 20 62 6F 6C 64 20
+               S03:000028DB:  0D
+               S03:000028DC:  0A
+F05:0302       text_data7:
+F05:0303         .byte $18, $07, "80 character double height bold text", $0d, $0a;,0
+               S03:000028E1:  18
+               S03:000028E2:  07
+               S03:000028E3:  38 30 20 63 68 61 72 61 63 74 65 72 20 64 6F 75
+               S03:000028F3:  62 6C 65 20 68 65 69 67 68 74 20 62 6F 6C 64 20
+               S03:00002903:  0D
+               S03:00002904:  0A
+F05:0304       text_end:
+F05:0305         .byte 0
+               S03:00002909:  00
+F05:0306       
+F05:0307       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F05:0308       
+F05:0309       text_01:
+F05:0310       ;   empty cursor|clear| column | Row      |
+F05:0311         .byte $02, $ff, $18, $03, $0c, $0e, $0a, $0f, $0a, "This is a demonstration of the capabilities of the XPL-32.", $00
+               S03:0000290A:  02
+               S03:0000290B:  FF
+               S03:0000290C:  18
+               S03:0000290D:  03
+               S03:0000290E:  0C
+               S03:0000290F:  0E
+               S03:00002910:  0A
+               S03:00002911:  0F
+               S03:00002912:  0A
+               S03:00002913:  54 68 69 73 20 69 73 20 61 20 64 65 6D 6F 6E 73
+               S03:00002923:  74 72 61 74 69 6F 6E 20 6F 66 20 74 68 65 20 63
+               S03:00002933:  00
+F05:0312       text_02:
+F05:0313         .byte $18, $06, $0c, $0e, $0c, $0f, $0c, "And graphics...", $00
+               S03:0000294E:  18
+               S03:0000294F:  06
+               S03:00002950:  0C
+               S03:00002951:  0E
+               S03:00002952:  0C
+               S03:00002953:  0F
                S03:00002954:  0C
-               S03:00002955:  0E
-               S03:00002956:  0C
-               S03:00002957:  0F
-               S03:00002958:  0C
-               S03:00002959:  41 6E 64 20 67 72 61 70 68 69 63 73 2E 2E 2E
-               S03:00002968:  00
-F05:0318       text_03:
-F05:0319         .byte $18, $06, $0c, $0e, $0a, $0f, $0c, "Here's Text Mode...", $00
-               S03:00002969:  18
-               S03:0000296A:  06
+               S03:00002955:  41 6E 64 20 67 72 61 70 68 69 63 73 2E 2E 2E
+               S03:00002964:  00
+F05:0314       text_03:
+F05:0315         .byte $18, $06, $0c, $0e, $0a, $0f, $0c, "Here's Text Mode...", $00
+               S03:00002965:  18
+               S03:00002966:  06
+               S03:00002967:  0C
+               S03:00002968:  0E
+               S03:00002969:  0A
+               S03:0000296A:  0F
                S03:0000296B:  0C
-               S03:0000296C:  0E
-               S03:0000296D:  0A
-               S03:0000296E:  0F
-               S03:0000296F:  0C
-               S03:00002970:  48 65 72 65 27 73 20 54 65 78 74 20 4D 6F 64 65
-               S03:00002980:  2E 2E 2E
-               S03:00002983:  00
-F05:0320       ;dat_1:
-F05:0321       ;  .byte "1Mhz WDC65c02        "
-F05:0322       ;dat_2:
-F05:0323       ;  .byte "1.8432 Mhz ACIA      "
-F05:0324       ;dat_3:
-F05:0325       ;  .byte "WDC65c22             "
-F05:0326       ;dat_4:
-F05:0327       ;  .byte "6581 SID             "
-F05:0328       ;dat_5:
-F05:0329       ;  .byte "An LCD screen        "
-F05:0330       ;dat_6:
-F05:0331       ;  .byte "A Serial text display"
-F05:0332       ;dat_7:
-F05:0333       ;  .byte "4 EXP ports          "
-F05:0334       endtext:
-F05:0335         .byte $08, $16, $00
-               S03:00002984:  08
-               S03:00002985:  16
-               S03:00002986:  00
-F05:0336       ;mrbut:
-F05:0337       ;  .byte $0e, $0c, $0f, $44, $00
-F05:0338       setup:
-F05:0339         .byte $1b, $2d, $0c, $0e, $4f, $0f, $18, $00
-               S03:00002987:  1B
-               S03:00002988:  2D
-               S03:00002989:  0C
-               S03:0000298A:  0E
-               S03:0000298B:  4F
-               S03:0000298C:  0F
-               S03:0000298D:  18
-               S03:0000298E:  00
-F05:0340       
-F05:0341       poketable:
-F05:0342         .binary "xpl.bin"
-               S03:0000298F:  00 00 00 00 00 00 00 00 00 00 00 30 00 38 00 00
-               S03:0000299F:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 10
-F05:0343       
+               S03:0000296C:  48 65 72 65 27 73 20 54 65 78 74 20 4D 6F 64 65
+               S03:0000297C:  2E 2E 2E
+               S03:0000297F:  00
+F05:0316       ;dat_1:
+F05:0317       ;  .byte "1Mhz WDC65c02        "
+F05:0318       ;dat_2:
+F05:0319       ;  .byte "1.8432 Mhz ACIA      "
+F05:0320       ;dat_3:
+F05:0321       ;  .byte "WDC65c22             "
+F05:0322       ;dat_4:
+F05:0323       ;  .byte "6581 SID             "
+F05:0324       ;dat_5:
+F05:0325       ;  .byte "An LCD screen        "
+F05:0326       ;dat_6:
+F05:0327       ;  .byte "A Serial text display"
+F05:0328       ;dat_7:
+F05:0329       ;  .byte "4 EXP ports          "
+F05:0330       endtext:
+F05:0331         .byte $08, $16, $00
+               S03:00002980:  08
+               S03:00002981:  16
+               S03:00002982:  00
+F05:0332       ;mrbut:
+F05:0333       ;  .byte $0e, $0c, $0f, $44, $00
+F05:0334       setup:
+F05:0335         .byte $1b, $2d, $0c, $0e, $4f, $0f, $18, $00
+               S03:00002983:  1B
+               S03:00002984:  2D
+               S03:00002985:  0C
+               S03:00002986:  0E
+               S03:00002987:  4F
+               S03:00002988:  0F
+               S03:00002989:  18
+               S03:0000298A:  00
+F05:0336       
+F05:0337       poketable:
+F05:0338         .binary "xpl.bin"
+               S03:0000298B:  00 00 00 00 00 00 00 00 00 00 00 30 00 38 00 00
+               S03:0000299B:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 10
+F05:0339       
 F00:0059       
 F00:0060       reset:
 F00:0061         jmp reset
-               S03:00002D81:  4C 81 2D
+               S03:00002D7D:  4C 7D 2D
 F00:0062       
 F00:0063       scrollmsg:
 F00:0064       
 F00:0065         .byte "6502 Power! I know that the graphics look simple, but under the hood, it is crazy. Just wait till you see the c
-               S03:00002D84:  36 35 30 32 20 50 6F 77 65 72 21 20 49 20 6B 6E
-               S03:00002D94:  6F 77 20 74 68 61 74 20 74 68 65 20 67 72 61 70
-               S03:00002DA4:  00
+               S03:00002D80:  36 35 30 32 20 50 6F 77 65 72 21 20 49 20 6B 6E
+               S03:00002D90:  6F 77 20 74 68 61 74 20 74 68 65 20 67 72 61 70
+               S03:00002DA0:  00
 F00:0066       
 F00:0067       
 
@@ -4068,50 +4060,50 @@ F05  text_1.s
 
 
 Symbols:
-text_end EXPR(10509=0x290d) UNUSED ABS 
-text_data7 EXPR(10469=0x28e5) ABS 
-text_data6 EXPR(10429=0x28bd) ABS 
-text_data5 EXPR(10394=0x289a) ABS 
-text_data4 EXPR(10359=0x2877) ABS 
-text_data3 EXPR(10333=0x285d) ABS 
-text_data2 EXPR(10307=0x2843) ABS 
-text_data1 EXPR(10286=0x282e) ABS 
-text_pointers EXPR(10244=0x2804) UNUSED ABS 
-b EXPR(10211=0x27e3) ABS 
-wait24 EXPR(10206=0x27de) UNUSED ABS 
-long_loop EXPR(10196=0x27d4) ABS 
-long_wait EXPR(10191=0x27cf) UNUSED ABS 
-waitloop EXPR(10183=0x27c7) ABS 
-downloop EXPR(10158=0x27ae) ABS 
-inchi EXPR(10144=0x27a0) UNUSED ABS 
-back EXPR(10146=0x27a2) ABS 
-bytedone EXPR(10134=0x2796) ABS 
-endit EXPR(10149=0x27a5) ABS 
-norm EXPR(10123=0x278b) ABS 
+text_end EXPR(10505=0x2909) UNUSED ABS 
+text_data7 EXPR(10465=0x28e1) ABS 
+text_data6 EXPR(10425=0x28b9) ABS 
+text_data5 EXPR(10390=0x2896) ABS 
+text_data4 EXPR(10355=0x2873) ABS 
+text_data3 EXPR(10329=0x2859) ABS 
+text_data2 EXPR(10303=0x283f) ABS 
+text_data1 EXPR(10282=0x282a) ABS 
+text_pointers EXPR(10240=0x2800) UNUSED ABS 
+b EXPR(10207=0x27df) ABS 
+wait24 EXPR(10202=0x27da) UNUSED ABS 
+long_loop EXPR(10192=0x27d0) ABS 
+long_wait EXPR(10187=0x27cb) UNUSED ABS 
+waitloop EXPR(10179=0x27c3) ABS 
+downloop EXPR(10154=0x27aa) ABS 
+inchi EXPR(10140=0x279c) UNUSED ABS 
+back EXPR(10142=0x279e) ABS 
+bytedone EXPR(10130=0x2792) ABS 
+endit EXPR(10145=0x27a1) ABS 
+norm EXPR(10119=0x2787) ABS 
 gloop1 EXPR(10096=0x2770) ABS 
 zero EXPR(10094=0x276e) ABS 
 gloop EXPR(10083=0x2763) ABS 
 error EXPR(10051=0x2743) UNUSED ABS 
 foundsubdir EXPR(10056=0x2748) ABS 
-dirname EXPR(10221=0x27ed) ABS 
-reset EXPR(11649=0x2d81) ABS 
+dirname EXPR(10217=0x27e9) ABS 
+reset EXPR(11645=0x2d7d) ABS 
 ee EXPR(10019=0x2723) UNUSED ABS 
 nono EXPR(10011=0x271b) UNUSED ABS 
 not EXPR(10016=0x2720) ABS 
-poketable EXPR(10639=0x298f) ABS 
-imagefile EXPR(10233=0x27f9) ABS 
+poketable EXPR(10635=0x298b) ABS 
+imagefile EXPR(10229=0x27f5) ABS 
 rootsetup EXPR(10036=0x2734) ABS 
 graphics EXPR(10064=0x2750) ABS 
-setup EXPR(10631=0x2987) ABS 
-endtext EXPR(10628=0x2984) ABS 
-text_02 EXPR(10578=0x2952) ABS 
+setup EXPR(10627=0x2983) ABS 
+endtext EXPR(10624=0x2980) ABS 
+text_02 EXPR(10574=0x294e) ABS 
 text_ii_end EXPR(9914=0x26ba) ABS 
-text_data EXPR(10264=0x2818) ABS 
+text_data EXPR(10260=0x2814) ABS 
 text_ii EXPR(9899=0x26ab) ABS 
-text_03 EXPR(10601=0x2969) ABS 
-out EXPR(10154=0x27aa) ABS 
-wait_beat EXPR(10180=0x27c4) ABS 
-text_01 EXPR(10510=0x290e) ABS 
+text_03 EXPR(10597=0x2965) ABS 
+out EXPR(10150=0x27a6) ABS 
+wait_beat EXPR(10176=0x27c0) ABS 
+text_01 EXPR(10506=0x290a) ABS 
 a EXPR(9867=0x268b) ABS 
 graph EXPR(254=0xfe) EQU 
 bitdex EXPR(6=0x6) EQU 
@@ -4204,7 +4196,7 @@ S1100 EXPR(4352=0x1100) ABS
 L1000 EXPR(4096=0x1000) UNUSED ABS 
 initsid2 EXPR(9814=0x2656) ABS 
 endscroll EXPR(3948=0xf6c) ABS 
-scrollmsg EXPR(11652=0x2d84) ABS 
+scrollmsg EXPR(11648=0x2d80) ABS 
 thingy EXPR(3956=0xf74) ABS 
 scroller EXPR(3922=0xf52) UNUSED ABS 
 eeeee EXPR(3924=0xf54) ABS 
