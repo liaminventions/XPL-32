@@ -6,14 +6,22 @@
 ; he he he ha
 
 ; graph = $fe
+  irqst = $02
+  framecount = $03
 
 textstart:
+  sei
+  stz irqst
+  cli
+  lda #1
+: cmp irqst		; allign main thread to IRQ
+  bne :-
+
   ldx #<text_01
   ldy #>text_01
   jsr w_acia_full	; first text
- ; jsr wait
 
-  jsr wait_beat
+  jsr wait24
 
   jsr out
 
@@ -68,10 +76,6 @@ text_ii_end:
   sei
   stz scroll		; scroll on+
   stz sco
-  lda #$0e
-  jsr print_chara
-  lda #$4f
-  jsr print_chara
   cli
 
   jsr rootsetup		; setup <FOLDER>
@@ -155,6 +159,7 @@ graphics:
   ldy #0
 gloop:
   lda ($fe)		; take a pixel
+  and #$0f		; mask for good mesure
   jsr print_chara	; place it
   txa			; at 
   jsr print_chara	; x
@@ -231,6 +236,21 @@ long_loop
   plx
   rts
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+wait24:
+  pha
+  phx
+  phy
+  lda #24		; 24 frames
+  stz framecount
+: cmp framecount
+  bne :-
+  ply
+  plx
+  pla
+  rts
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;  DATA  ;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -241,18 +261,36 @@ dirname:
 imagefile:
   .byte "I2      DAT"
 
+text_pointers:
+  .word text_data
+  .word text_data1
+  .word text_data2
+  .word text_data3
+  .word text_data4
+  .word text_data5
+  .word text_data6
+  .word text_data7
+  .word 0,0
+
 text_data:
   .byte $0c
-  .byte $18, $08, "40 character text", $0d, $0a
-  .byte $18, $01, "80 character text", $0d, $0a
-  .byte $18, $02, "40 character bold text", $0d, $0a
-  .byte $18, $03, "80 character bold text", $0d, $0a
-  .byte $18, $04, "40 character double height text", $0d, $0a
-  .byte $18, $05, "80 character double height text", $0d, $0a
-  .byte $18, $06, "40 character double height bold text", $0d, $0a
-  .byte $18, $07, "80 character double height bold text", $0d, $0a
+  .byte $18, $08, "40 character text", $0d, $0a;,0
+text_data1:
+  .byte $18, $01, "80 character text", $0d, $0a;,0
+text_data2:
+  .byte $18, $02, "40 character bold text", $0d, $0a;,0
+text_data3:
+  .byte $18, $03, "80 character bold text", $0d, $0a;,0
+text_data4:
+  .byte $18, $04, "40 character double height text", $0d, $0a;,0
+text_data5:
+  .byte $18, $05, "80 character double height text", $0d, $0a;,0
+text_data6:
+  .byte $18, $06, "40 character double height bold text", $0d, $0a;,0
+text_data7:
+  .byte $18, $07, "80 character double height bold text", $0d, $0a;,0
 text_end:
-  .byte $00
+  .byte 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -262,7 +300,7 @@ text_01:
 text_02:
   .byte $18, $06, $0c, $0e, $0c, $0f, $0c, "And graphics...", $00
 text_03:
-  .byte $18, $06, $0c, $0e, $0d, $0f, $0c, "Text Mode...", $00
+  .byte $18, $06, $0c, $0e, $06, $0f, $0c, "Here's Text Mode...", $00
 ;dat_1:
 ;  .byte "1Mhz WDC65c02        "
 ;dat_2:

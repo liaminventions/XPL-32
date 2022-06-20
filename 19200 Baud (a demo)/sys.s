@@ -47,6 +47,9 @@ irq:
   pha
   phx
   phy
+  lda #1
+  sta irqst
+  inc framecount
   ; IRQ code goes here
   lda #$40
   sta $b00d

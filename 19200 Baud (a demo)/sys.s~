@@ -47,6 +47,8 @@ irq:
   pha
   phx
   phy
+  lda #1
+  sta irqst
   ; IRQ code goes here
   lda #$40
   sta $b00d
@@ -69,7 +71,7 @@ scrollercheck:
   plx
   pla
   rti
-nott
+nott:
   stz count
   lda sco
   bne eeeee

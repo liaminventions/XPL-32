@@ -1,6 +1,7 @@
 scroll = $00
 scrollinc = $01
 sco = $02
+count = $03
 
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
