@@ -20,14 +20,14 @@ a:cmp irqst		; allign main thread to IRQ
   ldy #>text_01
   jsr w_acia_full	; first text
 
-  jsr wait24
+  jsr wait_beat
 
   jsr out
 
   ldx #<text_03
   ldy #>text_03
   jsr w_acia_full	; second text
-  jsr wait24
+  jsr wait_beat
 
   jsr out
 
@@ -254,9 +254,9 @@ wait24:
   pha
   phx
   phy
-  lda #32		; 32 frames
   stz framecount
-b:cmp framecount
+b:inc framecount
+  lda framecount
   bne b
   ply
   plx

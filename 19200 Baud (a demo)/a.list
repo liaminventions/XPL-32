@@ -3433,8 +3433,8 @@ F05:0020         ldy #>text_01
 F05:0021         jsr w_acia_full	; first text
                S03:00002693:  20 C3 0A
 F05:0022       
-F05:0023         jsr wait24
-               S03:00002696:  20 DA 27
+F05:0023         jsr wait_beat
+               S03:00002696:  20 C0 27
 F05:0024       
 F05:0025         jsr out
                S03:00002699:  20 A6 27
@@ -3445,8 +3445,8 @@ F05:0028         ldy #>text_03
                S03:0000269E:  A0 29
 F05:0029         jsr w_acia_full	; second text
                S03:000026A0:  20 C3 0A
-F05:0030         jsr wait24
-               S03:000026A3:  20 DA 27
+F05:0030         jsr wait_beat
+               S03:000026A3:  20 C0 27
 F05:0031       
 F05:0032         jsr out
                S03:000026A6:  20 A6 27
@@ -3832,14 +3832,14 @@ F05:0255         phx
                S03:000027DB:  DA
 F05:0256         phy
                S03:000027DC:  5A
-F05:0257         lda #32		; 32 frames
-               S03:000027DD:  A9 20
-F05:0258         stz framecount
-               S03:000027DF:  64 05
-F05:0259       b:cmp framecount
-               S03:000027E1:  C5 05
+F05:0257         stz framecount
+               S03:000027DD:  64 05
+F05:0258       b:inc framecount
+               S03:000027DF:  E6 05
+F05:0259         lda framecount
+               S03:000027E1:  A5 05
 F05:0260         bne b
-               S03:000027E3:  D0 FC
+               S03:000027E3:  D0 FA
 F05:0261         ply
                S03:000027E5:  7A
 F05:0262         plx
@@ -4069,7 +4069,8 @@ text_data3 EXPR(10329=0x2859) ABS
 text_data2 EXPR(10303=0x283f) ABS 
 text_data1 EXPR(10282=0x282a) ABS 
 text_pointers EXPR(10240=0x2800) UNUSED ABS 
-b EXPR(10209=0x27e1) ABS 
+b EXPR(10207=0x27df) ABS 
+wait24 EXPR(10202=0x27da) UNUSED ABS 
 long_loop EXPR(10192=0x27d0) ABS 
 long_wait EXPR(10187=0x27cb) UNUSED ABS 
 waitloop EXPR(10179=0x27c3) ABS 
@@ -4096,13 +4097,12 @@ graphics EXPR(10064=0x2750) ABS
 setup EXPR(10627=0x2983) ABS 
 endtext EXPR(10624=0x2980) ABS 
 text_02 EXPR(10574=0x294e) ABS 
-wait_beat EXPR(10176=0x27c0) ABS 
 text_ii_end EXPR(9914=0x26ba) ABS 
 text_data EXPR(10260=0x2814) ABS 
 text_ii EXPR(9899=0x26ab) ABS 
 text_03 EXPR(10597=0x2965) ABS 
 out EXPR(10150=0x27a6) ABS 
-wait24 EXPR(10202=0x27da) ABS 
+wait_beat EXPR(10176=0x27c0) ABS 
 text_01 EXPR(10506=0x290a) ABS 
 a EXPR(9867=0x268b) ABS 
 graph EXPR(254=0xfe) EQU 
