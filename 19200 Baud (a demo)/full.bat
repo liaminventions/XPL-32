@@ -1,0 +1,1 @@
+make&..\git_add.bat&diskpart /s eject.txt
