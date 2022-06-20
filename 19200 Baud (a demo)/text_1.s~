@@ -184,7 +184,9 @@ norm:
   lda bitdex
   cmp #1
   beq bytedone
+  php
   lsr bitdex
+  plp
   jmp gloop
 bytedone:
   lda #$80
