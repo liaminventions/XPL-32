@@ -73,10 +73,10 @@ text_ii_end:
 
   jsr graphics		; write a screen
 
-  sei
-  stz scroll		; scroll on+
-  stz sco
-  cli
+  ;sei
+  ;stz scroll		; scroll on+
+  ;stz sco
+  ;cli
 
   jsr rootsetup		; setup <FOLDER>
 
@@ -173,13 +173,6 @@ gloop1:
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
-  inx			; next x
-  cpx #160
-  bne norm		; x=160? (x-max)
-  ldx #0		; then inc col
-  iny			; are we done?
-  cpy #80
-  beq endit		; then done!!11!
 norm:
   lda bitdex
   cmp #1
@@ -191,6 +184,13 @@ norm:
 bytedone:
   lda #$80
   sta bitdex
+  inx			; next x
+  cpx #160
+  bne norm		; x=160? (x-max)
+  ldx #0		; then inc col
+  iny			; are we done?
+  cpy #80
+  beq endit		; then done!!11!
   inc graph
   lda graph
   bne back
