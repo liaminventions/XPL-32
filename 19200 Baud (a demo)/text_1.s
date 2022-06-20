@@ -178,13 +178,15 @@ gloop1:
   bne norm		; x=160? (x-max)
   ldx #0		; then inc col
   iny			; are we done?
-  cmp #80
+  cpy #80
   beq endit		; then done!!11!
 norm:
   lda bitdex
   cmp #1
   beq bytedone
-  ror bitdex
+  php
+  lsr bitdex
+  plp
   jmp gloop
 bytedone:
   lda #$80
