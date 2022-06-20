@@ -3694,8 +3694,8 @@ F05:0175         jsr print_chara	; y
                S03:00002778:  20 AF 0A
 F05:0176         inx			; next x
                S03:0000277B:  E8
-F05:0177         cpx #158
-               S03:0000277C:  E0 9E
+F05:0177         cpx #160
+               S03:0000277C:  E0 A0
 F05:0178         bne norm		; x=160? (x-max)
                S03:0000277E:  D0 07
 F05:0179         ldx #0		; then inc col

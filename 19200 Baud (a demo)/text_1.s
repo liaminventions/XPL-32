@@ -174,7 +174,7 @@ gloop1:
   tya			; ,
   jsr print_chara	; y
   inx			; next x
-  cpx #158
+  cpx #160
   bne norm		; x=160? (x-max)
   ldx #0		; then inc col
   iny			; are we done?
