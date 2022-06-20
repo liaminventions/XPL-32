@@ -173,20 +173,22 @@ gloop1:
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
-  inx			; next x
-  cpx #158
+  inx
+  sec			; next x
+  txa
+  sbc #160
   bne norm		; x=160? (x-max)
   ldx #0		; then inc col
   iny			; are we done?
-  cpy #80
+  sec
+  tya
+  sbc #80
   beq endit		; then done!!11!
 norm:
   lda bitdex
   cmp #1
   beq bytedone
-  php
-  lsr bitdex
-  plp
+  ror bitdex
   jmp gloop
 bytedone:
   lda #$80
@@ -314,7 +316,7 @@ text_01:
 text_02:
   .byte $18, $06, $0c, $0e, $0c, $0f, $0c, "And graphics...", $00
 text_03:
-  .byte $18, $06, $0c, $0e, $06, $0f, $0c, "Here's Text Mode...", $00
+  .byte $18, $06, $0c, $0e, $0a, $0f, $0c, "Here's Text Mode...", $00
 ;dat_1:
 ;  .byte "1Mhz WDC65c02        "
 ;dat_2:
