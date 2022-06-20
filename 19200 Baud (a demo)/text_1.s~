@@ -173,6 +173,13 @@ gloop1:
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
+  inx			; next x
+  cpx #160
+  bne norm		; x=160? (x-max)
+  ldx #0		; then inc col
+  iny			; are we done?
+  cpy #80
+  beq endit		; then done!!11!
 norm:
   lda bitdex
   cmp #1
@@ -183,14 +190,7 @@ norm:
   jmp gloop
 bytedone:
   lda #$80
-  sta bitde  
-  inx			; next x
-  cpx #160
-  bne norm		; x=160? (x-max)
-  ldx #0		; then inc col
-  iny			; are we done?
-  cpy #80
-  beq endit		; then done!!11!
+  sta bitdex
   inc graph
   lda graph
   bne back

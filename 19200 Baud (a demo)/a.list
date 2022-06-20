@@ -3688,40 +3688,40 @@ F05:0174         tya			; ,
                S03:00002771:  98
 F05:0175         jsr print_chara	; y
                S03:00002772:  20 AF 0A
-F05:0176       norm:
-F05:0177         lda bitdex
-               S03:00002775:  A5 06
-F05:0178         cmp #1
-               S03:00002777:  C9 01
-F05:0179         beq bytedone
-               S03:00002779:  F0 07
-F05:0180         php
-               S03:0000277B:  08
-F05:0181         lsr bitdex
-               S03:0000277C:  46 06
-F05:0182         plp
-               S03:0000277E:  28
-F05:0183         jmp gloop
-               S03:0000277F:  4C 5D 27
-F05:0184       bytedone:
-F05:0185         lda #$80
-               S03:00002782:  A9 80
-F05:0186         sta bitdex
-               S03:00002784:  85 06
-F05:0187         inx			; next x
-               S03:00002786:  E8
-F05:0188         cpx #160
-               S03:00002787:  E0 A0
-F05:0189         bne norm		; x=160? (x-max)
-               S03:00002789:  D0 EA
-F05:0190         ldx #0		; then inc col
-               S03:0000278B:  A2 00
-F05:0191         iny			; are we done?
-               S03:0000278D:  C8
-F05:0192         cpy #80
-               S03:0000278E:  C0 50
-F05:0193         beq endit		; then done!!11!
-               S03:00002790:  F0 0B
+F05:0176         inx			; next x
+               S03:00002775:  E8
+F05:0177         cpx #160
+               S03:00002776:  E0 A0
+F05:0178         bne norm		; x=160? (x-max)
+               S03:00002778:  D0 07
+F05:0179         ldx #0		; then inc col
+               S03:0000277A:  A2 00
+F05:0180         iny			; are we done?
+               S03:0000277C:  C8
+F05:0181         cpy #80
+               S03:0000277D:  C0 50
+F05:0182         beq endit		; then done!!11!
+               S03:0000277F:  F0 1C
+F05:0183       norm:
+F05:0184         lda bitdex
+               S03:00002781:  A5 06
+F05:0185         cmp #1
+               S03:00002783:  C9 01
+F05:0186         beq bytedone
+               S03:00002785:  F0 07
+F05:0187         php
+               S03:00002787:  08
+F05:0188         lsr bitdex
+               S03:00002788:  46 06
+F05:0189         plp
+               S03:0000278A:  28
+F05:0190         jmp gloop
+               S03:0000278B:  4C 5D 27
+F05:0191       bytedone:
+F05:0192         lda #$80
+               S03:0000278E:  A9 80
+F05:0193         sta bitdex
+               S03:00002790:  85 06
 F05:0194         inc graph
                S03:00002792:  E6 FE
 F05:0195         lda graph
@@ -4077,9 +4077,9 @@ waitloop EXPR(10175=0x27bf) ABS
 downloop EXPR(10150=0x27a6) ABS 
 inchi EXPR(10136=0x2798) UNUSED ABS 
 back EXPR(10138=0x279a) ABS 
+bytedone EXPR(10126=0x278e) ABS 
 endit EXPR(10141=0x279d) ABS 
-bytedone EXPR(10114=0x2782) ABS 
-norm EXPR(10101=0x2775) ABS 
+norm EXPR(10113=0x2781) ABS 
 gloop1 EXPR(10090=0x276a) ABS 
 zero EXPR(10088=0x2768) ABS 
 gloop EXPR(10077=0x275d) ABS 
