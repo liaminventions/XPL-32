@@ -195,7 +195,7 @@ endit:
 out:
   pha
   phx
-  ldx #64
+  ldx #32
 downloop:
   jsr txpoll
   lda #$08
@@ -203,6 +203,7 @@ downloop:
   jsr txpoll
   lda #$14
   sta $8000
+  jsr wait24
   dex
   bne downloop
   plx
@@ -241,7 +242,7 @@ wait24:
   pha
   phx
   phy
-  lda #$ff		; 255 frames
+  lda #$7f		; 128 frames
   stz framecount
 b:cmp framecount
   bne b
