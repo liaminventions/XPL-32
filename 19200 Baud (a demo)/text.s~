@@ -242,7 +242,7 @@ wait24:
   pha
   phx
   phy
-  lda #$ff		; 255 frames
+  lda #$8		; 8 frames
   stz framecount
 b:cmp framecount
   bne b
