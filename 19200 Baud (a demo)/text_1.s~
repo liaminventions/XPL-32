@@ -73,6 +73,9 @@ text_ii_end:
 
   jsr graphics		; write a screen
 
+
+  ; BUG the scroll is broke
+
   ;sei
   ;stz scroll		; scroll on+
   ;stz sco
@@ -146,6 +149,8 @@ foundsubdir:
   plx 
   pla
   rts
+
+; BUG AAAAAAAAAAAAAAAAAAAAAAA
 
 graphics:
   pha

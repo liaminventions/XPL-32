@@ -6,22 +6,22 @@
 ; he he he ha
 
 ; graph = $fe
-  irqst = $02
-  framecount = $03
+  irqst = $04
+  framecount = $05
 
 textstart:
   sei
   stz irqst
   cli
   lda #1
-: cmp irqst		; allign main thread to IRQ
+a:cmp irqst		; allign main thread to IRQ
   bne :-
 
   ldx #<text_01
   ldy #>text_01
   jsr w_acia_full	; first text
 
-  jsr wait24
+  jsr wait_beat
 
   jsr out
 
@@ -241,7 +241,7 @@ wait24:
   pha
   phx
   phy
-  lda #32		; 32 frames
+  lda #$ff		; 255 frames
   stz framecount
 : cmp framecount
   bne :-
@@ -299,7 +299,7 @@ text_01:
 text_02:
   .byte $18, $06, $0c, $0e, $0c, $0f, $0c, "And graphics...", $00
 text_03:
-  .byte $18, $06, $0c, $0e, $06, $0f, $0c, "Here's Text Mode...", $00
+  .byte $18, $06, $0c, $0e, $0a, $0f, $0c, "Here's Text Mode...", $00
 ;dat_1:
 ;  .byte "1Mhz WDC65c02        "
 ;dat_2:

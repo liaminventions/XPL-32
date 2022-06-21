@@ -181,9 +181,8 @@ gloop1:
   inx			; next x
   cpx #160
   bne norm		; x=160? (x-max)
-  ldx #0		; then inc col
-  iny			; are we done?
-  cpy #80
+  iny			; then inc col
+  cpy #80		; are we done?
   beq endit		; then done!!11!
 norm:
   lda bitdex
