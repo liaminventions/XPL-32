@@ -5,8 +5,7 @@
 irqst = $04
 framecount = $05
 bitdex = $06
-
-graph = $fe  ; 2 bytes
+graph = $07  ; 2 bytes
 
 textstart:
   sei
@@ -181,6 +180,7 @@ gloop1:
   inx			; next x
   cpx #160
   bne norm		; x=160? (x-max)
+  ldx #0
   iny			; then inc col
   cpy #80		; are we done?
   beq endit		; then done!!11!
