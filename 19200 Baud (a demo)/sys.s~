@@ -74,20 +74,14 @@ scrollercheck:
   rti
 nott:
   stz count
-  lda sco
-  bne eeeee
-scroller:
-  ldx #0
-eeeee:
-  ldx sco
   ldx #<thingy
   ldy #>thingy
   jsr w_acia_full
+  ldx sco
   lda scrollmsg,x
-  jsr print_chara
   beq endscroll
-  inx
-  stx sco
+  jsr print_chara
+  inc sco
   ply
   plx
   pla
