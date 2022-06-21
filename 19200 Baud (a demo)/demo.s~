@@ -55,7 +55,7 @@ delay   dex          ; (2 cycles)
   .org $0f00
   jsr via_init
   .include "sys.s"
-  .include "text.s"
+  .include "text_1.s"
 
 reset:
   jmp reset

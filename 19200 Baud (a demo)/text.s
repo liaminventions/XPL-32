@@ -5,9 +5,9 @@
 ;
 ; he he he ha
 
-; graph = $fe
-  irqst = $04
-  framecount = $05
+irqst = $04
+framecount = $05
+graph = $06
 
 textstart:
   sei
@@ -15,7 +15,7 @@ textstart:
   cli
   lda #1
 a:cmp irqst		; allign main thread to IRQ
-  bne :-
+  bne a
 
   ldx #<text_01
   ldy #>text_01
@@ -243,8 +243,8 @@ wait24:
   phy
   lda #$ff		; 255 frames
   stz framecount
-: cmp framecount
-  bne :-
+b:cmp framecount
+  bne b
   ply
   plx
   pla
