@@ -159,9 +159,9 @@ graphics:
   lda #$80
   sta bitdex
   ldx #<poketable	; addr setup
-  stx graph
+  stx graph+1
   ldy #>poketable
-  sty graph+1
+  sty graph
   ldx #0		; x0 y0
   ldy #0
 gloop:
@@ -189,7 +189,9 @@ norm:
   lda bitdex
   cmp #1
   beq bytedone
+  php
   lsr
+  plp
   sta bitdex
   jmp gloop
 bytedone:
