@@ -187,9 +187,11 @@ gloop1:
   beq endit		; then done!!11!
 norm:
   lda bitdex
+  clc
+  ror
   cmp #1
   beq bytedone
-  ror bitdex
+  sta bitdex
   jmp gloop
 bytedone:
   lda #$80
