@@ -95,7 +95,7 @@ endscroll:
   rti
 
 thingy:
-  .byte $16, $0e, 39, $00
+  .byte $16, $0e, 38, $00
 
 InitSid             ldx #$63
                     stx $b004
