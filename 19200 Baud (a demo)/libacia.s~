@@ -4,8 +4,7 @@
 ; print_hex_acia  - Prints a hex value in A
 ; crlf		  - Prints <CR> followed by <LF>
 ; clear_display   - Sends a <CLS> command
-; txpoll          - Polls the TX bit to see if the ACIA is ready to print data
-; rxpoll          - Polls the RX bit to see if the ACIA is ready to read data from the keyboard
+; txpoll          - Polls the TX bit to see if the ACIA is ready
 ; print_chara     - Prints a Character that is stored in A
 ; print_char_acia - Same as print_chara
 ; ascii_home      - Home the cursor

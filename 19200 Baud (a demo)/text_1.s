@@ -152,6 +152,7 @@ foundsubdir:
 ; BUG AAAAAAAAAAAAAAAAAAAAAAA
 
 graphics:
+  php
   pha
   phx
   phy
@@ -188,9 +189,7 @@ norm:
   lda bitdex
   cmp #1
   beq bytedone
-  php
-  lsr bitdex
-  plp
+  ror bitdex
   jmp gloop
 bytedone:
   lda #$80
@@ -206,7 +205,7 @@ endit:
   ply
   plx
   pla
-  clc
+  plp
   rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
