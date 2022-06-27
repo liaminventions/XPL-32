@@ -36,6 +36,9 @@ init:
   lda #$c0
   sta $b00e
 
+  lda #$40
+  sta $b00d
+
   lda #0 ; Song Numbehr
   jsr InitSid
   cli
@@ -47,40 +50,28 @@ irq:
   ; IRQ code goes here
   lda #$40
   sta $b00d
-  jmp check
+  jsr putbut
+  jsr PlaySid
+  rti
 
-poitt               phx
+putbut
                     ldx #$63
                     stx $b004
                     stx $b006
                     ldx #$26
                     stx $b005
                     stx $b007
-                    plx
                     rts
+                    
+  .org $0ff6
 
 InitSid             ldx #$63
                     stx $b004
-                    stx $b006
                     ldx #$26
                     stx $b005
-                    stx $b007
+                    jmp L111c
 
-dobut               jmp L111c
-                    
-  .org $1000
-
-
-PlaySid
-                    jsr poitt
-		    nop
-		    nop
-		    nop
-		    nop
-		    nop
-		    nop
-		    nop
-                    jmp L1120
+PlaySid             jmp L1120
                     
 L1006               jmp L1083
                     
@@ -527,42 +518,3 @@ L1410               cmp #$2c
                     brk
 
   .binary "Aaah.bin"
-
-break_buffer:
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-  brk
-
-check:
-  sei
-  lda poll
-  and #$08
-  beq cont
-  jmp clear
-cont:
-  jsr PlaySid
-  cli
-  rti
-clear:
-  ldx #$18
-  lda #$00
-cloop:
-  sta d400_sVoc1FreqLo,x
-  dex
-  beq end
-  jmp cloop
-end:
-  jmp ($fffc)
-
