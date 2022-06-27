@@ -25,7 +25,10 @@ EXTVID  = %10000000
 
 PORTA_OUTPUTPINS = SD_CS | SD_SCK | SD_MOSI
 
-  .org $0600
+  .org $0f00
+
+  jsr via_init
+  jmp sys
 
 via_init:
   lda #%11111111          ; Set all pins on port B to output
@@ -34,10 +37,6 @@ via_init:
   sta DDRA
   rts
   
-  .include "libsd.s"
-  .include "libfat32.s"
-  .include "libacia.s"
-
 wait:
 	phx
 	phy
@@ -50,10 +49,7 @@ delay   dex          ; (2 cycles)
 	ply
 	plx
 	rts
-
-
-  .org $0f00
-  jsr via_init
+sys:
   .include "sys.s"
   .include "text.s"
 
@@ -63,4 +59,8 @@ reset:
 scrollmsg:
 
   .byte "6502 Power! I know that the graphics look simple, but under the hood, it is crazy. Just wait till you see the color video part a bit later...           A retro laptop with 4 expansion slots just like a standard PC slot...", $00
+
+  .include "libsd.s"
+  .include "libfat32.s"
+  .include "libacia.s"
 
