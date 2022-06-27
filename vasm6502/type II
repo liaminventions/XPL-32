@@ -1,8 +1,6 @@
 ; XPL-32 <FOLDER> type loading code
 ; (c) 2022 Liam Oppenheimer
 
-charbuffer = $601            ; 1 byte
-
 d400_sVoc1FreqLo = $b800
 d404_sVoc1Control = $b804
 d40b_sVoc2Control = $b80b
@@ -25,6 +23,8 @@ endbuf = $600
   .org $0600
 jumptoit:
   jmp sdstart
+charbuffer:
+  .byte 0
   .include "hwconfig.s"
   .include "libsd.s"
   .include "libfat32.s"
@@ -55,8 +55,14 @@ sdstart:
 
   jsr rootsetup
 
-findrau:
-  jmp type
+type:
+  ldx #<typemsg
+  ldy #>typemsg
+  jsr w_acia_full
+  ldx #0
+  lda #' '
+  sta $04
+  jmp typeloop
 
 rootsetup:
   pha
@@ -93,30 +99,6 @@ foundsubdir
   pla
   rts
 
-
-type:
-  ldx #<typemsg
-  ldy #>typemsg
-  jsr w_acia_full
-  ldx #0
-  lda #' '
-  sta $04
-  jmp typeloop
-
-rxpol:
-  lda $8001
-  and #$08
-  beq rxpol
-  rts
-
-rxput:
-  lda $8001
-  and #$08
-  beq typelop
-  rts
-typelop:
-  jmp typeloop
-
 lodmsg:
   .byte $0d, $0a, "Loading...", $0d, $0a, $00
 donemsg:
@@ -137,7 +119,7 @@ loadbuf:
 other:
   jsr txpoll
   lda (zp_sd_address),y
-  sta $8000
+  sta ACIA_DATA
   iny
   rts
 
@@ -184,21 +166,29 @@ jumptolist:
   jsr crlf
   jmp list
 
+backspace:
+  dex
+  lda #$20
+  sta loadbuf,x
 typeloop:
 
-  jsr rxpol
-  lda $8000
+  jsr rxpoll
+  lda ACIA_DATA
   sta charbuffer
 
   cmp #$0d
   beq exitloop
 
   lda charbuffer
+  cmp #$08
+  beq backspace
+
+  lda charbuffer
   cmp #'l'
   beq jumptolist
 
   lda charbuffer
-  sta $8000
+  sta ACIA_DATA
 
   lda charbuffer
   sta loadbuf,x
@@ -208,7 +198,7 @@ typeloop:
 exitloop:
 
   jsr crlf
-  jsr rootsetup
+ ; jsr rootsetup
   
   ldy #>loadbuf
   ldx #<loadbuf

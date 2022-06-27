@@ -201,13 +201,12 @@ RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
 
 RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
 RDBIT   JSR 	waitfreq
-;	DEY
 hmmm:
         LDA     PORTA
         EOR     tapest
-        BEQ     hmmm            ; Keep looping until state changes.
-	LDA	PORTA
-;        EOR     tapest
+        BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
+	lda	tapest
+        eor     tapest
         STA     tapest
 	BIT 	$b00d		; is the counter 750 us?
 	BVC	RDBIT0
@@ -243,6 +242,7 @@ load:
   jsr w_acia_full
 
   lda PORTA
+  and #1
   sta tapest
 
   jsr wait1
@@ -257,6 +257,7 @@ loadloop:
   jsr RDBYTE
   sta dat,x
   inx
+  cpx #$ff
   bne loadloop
 
   ldx #<msg2

@@ -1,4 +1,3 @@
-charbuffer = $601            ; 1 byte
 
 zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
@@ -13,6 +12,8 @@ endbuf = $600
   .org $0600
 jumptoit:
   jmp sdstart
+charbuffer:
+  .byte 0
   .include "hwconfig.s"
   .include "libsd.s"
   .include "libfat32.s"

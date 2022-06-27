@@ -64,3 +64,13 @@ startupsoundloop:
   rts
   rts
   rts
+
+clear_sid
+  ldx #$18
+csid
+  stz $b800,x
+  dex
+  bne csid
+  rts
+
+

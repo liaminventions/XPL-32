@@ -1,0 +1,50 @@
+thing  = $00
+odd    = $01
+buf    = $02
+eorr   = $03
+tapest = $04
+
+  .org $0f00
+
+start:
+  sei
+  jsr via_init		; init VIA
+  stz $b00e
+  stz tapest
+
+load:
+  ldx #<loadmsg
+  ldy #>loadmsg
+  jsr w_acia_full 
+
+  lda #$18		; ye fumble
+  jsr TDELAY		; 4 second delay
+
+  lda #'L'
+  jsr print_chara
+loadloop:
+  lda PORTA
+  and #1
+  bne z
+  lda #%00000010
+  sta PORTA
+  jmp loadloop
+z:
+  stz PORTA
+  jmp loadloop
+
+loadmsg:
+  .byte "Press Play On Tape.", $0d, $0a, $00
+
+TDELAY  LDX     #$FF            ; wait for ye fumble.
+RD1     LDA     #$7A            ; (Y times through inner loop,
+RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
+        BNE     RD2
+RD3     DEX
+        BNE     RD1
+        DEY
+        BNE     TDELAY
+        RTS
+
+  .include "hwtape.s"
+  .include "libacia.s"
