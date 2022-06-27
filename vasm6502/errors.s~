@@ -1,10 +1,7 @@
 error_sound:
   lda #$55
-  sta $00	; its not done yet
-  stz $01	; reset irq count
-
-  lda #$0f
-  sta $b818	; full volume
+  sta donefact
+  stz irqcount	; reset irq count
 
 runthesound:
   sei		; turn off irqs
@@ -22,17 +19,16 @@ runthesound:
   jmp startupsoundloop
 
 irq:
+  lda #$40
+  sta $b00d
   jsr putbut		; refresh timers
-  sei
-  inc $01		; a irq has occurred
-  lda $01
-  cmp #120		; if 120 irqs (end of the error sound)
+  inc irqcount		; a irq has occurred
+  lda irqcount
+  cmp #$40		; if $32 irqs (end of the error sound)
   bne continue24542 	; end the stream
-  stz $00		; its done, tell the loop
-  sei
+  stz donefact		; its done, tell the loop
 continue24542:
   jsr $1006
-  cli
   rti			; exit
 
 putbut:
@@ -59,10 +55,18 @@ startupsoundloop:
   lda $c0		; clear irq vectors
   sta $7fff
   stz $7ffe
-  jsr clear_sid
+ ; jsr clear_sid
   rts
   rts
   rts
+  rts
+
+clear_sid
+  ldx #$18
+csid
+  stz $b800,x
+  dex
+  bne csid
   rts
 
 

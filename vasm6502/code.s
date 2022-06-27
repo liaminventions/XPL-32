@@ -1,9 +1,8 @@
 ; XPL-32 <FOLDER> type loading code
 ; (c) 2022 Liam Oppenheimer
 
-seed = $01
-donefact = $02
-irqcount = $03
+donefact = $00
+irqcount = $01
 
 zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
@@ -33,9 +32,6 @@ errormsg:
 
 sdstart:
   stz $00
-
-  lda #$55
-  sta seed
 
   jsr cleardisplay
 
