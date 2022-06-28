@@ -13,6 +13,19 @@ fat32_workspace = $200      ; two pages
 buffer = $400               ; 512 bytes
 endbuf = $600
 
+fat32_readbuffer = fat32_workspace
+
+fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
+fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
+fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
+fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
+fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
+fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
+fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
+fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
+
+fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
+fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 
   .org $0600
 jumptoit:
@@ -20,9 +33,7 @@ jumptoit:
 charbuffer:
   .byte 0
   .include "hwconfig.s"
-  .include "libsd.s"
-  .include "libfat32.s"
-  .include "libacia.s"
+  .include "kernal_def.s"
 
 dirname:
   .asciiz "FOLDER     "

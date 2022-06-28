@@ -1,9 +1,8 @@
 ; XPL-32 <FOLDER> type loading code
 ; (c) 2022 Liam Oppenheimer
 
-seed = $01
-donefact = $02
-irqcount = $03
+donefact = $00
+irqcount = $01
 
 zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
@@ -21,9 +20,7 @@ jumptoit:
 charbuffer:
   .byte 0
   .include "hwconfig.s"
-  .include "libsd.s"
-  .include "libfat32.s"
-  .include "libacia.s"
+  .include "kernal_def.s"
 
 dirname:
   .asciiz "FOLDER     "
@@ -33,9 +30,6 @@ errormsg:
 
 sdstart:
   stz $00
-
-  lda #$55
-  sta seed
 
   jsr cleardisplay
 
