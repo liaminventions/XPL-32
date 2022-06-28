@@ -60,7 +60,4 @@ scrollmsg:
 
   .byte "6502 Power! I know that the graphics look simple, but under the hood, it is crazy. Just wait till you see the color video part a bit later...           A retro laptop with 4 expansion slots just like a standard PC slot...", $00
 
-  .include "libsd.s"
-  .include "libfat32.s"
-  .include "libacia.s"
-
+  .include "kernal_def.s"
