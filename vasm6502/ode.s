@@ -33,6 +33,9 @@ init:
   sta $7fff
   lda #$c0
   sta $b00e
+  lda #$40
+  sta $b00d
+  jsr putbut
   ; IRQ Inits Go Here
   lda #0 ; Song Number
   jsr InitSid

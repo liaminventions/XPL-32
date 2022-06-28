@@ -3,6 +3,8 @@ d404_sVoc1Control = $b804
 d40b_sVoc2Control = $b80b
 d412_sVoc3Control = $b812
 
+  .include "kernal_def.s"
+
   .org $0f00
 init:
   sei
@@ -10,11 +12,13 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
+  lda #$40
+  sta $b00d
+  jsr putbut
   ; IRQ Inits Go Here
   lda #0 ; Song Number
-  sta $b00c
   jsr InitSid
   cli
   nop
@@ -22,26 +26,56 @@ init:
 write:
     LDX #0
 next_char:
-wait_txd_empty:
-    LDA $8001
-    AND #$10
-    BEQ wait_txd_empty
+    jsr txpoll
     LDA text,x
     BEQ loop
-    STA $8000
+    sta $8000
+    phx
+    jsr delay
+    plx
     INX
     JMP next_char
 
 loop:
-  jmp loop
+  rts
+  rts
+  rts
+
+delay:
+  ldx #0
+xloop:
+  ldy #$24
+yloop:
+  nop
+  nop
+  dey
+  bne yloop
+  
+  dex
+  bne xloop
+  rts
   
 irq:
+  pha
+  phx
+  phy
   ; IRQ code goes here
-  lda #$10
+  lda #$40
   sta $b00d
+  jsr putbut
   jsr PlaySid
-  nop
+  ply
+  plx 
+  pla
   rti
+
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
 
   .org $1006
 PlaySid             ldx #$18

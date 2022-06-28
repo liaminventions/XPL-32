@@ -36,19 +36,13 @@ irq:
   plx
   pla
   rti
-InitSid             ldx #$63
-                    stx $b004
-                    stx $b007
-                    ldy #$26
-                    sty $b005
-                    sty $b006
-
+InitSid             jsr putbut
                     jmp InitSid2
 
-putbut              ldx #$63
+putbut              ldx #$1e
                     stx $b004
                     stx $b007
-                    ldy #$26
+                    ldy #$4e
                     sty $b005
                     sty $b006
                     rts
