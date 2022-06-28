@@ -62,7 +62,7 @@ startupsoundloop:
   rts
 
 clear_sid
-  ldx #$18
+  ldx #$17 ; 17 cuz no pop
 csid
   stz $b800,x
   dex

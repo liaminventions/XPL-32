@@ -55,7 +55,7 @@ startupsoundloop:
   lda $c0		; clear irq vectors
   sta $7fff
   stz $7ffe
- ; jsr clear_sid
+  jsr clear_sid
   rts
   rts
   rts

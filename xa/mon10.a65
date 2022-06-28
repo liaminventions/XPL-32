@@ -3419,7 +3419,7 @@ freq_table:
   .byte $50, $50
 
 clear_sid
-  ldx #$18
+  ldx #$17
 csid
   stz $b800,x
   dex
@@ -3721,6 +3721,12 @@ serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 
+rxpoll:
+  lda ACIA_DATA
+  and #$08
+  beq rxpoll
+  rts
+
 ;;; Handle interrupts. Since the Mite doens't have interrupt lines
 ;;; connected, we don't even bother decoding the interrupt; instead,
 ;;; we just presume that it's a software interrupt (ie, a BRK),
@@ -3732,7 +3738,77 @@ interrupt
   jmp ($7ffe)  
   rti
 
-	* = $fffa
+  .dsb 8688,$00
+
+; ----KERNAL----
+
+* = $FFB2
+
+; inits
+
+KERNAL_acia_init:
+  jmp acia_init
+KERNAL_via_init:
+  jmp via_init
+KERNAL_sd_init:
+  jmp sd_init
+KERNAL_fat32_init:
+  jmp fat32_init
+
+; acia
+
+KERNAL_print_hex_acia:
+  jmp print_hex_acia
+KERNAL_crlf:
+  jmp crlf
+KERNAL_cleardisplay:
+  jmp cleardisplay
+KERNAL_rxpoll:
+  jmp rxpoll
+KERNAL_txpoll:
+  jmp txpoll
+KERNAL_print_chara:
+KERNAL_print_char_acia:
+  jmp print_chara
+KERNAL_ascii_home:
+  jmp ascii_home
+KERNAL_w_acia_full
+  jmp w_acia_full
+
+; fat32
+
+KERNAL_fat32_seekcluster:
+  jmp fat32_seekcluster
+KERNAL_fat32_readnextsector
+  jmp fat32_readnextsector
+KERNAL_fat32_openroot:
+  jmp fat32_openroot
+KERNAL_fat32_opendirent:
+  jmp fat32_opendirent
+KERNAL_fat32_readdirent
+  jmp fat32_readdirent
+KERNAL_fat32_finddirent:
+  jmp fat32_finddirent
+KERNAL_fat32_file_readbyte:
+  jmp fat32_file_readbyte
+KERNAL_fat32_file_read:
+  jmp fat32_file_read
+
+; sd
+
+KERNAL_sd_readbyte:
+  jmp sd_readbyte
+KERNAL_sd_sendcommand:
+  jmp sd_sendcommand
+KERNAL_sd_readsector:
+  jmp sd_readsector
+
+; other
+
+KERNAL_loadcmd:
+  jmp loadcmd
+
+* = $FFFA
 	.word interrupt
 	.word reset
 	.word interrupt

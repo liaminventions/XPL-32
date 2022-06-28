@@ -1,0 +1,21 @@
+; kernal def
+
+acia_init = $ffb2
+
+stock_via = $ffb5
+
+sd_init = $ffb8
+
+fat32_init = $ffba
+
+print_hex_acia = $ffbc
+
+crlf = $ffbe
+
+cleardisplay = $ffc0
+
+rxpoll = $ffc2
+
+txpoll = $ffc4
+
+print_chara = $ffc6
