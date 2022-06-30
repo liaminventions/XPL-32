@@ -37,7 +37,7 @@ fat32_readdirent = $ffe2
 
 fat32_finddirent = $ffe5
 
-fat32_readbyte = $ffe8
+fat32_file_readbyte = $ffe8
 
 fat32_file_read = $ffeb
 

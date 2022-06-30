@@ -22,7 +22,7 @@ darn
 	jmp ebutrocks
 
 datname:
-  .asciiz "CMC     RAW"  ; music file on SD card
+  .asciiz "FASTCMC RAW"  ; music file on SD card
 dirname:
   .asciiz "FOLDER     "  ; folder
 
@@ -48,9 +48,6 @@ ebutrocks:
         LDA $B00D
         SEI                    ; disables maskable interrupts
 
-        ; switch out kernal rom while sample playing
-        LDA #$35                ;
-        STA $01                 ; 6510 banking register
 				; hold on les fix da sd
   ; Open root directory
   jsr fat32_openroot
@@ -132,10 +129,12 @@ SIDCLR
 	STA sample		; all right.
 	JSR wee			; prepare the cannons.
 
-        LDA #$81                ; ICR set to TMR A underflow
+        LDA #$40                ; ICR set to TMR A underflow
         STA $B00D               ; ICR CIA #2
-        LDA #$11                ;
+        LDA #$c0                ;
         STA $B00E               ; CRA interrupt enable
+
+	cli
 
         LDA #$00                ;
         STA done                ; reset player done flag
@@ -172,6 +171,9 @@ wee
 NMI_HANDLER        
         ; start with saving state       
         PHA                     ; 3- (3) will restore when returning
+
+	lda #$40
+	sta $b00d		; ack
 
 	JSR wee			; prepare next missle
 
