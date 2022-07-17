@@ -117,9 +117,12 @@ startupsoundloop:
   stz $b00e		; if done disable irqs
   stz $b00d
   sei
-  lda $c0		; clear irq vectors
+  lda #$40
+  sta $7ffb		; return irq
+  lda #$7f		; clear irq vectors
   sta $7fff
-  stz $7ffe
+  lda #$fb
+  sta $7ffe
   jsr clear_sid
   lda #$43
   sta SEN
