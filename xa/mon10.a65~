@@ -3722,7 +3722,7 @@ loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 
 rxpoll:
-  lda ACIA_DATA
+  lda ACIA_STATUS
   and #$08
   beq rxpoll
   rts
