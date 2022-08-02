@@ -24,7 +24,7 @@ VDP_PATTERN_INIT_HI 	= $31
 VDP_NAME_POINTER        = $32
 
   .org $0f00
-  .include "her11_code.s"
+  .include "groove_code.s"
 
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
   pha
