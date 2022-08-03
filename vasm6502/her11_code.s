@@ -4,28 +4,39 @@ d40b_sVoc2Control = $b80b
 d412_sVoc3Control = $b812
 
 init:
-  sei
-  lda #<irq
-  sta $7ffe
-  lda #>irq
-  sta $7fff
+  ;sei
+  ;lda #<irq
+  ;sta $7ffe
+  ;lda #>irq
+  ;sta $7fff
   lda #0 ; Song Number
   jsr InitSid     ; workin on it
-  cli
-  nop
+  ;cli
+  ;nop
 ; You can put code you want to run in the backround here.
 loop:
-  jmp reset
+  ;jmp reset
+  rts
 irq:
   phx
   phy
   pha
-  jsr putbut
+  ;jsr putbut
   jsr PlaySid
   pla
   ply
   plx
   rti
+fatirq:
+  phx
+  phy
+  pha
+  ;jsr putbut
+  jsr PlaySid
+  pla
+  ply
+  plx
+  rts
 
 putbut              ldx #$1f
                     stx $b004
@@ -35,7 +46,7 @@ putbut              ldx #$1f
                     stx $b007
                     rts
 
-InitSid             jsr putbut
+InitSid             ;jsr putbut
                     jmp InitSid2
 
   .org $1006

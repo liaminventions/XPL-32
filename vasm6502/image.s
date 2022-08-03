@@ -41,6 +41,7 @@ reset:
 
 ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
 
+  sei
   stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
 
   jsr vdp_set_registers
@@ -49,9 +50,21 @@ reset:
   sta $b003
   sta $b001
   jsr init
+  ;cli
 holding:
-  ;jsr wait
-  ;jsr changecolor
+  ;;jsr changecolor
+  lda VDP_REG
+  and #$80
+  beq holding
+  lda #$1c
+  sta VDP_REG
+  lda #$87
+  sta VDP_REG
+  jsr PlaySid
+  lda #$1e
+  sta VDP_REG
+  lda #$87
+  sta VDP_REG
   jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
@@ -85,7 +98,7 @@ vdp_set_registers:
 wait:
 	phx
 	phy
-        ldy  #$ff
+        tay          ; load secondary loop cycle count (A reg)
         ldx  #$ff
 delay   dex          ; (2 cycles)
         bne  delay   ; (3 cycles in loop, 2 cycles at end)
@@ -113,7 +126,7 @@ vdp_register_3: .byte $00       ; Color table base (currently unused)
 vdp_register_4: .byte $01       ; Pattern table base / $800. $01 = $0800
 vdp_register_5: .byte $00       ; Sprite attribute table base (currently unused)
 vdp_register_6: .byte $00       ; Sprite pattern generator (currently unused)
-vdp_register_7: .byte $4E       ; FG/BG. 1=>Black, E=>Gray
+vdp_register_7: .byte $1E       ; FG/BG. 1=>Black, E=>Gray
 vdp_end_register_inits:
 
 
@@ -191,7 +204,7 @@ vdp_pattern_table_loop:
 
 vdp_enable_display:
   pha
-  lda #%11110000			; select 16k bytes of vram, enable the active display, disable vdp interrupt, set text mode
+  lda #%11010000			; select 16k bytes of vram, enable the active display, disable vdp interrupt, set text mode
   sta VDP_REG
   lda #(VDP_REGISTER_BITS | 1)
   sta VDP_REG
