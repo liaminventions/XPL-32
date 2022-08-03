@@ -24,6 +24,7 @@ VDP_PATTERN_INIT_HI 	= $31
 VDP_NAME_POINTER        = $32
 
   .org $0f00
+  jmp reset
   .include "her11_code.s"
 
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
@@ -40,15 +41,17 @@ reset:
 
 ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
 
+  stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
 
   jsr vdp_set_registers
   jsr vdp_setup
   lda #255	; activate display
   sta $b003
   sta $b001
+  jsr init
 holding:
-  jsr wait
-  jsr changecolor
+  ;jsr wait
+  ;jsr changecolor
   jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
@@ -188,7 +191,7 @@ vdp_pattern_table_loop:
 
 vdp_enable_display:
   pha
-  lda #%11010000			; select 16k bytes of vram, enable the active display, disable vdp interrupt, set text mode
+  lda #%11110000			; select 16k bytes of vram, enable the active display, disable vdp interrupt, set text mode
   sta VDP_REG
   lda #(VDP_REGISTER_BITS | 1)
   sta VDP_REG

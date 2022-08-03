@@ -13,7 +13,7 @@ init:
   lda #>irq
   sta $7fff
   lda #0 ; Song Number
-  jsr InitSid
+  jsr InitSid     ; workin on it
   lda #$40
   sta $b00d
   cli
