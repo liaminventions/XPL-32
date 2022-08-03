@@ -96,28 +96,28 @@ vdp_set_registers:
   pla
   rts
 
-wait:
-	phx
-	phy
-        tay          ; load secondary loop cycle count (A reg)
-        ldx  #$ff
-delay   dex          ; (2 cycles)
-        bne  delay   ; (3 cycles in loop, 2 cycles at end)
-        dey          ; (2 cycles)
-        bne  delay   ; (3 cycles in loop, 2 cycles at end)
-	ply
-	plx
-	rts
-
-changecolor:
-  pha
-  inc vdp_register_7
-  lda vdp_register_7
-  sta VDP_REG
-  lda #$87
-  sta VDP_REG
-  pla
-  rts
+;wait:
+;	phx
+;	phy
+;        tay          ; load secondary loop cycle count (A reg)
+;        ldx  #$ff
+;delay   dex          ; (2 cycles)
+;        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+;        dey          ; (2 cycles)
+;        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+;	ply
+;	plx
+;;	rts
+;
+;changecolor:
+;  pha
+;  inc vdp_register_7
+;  lda vdp_register_7
+;  sta VDP_REG
+;  lda #$87
+;  sta VDP_REG
+;  pla
+;  rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
 
@@ -143,8 +143,6 @@ vdp_name_table_loop:
   plx
   pla
   rts
-
-  .include "her11_code.s"
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
 
@@ -173,6 +171,10 @@ wopeee:
   plx
   pla
   rts
+
+
+  .include "her11_code.s"
+
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
 

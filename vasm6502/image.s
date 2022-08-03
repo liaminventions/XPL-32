@@ -50,7 +50,7 @@ reset:
   sta $b003
   sta $b001
   lda #0
-  jsr InitSid
+  jsr init
   cli
 holding:
   ;;jsr changecolor
