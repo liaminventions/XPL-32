@@ -27,9 +27,6 @@ VDP_PATTERN_INIT_HI 	= $31
 VDP_NAME_POINTER        = $32
 
   .org $0f00
-  jmp reset
-  ;.include "her11_code.s"
-
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
   pha
   lda #<(\1)
@@ -59,24 +56,26 @@ holding:
   ;lda VDP_REG
   ;and #$80
   ;beq holding
-  ;lda #$1c
+  ;lda #$0e
   ;sta VDP_REG
   ;lda #$87
   ;sta VDP_REG
   ;jsr PlaySid
-  ;lda #$1e
+  ;lda #$00
   ;sta VDP_REG
   ;lda #$87
   ;sta VDP_REG
-  jmp holding
+  ;jmp holding
+
+ ; .include "her11_code.s"
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
 vdp_setup:
-  ;jsr vdp_initialize_pattern_table
   jsr vdp_initialize_name_table
-  ;jsr vdp_initialize_color_table
+  jsr vdp_initialize_color_table
   ;jsr vdp_write_name_table
+  jsr vdp_initialize_pattern_table
   jsr vdp_enable_display
   rts
 
@@ -121,18 +120,6 @@ changecolor:
   sta VDP_REG
   pla
   rts
-
-vdp_register_inits:
-vdp_register_0: ;.byte %00000010 ; 0  0  0  0  0  0  M3 EXTVDP
-vdp_register_1: ;.byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
-vdp_register_2: ;.byte $0e       ; Name table base / $400. $00 = $0000
-vdp_register_3: ;.byte $ff       ; Color table base (currently unused)
-vdp_register_4: ;.byte $03       ; Pattern table base / $800. $01 = $0800
-vdp_register_5: ;.byte $76       ; Sprite attribute table base (currently unused)
-vdp_register_6: ;.byte $03       ; Sprite pattern generator (currently unused)
-vdp_register_7: ;.byte $0f       ; FG/BG. 1=>Black, E=>Gray
-vdp_end_register_inits:
-
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
 
@@ -181,25 +168,24 @@ vdp_initialize_pattern_table:
   pha
   phx
   vdp_write_vram VDP_PATTERN_TABLE_BASE
-  lda #<vdp_patterns                      ; load the start address of the patterns to zero page
+  lda #<vdp_pattern                         ; load the start address of the patterns to zero page
   sta VDP_PATTERN_INIT
-  lda #>vdp_patterns
+  lda #>vdp_pattern
   sta VDP_PATTERN_INIT_HI
 vdp_pattern_table_loop:
   lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
   sta VDP_VRAM                            ; and store it to VRAM
-  lda VDP_PATTERN_INIT                    ; load the low byte of VDP_PATTERN_INIT address into A
-  clc                                     ; clear carry flag
-  adc #1                                  ; Add 1, with carry
-  sta VDP_PATTERN_INIT                    ; store back into VDP_PATTERN_INIT
-  lda #0                                  ; load A with 0
-  adc VDP_PATTERN_INIT_HI                 ; add with the carry flag to the high address
-  sta VDP_PATTERN_INIT_HI                 ; and store that back into the high byte
-  cmp #>vdp_end_patterns                  ; compare if we're at the end of the patterns
-  bne vdp_pattern_table_loop              ; if not, loop again
-  lda VDP_PATTERN_INIT                    ; compare the low byte
-  cmp #<vdp_end_patterns
-  bne vdp_pattern_table_loop              ; if not equal, loop again
+  inc VDP_PATTERN_INIT
+  lda VDP_PATTERN_INIT
+  bne wopeee
+  inc VDP_PATTERN_INIT_HI
+wopeee:
+  lda VDP_PATTERN_INIT
+  cmp #<vdp_pattern_end
+  bne vdp_pattern_table_loop
+  lda VDP_PATTERN_INIT_HI
+  cmp #>vdp_pattern_end
+  bne vdp_pattern_table_loop
   plx
   pla
   rts
@@ -217,18 +203,17 @@ vdp_initialize_color_table:
 vdp_color_table_loop:
   lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
   sta VDP_VRAM                            ; and store it to VRAM
-  lda VDP_PATTERN_INIT                    ; load the low byte of VDP_PATTERN_INIT address into A
-  clc                                     ; clear carry flag
-  adc #1                                  ; Add 1, with carry
-  sta VDP_PATTERN_INIT                    ; store back into VDP_PATTERN_INIT
-  lda #0                                  ; load A with 0
-  adc VDP_PATTERN_INIT_HI                 ; add with the carry flag to the high address
-  sta VDP_PATTERN_INIT_HI                 ; and store that back into the high byte
-  cmp #>vdp_end_color                     ; compare if we're at the end of the colors
-  bne vdp_color_table_loop              ; if not, loop again
-  lda VDP_PATTERN_INIT                    ; compare the low byte
-  cmp #<vdp_end_color
-  bne vdp_color_table_loop              ; if not equal, loop again
+  inc VDP_PATTERN_INIT
+  lda VDP_PATTERN_INIT
+  bne wopee
+  inc VDP_PATTERN_INIT_HI
+wopee:
+  lda VDP_PATTERN_INIT
+  cmp #<vdp_color_end
+  bne vdp_color_table_loop
+  lda VDP_PATTERN_INIT_HI
+  cmp #>vdp_color_end
+  bne vdp_color_table_loop
   plx
   pla
   rts
@@ -248,18 +233,29 @@ vdp_enable_display:
 text_vdp:
   ;.byte "Hello, World!", $00
 
+
+vdp_register_inits:
+vdp_register_0: .byte %00000010 ; 0  0  0  0  0  0  M3 EXTVDP
+vdp_register_1: .byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
+vdp_register_2: .byte $0e       ; Name table base / $400. $00 = $0000
+vdp_register_3: .byte $ff       ; Color table base (currently unused)
+vdp_register_4: .byte $03       ; Pattern table base / $800. $01 = $0800
+vdp_register_5: .byte $76       ; Sprite attribute table base (currently unused)
+vdp_register_6: .byte $03       ; Sprite pattern generator (currently unused)
+vdp_register_7: .byte $00       ; FG/BG. 1=>Black, E=>Gray
+vdp_end_register_inits:
+
 ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
   .align 8
 vdp_color:
   .binary "HER11.TIAC"
-vdp_end_color:
+vdp_color_end:
   .byte $00
-
 
 ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
 
   .align 8
-vdp_patterns:
+vdp_pattern:
   .binary "HER11.TIAP"
 ; line drawing
   ;.byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
@@ -392,6 +388,6 @@ vdp_patterns:
   ;.byte $E0,$10,$20,$18,$20,$10,$E0,$00 ; }
   ;.byte $40,$A8,$10,$00,$00,$00,$00,$00 ; ~
   ;.byte $A8,$50,$A8,$50,$A8,$50,$A8,$00 ; checkerboard
-vdp_end_patterns:
+vdp_pattern_end:
 
   .byte $00

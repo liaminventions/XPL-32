@@ -10,7 +10,7 @@ init:
   ;lda #>irq
   ;sta $7fff
   lda #0 ; Song Number
-  jsr InitSid     ; workin on it
+  jsr InitSid2     ; workin on it
   ;cli
   ;nop
 ; You can put code you want to run in the backround here.
@@ -18,36 +18,36 @@ loop:
   ;jmp reset
   rts
 irq:
-  phx
-  phy
-  pha
-  ;jsr putbut
-  jsr PlaySid
-  pla
-  ply
-  plx
-  rti
+  ;phx
+  ;phy
+  ;pha
+  ;;jsr putbut
+  ;jsr PlaySid
+  ;pla
+  ;ply
+  ;plx
+  ;rti
 fatirq:
-  phx
-  phy
-  pha
-  ;jsr putbut
-  jsr PlaySid
-  pla
-  ply
-  plx
-  rts
+  ;phx
+  ;phy
+  ;pha
+  ;;jsr putbut
+  ;jsr PlaySid
+  ;pla
+  ;ply
+  ;plx
+  ;rts
 
-putbut              ldx #$1f
-                    stx $b004
-                    stx $b006
-                    ldx #$3e	;60Hz IRQ
-                    stx $b005
-                    stx $b007
-                    rts
+;putbut              ldx #$1f
+;                    stx $b004
+;                    stx $b006
+;                    ldx #$3e	;60Hz IRQ
+;                    stx $b005
+;                    stx $b007
+;                    rts
 
-InitSid             ;jsr putbut
-                    jmp InitSid2
+;InitSid             ;jsr putbut
+;                    jmp InitSid2
 
   .org $1006
 PlaySid             ldx #$18
