@@ -9,23 +9,23 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
+  lda #$c0
+  sta $b00e
   lda #0 ; Song Number
   jsr InitSid
+  lda #$40
+  sta $b00d
   cli
   nop
 ; You can put code you want to run in the backround here.
 loop:
-  ;jmp reset
   rts
 irq:
-  phx
-  phy
-  pha
+  lda #$40
+  sta $b00d
   jsr putbut
   jsr PlaySid
-  pla
-  ply
-  plx
+  cli
   rti
 
 putbut              ldx #$1f

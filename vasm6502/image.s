@@ -49,7 +49,7 @@ reset:
   lda #255	; activate display
   sta $b003
   sta $b001
-  lda #0
+  ;lda #0
   jsr init
   cli
 holding:

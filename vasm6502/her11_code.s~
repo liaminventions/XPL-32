@@ -90,7 +90,7 @@ L105a               lda #$37
                     sta $01
                     rts
                     
-                    ff 00 
+                     .byte $ff, $00 
 L1061               lda $1d
                     sta $26
                     lda $1e
@@ -152,7 +152,7 @@ L10b9               lda $10c7,x
                     inc $26
                     bne L10cd
                     inc $27
-L10cd               ad 
+L10cd                 .byte $ad 
 L10ce               jsr $001f
                     
                     sta $dc04

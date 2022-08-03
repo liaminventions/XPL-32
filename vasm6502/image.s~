@@ -49,9 +49,9 @@ reset:
   lda #255	; activate display
   sta $b003
   sta $b001
-  lda #0
-  jsr InitSid
-  cli
+  ;lda #0
+  ;jsr init
+  ;cli
 holding:
   ;;jsr changecolor
   ;lda VDP_REG
@@ -173,7 +173,7 @@ wopeee:
   rts
 
 
-  .include "her11_code.s"
+  ;.include "her11_code.s"
 
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
