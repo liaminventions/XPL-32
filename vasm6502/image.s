@@ -42,15 +42,16 @@ reset:
 ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
 
   sei
-  stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
+  ;stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
 
   jsr vdp_set_registers
   jsr vdp_setup
   lda #255	; activate display
   sta $b003
   sta $b001
-  ;jsr init
-  ;cli
+  lda #0
+  jsr InitSid
+  cli
 holding:
   ;;jsr changecolor
   ;lda VDP_REG
@@ -65,16 +66,13 @@ holding:
   ;sta VDP_REG
   ;lda #$87
   ;sta VDP_REG
-  ;jmp holding
-
- ; .include "her11_code.s"
+  jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
 vdp_setup:
   jsr vdp_initialize_name_table
   jsr vdp_initialize_color_table
-  ;jsr vdp_write_name_table
   jsr vdp_initialize_pattern_table
   jsr vdp_enable_display
   rts
@@ -98,28 +96,28 @@ vdp_set_registers:
   pla
   rts
 
-wait:
-	phx
-	phy
-        tay          ; load secondary loop cycle count (A reg)
-        ldx  #$ff
-delay   dex          ; (2 cycles)
-        bne  delay   ; (3 cycles in loop, 2 cycles at end)
-        dey          ; (2 cycles)
-        bne  delay   ; (3 cycles in loop, 2 cycles at end)
-	ply
-	plx
-	rts
-
-changecolor:
-  pha
-  inc vdp_register_7
-  lda vdp_register_7
-  sta VDP_REG
-  lda #$87
-  sta VDP_REG
-  pla
-  rts
+;wait:
+;	phx
+;	phy
+;        tay          ; load secondary loop cycle count (A reg)
+;        ldx  #$ff
+;delay   dex          ; (2 cycles)
+;        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+;        dey          ; (2 cycles)
+;        bne  delay   ; (3 cycles in loop, 2 cycles at end)
+;	ply
+;	plx
+;;	rts
+;
+;changecolor:
+;  pha
+;  inc vdp_register_7
+;  lda vdp_register_7
+;  sta VDP_REG
+;  lda #$87
+;  sta VDP_REG
+;  pla
+;  rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
 
@@ -142,22 +140,6 @@ vdp_name_table_loop:
   bne vdp_name_table_loop
   
   ply
-  plx
-  pla
-  rts
-
-vdp_write_name_table:
-  pha
-  phx
-  vdp_write_vram TEXT_LOC
-  ldx #0
-.loop:
-  lda text_vdp,x
-  beq end_write
-  sta VDP_VRAM
-  inx
-  jmp .loop
-end_write:
   plx
   pla
   rts
@@ -189,6 +171,10 @@ wopeee:
   plx
   pla
   rts
+
+
+  .include "her11_code.s"
+
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
 
@@ -245,10 +231,11 @@ vdp_register_6: .byte $03       ; Sprite pattern generator (currently unused)
 vdp_register_7: .byte $00       ; FG/BG. 1=>Black, E=>Gray
 vdp_end_register_inits:
 
+
 ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
   .align 8
 vdp_color:
-  .binary "WAVID.TIAC"
+  .binary "HER11.TIAC"
 vdp_color_end:
   .byte $00
 
@@ -256,7 +243,7 @@ vdp_color_end:
 
   .align 8
 vdp_pattern:
-  .binary "WAVID.TIAP"
+  .binary "HER11.TIAP"
 ; line drawing
   ;.byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
   ;.byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud

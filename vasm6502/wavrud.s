@@ -42,7 +42,7 @@ reset:
 ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
 
   sei
-  ;stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
+  stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
 
   jsr vdp_set_registers
   jsr vdp_setup
@@ -51,21 +51,21 @@ reset:
   sta $b001
   lda #0
   jsr InitSid
-  cli
+  ;cli
 holding:
   ;;jsr changecolor
-  ;lda VDP_REG
-  ;and #$80
-  ;beq holding
-  ;lda #$0e
-  ;sta VDP_REG
-  ;lda #$87
-  ;sta VDP_REG
-  ;jsr PlaySid
-  ;lda #$00
-  ;sta VDP_REG
-  ;lda #$87
-  ;sta VDP_REG
+  lda VDP_REG
+  and #$80
+  beq holding
+  lda #$0e
+  sta VDP_REG
+  lda #$87
+  sta VDP_REG
+  jsr PlaySid
+  lda #$00
+  sta VDP_REG
+  lda #$87
+  sta VDP_REG
   jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
@@ -73,6 +73,7 @@ holding:
 vdp_setup:
   jsr vdp_initialize_name_table
   jsr vdp_initialize_color_table
+  ;jsr vdp_write_name_table
   jsr vdp_initialize_pattern_table
   jsr vdp_enable_display
   rts
@@ -144,7 +145,23 @@ vdp_name_table_loop:
   pla
   rts
 
-  .include "her11_code.s"
+vdp_write_name_table:
+  pha
+  phx
+  vdp_write_vram TEXT_LOC
+  ldx #0
+.loop:
+  lda text_vdp,x
+  beq end_write
+  sta VDP_VRAM
+  inx
+  jmp .loop
+end_write:
+  plx
+  pla
+  rts 
+
+  .include "wavid.s"
 
 ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
 
@@ -233,7 +250,7 @@ vdp_end_register_inits:
 ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
   .align 8
 vdp_color:
-  .binary "HER11.TIAC"
+  .binary "WAVID.TIAC"
 vdp_color_end:
   .byte $00
 
@@ -241,7 +258,7 @@ vdp_color_end:
 
   .align 8
 vdp_pattern:
-  .binary "HER11.TIAP"
+  .binary "WAVID.TIAP"
 ; line drawing
   ;.byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
   ;.byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud
