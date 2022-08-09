@@ -341,4 +341,4 @@ setup:
   .byte $1b, $2d, $0c, $0e, $4f, $0f, $18, $00
 
 poketable:
-  .binary "xpl.bin"
+  .binary "output.bin"

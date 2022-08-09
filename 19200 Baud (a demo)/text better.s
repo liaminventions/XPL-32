@@ -155,27 +155,40 @@ graphics:
   stx $fe
   ldy #>poketable
   sty $ff
+  lda #$80
+  sta r+1
   ldx #0		; x0 y0
   ldy #0
 gloop:
   lda ($fe)		; take a pixel
+r:and #$ff
+  beq zero
+  lda #$05
+  jmp continue
+zero:
+  lda #$06
+continue:
   jsr print_chara	; place it
   txa			; at 
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
   inx			; next x
-  sec
-  txa
-  sbc #159
+  cpx #159
   bne norm		; is it more then 255?
   ldx #0
-  iny
-  sec
-  tya			; are we done?
-  sbc #80
+  iny			; are we done?
+  cpy #80
   beq endit		; then done!!11!
 norm:
+  lda r+1
+  cmp #$01
+  beq next
+  ror r+1
+  jmp gloop
+next:
+  lda #$80 
+  sta r+1
   inc $fe
   lda $fe
   bne back
