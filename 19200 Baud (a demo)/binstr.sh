@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Name of your output file
-OFILE="output.txt"
+OFILE="output.bin"
 
-# A goofy wrapper to convert a sequence of 8 1s and 0s into a 8-bit number, expressed in hex
+# A goofy ahh wrapper to convert a sequence of 8 1s and 0s into a 8-bit number, expressed in hex
 function bstr_to_byte()
 {
     echo "obase=16;ibase=2;$1" | bc
