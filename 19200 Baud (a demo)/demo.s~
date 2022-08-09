@@ -65,7 +65,7 @@ delay   dex          ; (2 cycles)
 	rts
 sys:
   .include "sys.s"
-  .include "text better.s"
+  .include "text_1.s"
 
 reset:
   jmp reset
