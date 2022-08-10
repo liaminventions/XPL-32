@@ -34,9 +34,10 @@ init:
   lda #$c0
   sta $b00e
   ; IRQ Inits Go Here
-  lda #0 ; Song Number
   lda #$40
-  sta $b00d 
+  sta $b00d
+  jsr putbut
+  lda #0
   jsr InitSid
   cli
   nop
@@ -45,18 +46,25 @@ loop:
   jmp loop
 irq:
   ; IRQ code goes here
-  bit $b004
+  lda #$40
+  sta $b00d
+  jsr putbut
   jsr PlaySid
   nop
   rti
-InitSid             ldx #$63
+
+putbut              ldx #$63
                     stx $b004
+		    stx $b006
                     ldx #$26
                     stx $b005
+                    stx $b007
+		    rts
 
-                    jmp L10cc
+  .org $1000
 
-     .org $1003               
+InitSid             jmp L10cc
+
 PlaySid             jmp L10d0
                     
 S1006               lda $1680,y
