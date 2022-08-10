@@ -71,6 +71,7 @@ cloop:
 end:
   jmp ($fffc)
 
+
 putbut              ldx #$1e
                     stx $b004
                     stx $b006
