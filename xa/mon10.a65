@@ -182,7 +182,7 @@ startup
 
 #include "init.a65"
 
-#include "startupsound.s"
+;;#include "startupsound.s"
 
 init_acia
   lda #%00001011		;No parity, no echo, no interrupt
