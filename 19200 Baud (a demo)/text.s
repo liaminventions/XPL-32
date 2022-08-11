@@ -161,7 +161,7 @@ graphics:
 gloop:
   lda ($fe)		; take a pixel
   jsr print_chara	; place it
-  lda #159 
+  txa 
   jsr print_chara	; x
   tya			; ,
   jsr print_chara	; y
@@ -204,7 +204,7 @@ graphics2:
 gloop2:
   lda ($fe)
   jsr print_chara
-  lda #159
+  lda #158
   jsr print_chara
   tya
   jsr print_chara
