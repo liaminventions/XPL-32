@@ -55,6 +55,7 @@ irq:
   sta $b00d
   jsr putbut
   jsr PlaySid
+  stz scrollinfo
   lda scroll
   beq scrollercheck
   ply
@@ -73,6 +74,8 @@ scrollercheck:
   pla
   rti
 nott:
+  lda #$55
+  sta scrollinfo
   stz count
   ldx #<thingy
   ldy #>thingy
@@ -89,6 +92,7 @@ nott:
 endscroll:
   lda #$55
   sta scroll
+  stz scrollinfo
   ply
   plx
   pla
