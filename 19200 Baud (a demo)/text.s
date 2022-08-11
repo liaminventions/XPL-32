@@ -12,6 +12,17 @@ scrollinfo = $07
 
 textstart:
   sei
+  jsr rootsetup		; setup <FOLDER>
+
+  ldy #>imagefile	; setup image load
+  ldx #<imagefile
+  jsr fat32_finddirent
+  jsr fat32_opendirent  ; open filename addr
+  lda #<poketable
+  sta fat32_address	; host addr
+  lda #>poketable
+  sta fat32_address+1
+
   stz irqst
   cli
   lda #1
@@ -79,39 +90,12 @@ text_ii_end:
   stz sco
   cli
 
-  jsr rootsetup		; setup <FOLDER>
-
-  ldy #>imagefile	; setup image load
-  ldx #<imagefile
-  jsr fat32_finddirent
-  jsr fat32_opendirent  ; open filename addr
-  lda #<poketable
-  sta fat32_address	; host addr
-  lda #>poketable
-  sta fat32_address+1
   jsr fat32_file_read	; read
   jsr graphics2
-  jmp not
 
-nono:			; ded
-  lda "!"
-  jsr print_chara
 not:
   jmp not
          		; say goodbye!
-  
-ee:
-
-  lda #<poketable
-  sta fat32_address
-  lda #>poketable
-  sta fat32_address+1
-
-  jsr fat32_file_read
-
-  jsr graphics2
-
-  jmp reset		; done?
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
