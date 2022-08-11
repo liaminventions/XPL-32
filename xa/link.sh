@@ -1,5 +1,7 @@
 #!/bin/bash
 cp xpl.BIN ../osi_basic-master/xpl.BIN
 cd ../osi_basic-master
-cat osi_bas.bin xpl.BIN > ROM.BIN
+rm ROM.BIN
+cp osi_bas.bin ROM.BIN
+cat xpl.BIN >> ROM.BIN
 cd ../xa
