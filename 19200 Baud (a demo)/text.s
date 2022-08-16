@@ -185,6 +185,7 @@ graphics2:
   sty $ff
   ldx #0
   ldy #0
+  jmp ok
 gloop2:
   lda ($fe)
   jsr print_chara
