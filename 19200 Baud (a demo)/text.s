@@ -189,7 +189,7 @@ graphics2:
 gloop2:
   lda ($fe)
   jsr print_chara
-  lda #158
+  lda #50
   jsr print_chara
   tya
   jsr print_chara
