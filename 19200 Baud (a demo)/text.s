@@ -86,12 +86,13 @@ text_ii_end:
   jsr graphics		; write a screen
 
   jsr fat32_file_read   ; read
-  jsr graphics		; new picture
 
   sei
   stz scroll		; scroll on+
   stz sco
   cli
+
+  jsr graphics2
 
 not:
   jmp not
