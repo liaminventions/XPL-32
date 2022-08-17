@@ -190,18 +190,18 @@ graphics2:
 gloop2:
   lda ($fe)
   jsr print_chara
-  lda #159
+  lda #158
   jsr print_chara
   tya
   jsr print_chara
-  cpy #79
+  cpy #16
   beq dat
   iny
   clc
   lda $fe
   adc #159
   sta $fe
-  bcc ok
+  bcc gloop2
   inc $ff
   jmp gloop2
 ok:
@@ -217,27 +217,14 @@ dat:
   cpx #159
   beq done2
   inx
-  stx ee+1
+  txa
   clc
-  lda $fe
-ee: adc #$ff
+  adc $fe
   sta $fe
   bcc skipdat
   inc $ff
-  ;inc $fe
-  ;lda $fe
-  ;bne skipdat
-  ;inc $ff
 skipdat:
-  ;lda #<donemarker
-  ;cmp $fe
-  ;bne dennis
-  ;lda #>donemarker
-  ;cmp $ff
-  ;beq done2
-;dennis:
   jsr ok
-  ;jmp loop2
 done2:
   ply
   plx
