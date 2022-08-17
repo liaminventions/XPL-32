@@ -85,13 +85,13 @@ text_ii_end:
 
   jsr graphics		; write a screen
 
+  jsr fat32_file_read   ; read
+  jsr graphics		; new picture
+
   sei
   stz scroll		; scroll on+
   stz sco
   cli
-
-  jsr fat32_file_read	; read
-  jsr graphics2
 
 not:
   jmp not
@@ -189,11 +189,11 @@ graphics2:
 gloop2:
   lda ($fe)
   jsr print_chara
-  lda #50
+  lda #159
   jsr print_chara
   tya
   jsr print_chara
-  cpy #80
+  cpy #79
   beq dat
   iny
   clc
@@ -202,6 +202,7 @@ gloop2:
   sta $fe
   bcc ok
   inc $ff
+  jmp gloop2
 ok:
   lda scrollinfo
   beq ok
@@ -212,20 +213,30 @@ dat:
   ldy #>poketable
   sty $ff
   ldy #0
-  ldx #0
-  inc $fe
-  lda $fe
-  bne skipdat
-  inc $ff
-skipdat:
-  lda #<donemarker
-  cmp $fe
-  bne dennis
-  lda #>donemarker
-  cmp $ff
+  cpx #159
   beq done2
-dennis:
-  jmp gloop2
+  inx
+  stx ee+1
+  clc
+  lda $fe
+ee: adc #$ff
+  sta $fe
+  bcc skipdat
+  inc $ff
+  ;inc $fe
+  ;lda $fe
+  ;bne skipdat
+  ;inc $ff
+skipdat:
+  ;lda #<donemarker
+  ;cmp $fe
+  ;bne dennis
+  ;lda #>donemarker
+  ;cmp $ff
+  ;beq done2
+;dennis:
+  jsr ok
+  ;jmp loop2
 done2:
   ply
   plx

@@ -81,9 +81,9 @@ nott:
   ldy #>thingy
   jsr w_acia_full
   ldx sco
-  lda scrollmsg,x
-  beq endscroll
-  jsr print_chara
+  ;lda scrollmsg,x
+  ;beq endscroll
+  ;jsr print_chara
   inc sco
   ply
   plx
