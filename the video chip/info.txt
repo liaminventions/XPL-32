@@ -1,0 +1,33 @@
+Video display control codes:
+Hex (Decimal) and meaning
+01 (01) - Cursor home (Standard ASCII)
+02 (02) - Define cursor character (2nd byte is the curs character, or 00 to turn off) <--New for 3.0
+03 (03) - Cursor blinking
+04 (04) - Cursor solid
+05 (05) - Set graphics pixel (next two bytes = x,y) <--New for 3.0
+06 (06) - Reset graphics pixel (next two bytes = x,y) <--New for 3.0
+08 (08) - Backspace (Standard ASCII)
+09 (09) - Tab (Standard ASCII)
+0A (11) - Linefeed (Standard ASCII)
+0C (12) - Clear screen (Standard ASCII)
+0D (13) - Carriage return (Standard ASCII)
+0E (14) - Set column 0 to 79 (2nd byte is the column number) or 0 to 39 for a 40 char line
+0F (16) - Set row 0 to 24 (2nd byte is the row number)
+10 (16) - Delete start of line
+11 (17) - Delete to end of line
+12 (18) - Delete to start of screen
+13 (19) - Delete to end of screen
+14 (20) - Scroll up
+15 (21) - Scroll down
+16 (22) - Scroll left
+17 (23) - Scroll right
+18 (24) - Set font attribute for the current line (see elsewhere on this page for details) <--New for 3.0
+1A (26) - Treat next byte as a character (to allow PC DOS char codes 1 to 31 to be displayed on screen)
+1B (27) - ESC - reserved for ANSI sequences
+1C (28) - Cursor right
+1D (29) - Cursor Left
+1E (30) - Cursor up
+1F (31) - Cursor down
+20 (32) to 7E (126) - Standard ASCII codes
+7F (127) - Delete
+80 (128) to FF (255) - PC (DOS) extended characters

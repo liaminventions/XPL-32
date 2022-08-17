@@ -1,0 +1,10 @@
+Some ANSI/VT100 escape sequences have been implemented to allow programs such as Wordstar etc. to run on the CPM machine. The ones implemented are shown below (Esc = character 1B Hex, 27 decimal):
+Esc[Line;ColumnH or Esc[Line;Columnf moves cursor to that coordinate
+Esc[J=clear from cursor down
+Esc[1J=clear from cursor up
+Esc[2J=clear complete screen
+Esc[K = erase to end of line
+Esc[1K = erase to start of line
+Esc[L = scroll down
+Esc[M = scroll up
+Esc- = turn off ANSI interpreter - NEEDED IF USING GRAPHICS otherwise char 1B can't be sent to the display  <--New for 3.0
