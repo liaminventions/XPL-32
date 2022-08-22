@@ -86,6 +86,7 @@ wop:
   jmp wop
 ecin:
   stz buf,x
+  jsr crlf
   jsr str2int
   pla
   ply
