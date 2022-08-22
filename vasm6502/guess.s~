@@ -74,7 +74,9 @@ cin:
 wop:
   jsr rxpoll
   lda $8000
+  pha
   jsr print_chara
+  pla
   cmp #$0d
   beq ecin	; read in
   cmp #$0a
@@ -84,7 +86,7 @@ wop:
   jmp wop
 ecin:
   stz buf,x
-  
+  jsr str2int
   pla
   ply
   plx
