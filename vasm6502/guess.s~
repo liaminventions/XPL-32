@@ -86,13 +86,11 @@ ecin:
   stz buf,x
   
   pla
-  ply str2int
+  ply
   plx
   rts
 
 str2int:
-  ldx #ff
-stilp:
   lda #0
   sta guess+1
   lda buf
@@ -104,6 +102,17 @@ stilp:
   clc
   rts
 stinext:
+  jsr mult10
+  bcs stican
+  inx
+  lda buf,x
+  cmp #0
+  bne stinext
+  clc
+stican:
+  rts
+
+mult10:
   lda guess+1
   pha
   lda guess
@@ -123,14 +132,7 @@ stinext:
   sta guess
   lda #0
   adc guess+1
-  sta $020a
-  bcs stican
-  inx
-  lda buf,x
-  cmp #0
-  bne stinext
-  clc
-stican:
+  sta guess+1
   rts
   
 ;;;;;;;;; DATA ;;;;;;;;;;

@@ -74,7 +74,9 @@ cin:
 wop:
   jsr rxpoll
   lda $8000
+  pha
   jsr print_chara
+  pla
   cmp #$0d
   beq ecin	; read in
   cmp #$0a
@@ -84,15 +86,13 @@ wop:
   jmp wop
 ecin:
   stz buf,x
-  
+  jsr str2int
   pla
-  ply str2int
+  ply
   plx
   rts
 
 str2int:
-  ldx #ff
-stilp:
   lda #0
   sta guess+1
   lda buf
@@ -104,6 +104,17 @@ stilp:
   clc
   rts
 stinext:
+  jsr mult10
+  bcs stican
+  inx
+  lda buf,x
+  cmp #0
+  bne stinext
+  clc
+stican:
+  rts
+
+mult10:
   lda guess+1
   pha
   lda guess
@@ -124,13 +135,6 @@ stinext:
   lda #0
   adc guess+1
   sta guess+1
-  bcs stican
-  inx
-  lda buf,x
-  cmp #0
-  bne stinext
-  clc
-stican:
   rts
   
 ;;;;;;;;; DATA ;;;;;;;;;;
