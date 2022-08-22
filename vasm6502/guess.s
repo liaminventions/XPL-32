@@ -25,7 +25,7 @@ while:
   ldy #>msg1
   jsr w_acia_full
   jsr cin		; input a 1-digit value from the keyboard, then press enter
-  lda buf
+  lda guess
   cmp number
   beq win		; if buf = number, branch to "win"
   bcc low		; if buf < number, branch to "low"
@@ -56,7 +56,14 @@ random:
   STA $b80e ; voice 3 frequency low byte
   STA $b80f ; voice 3 frequency high byte
   LDA #$80  ; noise waveform, gate bit off
-  STA $b812 ; voice 3 control register  
+  STA $b812 ; voice 3 control register 
+  ldx #<wqe
+  ldy #>wqe
+  jsr w_acia_full
+lop:
+  jsr rxpoll
+  lda $8000
+  beq lop 
   lda $b81b ; voice 3 oscillator status
   and #100  ; ensure
   sta number
@@ -147,6 +154,7 @@ lowmsg:
   .byte "Your Guess is too low. Try again!",cr,lf,null
 winmsg:
   .byte "Congratulations! You guessed it!",cr,lf,null
-
+wqe:
+  .byte "Press Any Key to Begin.",cr,lf,null
 
 ; end of file
