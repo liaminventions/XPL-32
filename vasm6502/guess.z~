@@ -148,7 +148,7 @@ mult10:
 ;;;;;;;;; DATA ;;;;;;;;;;
 
 msg1:
-  .byte "Guess my number. (2 Digits then Enter)",cr,lf,null
+  .byte "Guess my number.",cr,lf,null
 highmsg:
   .byte "Your Guess is too high. Try again!",cr,lf,null
 lowmsg:
