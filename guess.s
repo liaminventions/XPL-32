@@ -28,6 +28,8 @@ while:
   ldy #>msg1
   jsr w_acia_full
   jsr cin		; input a 2-digit value from the keyboard, then press enter
+  lda guess+1
+  bne high
   lda guess
   cmp number
   beq win		; if guess = number, branch to "win"
@@ -51,17 +53,6 @@ win:
   rts	; end
   rts
 
-;;;;;;;;; DATA ;;;;;;;;;;
-
-msg1:
-  .byte "Guess my number.",cr,lf,null
-highmsg:
-  .byte "Your Guess is too high. Try again!",cr,lf,null
-lowmsg:
-  .byte "Your Guess is too low. Try again!",cr,lf,null
-winmsg:
-  .byte "Congratulations! You guessed it!",cr,lf,null
-
 ;;;;;; SUBROUTINES ;;;;;;
 
 random:
@@ -73,7 +64,7 @@ random:
   STA $b812 ; voice 3 control register  
   lda $b81b ; voice 3 oscillator status
   sec       ; set carry
-  sbc #$9c  ; -#$9c to be sure it is <= #99
+  and #%00111111
   sta number
   stz $b80e ; clear used registers
   stz $b80f
@@ -88,6 +79,7 @@ cin:
 wop:
   jsr rxpoll
   lda $8000
+  jsr print_chara
   cmp #$0d
   beq ecin	; read in
   cmp #$0a
@@ -131,5 +123,17 @@ not:
   ply 
   plx
   rts
+
+;;;;;;;;; DATA ;;;;;;;;;;
+
+msg1:
+  .byte "Guess my number.",cr,lf,null
+highmsg:
+  .byte "Your Guess is too high. Try again!",cr,lf,null
+lowmsg:
+  .byte "Your Guess is too low. Try again!",cr,lf,null
+winmsg:
+  .byte "Congratulations! You guessed it!",cr,lf,null
+
 
 ; end of file

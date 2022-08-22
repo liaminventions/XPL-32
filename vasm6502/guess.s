@@ -4,16 +4,13 @@
 
 ;;;;;; VARIABLES ;;;;;;
 
-  ;;correct = $00   ; 1   ; bool correct; 
-  ;           you dont need this in asm (better then c)
+guess = $04     ; 2 i guess   ; int guess;
+buffer = $03    ; 1
+number = $01    ; 2
 
-  guess = $01     ; 2   ; int guess;
-  buffer = $03    ; 1
-  number = $04    ; 1
-
-  cr=#$0d;
-  lf=#$0a;
-  null=#0;
+cr = $0d;
+lf = $0a;
+null = 0;
 
 ;;;;;;;; CODE ;;;;;;;;;
 
@@ -21,13 +18,13 @@
   .org $0f00
 
 main:
-  stz correct		; correct = false;
+  cld
   jsr random		; generate the number
 while:
   ldx #<msg1		; Guess my number.
   ldy #>msg1
   jsr w_acia_full
-  jsr cin		; input a 2-digit value from the keyboard, then press enter
+  jsr cin		; input a 1-digit value from the keyboard, then press enter
   lda guess
   cmp number
   beq win		; if guess = number, branch to "win"
@@ -61,9 +58,9 @@ random:
   LDA #$80  ; noise waveform, gate bit off
   STA $b812 ; voice 3 control register  
   lda $b81b ; voice 3 oscillator status
-  sec       ; set carry
-  sbc #$9c  ; -#$9c to be sure it is <= #99
+  and #100  ; ensure
   sta number
+  stz number+1
   stz $b80e ; clear used registers
   stz $b80f
   stz $b812
@@ -77,6 +74,7 @@ cin:
 wop:
   jsr rxpoll
   lda $8000
+  jsr print_chara
   cmp #$0d
   beq ecin	; read in
   cmp #$0a
@@ -89,32 +87,32 @@ ecin:
   sec		; rid of ascii encoding
   sbc #$30
   sta guess
-  lda guess+1
-  sec
-  sbc #$30
-  sta buffer
-  lda #10
-  sta guess+1
-  ; multiply most significant digit by 10
-  LDA #0
-  LDX  #$8
-  LSR  guess
-loop:
-  BCC  no_add
-  CLC
-  ADC  guess+1
-no_add:
-  ROR
-  ROR  guess
-  DEX
-  BNE  loop
-  STA  guess+1
-  ; low in guess, high in guess+1
-  lda guess
-  clc
-  adc buffer	; add in the least signifacent digit
-  bcc not
-  inc guess+1	; (16 bit add)
+  ;lda guess+1
+  ;sec
+  ;sbc #$30
+  ;sta buffer
+  ;lda #10
+  ;sta guess+1
+  ;; multiply most significant digit by 10
+  ;LDA #0
+  ;LDX  #$8
+  ;LSR  guess
+;loop:
+  ;BCC  no_add
+  ;CLC
+  ;ADC  guess+1
+;no_add:
+  ;ROR
+  ;ROR  guess
+  ;DEX
+  ;BNE  loop
+  ;STA  guess+1
+  ;; low in guess, high in guess+1
+  ;lda guess
+  ;clc
+  ;adc buffer	; add in the least signifacent digit
+  ;bcc not
+  ;inc guess+1	; (16 bit add)
 not:
   pla
   ply 
