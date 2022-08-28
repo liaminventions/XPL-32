@@ -26,4 +26,4 @@ So far, for Video expansions, I've made a TMS9918a one. (the same video processe
 There is a 6581 SID at $B800 (also in the c64) onboard with its potentiometer (POTX and POTY) and external sound (EXTSND) inputs on the expansion port.
 I programmed support to convert most SID files, as well.
 # Memory Map
-![](https://github.com/liamsinventions/XPL-32/blob/master/images/memory_map.jpg?raw=true)
+![](https://raw.githubusercontent.com/liaminventions/XPL-32/main/images/memory_map.jpg)
