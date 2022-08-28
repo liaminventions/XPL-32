@@ -1,4 +1,4 @@
-;; a simple number bufing game
+;; a simple number guessing game
 ;;
 ;; manually converted from c++
 
