@@ -5834,8 +5834,6 @@ LOAD:
 	pha 	; save registers
 	tya
 	pha
-	lda 	XYLODSAV2
-	pha
 	jsr 	WRITE_TRANSFER_MSG
 	jsr	SMCHECK
 	bcs	SERIAL_LOAD
@@ -5896,8 +5894,6 @@ sdone:
   	jmp 	sdone
 esl2:
   	pla
-  	sta 	XYLODSAV2
-  	pla
 	tay
   	pla
 	tax
@@ -5905,9 +5901,6 @@ esl2:
   	rts
 
 MEMORY_LOAD:
-
-  	pla
-  	sta 	XYLODSAV2
   	pla
 	tay
   	pla
@@ -5938,48 +5931,36 @@ SERIAL_SAVE:
 	jsr	w_acia_full
 	LDX	#0
 	LDY	#0
-	LDA	#$02
-	STA	XYLODSAV2+1	; set to start of RAM
-	LDA	#0
-	STA	XYLODSAV2
+	LDA	#$01
+	STA	XYLODSAV2	; set to start of RAM
+	LDA	#$06
+	STA	XYLODSAV2+1
+	; now for the loop
 SAVELOOP:
 	LDA	(XYLODSAV2),Y	; save out a byte
+	PHA
 	JSR	MONCOUT
-	LDA	XYLODSAV2
-	SBC	#$FF		; if the lower address is full
-	BEQ	SAVE_NEXT_PAGE	; then reset lower and increment upper	
-	INC	XYLODSAV2	; otherwise, increment lower
-ENDSAVELOOP:
-	JMP	SENSE8000	; if all RAM is sent then end
-NOT8000:
-	JSR	MONISCNTC	; if not, check if control+c is pressed.
+	PLA
+	BEQ	SAVE_EOF_CHECK
+	INC	XYLODSAV2
+	BEQ	SAVE_NOT16BIT
+	INC	XYLODSAV2+1
+SAVE_NOT16BIT:
+	JSR	MONISCNTC	; check if control+c is pressed.
 	BCC	SAVELOOP	; if not, then send the next byte
-	JMP	SAVEDONEWRITE	; if so, then write "save succsessful" and end
-JMPENDSERIALSAVE:
-	JMP	END_SERIAL_SAVE
-SAVEDONE:
-	LDX	#0
-SAVEDONEWRITE:
-	LDA	SAVE_DONE,X
-	BEQ	JMPENDSERIALSAVE
-	JSR	MONCOUT
-	INX
-	JMP	SAVEDONEWRITE
-SAVE_NEXT_PAGE:
-	LDA	#0		; reset lower
-	STA	XYLODSAV2
-	INC	XYLODSAV2+1	; increment upper
-	JMP	ENDSAVELOOP
-SENSE8000:
-	LDA	XYLODSAV2
-	CMP	#0		; if lower is 00
-	BNE	JMPNOT8000
-	LDA	XYLODSAV2+1
-	CMP	#$80		; and upper is 80
-	BNE	JMPNOT8000
-	JMP	SAVEDONE	; then end serial save.
-JMPNOT8000:
-	JMP	NOT8000		; if not, check if control+c is pressed/send next byte.
+SAVE_EOF_CHECK:			; if so, then send break error message
+	ldy	#1
+	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+	beq	SAVE_END_WRITE
+SAVE_CUT:
+	ldx	#<ABORT_MSG
+	ldy	#>ABORT_MSG
+	jsr	w_acia_full
+	jmp	END_SERIAL_SAVE
+SAVE_END_WRITE:
+	ldx	#<SAVE_DONE
+	ldy	#>SAVE_DONE
+	jsr	w_acia_full
 END_SERIAL_SAVE:
 	PLA
 	TAY
@@ -5989,8 +5970,6 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-
-
 
 	PLA
 	TAY
@@ -6013,6 +5992,8 @@ LOAD_DONE:
 
 SAVE_DONE:
 	.byte	CR,LF,"Save Complete.",CR,LF,$00
+ABORT_MSG:
+	.byte	CR,LF,"Aborted.",CR,LF,0	
 	
 ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
 ; BY G. SEARLE 2013 =========================================================================
