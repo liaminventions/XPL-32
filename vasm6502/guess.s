@@ -41,7 +41,7 @@ low:
   jmp while
 win:
   ldx #<winmsg
-  ldy #>winmsg		; Congratulations! You bufed it!
+  ldy #>winmsg		; Congratulations! You guessed it!
   jsr w_acia_full
   rts
   rts
