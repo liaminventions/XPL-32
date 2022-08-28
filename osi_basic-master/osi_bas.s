@@ -61,7 +61,7 @@ WIDTH			:= 72
 WIDTH2			:= 56
 
 ; memory layout
-RAMSTART2		:= $0200
+RAMSTART2		:= $0600
 BYTES_FP		:= 4
 BYTES_PER_ELEMENT := BYTES_FP
 BYTES_PER_VARIABLE := BYTES_FP+2
@@ -5810,6 +5810,24 @@ XPL:
 ; XPL-32 LOAD/SAVE ROUTINES =================================================================
 ; BY L. OPPENHEIMER 2021/2022 ===============================================================
 
+SMCHECK:
+	JSR	MONRDKEY	
+	BCC	END_LOAD_MSG
+	LDA	ACIAData
+	STA	XYLODSAV2	; save to tmp var
+	cmp	#'s'		; If "s" is pressed
+	BEQ	SDET		; then use serial
+	LDA	XYLODSAV2	; load tmp var
+	cmp	#'m'		; If "m" is pressed
+	BEQ	MDET		; then use a memory card
+	JMP	END_LOAD_MSG
+SDET:
+	sec
+	rts
+MDET:
+	clc
+	rts
+
 LOAD:
 	pha
 	txa
@@ -5819,22 +5837,8 @@ LOAD:
 	lda 	XYLODSAV2
 	pha
 	jsr 	WRITE_TRANSFER_MSG
-END_LOAD_MSG:
-	JSR	MONRDKEY	
-	BCC	END_LOAD_MSG
-	LDA	ACIAData
-	STA	XYLODSAV2	; save to tmp var
-	CLC
-	SBC	#'s'		; If "s" is pressed
-	BEQ	SERIAL_LOAD	; then load from serial
-	JSR	MONRDKEY
-	BCC	END_LOAD_MSG
-	LDA	XYLODSAV2	; load tmp
-	CLC
-	SBC	#'m'		; If "m" is pressed
-	BEQ	MEMORY_LOAD	; then load from a memory card
-	JMP	END_LOAD_MSG
-JMP_MEMORY_LOAD:
+	jsr	SMCHECK
+	bcs	SERIAL_LOAD
 	jmp 	MEMORY_LOAD
 SERIAL_LOAD:
   	ldx 	#0
@@ -5913,20 +5917,9 @@ MEMORY_LOAD:
 
 
 WRITE_TRANSFER_MSG:
-  	PHA
-  	TXA
-	PHA
-  	LDX 	#0
-TML:
-  	LDA 	TRANSFER_MSG,X
-  	BEQ 	END_TRANSFER_MSG
-  	JSR 	MONCOUT
-  	INX
-  	JMP 	TML
-END_TRANSFER_MSG:
-  	PLA
-  	TAX
-  	PLA
+  	LDX 	#<TRANSFER_MSG
+	LDY	#>TRANSFER_MSG
+	JSR	w_acia_full
   	RTS
 
 SAVE:
@@ -5936,27 +5929,13 @@ SAVE:
 	TYA
 	PHA
 	JSR	WRITE_TRANSFER_MSG
-END_SAVE_MSG:
-	JSR	MONRDKEY
-	BCC	END_SAVE_MSG
-	LDA	ACIAData
-	SBC	#$73		; if "s" is pressed
-	BEQ	SERIAL_SAVE	; then save through serial.
-	JSR	MONRDKEY
-	BCC	END_SAVE_MSG
-	LDA	ACIAData
-	SBC	#$6D		; if "m" is pressed
-	BEQ	MEMORY_SAVE	; then save to a memory card. 
-	JMP	END_SAVE_MSG
+	JSR	SMCHECK
+	bcs	SERIAL_SAVE
+	jmp	MEMORY_SAVE
 SERIAL_SAVE:
-	LDX	#0
-SERIAL_SAVE_MSG:
-	LDA	SERIAL_MSG_SAVE,X
-	BEQ	END_SERIAL_SAVE_MSG	; print "Sending all RAM through Serial..."
-	JSR	MONCOUT
-	INX
-	JMP	SERIAL_SAVE_MSG
-END_SERIAL_SAVE_MSG:
+	LDX	#<SERIAL_MSG_SAVE	; print "Sending the current program through serial..."
+	LDY	#>SERIAL_MSG_SAVE
+	jsr	w_acia_full
 	LDX	#0
 	LDY	#0
 	LDA	#$02
@@ -6027,7 +6006,7 @@ SERIAL_MSG:
 	.byte	"Start Serial Load.",CR,LF,$00
 
 SERIAL_MSG_SAVE:
-	.byte	"Sending Through Serial...",CR,LF,$00
+	.byte	"Sending the current program through serial...",CR,LF,$00
 
 LOAD_DONE:
 	.byte	"Load Complete.",CR,LF,$00
