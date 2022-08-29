@@ -6152,8 +6152,8 @@ Reset:
 	ldy #>sd_msg
 	jsr w_acia_full
 
- 	;jsr via_init
-	;jsr sd_init
+ 	jsr via_init
+	jsr sd_init
 	;jsr fat32_init
 	;bcc dispstart
  
