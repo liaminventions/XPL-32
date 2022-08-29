@@ -5,7 +5,7 @@ eXpandable
 Personal 
 Laptop 
 with 32k ram
-# [Blog](unstinkableinventions.wordpress.com)
+# [Blog](https://unstinkableinventions.wordpress.com/)
 Here I will post hardware updates to the XPL and more.
 # Hardware Overview
 ## CPU
