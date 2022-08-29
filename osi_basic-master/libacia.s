@@ -30,9 +30,9 @@ print_hex_acia:
 print_nybble:
   and #15
   cmp #10
-  bmi skipletter
+  bmi .skipletter
   adc #6
-skipletter:
+.skipletter
   adc #48
  ; jsr print_char
   jsr print_chara
@@ -40,18 +40,14 @@ skipletter:
 
 crlf:
   pha
-  txa
-  pha
-  tya
-  pha
+  phx
+  phy
   lda #$0d
   jsr print_chara
   lda #$0a
   jsr print_chara
-  pla
-  tay
-  pla
-  tax
+  ply
+  plx
   pla
   rts
 
