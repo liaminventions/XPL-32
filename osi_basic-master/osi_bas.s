@@ -5880,10 +5880,6 @@ stop_sl:
   	rts
 
 MEMORY_LOAD:
-	; BUG need to make the memory load
-	; i will start a load of a specified file
-	; (.BAS)	
-	; basically just a darn copy of the type loader (lol)
 	jsr	rootsetup
 	jsr	list
 
@@ -5906,7 +5902,8 @@ type:			; typing a filename
   lda charbuffer	; and store it in the filename buffer
   sta loadbuf,x
   inx
-  jmp typeloop
+  cpx #8
+  bne typeloop
 exitloop:
   jsr crlf
   jsr rootsetup
@@ -6155,22 +6152,22 @@ Reset:
 	ldy #>sd_msg
 	jsr w_acia_full
 
- 	jsr via_init
-	jsr sd_init
-	jsr fat32_init
-	bcc dispstart
+ 	;jsr via_init
+	;jsr sd_init
+	;jsr fat32_init
+	;bcc dispstart
  
 	; Error during FAT32 initialization
 
-	jsr cleardisplay
-	ldy #>fat_error
-	ldx #<fat_error
-	jsr w_acia_full
-	lda fat32_errorstage
-	jsr print_hex_acia
-	lda #'!'
-	jsr print_chara
-	jsr crlf
+	;jsr cleardisplay
+	;ldy #>fat_error
+	;ldx #<fat_error
+	;jsr w_acia_full
+	;lda fat32_errorstage
+	;jsr print_hex_acia
+	;lda #'!'
+	;jsr print_chara
+	;jsr crlf
 	jmp dispstart
 JMPToReset:
 	jmp	Reset
