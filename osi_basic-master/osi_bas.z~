@@ -5811,7 +5811,8 @@ XPL:
 ; BY L. OPPENHEIMER 2021/2022 ===============================================================
 
 SMCHECK:
-	JSR	rxpoll
+	JSR	MONRDKEY	
+	BCC	END_LOAD_MSG
 	LDA	ACIAData
 	STA	XYLODSAV2	; save to tmp var
 	cmp	#'s'		; If "s" is pressed
@@ -5819,7 +5820,7 @@ SMCHECK:
 	LDA	XYLODSAV2	; load tmp var
 	cmp	#'m'		; If "m" is pressed
 	BEQ	MDET		; then use a memory card
-	JMP	SMCHECK
+	JMP	END_LOAD_MSG
 SDET:
 	sec
 	rts
@@ -5844,34 +5845,50 @@ SERIAL_LOAD:
 receive_serial:
   	ldx 	#0
 rcloopadd:
-  	lda 	#$01
+  	lda 	#0
   	sta 	XYLODSAV2
-	lda	#$06
+	lda	#$02
 	sta	XYLODSAV2+1
   	ldy 	#0
 rsl:
-  	jsr 	rxpoll
+  	jsr 	MONRDKEY
+  	bcc 	rsl
   	lda 	ACIAData
   	sta 	(XYLODSAV2),Y
-	beq	rseof
-  	;lda 	#$2e
-  	;jsr 	MONCOUT
-	inc	XYLODSAV2
-	lda	XYLODSAV2
-	beq	ssl
-	inc	XYLODSAV2+1
-ssl:
-	jmp rsl
-rseof:
-	ldy	#1
-	jsr	rxpoll
-	sta	(XYLODSAV2),Y
-	bne	ssl
+  	lda 	#$2e
+  	jsr 	MONCOUT
+  	lda 	XYLODSAV2
+  	cmp 	#$ff
+  	beq 	rliu
+  	inc 	XYLODSAV2
+cs1:
+  	jmp 	if8000
+rliu:
+	pha
+	lda	#0
+  	sta 	XYLODSAV2
+	pla
+  	inc 	XYLODSAV2+1
+  	jmp 	cs1
+if8000:
+  	lda 	XYLODSAV2
+  	cmp 	#0
+  	bne 	end8000
+  	lda 	XYLODSAV2+1
+  	cmp 	#$80
+  	bne 	end8000
+  	jmp 	esl
+end8000:
+  	jmp rsl
+esl:
+  	ldx #0
 sdone:
-  	ldx	#<LOAD_DONE
-	ldy	#>LOAD_DONE
-	jsr	w_acia_full
-stop_sl:
+  	lda 	LOAD_DONE,X
+  	beq 	esl2
+  	jsr 	MONCOUT
+  	inx
+  	jmp 	sdone
+esl2:
   	pla
 	tay
   	pla
