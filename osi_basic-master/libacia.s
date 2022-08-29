@@ -30,9 +30,9 @@ print_hex_acia:
 print_nybble:
   and #15
   cmp #10
-  bmi .skipletter
+  bmi 4skipletter
   adc #6
-.skipletter
+4skipletter
   adc #48
  ; jsr print_char
   jsr print_chara
