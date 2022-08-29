@@ -38,7 +38,6 @@ fat32_workspace = $200      ; two pages
 buffer = $400               ; 512 bytes
 endbuf = $600
 
-
 .debuginfo +
 
 .setcpu "6502"
@@ -5781,7 +5780,7 @@ QT_WRITTEN_BY:
         .byte   "WRITTEN BY RICHARD W. WEILAND."
         .byte   CR,LF,0
 QT_MEMORY_SIZE:
-        .byte   "MEMORY SIZE"
+        .byte   $02,"_MEMORY SIZE"
         .byte   0
 QT_TERMINAL_WIDTH:
         .byte   "TERMINAL WIDTH"
@@ -5841,6 +5840,7 @@ SERIAL_LOAD:
 	ldx	#<SERIAL_MSG
 	ldy	#>SERIAL_MSG
 	jsr	w_acia_full 
+	jsr	rxpoll
 receive_serial:
   	ldx 	#0
 rcloopadd:
@@ -5880,13 +5880,137 @@ stop_sl:
   	rts
 
 MEMORY_LOAD:
-  	pla
-	tay
-  	pla
-	tax
-  	pla
-  	rts
+	; BUG need to make the memory load
+	; i will start a load of a specified file
+	; (.BAS)	
+	; basically just a darn copy of the type loader (lol)
+	jsr	rootsetup
+	jsr	list
 
+type:			; typing a filename
+  ldx #<typemsg		; Filename:_
+  ldy #>typemsg
+  jsr w_acia_full
+  ldx #0
+  lda #' '
+  sta charbuffer
+
+ typeloop:		; loop to type filenames
+  jsr rxpoll		; read a charactor
+  lda ACIAData
+  sta charbuffer
+  cmp #$0d		; enter?
+  beq exitloop		; if so, load
+  lda charbuffer	; echo back
+  sta ACIAData
+  lda charbuffer	; and store it in the filename buffer
+  sta loadbuf,x
+  inx
+  jmp typeloop
+exitloop:
+  jsr crlf
+  jsr rootsetup
+  ldy #>loadbuf
+  ldx #<loadbuf
+  jsr fat32_finddirent
+  bcc foundfile
+  ; File not found
+  jmp transfer_error
+foundfile:
+  ; Open file
+  jsr fat32_opendirent
+  ldx #<lodmsg
+  ldy #>lodmsg
+  jsr w_acia_full
+  lda #$01
+  sta fat32_address
+  lda #$06
+  sta fat32_address+1
+  jsr fat32_file_read  ; Yes. It is finally time to read the file.
+end:
+  ldx #<LOAD_DONE
+  ldy #>LOAD_DONE
+  jsr w_acia_full
+  pla
+  tay
+  pla
+  tax
+  pla
+  rts
+
+rootsetup:		; setup <ROOT>
+
+  ; Open root directory
+  jsr fat32_openroot
+
+  ; Find the subdirectory by name
+  ldx #<dirname
+  ldy #>dirname
+  jsr fat32_finddirent
+  bcc foundsub
+
+  ; Subdirectory not found
+  jmp transfer_error
+
+foundsub:
+
+  ; Open subdirectory
+  jsr fat32_opendirent	; open folder
+	
+  rts			; done
+
+transfer_error:
+  ldy #>errormsg
+  ldx #<errormsg
+  jsr w_acia_full
+  jsr error_sound
+  jmp stop_sl
+
+other:
+  jsr txpoll		; Write a letter of the filename currently being read
+  lda (zp_sd_address),y
+  sta ACIAData
+  iny
+  rts
+
+list:			; list file dir
+  jsr fat32_readdirent	; files?
+  bcs nofiles
+  and #$40
+  beq arc
+dir:
+  lda #'D'		; directorys show up as 
+  jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+arc:
+  lda #'F'		; files show up as
+ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+  jsr print_chara	; f or d
+  lda #$20		; space
+  jsr print_chara
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda #'.'		; shows a file extention
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat		; print 3-letter file extention
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara	; tab
+  jmp list ; go again	; next file if there are any left
+nofiles:		; if not,
+endlist:		; exit listing code
+  jsr crlf
+  rts
 
 WRITE_TRANSFER_MSG:
   	LDX 	#<TRANSFER_MSG
@@ -5894,7 +6018,7 @@ WRITE_TRANSFER_MSG:
 	JSR	w_acia_full
   	RTS
 
-SAVE:
+SAVE:				; BUG save dont work
 	PHA
 	TXA
 	PHA			; Push registers on the stack
@@ -5905,9 +6029,10 @@ SAVE:
 	bcs	SERIAL_SAVE
 	jmp	MEMORY_SAVE
 SERIAL_SAVE:
-	LDX	#<SERIAL_MSG_SAVE	; print "Sending the current program through serial..."
-	LDY	#>SERIAL_MSG_SAVE
+	LDX	#<SERIAL_MSG	
+	LDY	#>SERIAL_MSG
 	jsr	w_acia_full
+	jsr	rxpoll
 	LDX	#0
 	LDY	#0
 	LDA	#$01
@@ -5949,7 +6074,11 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-
+	; BUG oh darn i need to make this too
+	; same as the other one but it will save instead...
+	;	
+	; e
+	;
 	PLA
 	TAY
 	PLA
@@ -5958,21 +6087,29 @@ MEMORY_SAVE:
 	RTS
 
 TRANSFER_MSG:
-	.byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
-
+  .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
 SERIAL_MSG:
-	.byte	"Start Serial Load.",CR,LF,$00
-
-SERIAL_MSG_SAVE:
-	.byte	"Sending the current program through serial...",CR,LF,$00
-
+  .byte	"Press Any Key To Begin.",CR,LF,$00
 LOAD_DONE:
-	.byte	"Load Complete.",CR,LF,$00
-
+  .byte	"Load Complete.",CR,LF,$00
 SAVE_DONE:
-	.byte	CR,LF,"Save Complete.",CR,LF,$00
+  .byte	CR,LF,"Save Complete.",CR,LF,$00
 ABORT_MSG:
-	.byte	CR,LF,"Aborted.",CR,LF,0	
+  .byte	CR,LF,"Aborted.",CR,LF,0
+lodmsg:
+  .byte $0d, $0a, "Loading...", $0d, $0a, $00
+typemsg:
+  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+loadbuf:
+  .byte $20, $20, $20, $20, $20, $20, $20, $20
+  .byte "BAS"
+fat_error:
+  .byte "FAT32 Initialization Failed at Stage"
+sd_msg:
+  .byte	$0e, 20, $0f, 18
+  .byte $02, $20
+  .byte "Initializing SD Card...",CR,LF,0
+
 	
 ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
 ; BY G. SEARLE 2013 =========================================================================
@@ -5990,39 +6127,54 @@ Reset:
 
 	LDA	#$0B
 	STA	ACIACommand
-
 	LDA 	#$1F		; Set ACIA baud rate, word size and Rx interrupt (to control RTS)
 	STA	ACIAControl
 	
-XPLWrite:	
-	LDX	#0
-XPLSign:
-	LDA	ACIAStatus
-	AND	#$10
-	BEQ	XPLSign
-	LDA	XPL,X
-	BEQ	NextStart
-	STA	ACIAData
-	INX
-	JMP	XPLSign
+	LDX	#<XPL
+	LDY	#>XPL
+	JSR	w_acia_full
 
-NextStart:
-	LDY	#$FF
-InnerDelayLoop:
-	LDX	#$FF
-Wee:
-	NOP
-	NOP
-	NOP
-	NOP
-	NOP
-	NOP
-	DEX
-	BNE Wee
+;NextStart:
+;	LDY	#$FF
+;InnerDelayLoop:
+;	LDX	#$FF
+;Wee:
+;	NOP
+;	NOP
+;	NOP
+;	NOP
+;	NOP
+;	NOP
+;	DEX
+;	BNE Wee
+;
+;	DEY
+;	BNE InnerDelayLoop
 
-	DEY
-	BNE InnerDelayLoop
-	
+	ldx #<sd_msg
+	ldy #>sd_msg
+	jsr w_acia_full
+
+ 	jsr via_init
+	jsr sd_init
+	jsr fat32_init
+	bcc dispstart
+ 
+	; Error during FAT32 initialization
+
+	jsr cleardisplay
+	ldy #>fat_error
+	ldx #<fat_error
+	jsr w_acia_full
+	lda fat32_errorstage
+	jsr print_hex_acia
+	lda #'!'
+	jsr print_chara
+	jsr crlf
+	jmp dispstart
+JMPToReset:
+	jmp	Reset
+dispstart:
 ; Display startup message
 	LDY #0
 ShowStartMsg:
@@ -6042,7 +6194,7 @@ WaitForKeypress:
 	BEQ	WarmStart
 
 	CMP	#'C'			; compare with [C]old start
-	BNE	Reset
+	BNE	JMPToReset
 
 	JMP	COLD_START	; BASIC cold start
 

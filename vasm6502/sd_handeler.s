@@ -21,9 +21,7 @@ jumptoit:
   jmp sdstart
 
   .include "hwconfig.s"
-  .include "libsd.s"
-  .include "libfat32.s"
-  .include "libacia.s"
+  .include "kernal_def.s"
 
 dirname:
   .asciiz "FOLDER     "	     ; standard directory name, SHORT format

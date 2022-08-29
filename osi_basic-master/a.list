@@ -42,7 +42,6 @@ Current file: osi_bas.s
 000000r 1               buffer = $400               ; 512 bytes
 000000r 1               endbuf = $600
 000000r 1               
-000000r 1               
 000000r 1               .debuginfo +
 000000r 1               
 000000r 1               .setcpu "6502"
@@ -366,8 +365,8 @@ Current file: osi_bas.s
 00C020  1  9B CC        		.word ON-1
 00C022  1  B7 CB        		.word NULL-1
 00C024  1  6E D9        		.word WAIT-1
-00C026  1  ED E4        		.word LOAD-1
-00C028  1  49 E5        		.word SAVE-1
+00C026  1  EF E4        		.word LOAD-1
+00C028  1  12 E6        		.word SAVE-1
 00C02A  1  1A D5        		.word DEF-1
 00C02C  1  65 D9        		.word POKE-1
 00C02E  1               TOKEN_PRINT=$80+(*-TOKEN_ADDRESS_TABLE)/2
@@ -2116,7 +2115,7 @@ Current file: osi_bas.s
 00C8CC  1               L2453:
 00C8CC  1  4C A3 CD             jmp     L29B9
 00C8CF  1               GETLN:
-00C8CF  1  20 63 FF             jsr     MONRDKEY
+00C8CF  1  20 74 FF             jsr     MONRDKEY
 00C8D2  1  EA                   nop
 00C8D3  1  EA                   nop
 00C8D4  1  EA                   nop
@@ -2608,7 +2607,7 @@ Current file: osi_bas.s
 00CB72  1               
 00CB72  1               ISCNTC:
 00CB72  1               ; MODIFIED CALL BY G.SEARLE FROM THE ORIGINAL OSI CODE
-00CB72  1  20 73 FF             jsr     MONISCNTC
+00CB72  1  20 84 FF             jsr     MONISCNTC
 00CB75  1               ; runs into "STOP"
 00CB75  1               ; ----------------------------------------------------------------------------
 00CB75  1               ; "STOP" STATEMENT
@@ -3132,7 +3131,7 @@ Current file: osi_bas.s
 00CE36  1               L2A4E:
 00CE36  1               ; Commodore forgot to remove this in CBM1
 00CE36  1  68                   pla
-00CE37  1  20 54 FF             jsr     MONCOUT
+00CE37  1  20 65 FF             jsr     MONCOUT
 00CE3A  1  EA                   nop
 00CE3B  1  EA                   nop
 00CE3C  1  EA                   nop
@@ -7006,7 +7005,7 @@ Current file: osi_bas.s
 00E2FB  1  85 81                sta     FRETOP
 00E2FD  1  84 82                sty     FRETOP+1
 00E2FF  1               L4106:
-00E2FF  1  A9 BB                lda     #<QT_TERMINAL_WIDTH
+00E2FF  1  A9 BD                lda     #<QT_TERMINAL_WIDTH
 00E301  1  A0 E3                ldy     #>QT_TERMINAL_WIDTH
 00E303  1  20 00 CE             jsr     STROUT
 00E306  1  20 83 CE             jsr     NXIN
@@ -7053,7 +7052,7 @@ Current file: osi_bas.s
 00E352  1  A5 86                lda     MEMSIZ+1
 00E354  1  E5 7A                sbc     TXTTAB+1
 00E356  1  20 9B DE             jsr     LINPRT
-00E359  1  A9 CA                lda     #<QT_BYTES_FREE
+00E359  1  A9 CC                lda     #<QT_BYTES_FREE
 00E35B  1  A0 E3                ldy     #>QT_BYTES_FREE
 00E35D  1  20 00 CE             jsr     STROUT
 00E360  1  A9 00                lda     #<STROUT
@@ -7080,246 +7079,391 @@ Current file: osi_bas.s
 00E396  1  42 59 20 52  
 00E3AC  1  0D 0A 00             .byte   CR,LF,0
 00E3AF  1               QT_MEMORY_SIZE:
-00E3AF  1  4D 45 4D 4F          .byte   "MEMORY SIZE"
-00E3B3  1  52 59 20 53  
-00E3B7  1  49 5A 45     
-00E3BA  1  00                   .byte   0
-00E3BB  1               QT_TERMINAL_WIDTH:
-00E3BB  1  54 45 52 4D          .byte   "TERMINAL WIDTH"
-00E3BF  1  49 4E 41 4C  
-00E3C3  1  20 57 49 44  
-00E3C9  1  00                   .byte   0
-00E3CA  1               QT_BYTES_FREE:
-00E3CA  1  20 42 59 54          .byte   " BYTES FREE"
-00E3CE  1  45 53 20 46  
-00E3D2  1  52 45 45     
-00E3D5  1  0D 0A 0D 0A          .byte   CR,LF,CR,LF
-00E3D9  1  4F 53 49 20          .byte   "OSI 6502 BASIC VERSION 1.0 REV 3.2"
-00E3DD  1  36 35 30 32  
-00E3E1  1  20 42 41 53  
-00E3FB  1  0D 0A                .byte   CR,LF
-00E3FD  1  43 4F 50 59          .byte   "COPYRIGHT 1977 BY MICROSOFT CO."
-00E401  1  52 49 47 48  
-00E405  1  54 20 31 39  
-00E41C  1  0D 0A 00             .byte   CR,LF,0
-00E41F  1               
-00E41F  1               XPL:
-00E41F  1  0C 1B 5B 31  	.byte	$0C, $1B, "[12;20H"
-00E423  1  32 3B 32 30  
-00E427  1  48           
-00E428  1  20 58 58 20  	.byte	    " XX     XX  PPPP   LL     ",CR,LF
-00E42C  1  20 20 20 20  
-00E430  1  58 58 20 20  
-00E444  1  1B 5B 31 33  	.byte	$1B, "[13;20H"
-00E448  1  3B 32 30 48  
-00E44C  1  20 20 58 58  	.byte	    "  XX   XX   PP PP  LL     ",CR,LF
-00E450  1  20 20 20 58  
-00E454  1  58 20 20 20  
-00E468  1  1B 5B 31 34  	.byte	$1B, "[14;20H"
-00E46C  1  3B 32 30 48  
-00E470  1  20 20 20 58  	.byte	    "   XXXXX    PPPPP  LL     ",CR,LF
-00E474  1  58 58 58 58  
-00E478  1  20 20 20 20  
-00E48C  1  1B 5B 31 35  	.byte	$1B, "[15;20H"
-00E490  1  3B 32 30 48  
-00E494  1  20 20 58 58  	.byte	    "  XX   XX   PP     LL  32 ",CR,LF
-00E498  1  20 20 20 58  
-00E49C  1  58 20 20 20  
-00E4B0  1  1B 5B 31 36  	.byte	$1B, "[16;20H"
-00E4B4  1  3B 32 30 48  
-00E4B8  1  20 58 58 20  	.byte	    " XX     XX  PP     LLLLLLL",CR,LF
-00E4BC  1  20 20 20 20  
-00E4C0  1  58 58 20 20  
-00E4D4  1  00           	.byte	$00
-00E4D5  1               
-00E4D5  1               ; XPL-32 LOAD/SAVE ROUTINES =================================================================
-00E4D5  1               ; BY L. OPPENHEIMER 2021/2022 ===============================================================
-00E4D5  1               
-00E4D5  1               SMCHECK:
-00E4D5  1  20 4C C6     	JSR	rxpoll
-00E4D8  1  AD 00 80     	LDA	ACIAData
-00E4DB  1  85 BC        	STA	XYLODSAV2	; save to tmp var
-00E4DD  1  C9 73        	cmp	#'s'		; If "s" is pressed
-00E4DF  1  F0 09        	BEQ	SDET		; then use serial
-00E4E1  1  A5 BC        	LDA	XYLODSAV2	; load tmp var
-00E4E3  1  C9 6D        	cmp	#'m'		; If "m" is pressed
-00E4E5  1  F0 05        	BEQ	MDET		; then use a memory card
-00E4E7  1  4C D5 E4     	JMP	SMCHECK
-00E4EA  1               SDET:
-00E4EA  1  38           	sec
-00E4EB  1  60           	rts
-00E4EC  1               MDET:
-00E4EC  1  18           	clc
+00E3AF  1  02 5F 4D 45          .byte   $02,"_MEMORY SIZE"
+00E3B3  1  4D 4F 52 59  
+00E3B7  1  20 53 49 5A  
+00E3BC  1  00                   .byte   0
+00E3BD  1               QT_TERMINAL_WIDTH:
+00E3BD  1  54 45 52 4D          .byte   "TERMINAL WIDTH"
+00E3C1  1  49 4E 41 4C  
+00E3C5  1  20 57 49 44  
+00E3CB  1  00                   .byte   0
+00E3CC  1               QT_BYTES_FREE:
+00E3CC  1  20 42 59 54          .byte   " BYTES FREE"
+00E3D0  1  45 53 20 46  
+00E3D4  1  52 45 45     
+00E3D7  1  0D 0A 0D 0A          .byte   CR,LF,CR,LF
+00E3DB  1  4F 53 49 20          .byte   "OSI 6502 BASIC VERSION 1.0 REV 3.2"
+00E3DF  1  36 35 30 32  
+00E3E3  1  20 42 41 53  
+00E3FD  1  0D 0A                .byte   CR,LF
+00E3FF  1  43 4F 50 59          .byte   "COPYRIGHT 1977 BY MICROSOFT CO."
+00E403  1  52 49 47 48  
+00E407  1  54 20 31 39  
+00E41E  1  0D 0A 00             .byte   CR,LF,0
+00E421  1               
+00E421  1               XPL:
+00E421  1  0C 1B 5B 31  	.byte	$0C, $1B, "[12;20H"
+00E425  1  32 3B 32 30  
+00E429  1  48           
+00E42A  1  20 58 58 20  	.byte	    " XX     XX  PPPP   LL     ",CR,LF
+00E42E  1  20 20 20 20  
+00E432  1  58 58 20 20  
+00E446  1  1B 5B 31 33  	.byte	$1B, "[13;20H"
+00E44A  1  3B 32 30 48  
+00E44E  1  20 20 58 58  	.byte	    "  XX   XX   PP PP  LL     ",CR,LF
+00E452  1  20 20 20 58  
+00E456  1  58 20 20 20  
+00E46A  1  1B 5B 31 34  	.byte	$1B, "[14;20H"
+00E46E  1  3B 32 30 48  
+00E472  1  20 20 20 58  	.byte	    "   XXXXX    PPPPP  LL     ",CR,LF
+00E476  1  58 58 58 58  
+00E47A  1  20 20 20 20  
+00E48E  1  1B 5B 31 35  	.byte	$1B, "[15;20H"
+00E492  1  3B 32 30 48  
+00E496  1  20 20 58 58  	.byte	    "  XX   XX   PP     LL  32 ",CR,LF
+00E49A  1  20 20 20 58  
+00E49E  1  58 20 20 20  
+00E4B2  1  1B 5B 31 36  	.byte	$1B, "[16;20H"
+00E4B6  1  3B 32 30 48  
+00E4BA  1  20 58 58 20  	.byte	    " XX     XX  PP     LLLLLLL",CR,LF
+00E4BE  1  20 20 20 20  
+00E4C2  1  58 58 20 20  
+00E4D6  1  00           	.byte	$00
+00E4D7  1               
+00E4D7  1               ; XPL-32 LOAD/SAVE ROUTINES =================================================================
+00E4D7  1               ; BY L. OPPENHEIMER 2021/2022 ===============================================================
+00E4D7  1               
+00E4D7  1               SMCHECK:
+00E4D7  1  20 4C C6     	JSR	rxpoll
+00E4DA  1  AD 00 80     	LDA	ACIAData
+00E4DD  1  85 BC        	STA	XYLODSAV2	; save to tmp var
+00E4DF  1  C9 73        	cmp	#'s'		; If "s" is pressed
+00E4E1  1  F0 09        	BEQ	SDET		; then use serial
+00E4E3  1  A5 BC        	LDA	XYLODSAV2	; load tmp var
+00E4E5  1  C9 6D        	cmp	#'m'		; If "m" is pressed
+00E4E7  1  F0 05        	BEQ	MDET		; then use a memory card
+00E4E9  1  4C D7 E4     	JMP	SMCHECK
+00E4EC  1               SDET:
+00E4EC  1  38           	sec
 00E4ED  1  60           	rts
-00E4EE  1               
-00E4EE  1               LOAD:
-00E4EE  1  48           	pha
-00E4EF  1  8A           	txa
-00E4F0  1  48           	pha 	; save registers
-00E4F1  1  98           	tya
-00E4F2  1  48           	pha
-00E4F3  1  20 42 E5     	jsr 	WRITE_TRANSFER_MSG
-00E4F6  1  20 D5 E4     	jsr	SMCHECK
-00E4F9  1  B0 03        	bcs	SERIAL_LOAD
-00E4FB  1  4C 3C E5     	jmp 	MEMORY_LOAD
-00E4FE  1               SERIAL_LOAD:
-00E4FE  1  A2 CE        	ldx	#<SERIAL_MSG
-00E500  1  A0 E5        	ldy	#>SERIAL_MSG
-00E502  1  20 68 C6     	jsr	w_acia_full
-00E505  1               receive_serial:
-00E505  1  A2 00          	ldx 	#0
-00E507  1               rcloopadd:
-00E507  1  A9 01          	lda 	#$01
-00E509  1  85 BC          	sta 	XYLODSAV2
-00E50B  1  A9 06        	lda	#$06
-00E50D  1  85 BD        	sta	XYLODSAV2+1
-00E50F  1  A0 00          	ldy 	#0
-00E511  1               rsl:
-00E511  1  20 4C C6       	jsr 	rxpoll
-00E514  1  AD 00 80       	lda 	ACIAData
-00E517  1  91 BC          	sta 	(XYLODSAV2),Y
-00E519  1  F0 0B        	beq	rseof
-00E51B  1                 	;lda 	#$2e
-00E51B  1                 	;jsr 	MONCOUT
-00E51B  1  E6 BC        	inc	XYLODSAV2
-00E51D  1  A5 BC        	lda	XYLODSAV2
-00E51F  1  F0 02        	beq	ssl
-00E521  1  E6 BD        	inc	XYLODSAV2+1
-00E523  1               ssl:
-00E523  1  4C 11 E5     	jmp rsl
-00E526  1               rseof:
-00E526  1  A0 01        	ldy	#1
-00E528  1  20 4C C6     	jsr	rxpoll
-00E52B  1  91 BC        	sta	(XYLODSAV2),Y
-00E52D  1  D0 F4        	bne	ssl
-00E52F  1               sdone:
-00E52F  1  A2 13          	ldx	#<LOAD_DONE
-00E531  1  A0 E6        	ldy	#>LOAD_DONE
-00E533  1  20 68 C6     	jsr	w_acia_full
-00E536  1               stop_sl:
-00E536  1  68             	pla
-00E537  1  A8           	tay
-00E538  1  68             	pla
-00E539  1  AA           	tax
-00E53A  1  68             	pla
-00E53B  1  60             	rts
-00E53C  1               
-00E53C  1               MEMORY_LOAD:
-00E53C  1  68             	pla
-00E53D  1  A8           	tay
-00E53E  1  68             	pla
-00E53F  1  AA           	tax
-00E540  1  68             	pla
-00E541  1  60             	rts
-00E542  1               
-00E542  1               
-00E542  1               WRITE_TRANSFER_MSG:
-00E542  1  A2 A4          	LDX 	#<TRANSFER_MSG
-00E544  1  A0 E5        	LDY	#>TRANSFER_MSG
-00E546  1  20 68 C6     	JSR	w_acia_full
-00E549  1  60             	RTS
-00E54A  1               
-00E54A  1               SAVE:
-00E54A  1  48           	PHA
-00E54B  1  8A           	TXA
-00E54C  1  48           	PHA			; Push registers on the stack
-00E54D  1  98           	TYA
-00E54E  1  48           	PHA
-00E54F  1  20 42 E5     	JSR	WRITE_TRANSFER_MSG
-00E552  1  20 D5 E4     	JSR	SMCHECK
-00E555  1  B0 03        	bcs	SERIAL_SAVE
-00E557  1  4C 9E E5     	jmp	MEMORY_SAVE
-00E55A  1               SERIAL_SAVE:
-00E55A  1  A2 E3        	LDX	#<SERIAL_MSG_SAVE	; print "Sending the current program through serial..."
-00E55C  1  A0 E5        	LDY	#>SERIAL_MSG_SAVE
-00E55E  1  20 68 C6     	jsr	w_acia_full
-00E561  1  A2 00        	LDX	#0
-00E563  1  A0 00        	LDY	#0
-00E565  1  A9 01        	LDA	#$01
-00E567  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
-00E569  1  A9 06        	LDA	#$06
-00E56B  1  85 BD        	STA	XYLODSAV2+1
-00E56D  1               	; now for the loop
-00E56D  1               SAVELOOP:
-00E56D  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
-00E56F  1  48           	PHA
-00E570  1  20 54 FF     	JSR	MONCOUT
-00E573  1  68           	PLA
-00E574  1  F0 0B        	BEQ	SAVE_EOF_CHECK
-00E576  1  E6 BC        	INC	XYLODSAV2
-00E578  1  F0 02        	BEQ	SAVE_NOT16BIT
-00E57A  1  E6 BD        	INC	XYLODSAV2+1
-00E57C  1               SAVE_NOT16BIT:
-00E57C  1  20 73 FF     	JSR	MONISCNTC	; check if control+c is pressed.
-00E57F  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
-00E581  1               SAVE_EOF_CHECK:			; if so, then send break error message
-00E581  1  A0 01        	ldy	#1
-00E583  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
-00E585  1  F0 0A        	beq	SAVE_END_WRITE
-00E587  1               SAVE_CUT:
-00E587  1  A2 37        	ldx	#<ABORT_MSG
-00E589  1  A0 E6        	ldy	#>ABORT_MSG
-00E58B  1  20 68 C6     	jsr	w_acia_full
-00E58E  1  4C 98 E5     	jmp	END_SERIAL_SAVE
-00E591  1               SAVE_END_WRITE:
-00E591  1  A2 24        	ldx	#<SAVE_DONE
-00E593  1  A0 E6        	ldy	#>SAVE_DONE
-00E595  1  20 68 C6     	jsr	w_acia_full
-00E598  1               END_SERIAL_SAVE:
-00E598  1  68           	PLA
-00E599  1  A8           	TAY
-00E59A  1  68           	PLA
-00E59B  1  AA           	TAX			; pull registers off stack
-00E59C  1  68           	PLA
-00E59D  1  60           	RTS
-00E59E  1               
-00E59E  1               MEMORY_SAVE:
-00E59E  1               
-00E59E  1  68           	PLA
-00E59F  1  A8           	TAY
-00E5A0  1  68           	PLA
-00E5A1  1  AA           	TAX
-00E5A2  1  68           	PLA
-00E5A3  1  60           	RTS
-00E5A4  1               
-00E5A4  1               TRANSFER_MSG:
-00E5A4  1  53 65 72 69  	.byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
-00E5A8  1  61 6C 20 5B  
-00E5AC  1  53 5D 20 6F  
-00E5CE  1               
-00E5CE  1               SERIAL_MSG:
-00E5CE  1  53 74 61 72  	.byte	"Start Serial Load.",CR,LF,$00
-00E5D2  1  74 20 53 65  
-00E5D6  1  72 69 61 6C  
-00E5E3  1               
-00E5E3  1               SERIAL_MSG_SAVE:
-00E5E3  1  53 65 6E 64  	.byte	"Sending the current program through serial...",CR,LF,$00
-00E5E7  1  69 6E 67 20  
-00E5EB  1  74 68 65 20  
+00E4EE  1               MDET:
+00E4EE  1  18           	clc
+00E4EF  1  60           	rts
+00E4F0  1               
+00E4F0  1               LOAD:
+00E4F0  1  48           	pha
+00E4F1  1  8A           	txa
+00E4F2  1  48           	pha 	; save registers
+00E4F3  1  98           	tya
+00E4F4  1  48           	pha
+00E4F5  1  20 0B E6     	jsr 	WRITE_TRANSFER_MSG
+00E4F8  1  20 D7 E4     	jsr	SMCHECK
+00E4FB  1  B0 03        	bcs	SERIAL_LOAD
+00E4FD  1  4C 41 E5     	jmp 	MEMORY_LOAD
+00E500  1               SERIAL_LOAD:
+00E500  1  A2 9A        	ldx	#<SERIAL_MSG
+00E502  1  A0 E6        	ldy	#>SERIAL_MSG
+00E504  1  20 68 C6     	jsr	w_acia_full
+00E507  1  20 4C C6     	jsr	rxpoll
+00E50A  1               receive_serial:
+00E50A  1  A2 00          	ldx 	#0
+00E50C  1               rcloopadd:
+00E50C  1  A9 01          	lda 	#$01
+00E50E  1  85 BC          	sta 	XYLODSAV2
+00E510  1  A9 06        	lda	#$06
+00E512  1  85 BD        	sta	XYLODSAV2+1
+00E514  1  A0 00          	ldy 	#0
+00E516  1               rsl:
+00E516  1  20 4C C6       	jsr 	rxpoll
+00E519  1  AD 00 80       	lda 	ACIAData
+00E51C  1  91 BC          	sta 	(XYLODSAV2),Y
+00E51E  1  F0 0B        	beq	rseof
+00E520  1                 	;lda 	#$2e
+00E520  1                 	;jsr 	MONCOUT
+00E520  1  E6 BC        	inc	XYLODSAV2
+00E522  1  A5 BC        	lda	XYLODSAV2
+00E524  1  F0 02        	beq	ssl
+00E526  1  E6 BD        	inc	XYLODSAV2+1
+00E528  1               ssl:
+00E528  1  4C 16 E5     	jmp rsl
+00E52B  1               rseof:
+00E52B  1  A0 01        	ldy	#1
+00E52D  1  20 4C C6     	jsr	rxpoll
+00E530  1  91 BC        	sta	(XYLODSAV2),Y
+00E532  1  D0 F4        	bne	ssl
+00E534  1               sdone:
+00E534  1  A2 B4          	ldx	#<LOAD_DONE
+00E536  1  A0 E6        	ldy	#>LOAD_DONE
+00E538  1  20 68 C6     	jsr	w_acia_full
+00E53B  1               stop_sl:
+00E53B  1  68             	pla
+00E53C  1  A8           	tay
+00E53D  1  68             	pla
+00E53E  1  AA           	tax
+00E53F  1  68             	pla
+00E540  1  60             	rts
+00E541  1               
+00E541  1               MEMORY_LOAD:
+00E541  1               	; BUG need to make the memory load
+00E541  1               	; i will start a load of a specified file
+00E541  1               	; (.BAS)
+00E541  1               	; basically just a darn copy of the type loader (lol)
+00E541  1  20 A2 E5     	jsr	rootsetup
+00E544  1  20 CC E5     	jsr	list
+00E547  1               
+00E547  1               type:			; typing a filename
+00E547  1  A2 F4          ldx #<typemsg		; Filename:_
+00E549  1  A0 E6          ldy #>typemsg
+00E54B  1  20 68 C6       jsr w_acia_full
+00E54E  1  A2 00          ldx #0
+00E550  1  A9 20          lda #' '
+00E552  1  85 00          sta charbuffer
+00E554  1               
+00E554  1                typeloop:		; loop to type filenames
+00E554  1  20 4C C6       jsr rxpoll		; read a charactor
+00E557  1  AD 00 80       lda ACIAData
+00E55A  1  85 00          sta charbuffer
+00E55C  1  C9 0D          cmp #$0d		; enter?
+00E55E  1  F0 0E          beq exitloop		; if so, load
+00E560  1  A5 00          lda charbuffer	; echo back
+00E562  1  8D 00 80       sta ACIAData
+00E565  1  A5 00          lda charbuffer	; and store it in the filename buffer
+00E567  1  9D 4C E7       sta loadbuf,x
+00E56A  1  E8             inx
+00E56B  1  4C 54 E5       jmp typeloop
+00E56E  1               exitloop:
+00E56E  1  20 24 C6       jsr crlf
+00E571  1  20 A2 E5       jsr rootsetup
+00E574  1  A0 E7          ldy #>loadbuf
+00E576  1  A2 4C          ldx #<loadbuf
+00E578  1  20 80 C5       jsr fat32_finddirent
+00E57B  1  90 03          bcc foundfile
+00E57D  1                 ; File not found
+00E57D  1  4C B5 E5       jmp transfer_error
+00E580  1               foundfile:
+00E580  1                 ; Open file
+00E580  1  20 17 C5       jsr fat32_opendirent
+00E583  1  A2 E5          ldx #<lodmsg
+00E585  1  A0 E6          ldy #>lodmsg
+00E587  1  20 68 C6       jsr w_acia_full
+00E58A  1  A9 01          lda #$01
+00E58C  1  85 CC          sta fat32_address
+00E58E  1  A9 06          lda #$06
+00E590  1  85 CD          sta fat32_address+1
+00E592  1  20 E0 C5       jsr fat32_file_read  ; Yes. It is finally time to read the file.
+00E595  1               end:
+00E595  1  A2 B4          ldx #<LOAD_DONE
+00E597  1  A0 E6          ldy #>LOAD_DONE
+00E599  1  20 68 C6       jsr w_acia_full
+00E59C  1  68             pla
+00E59D  1  A8             tay
+00E59E  1  68             pla
+00E59F  1  AA             tax
+00E5A0  1  68             pla
+00E5A1  1  60             rts
+00E5A2  1               
+00E5A2  1               rootsetup:		; setup <ROOT>
+00E5A2  1               
+00E5A2  1                 ; Open root directory
+00E5A2  1  20 FF C4       jsr fat32_openroot
+00E5A5  1               
+00E5A5  1                 ; Find the subdirectory by name
+00E5A5  1  A2 D3          ldx #<dirname
+00E5A7  1  A0 C6          ldy #>dirname
+00E5A9  1  20 80 C5       jsr fat32_finddirent
+00E5AC  1  90 03          bcc foundsub
+00E5AE  1               
+00E5AE  1                 ; Subdirectory not found
+00E5AE  1  4C B5 E5       jmp transfer_error
+00E5B1  1               
+00E5B1  1               foundsub:
+00E5B1  1               
+00E5B1  1                 ; Open subdirectory
+00E5B1  1  20 17 C5       jsr fat32_opendirent	; open folder
+00E5B4  1               
+00E5B4  1  60             rts			; done
+00E5B5  1               
+00E5B5  1               transfer_error:
+00E5B5  1  A0 C6          ldy #>errormsg
+00E5B7  1  A2 DF          ldx #<errormsg
+00E5B9  1  20 68 C6       jsr w_acia_full
+00E5BC  1  20 8B C6       jsr error_sound
+00E5BF  1  4C 3B E5       jmp stop_sl
+00E5C2  1               
+00E5C2  1               other:
+00E5C2  1  20 44 C6       jsr txpoll		; Write a letter of the filename currently being read
+00E5C5  1  B1 01          lda (zp_sd_address),y
+00E5C7  1  8D 00 80       sta ACIAData
+00E5CA  1  C8             iny
+00E5CB  1  60             rts
+00E5CC  1               
+00E5CC  1               list:			; list file dir
+00E5CC  1  20 4A C5       jsr fat32_readdirent	; files?
+00E5CF  1  B0 36          bcs nofiles
+00E5D1  1  29 40          and #$40
+00E5D3  1  F0 05          beq arc
+00E5D5  1               dir:
+00E5D5  1  A9 44          lda #'D'		; directorys show up as
+00E5D7  1  4C DC E5       jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+00E5DA  1               arc:
+00E5DA  1  A9 46          lda #'F'		; files show up as
+00E5DC  1               ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+00E5DC  1  20 54 C6       jsr print_chara	; f or d
+00E5DF  1  A9 20          lda #$20		; space
+00E5E1  1  20 54 C6       jsr print_chara
+00E5E4  1                 ; At this point, we know that there are no files, files, or a suddir
+00E5E4  1                 ; Now for the name
+00E5E4  1  A0 00          ldy #0
+00E5E6  1               nameloop:
+00E5E6  1  C0 08          cpy #8
+00E5E8  1  F0 06          beq dot
+00E5EA  1  20 C2 E5       jsr other
+00E5ED  1  4C E6 E5       jmp nameloop
+00E5F0  1               dot:
+00E5F0  1  A9 2E          lda #'.'		; shows a file extention
+00E5F2  1  20 54 C6       jsr print_chara
+00E5F5  1               lopii:
+00E5F5  1  C0 0B          cpy #11
+00E5F7  1  F0 06          beq endthat		; print 3-letter file extention
+00E5F9  1  20 C2 E5       jsr other
+00E5FC  1  4C F5 E5       jmp lopii
+00E5FF  1               endthat:
+00E5FF  1  A9 09          lda #$09 ; Tab
+00E601  1  20 54 C6       jsr print_chara	; tab
+00E604  1  4C CC E5       jmp list ; go again	; next file if there are any left
+00E607  1               nofiles:		; if not,
+00E607  1               endlist:		; exit listing code
+00E607  1  20 24 C6       jsr crlf
+00E60A  1  60             rts
+00E60B  1               
+00E60B  1               WRITE_TRANSFER_MSG:
+00E60B  1  A2 70          	LDX 	#<TRANSFER_MSG
+00E60D  1  A0 E6        	LDY	#>TRANSFER_MSG
+00E60F  1  20 68 C6     	JSR	w_acia_full
+00E612  1  60             	RTS
 00E613  1               
-00E613  1               LOAD_DONE:
-00E613  1  4C 6F 61 64  	.byte	"Load Complete.",CR,LF,$00
-00E617  1  20 43 6F 6D  
-00E61B  1  70 6C 65 74  
-00E624  1               
-00E624  1               SAVE_DONE:
-00E624  1  0D 0A 53 61  	.byte	CR,LF,"Save Complete.",CR,LF,$00
-00E628  1  76 65 20 43  
-00E62C  1  6F 6D 70 6C  
-00E637  1               ABORT_MSG:
-00E637  1  0D 0A 41 62  	.byte	CR,LF,"Aborted.",CR,LF,0
-00E63B  1  6F 72 74 65  
-00E63F  1  64 2E 0D 0A  
-00E644  1               
-00E644  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
-00E644  1               ; BY G. SEARLE 2013 =========================================================================
-00E644  1               ACIA := $8000
-00E644  1               ACIAControl := ACIA+3
-00E644  1               ACIACommand := ACIA+2
-00E644  1               ACIAStatus := ACIA+1
-00E644  1               ACIAData := ACIA+0
-00E644  1               
-00E644  1               .segment "IOHANDLER"
+00E613  1               SAVE:				; BUG save dont work
+00E613  1  48           	PHA
+00E614  1  8A           	TXA
+00E615  1  48           	PHA			; Push registers on the stack
+00E616  1  98           	TYA
+00E617  1  48           	PHA
+00E618  1  20 0B E6     	JSR	WRITE_TRANSFER_MSG
+00E61B  1  20 D7 E4     	JSR	SMCHECK
+00E61E  1  B0 03        	bcs	SERIAL_SAVE
+00E620  1  4C 6A E6     	jmp	MEMORY_SAVE
+00E623  1               SERIAL_SAVE:
+00E623  1  A2 9A        	LDX	#<SERIAL_MSG
+00E625  1  A0 E6        	LDY	#>SERIAL_MSG
+00E627  1  20 68 C6     	jsr	w_acia_full
+00E62A  1  20 4C C6     	jsr	rxpoll
+00E62D  1  A2 00        	LDX	#0
+00E62F  1  A0 00        	LDY	#0
+00E631  1  A9 01        	LDA	#$01
+00E633  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
+00E635  1  A9 06        	LDA	#$06
+00E637  1  85 BD        	STA	XYLODSAV2+1
+00E639  1               	; now for the loop
+00E639  1               SAVELOOP:
+00E639  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
+00E63B  1  48           	PHA
+00E63C  1  20 65 FF     	JSR	MONCOUT
+00E63F  1  68           	PLA
+00E640  1  F0 0B        	BEQ	SAVE_EOF_CHECK
+00E642  1  E6 BC        	INC	XYLODSAV2
+00E644  1  F0 02        	BEQ	SAVE_NOT16BIT
+00E646  1  E6 BD        	INC	XYLODSAV2+1
+00E648  1               SAVE_NOT16BIT:
+00E648  1  20 84 FF     	JSR	MONISCNTC	; check if control+c is pressed.
+00E64B  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
+00E64D  1               SAVE_EOF_CHECK:			; if so, then send break error message
+00E64D  1  A0 01        	ldy	#1
+00E64F  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+00E651  1  F0 0A        	beq	SAVE_END_WRITE
+00E653  1               SAVE_CUT:
+00E653  1  A2 D8        	ldx	#<ABORT_MSG
+00E655  1  A0 E6        	ldy	#>ABORT_MSG
+00E657  1  20 68 C6     	jsr	w_acia_full
+00E65A  1  4C 64 E6     	jmp	END_SERIAL_SAVE
+00E65D  1               SAVE_END_WRITE:
+00E65D  1  A2 C5        	ldx	#<SAVE_DONE
+00E65F  1  A0 E6        	ldy	#>SAVE_DONE
+00E661  1  20 68 C6     	jsr	w_acia_full
+00E664  1               END_SERIAL_SAVE:
+00E664  1  68           	PLA
+00E665  1  A8           	TAY
+00E666  1  68           	PLA
+00E667  1  AA           	TAX			; pull registers off stack
+00E668  1  68           	PLA
+00E669  1  60           	RTS
+00E66A  1               
+00E66A  1               MEMORY_SAVE:
+00E66A  1               	; BUG oh darn i need to make this too
+00E66A  1               	; same as the other one but it will save instead...
+00E66A  1               	;
+00E66A  1               	; e
+00E66A  1               	;
+00E66A  1  68           	PLA
+00E66B  1  A8           	TAY
+00E66C  1  68           	PLA
+00E66D  1  AA           	TAX
+00E66E  1  68           	PLA
+00E66F  1  60           	RTS
+00E670  1               
+00E670  1               TRANSFER_MSG:
+00E670  1  53 65 72 69    .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
+00E674  1  61 6C 20 5B  
+00E678  1  53 5D 20 6F  
+00E69A  1               SERIAL_MSG:
+00E69A  1  50 72 65 73    .byte	"Press Any Key To Begin.",CR,LF,$00
+00E69E  1  73 20 41 6E  
+00E6A2  1  79 20 4B 65  
+00E6B4  1               LOAD_DONE:
+00E6B4  1  4C 6F 61 64    .byte	"Load Complete.",CR,LF,$00
+00E6B8  1  20 43 6F 6D  
+00E6BC  1  70 6C 65 74  
+00E6C5  1               SAVE_DONE:
+00E6C5  1  0D 0A 53 61    .byte	CR,LF,"Save Complete.",CR,LF,$00
+00E6C9  1  76 65 20 43  
+00E6CD  1  6F 6D 70 6C  
+00E6D8  1               ABORT_MSG:
+00E6D8  1  0D 0A 41 62    .byte	CR,LF,"Aborted.",CR,LF,0
+00E6DC  1  6F 72 74 65  
+00E6E0  1  64 2E 0D 0A  
+00E6E5  1               lodmsg:
+00E6E5  1  0D 0A 4C 6F    .byte $0d, $0a, "Loading...", $0d, $0a, $00
+00E6E9  1  61 64 69 6E  
+00E6ED  1  67 2E 2E 2E  
+00E6F4  1               typemsg:
+00E6F4  1  54 79 70 65    .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+00E6F8  1  20 74 68 65  
+00E6FC  1  20 66 69 6C  
+00E74C  1               loadbuf:
+00E74C  1  20 20 20 20    .byte $20, $20, $20, $20, $20, $20, $20, $20
+00E750  1  20 20 20 20  
+00E754  1  42 41 53       .byte "BAS"
+00E757  1               fat_error:
+00E757  1  46 41 54 33    .byte "FAT32 Initialization Failed at Stage"
+00E75B  1  32 20 49 6E  
+00E75F  1  69 74 69 61  
+00E77B  1               sd_msg:
+00E77B  1  0E 14 0F 12    .byte	$0e, 20, $0f, 18
+00E77F  1  02 20          .byte $02, $20
+00E781  1  49 6E 69 74    .byte "Initializing SD Card...",CR,LF,0
+00E785  1  69 61 6C 69  
+00E789  1  7A 69 6E 67  
+00E79B  1               
+00E79B  1               
+00E79B  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
+00E79B  1               ; BY G. SEARLE 2013 =========================================================================
+00E79B  1               ACIA := $8000
+00E79B  1               ACIAControl := ACIA+3
+00E79B  1               ACIACommand := ACIA+2
+00E79B  1               ACIAStatus := ACIA+1
+00E79B  1               ACIAData := ACIA+0
+00E79B  1               
+00E79B  1               .segment "IOHANDLER"
 000000r 1               .org $FF00
 00FF00  1               Reset:
 00FF00  1  A2 FC        	LDX     #STACK_TOP
@@ -7327,105 +7471,120 @@ Current file: osi_bas.s
 00FF03  1               
 00FF03  1  A9 0B        	LDA	#$0B
 00FF05  1  8D 02 80     	STA	ACIACommand
-00FF08  1               
 00FF08  1  A9 1F        	LDA 	#$1F		; Set ACIA baud rate, word size and Rx interrupt (to control RTS)
 00FF0A  1  8D 03 80     	STA	ACIAControl
 00FF0D  1               
-00FF0D  1               XPLWrite:
-00FF0D  1  A2 00        	LDX	#0
-00FF0F  1               XPLSign:
-00FF0F  1  AD 01 80     	LDA	ACIAStatus
-00FF12  1  29 10        	AND	#$10
-00FF14  1  F0 F9        	BEQ	XPLSign
-00FF16  1  BD 1F E4     	LDA	XPL,X
-00FF19  1  F0 07        	BEQ	NextStart
-00FF1B  1  8D 00 80     	STA	ACIAData
-00FF1E  1  E8           	INX
-00FF1F  1  4C 0F FF     	JMP	XPLSign
-00FF22  1               
-00FF22  1               NextStart:
-00FF22  1  A0 FF        	LDY	#$FF
-00FF24  1               InnerDelayLoop:
-00FF24  1  A2 FF        	LDX	#$FF
-00FF26  1               Wee:
-00FF26  1  EA           	NOP
-00FF27  1  EA           	NOP
-00FF28  1  EA           	NOP
-00FF29  1  EA           	NOP
-00FF2A  1  EA           	NOP
-00FF2B  1  EA           	NOP
-00FF2C  1  CA           	DEX
-00FF2D  1  D0 F7        	BNE Wee
-00FF2F  1               
-00FF2F  1  88           	DEY
-00FF30  1  D0 F2        	BNE InnerDelayLoop
-00FF32  1               
-00FF32  1               ; Display startup message
-00FF32  1  A0 00        	LDY #0
-00FF34  1               ShowStartMsg:
-00FF34  1  B9 80 FF     	LDA	StartupMessage,Y
-00FF37  1  F0 06        	BEQ	WaitForKeypress
-00FF39  1  20 54 FF     	JSR	MONCOUT
-00FF3C  1  C8           	INY
-00FF3D  1  D0 F5        	BNE	ShowStartMsg
-00FF3F  1               
-00FF3F  1               ; Wait for a cold/warm start selection
-00FF3F  1               WaitForKeypress:
-00FF3F  1  20 63 FF     	JSR	MONRDKEY
-00FF42  1  90 FB        	BCC	WaitForKeypress
-00FF44  1               
-00FF44  1  29 DF        	AND	#$DF			; Make upper case
-00FF46  1  C9 57        	CMP	#'W'			; compare with [W]arm start
-00FF48  1  F0 07        	BEQ	WarmStart
-00FF4A  1               
-00FF4A  1  C9 43        	CMP	#'C'			; compare with [C]old start
-00FF4C  1  D0 B2        	BNE	Reset
-00FF4E  1               
-00FF4E  1  4C 4E E2     	JMP	COLD_START	; BASIC cold start
-00FF51  1               
-00FF51  1               WarmStart:
-00FF51  1  4C BD C7     	JMP	RESTART		; BASIC warm start
-00FF54  1               
-00FF54  1               MONCOUT:
-00FF54  1  48           	PHA
-00FF55  1               SerialOutWait:
-00FF55  1  AD 01 80     	LDA	ACIAStatus
-00FF58  1  29 10        	AND	#$10
-00FF5A  1  C9 10        	CMP	#$10
-00FF5C  1  D0 F7        	BNE	SerialOutWait
-00FF5E  1  68           	PLA
-00FF5F  1  8D 00 80     	STA	ACIAData
-00FF62  1  60           	RTS
-00FF63  1               
-00FF63  1               MONRDKEY:
-00FF63  1  AD 01 80     	LDA	ACIAStatus
-00FF66  1  29 08        	AND	#$08
-00FF68  1  C9 08        	CMP	#$08
-00FF6A  1  D0 05        	BNE	NoDataIn
-00FF6C  1  AD 00 80     	LDA	ACIAData
-00FF6F  1  38           	SEC		; Carry set if key available
-00FF70  1  60           	RTS
-00FF71  1               NoDataIn:
-00FF71  1  18           	CLC		; Carry clear if no key pressed
-00FF72  1  60           	RTS
-00FF73  1               
-00FF73  1               MONISCNTC:
-00FF73  1  20 63 FF     	JSR	MONRDKEY
-00FF76  1  90 06        	BCC	NotCTRLC ; If no key pressed then exit
-00FF78  1  C9 03        	CMP	#3
-00FF7A  1  D0 02        	BNE	NotCTRLC ; if CTRL-C not pressed then exit
-00FF7C  1  38           	SEC		; Carry set if control C pressed
-00FF7D  1  60           	RTS
-00FF7E  1               NotCTRLC:
-00FF7E  1  18           	CLC		; Carry clear if control C not pressed
-00FF7F  1  60           	RTS
-00FF80  1               
-00FF80  1               StartupMessage:
-00FF80  1  0C 43 6F 6C  	.byte	$0C,"Cold [C] or warm [W] start?",$0D,$0A,$00
-00FF84  1  64 20 5B 43  
-00FF88  1  5D 20 6F 72  
-00FF9F  1               
-00FF9F  1               .segment "VECTS"
+00FF0D  1  A2 21        	LDX	#<XPL
+00FF0F  1  A0 E4        	LDY	#>XPL
+00FF11  1  20 68 C6     	JSR	w_acia_full
+00FF14  1               
+00FF14  1               ;NextStart:
+00FF14  1               ;	LDY	#$FF
+00FF14  1               ;InnerDelayLoop:
+00FF14  1               ;	LDX	#$FF
+00FF14  1               ;Wee:
+00FF14  1               ;	NOP
+00FF14  1               ;	NOP
+00FF14  1               ;	NOP
+00FF14  1               ;	NOP
+00FF14  1               ;	NOP
+00FF14  1               ;	NOP
+00FF14  1               ;	DEX
+00FF14  1               ;	BNE Wee
+00FF14  1               ;
+00FF14  1               ;	DEY
+00FF14  1               ;	BNE InnerDelayLoop
+00FF14  1               
+00FF14  1  A2 7B        	ldx #<sd_msg
+00FF16  1  A0 E7        	ldy #>sd_msg
+00FF18  1  20 68 C6     	jsr w_acia_full
+00FF1B  1               
+00FF1B  1  20 A1 C1      	jsr via_init
+00FF1E  1  20 B6 C1     	jsr sd_init
+00FF21  1  20 27 C3     	jsr fat32_init
+00FF24  1  90 1D        	bcc dispstart
+00FF26  1               
+00FF26  1               	; Error during FAT32 initialization
+00FF26  1               
+00FF26  1  20 39 C6     	jsr cleardisplay
+00FF29  1  A0 E7        	ldy #>fat_error
+00FF2B  1  A2 57        	ldx #<fat_error
+00FF2D  1  20 68 C6     	jsr w_acia_full
+00FF30  1  A5 D2        	lda fat32_errorstage
+00FF32  1  20 0D C6     	jsr print_hex_acia
+00FF35  1  A9 21        	lda #'!'
+00FF37  1  20 54 C6     	jsr print_chara
+00FF3A  1  20 24 C6     	jsr crlf
+00FF3D  1  4C 43 FF     	jmp dispstart
+00FF40  1               JMPToReset:
+00FF40  1  4C 00 FF     	jmp	Reset
+00FF43  1               dispstart:
+00FF43  1               ; Display startup message
+00FF43  1  A0 00        	LDY #0
+00FF45  1               ShowStartMsg:
+00FF45  1  B9 91 FF     	LDA	StartupMessage,Y
+00FF48  1  F0 06        	BEQ	WaitForKeypress
+00FF4A  1  20 65 FF     	JSR	MONCOUT
+00FF4D  1  C8           	INY
+00FF4E  1  D0 F5        	BNE	ShowStartMsg
+00FF50  1               
+00FF50  1               ; Wait for a cold/warm start selection
+00FF50  1               WaitForKeypress:
+00FF50  1  20 74 FF     	JSR	MONRDKEY
+00FF53  1  90 FB        	BCC	WaitForKeypress
+00FF55  1               
+00FF55  1  29 DF        	AND	#$DF			; Make upper case
+00FF57  1  C9 57        	CMP	#'W'			; compare with [W]arm start
+00FF59  1  F0 07        	BEQ	WarmStart
+00FF5B  1               
+00FF5B  1  C9 43        	CMP	#'C'			; compare with [C]old start
+00FF5D  1  D0 E1        	BNE	JMPToReset
+00FF5F  1               
+00FF5F  1  4C 4E E2     	JMP	COLD_START	; BASIC cold start
+00FF62  1               
+00FF62  1               WarmStart:
+00FF62  1  4C BD C7     	JMP	RESTART		; BASIC warm start
+00FF65  1               
+00FF65  1               MONCOUT:
+00FF65  1  48           	PHA
+00FF66  1               SerialOutWait:
+00FF66  1  AD 01 80     	LDA	ACIAStatus
+00FF69  1  29 10        	AND	#$10
+00FF6B  1  C9 10        	CMP	#$10
+00FF6D  1  D0 F7        	BNE	SerialOutWait
+00FF6F  1  68           	PLA
+00FF70  1  8D 00 80     	STA	ACIAData
+00FF73  1  60           	RTS
+00FF74  1               
+00FF74  1               MONRDKEY:
+00FF74  1  AD 01 80     	LDA	ACIAStatus
+00FF77  1  29 08        	AND	#$08
+00FF79  1  C9 08        	CMP	#$08
+00FF7B  1  D0 05        	BNE	NoDataIn
+00FF7D  1  AD 00 80     	LDA	ACIAData
+00FF80  1  38           	SEC		; Carry set if key available
+00FF81  1  60           	RTS
+00FF82  1               NoDataIn:
+00FF82  1  18           	CLC		; Carry clear if no key pressed
+00FF83  1  60           	RTS
+00FF84  1               
+00FF84  1               MONISCNTC:
+00FF84  1  20 74 FF     	JSR	MONRDKEY
+00FF87  1  90 06        	BCC	NotCTRLC ; If no key pressed then exit
+00FF89  1  C9 03        	CMP	#3
+00FF8B  1  D0 02        	BNE	NotCTRLC ; if CTRL-C not pressed then exit
+00FF8D  1  38           	SEC		; Carry set if control C pressed
+00FF8E  1  60           	RTS
+00FF8F  1               NotCTRLC:
+00FF8F  1  18           	CLC		; Carry clear if control C not pressed
+00FF90  1  60           	RTS
+00FF91  1               
+00FF91  1               StartupMessage:
+00FF91  1  0C 43 6F 6C  	.byte	$0C,"Cold [C] or warm [W] start?",$0D,$0A,$00
+00FF95  1  64 20 5B 43  
+00FF99  1  5D 20 6F 72  
+00FFB0  1               
+00FFB0  1               .segment "VECTS"
 000000r 1               .org $FFFA
 00FFFA  1  00 FF        	.word	Reset		; NMI
 00FFFC  1  00 FF        	.word	Reset		; RESET
