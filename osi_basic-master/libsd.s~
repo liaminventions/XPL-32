@@ -5,7 +5,7 @@
 ;   zp_sd_currentsector - 4 bytes
 
 cmsg:
-  2byte "Command: ", $00
+  .byte "Command: ", $00
 
 sd_init:
   ; Let the SD card boot up, by pumping the clock with SD CS disabled
@@ -110,13 +110,13 @@ sd_init:
 
 
 sd_cmd0_bytes:
-  2byte $40, $00, $00, $00, $00, $95
+  .byte $40, $00, $00, $00, $00, $95
 sd_cmd8_bytes:
-  2byte $48, $00, $00, $01, $aa, $87
+  .byte $48, $00, $00, $01, $aa, $87
 sd_cmd55_bytes:
-  2byte $77, $00, $00, $00, $00, $01
+  .byte $77, $00, $00, $00, $00, $01
 sd_cmd41_bytes:
-  2byte $69, $40, $00, $00, $00, $01
+  .byte $69, $40, $00, $00, $00, $01
 
 
 
@@ -328,12 +328,12 @@ sd_readsector:
   rts
 
 statusmsg:
-  2byte "Status: ", $00
+  .byte "Status: ", $00
 initfailedmsg:
-  2byte "Init "
+  .byte "Init "
 failedmsg:
-  2byte "Failed!", $0d, $0a, $00
+  .byte "Failed!", $0d, $0a, $00
 respmsg:
-  2byte "Response: ", $00
+  .byte "Response: ", $00
 initmsg:
-  2byte "Initialized!", $0d, $0a, $00
+  .byte "Initialized!", $0d, $0a, $00
