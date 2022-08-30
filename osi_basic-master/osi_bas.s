@@ -5882,6 +5882,7 @@ stop_sl:
 MEMORY_LOAD:
 	jsr	rootsetup
 	jsr	list
+	jsr	rootsetup
 
 type:			; typing a filename
   ldx #<typemsg		; Filename:_
@@ -6105,7 +6106,7 @@ fat_error:
 sd_msg:
   .byte	$0e, 26, $0f, 18
   .byte $02, $20
-  .byte "Initializing SD Card...",CR,LF,0
+  .byte "Initializing SD Card...",0
 
 	
 ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
