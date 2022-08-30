@@ -556,7 +556,7 @@ fat32_file_readbyte:
   ; Need to read a new sector?
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
-  bcc ugotdata
+  bcc uegotdata
 
   ; Read another sector
   lda #<fat32_readbuffer
@@ -567,7 +567,7 @@ fat32_file_readbyte:
   jsr fat32_readnextsector
   bcs urts                    ; this shouldn't happen
 
-ugotdata:
+uegotdata:
   ldy #0
   lda (zp_sd_address),y
 
