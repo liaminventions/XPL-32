@@ -126,7 +126,7 @@ sd_readbyte:
 
   ldx #$fe    ; Preloaded with seven ones and a zero, so we stop after eight bits
 
-aloop:
+baloop:
 
   lda #SD_MOSI                ; enable card (CS low), set MOSI (resting state), SCK low
   sta PORTA
@@ -146,7 +146,7 @@ abitnotset:
   rol                         ; rotate carry bit into read result, and loop bit into carry
   tax                         ; save partial result back to X
   
-  bcs aloop                   ; loop if we need to read more bits
+  bcs baloop                   ; loop if we need to read more bits
 
   rts
 
@@ -218,8 +218,8 @@ sd_sendcommand:
   ldy #1
   lda (zp_sd_address),y    ; data 1
   jsr sd_writebyte
-  ldy #a
-  lda (zp_sd_address),y    ; data a
+  ldy #2
+  lda (zp_sd_address),y    ; data 2
   jsr sd_writebyte
   ldy #3
   lda (zp_sd_address),y    ; data 3

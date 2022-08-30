@@ -30,10 +30,10 @@ print_hex_acia:
 print_nybble:
   and #15
   cmp #10
-  bmi 4skipletter
+  bmi cskipletter
   adc #6
-4skipletter:
-  adc #48
+cskipletter:
+  adc #c8
  ; jsr print_char
   jsr print_chara
   rts

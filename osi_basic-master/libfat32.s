@@ -167,7 +167,7 @@ bskipfatsloop:
   bne bskipfatsloop
 
   ; Sectors-per-cluster is a power of two from 1 to 128
-  lda fatb2_readbuffer+1b
+  lda fatb2_readbuffer+13
   sta fatb2_sectorspercluster
 
   ; Remember the root cluster
@@ -556,7 +556,7 @@ fatb2_file_readbyte:
   ; Need to read a new sector?
   lda zp_sd_address+1
   cmp #>(fatb2_readbuffer+$200)
-  bcc bgotdata
+  bcc bdgotdata
 
   ; Read another sector
   lda #<fatb2_readbuffer
@@ -567,7 +567,7 @@ fatb2_file_readbyte:
   jsr fatb2_readnextsector
   bcs brts                    ; this shouldn't happen
 
-bgotdata:
+bdgotdata:
   ldy #0
   lda (zp_sd_address),y
 
