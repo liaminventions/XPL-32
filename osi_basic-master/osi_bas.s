@@ -5794,15 +5794,15 @@ QT_BYTES_FREE:
         .byte   CR,LF,0
 
 XPL:
-	.byte	$0C, $1B, "[12;20H"
+	.byte	$0C, $1B, "[12;26H"
 	.byte	    " XX     XX  PPPP   LL     ",CR,LF
-	.byte	$1B, "[13;20H"
+	.byte	$1B, "[13;26H"
 	.byte	    "  XX   XX   PP PP  LL     ",CR,LF
-	.byte	$1B, "[14;20H"
+	.byte	$1B, "[14;26H"
 	.byte	    "   XXXXX    PPPPP  LL     ",CR,LF
-	.byte	$1B, "[15;20H"
+	.byte	$1B, "[15;26H"
 	.byte	    "  XX   XX   PP     LL  32 ",CR,LF
-	.byte	$1B, "[16;20H"
+	.byte	$1B, "[16;26H"
 	.byte	    " XX     XX  PP     LLLLLLL",CR,LF
 	.byte	$00
 
@@ -6103,7 +6103,7 @@ loadbuf:
 fat_error:
   .byte "FAT32 Initialization Failed at Stage"
 sd_msg:
-  .byte	$0e, 20, $0f, 18
+  .byte	$0e, 26, $0f, 18
   .byte $02, $20
   .byte "Initializing SD Card...",CR,LF,0
 
@@ -6154,20 +6154,20 @@ Reset:
 
  	jsr via_init
 	jsr sd_init
-	;jsr fat32_init
-	;bcc dispstart
+	jsr fat32_init
+	bcc dispstart
  
 	; Error during FAT32 initialization
 
-	;jsr cleardisplay
-	;ldy #>fat_error
-	;ldx #<fat_error
-	;jsr w_acia_full
-	;lda fat32_errorstage
-	;jsr print_hex_acia
-	;lda #'!'
-	;jsr print_chara
-	;jsr crlf
+	jsr cleardisplay
+	ldy #>fat_error
+	ldx #<fat_error
+	jsr w_acia_full
+	lda fat32_errorstage
+	jsr print_hex_acia
+	lda #'!'
+	jsr print_chara
+	jsr crlf
 	jmp dispstart
 JMPToReset:
 	jmp	Reset
