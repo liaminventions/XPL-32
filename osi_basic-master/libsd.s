@@ -157,7 +157,7 @@ sd_writebyte:
 
   ldx #8                      ; send 8 bits
 
-aloop:
+arloop:
   asl                         ; shift next bit into carry
   tay                         ; save remaining bits for later
 
@@ -173,7 +173,7 @@ asendbit:
   tya                         ; restore remaining bits to send
 
   dex
-  bne aloop                   ; loop if there are more bits to send
+  bne arloop                   ; loop if there are more bits to send
 
   rts
 
@@ -274,7 +274,7 @@ sd_readsector:
   jsr sd_writebyte
   lda zp_sd_currentsector+3   ; sector a4:31
   jsr sd_writebyte
-  lda zp_sd_currentsector+a   ; sector 16:a3
+  lda zp_sd_currentsector+2   ; sector 16:23
   jsr sd_writebyte
   lda zp_sd_currentsector+1   ; sector 8:15
   jsr sd_writebyte
