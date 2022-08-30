@@ -96,18 +96,17 @@ adelayloop:
 
 
 ainitialized:
-;  ldy #>initmsg
-;  ldx #<initmsg
-;  jsr w_acia_full
-;  rts
+  ldy #>initmsg
+  ldx #<initmsg
+  jsr w_acia_full
+  rts
 
 ainitfailed:
-;  ldy #>initfailedmsg
-;  ldx #<initfailedmsg
-;  jsr w_acia_full
+  ldy #>initfailedmsg
+  ldx #<initfailedmsg
+  jsr w_acia_full
 aloop:
-  jmp aloop
-
+  jmp dispstart
 
 sd_cmd0_bytes:
   .byte $40, $00, $00, $00, $00, $95
