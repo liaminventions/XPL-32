@@ -85,6 +85,8 @@ CRLF_2 := LF
 .org ZP_START1
 charbuffer:
 	.res 1
+sdbuffer:
+	.res 11
 zp_sd_address:
 	.res 2
 zp_sd_currentsector:
@@ -5880,9 +5882,15 @@ stop_sl:
   	rts
 
 MEMORY_LOAD:
+	ldx	#0
+lodbufloop:
+	lda	loadbuf,x
+	sta	sdbuffer,x
+	inx
+	cpx	#12
+	bne	lodbufloop
 	jsr	rootsetup
 	jsr	list
-	jsr	rootsetup
 
 type:			; typing a filename
   ldx #<typemsg		; Filename:_
@@ -5901,15 +5909,15 @@ type:			; typing a filename
   lda charbuffer	; echo back
   sta ACIAData
   lda charbuffer	; and store it in the filename buffer
-  sta loadbuf,x
+  sta sdbuffer,x
   inx
   cpx #8
   bne typeloop
 exitloop:
   jsr crlf
   jsr rootsetup
-  ldy #>loadbuf
-  ldx #<loadbuf
+  ldy #>sdbuffer
+  ldx #<sdbuffer
   jsr fat32_finddirent
   bcc foundfile
   ; File not found
@@ -6097,14 +6105,14 @@ ABORT_MSG:
 lodmsg:
   .byte $0d, $0a, "Loading...", $0d, $0a, $00
 typemsg:
-  .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: ", $02, "_", $00
+  .byte "Filename: ", $02, "_", $00
 loadbuf:
   .byte $20, $20, $20, $20, $20, $20, $20, $20
   .byte "BAS"
 fat_error:
   .byte "FAT32 Initialization Failed at Stage"
 sd_msg:
-  .byte	$0e, 26, $0f, 18
+  .byte	$0e, 20, $0f, 18
   .byte $02, $20
   .byte "Initializing SD Card...",0
 
