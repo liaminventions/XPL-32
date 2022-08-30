@@ -33,7 +33,7 @@ print_nybble:
   bmi cskipletter
   adc #6
 cskipletter:
-  adc #c8
+  adc #48
  ; jsr print_char
   jsr print_chara
   rts

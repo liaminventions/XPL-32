@@ -40,14 +40,18 @@ cskipletter:
 
 crlf:
   pha
-  phx
-  phy
+  txa
+  pha
+  tya
+  pha
   lda #$0d
   jsr print_chara
   lda #$0a
   jsr print_chara
-  ply
-  plx
+  pla
+  tay
+  pla
+  tax
   pla
   rts
 
