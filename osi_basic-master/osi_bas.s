@@ -5856,8 +5856,9 @@ rsl:
   	lda 	ACIAData
   	sta 	(XYLODSAV2),Y
 	beq	rseof
-  	;lda 	#$2e
-  	;jsr 	MONCOUT
+rsnot:
+  	lda 	#$2e		; for debug
+  	jsr 	MONCOUT		;
 	inc	XYLODSAV2
 	lda	XYLODSAV2
 	beq	ssl
@@ -5868,11 +5869,11 @@ rseof:
 	ldy	#1
 	jsr	rxpoll
 	sta	(XYLODSAV2),Y
-	bne	ssl
+	bne	rsnot
 	ldy	#2
 	jsr	rxpoll
 	sta	(XYLODSAV2),Y
-	bne	ssl
+	bne	rsnot
 
 sdone:
   	ldx	#<LOAD_DONE
@@ -5887,17 +5888,38 @@ stop_sl:
   	rts
 
 MEMORY_LOAD:
-	ldx	#0
-lodbufloop:
-	lda	loadbuf,x
-	sta	sdbuffer,x
-	inx
-	cpx	#12
-	bne	lodbufloop
 	jsr	rootsetup
 	jsr	list
+	jsr	type
+
+	ldx #<lodmsg
+ 	ldy #>lodmsg
+  	jsr w_acia_full
+  	lda #$01
+  	sta fat32_address
+  	lda #$06
+  	sta fat32_address+1
+  	jsr fat32_file_read  ; Yes. It is finally time to read the file.
+end:
+  	ldx #<LOAD_DONE
+  	ldy #>LOAD_DONE
+  	jsr w_acia_full
+  	pla
+  	tay
+  	pla
+  	tax
+  	pla
+  	rts
 
 type:			; typing a filename
+  ldx	#0
+lodbufloop:
+  lda	loadbuf,x	; copy the buffer into ram
+  sta	sdbuffer,x	; so we can use it
+  inx
+  cpx	#12
+  bne	lodbufloop
+
   ldx #<typemsg		; Filename:_
   ldy #>typemsg
   jsr w_acia_full
@@ -5930,23 +5952,6 @@ exitloop:
 foundfile:
   ; Open file
   jsr fat32_opendirent
-  ldx #<lodmsg
-  ldy #>lodmsg
-  jsr w_acia_full
-  lda #$00
-  sta fat32_address
-  lda #$06
-  sta fat32_address+1
-  jsr fat32_file_read  ; Yes. It is finally time to read the file.
-end:
-  ldx #<LOAD_DONE
-  ldy #>LOAD_DONE
-  jsr w_acia_full
-  pla
-  tay
-  pla
-  tax
-  pla
   rts
 
 rootsetup:		; setup <ROOT>
@@ -5984,7 +5989,14 @@ other:
   iny
   rts
 
+listmsg:
+  .byte "Listing Of SDCARD/folder:",CR,LF,0
+
 list:			; list file dir
+  ldx #<listmsg
+  ldy #>listmsg
+  jsr w_acia_full 
+listing:
   jsr fat32_readdirent	; files?
   bcs nofiles
   and #$40
@@ -6017,7 +6029,7 @@ lopii:
 endthat:
   lda #$09 ; Tab
   jsr print_chara	; tab
-  jmp list ; go again	; next file if there are any left
+  jmp listing 		; go again (next file if there are any left)
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
@@ -6057,6 +6069,7 @@ SAVELOOP:
 	JSR	MONCOUT
 	PLA
 	BEQ	SAVE_EOF_CHECK
+notit:
 	INC	XYLODSAV2
 	BEQ	SAVE_NOT16BIT
 	INC	XYLODSAV2+1
@@ -6066,7 +6079,11 @@ SAVE_NOT16BIT:
 SAVE_EOF_CHECK:			; if so, then send break error message
 	ldy	#1
 	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
-	beq	SAVE_END_WRITE
+	bne	notit
+	ldy	#2
+	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+	bne	notit
+	jmp	END_SERIAL_SAVE
 SAVE_CUT:
 	ldx	#<ABORT_MSG
 	ldy	#>ABORT_MSG
@@ -6085,11 +6102,22 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-	; BUG oh darn i need to make this too
-	; same as the other one but it will save instead...
-	;	
-	; e
-	;
+	jsr	rootsetup
+	jsr	list
+	jsr	type
+
+	ldx #<lodmsg
+ 	ldy #>lodmsg
+  	jsr w_acia_full
+  	lda #$01
+  	sta fat32_address
+  	lda #$06
+  	sta fat32_address+1
+  	jsr fat32_file_read  ; Yes. It is finally time to read the file.
+end:
+  	ldx #<LOAD_DONE
+  	ldy #>LOAD_DONE
+  	jsr w_acia_full
 	PLA
 	TAY
 	PLA
