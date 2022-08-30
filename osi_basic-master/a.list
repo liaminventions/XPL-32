@@ -370,7 +370,7 @@ Current file: osi_bas.s
 00C022  1  C6 CB        		.word NULL-1
 00C024  1  7D D9        		.word WAIT-1
 00C026  1  FE E4        		.word LOAD-1
-00C028  1  2D E6        		.word SAVE-1
+00C028  1  36 E6        		.word SAVE-1
 00C02A  1  29 D5        		.word DEF-1
 00C02C  1  74 D9        		.word POKE-1
 00C02E  1               TOKEN_PRINT=$80+(*-TOKEN_ADDRESS_TABLE)/2
@@ -7142,10 +7142,10 @@ Current file: osi_bas.s
 00E4E6  1  20 5B C6     	JSR	rxpoll
 00E4E9  1  AD 00 80     	LDA	ACIAData
 00E4EC  1  85 BC        	STA	XYLODSAV2	; save to tmp var
-00E4EE  1  C9 73        	cmp	#'s'		; If "s" is pressed
+00E4EE  1  C9 53        	cmp	#'S'		; If "s" is pressed
 00E4F0  1  F0 09        	BEQ	SDET		; then use serial
 00E4F2  1  A5 BC        	LDA	XYLODSAV2	; load tmp var
-00E4F4  1  C9 6D        	cmp	#'m'		; If "m" is pressed
+00E4F4  1  C9 4D        	cmp	#'M'		; If "m" is pressed
 00E4F6  1  F0 05        	BEQ	MDET		; then use a memory card
 00E4F8  1  4C E6 E4     	JMP	SMCHECK
 00E4FB  1               SDET:
@@ -7161,12 +7161,12 @@ Current file: osi_bas.s
 00E501  1  48           	pha 	; save registers
 00E502  1  98           	tya
 00E503  1  48           	pha
-00E504  1  20 26 E6     	jsr 	WRITE_TRANSFER_MSG
+00E504  1  20 2F E6     	jsr 	WRITE_TRANSFER_MSG
 00E507  1  20 E6 E4     	jsr	SMCHECK
 00E50A  1  B0 03        	bcs	SERIAL_LOAD
-00E50C  1  4C 50 E5     	jmp 	MEMORY_LOAD
+00E50C  1  4C 59 E5     	jmp 	MEMORY_LOAD
 00E50F  1               SERIAL_LOAD:
-00E50F  1  A2 B5        	ldx	#<SERIAL_MSG
+00E50F  1  A2 BE        	ldx	#<SERIAL_MSG
 00E511  1  A0 E6        	ldy	#>SERIAL_MSG
 00E513  1  20 77 C6     	jsr	w_acia_full
 00E516  1  20 5B C6     	jsr	rxpoll
@@ -7196,282 +7196,287 @@ Current file: osi_bas.s
 00E53C  1  20 5B C6     	jsr	rxpoll
 00E53F  1  91 BC        	sta	(XYLODSAV2),Y
 00E541  1  D0 F4        	bne	ssl
-00E543  1               sdone:
-00E543  1  A2 CF          	ldx	#<LOAD_DONE
-00E545  1  A0 E6        	ldy	#>LOAD_DONE
-00E547  1  20 77 C6     	jsr	w_acia_full
-00E54A  1               stop_sl:
-00E54A  1  68             	pla
-00E54B  1  A8           	tay
-00E54C  1  68             	pla
-00E54D  1  AA           	tax
-00E54E  1  68             	pla
-00E54F  1  60             	rts
-00E550  1               
-00E550  1               MEMORY_LOAD:
-00E550  1  A2 00        	ldx	#0
-00E552  1               lodbufloop:
-00E552  1  BD 1C E7     	lda	loadbuf,x
-00E555  1  95 01        	sta	sdbuffer,x
-00E557  1  E8           	inx
-00E558  1  E0 0C        	cpx	#12
-00E55A  1  D0 F6        	bne	lodbufloop
-00E55C  1  20 BD E5     	jsr	rootsetup
-00E55F  1  20 E7 E5     	jsr	list
-00E562  1               
-00E562  1               type:			; typing a filename
-00E562  1  A2 0F          ldx #<typemsg		; Filename:_
-00E564  1  A0 E7          ldy #>typemsg
-00E566  1  20 77 C6       jsr w_acia_full
-00E569  1  A2 00          ldx #0
-00E56B  1  A9 20          lda #' '
-00E56D  1  85 00          sta charbuffer
-00E56F  1               
-00E56F  1                typeloop:		; loop to type filenames
-00E56F  1  20 5B C6       jsr rxpoll		; read a charactor
-00E572  1  AD 00 80       lda ACIAData
-00E575  1  85 00          sta charbuffer
-00E577  1  C9 0D          cmp #$0d		; enter?
-00E579  1  F0 0E          beq exitloop		; if so, load
-00E57B  1  A5 00          lda charbuffer	; echo back
-00E57D  1  8D 00 80       sta ACIAData
-00E580  1  A5 00          lda charbuffer	; and store it in the filename buffer
-00E582  1  95 01          sta sdbuffer,x
-00E584  1  E8             inx
-00E585  1  E0 08          cpx #8
-00E587  1  D0 E6          bne typeloop
-00E589  1               exitloop:
-00E589  1  20 33 C6       jsr crlf
-00E58C  1  20 BD E5       jsr rootsetup
-00E58F  1  A0 00          ldy #>sdbuffer
-00E591  1  A2 01          ldx #<sdbuffer
-00E593  1  20 8F C5       jsr fat32_finddirent
-00E596  1  90 03          bcc foundfile
-00E598  1                 ; File not found
-00E598  1  4C D0 E5       jmp transfer_error
-00E59B  1               foundfile:
-00E59B  1                 ; Open file
-00E59B  1  20 26 C5       jsr fat32_opendirent
-00E59E  1  A2 00          ldx #<lodmsg
-00E5A0  1  A0 E7          ldy #>lodmsg
-00E5A2  1  20 77 C6       jsr w_acia_full
-00E5A5  1  A9 01          lda #$01
-00E5A7  1  85 CC          sta fat32_address
-00E5A9  1  A9 06          lda #$06
-00E5AB  1  85 CD          sta fat32_address+1
-00E5AD  1  20 EF C5       jsr fat32_file_read  ; Yes. It is finally time to read the file.
-00E5B0  1               end:
-00E5B0  1  A2 CF          ldx #<LOAD_DONE
-00E5B2  1  A0 E6          ldy #>LOAD_DONE
-00E5B4  1  20 77 C6       jsr w_acia_full
-00E5B7  1  68             pla
-00E5B8  1  A8             tay
-00E5B9  1  68             pla
-00E5BA  1  AA             tax
-00E5BB  1  68             pla
-00E5BC  1  60             rts
-00E5BD  1               
-00E5BD  1               rootsetup:		; setup <ROOT>
-00E5BD  1               
-00E5BD  1                 ; Open root directory
-00E5BD  1  20 0E C5       jsr fat32_openroot
-00E5C0  1               
-00E5C0  1                 ; Find the subdirectory by name
-00E5C0  1  A2 E2          ldx #<dirname
-00E5C2  1  A0 C6          ldy #>dirname
-00E5C4  1  20 8F C5       jsr fat32_finddirent
-00E5C7  1  90 03          bcc foundsub
+00E543  1  A0 02        	ldy	#2
+00E545  1  20 5B C6     	jsr	rxpoll
+00E548  1  91 BC        	sta	(XYLODSAV2),Y
+00E54A  1  D0 EB        	bne	ssl
+00E54C  1               
+00E54C  1               sdone:
+00E54C  1  A2 D8          	ldx	#<LOAD_DONE
+00E54E  1  A0 E6        	ldy	#>LOAD_DONE
+00E550  1  20 77 C6     	jsr	w_acia_full
+00E553  1               stop_sl:
+00E553  1  68             	pla
+00E554  1  A8           	tay
+00E555  1  68             	pla
+00E556  1  AA           	tax
+00E557  1  68             	pla
+00E558  1  60             	rts
+00E559  1               
+00E559  1               MEMORY_LOAD:
+00E559  1  A2 00        	ldx	#0
+00E55B  1               lodbufloop:
+00E55B  1  BD 25 E7     	lda	loadbuf,x
+00E55E  1  95 01        	sta	sdbuffer,x
+00E560  1  E8           	inx
+00E561  1  E0 0C        	cpx	#12
+00E563  1  D0 F6        	bne	lodbufloop
+00E565  1  20 C6 E5     	jsr	rootsetup
+00E568  1  20 F0 E5     	jsr	list
+00E56B  1               
+00E56B  1               type:			; typing a filename
+00E56B  1  A2 18          ldx #<typemsg		; Filename:_
+00E56D  1  A0 E7          ldy #>typemsg
+00E56F  1  20 77 C6       jsr w_acia_full
+00E572  1  A2 00          ldx #0
+00E574  1  A9 20          lda #' '
+00E576  1  85 00          sta charbuffer
+00E578  1               
+00E578  1                typeloop:		; loop to type filenames
+00E578  1  20 5B C6       jsr rxpoll		; read a charactor
+00E57B  1  AD 00 80       lda ACIAData
+00E57E  1  85 00          sta charbuffer
+00E580  1  C9 0D          cmp #$0d		; enter?
+00E582  1  F0 0E          beq exitloop		; if so, load
+00E584  1  A5 00          lda charbuffer	; echo back
+00E586  1  8D 00 80       sta ACIAData
+00E589  1  A5 00          lda charbuffer	; and store it in the filename buffer
+00E58B  1  95 01          sta sdbuffer,x
+00E58D  1  E8             inx
+00E58E  1  E0 08          cpx #8
+00E590  1  D0 E6          bne typeloop
+00E592  1               exitloop:
+00E592  1  20 33 C6       jsr crlf
+00E595  1  20 C6 E5       jsr rootsetup
+00E598  1  A0 00          ldy #>sdbuffer
+00E59A  1  A2 01          ldx #<sdbuffer
+00E59C  1  20 8F C5       jsr fat32_finddirent
+00E59F  1  90 03          bcc foundfile
+00E5A1  1                 ; File not found
+00E5A1  1  4C D9 E5       jmp transfer_error
+00E5A4  1               foundfile:
+00E5A4  1                 ; Open file
+00E5A4  1  20 26 C5       jsr fat32_opendirent
+00E5A7  1  A2 09          ldx #<lodmsg
+00E5A9  1  A0 E7          ldy #>lodmsg
+00E5AB  1  20 77 C6       jsr w_acia_full
+00E5AE  1  A9 00          lda #$00
+00E5B0  1  85 CC          sta fat32_address
+00E5B2  1  A9 06          lda #$06
+00E5B4  1  85 CD          sta fat32_address+1
+00E5B6  1  20 EF C5       jsr fat32_file_read  ; Yes. It is finally time to read the file.
+00E5B9  1               end:
+00E5B9  1  A2 D8          ldx #<LOAD_DONE
+00E5BB  1  A0 E6          ldy #>LOAD_DONE
+00E5BD  1  20 77 C6       jsr w_acia_full
+00E5C0  1  68             pla
+00E5C1  1  A8             tay
+00E5C2  1  68             pla
+00E5C3  1  AA             tax
+00E5C4  1  68             pla
+00E5C5  1  60             rts
+00E5C6  1               
+00E5C6  1               rootsetup:		; setup <ROOT>
+00E5C6  1               
+00E5C6  1                 ; Open root directory
+00E5C6  1  20 0E C5       jsr fat32_openroot
 00E5C9  1               
-00E5C9  1                 ; Subdirectory not found
-00E5C9  1  4C D0 E5       jmp transfer_error
-00E5CC  1               
-00E5CC  1               foundsub:
-00E5CC  1               
-00E5CC  1                 ; Open subdirectory
-00E5CC  1  20 26 C5       jsr fat32_opendirent	; open folder
-00E5CF  1               
-00E5CF  1  60             rts			; done
-00E5D0  1               
-00E5D0  1               transfer_error:
-00E5D0  1  A0 C6          ldy #>errormsg
-00E5D2  1  A2 EE          ldx #<errormsg
-00E5D4  1  20 77 C6       jsr w_acia_full
-00E5D7  1  20 9A C6       jsr error_sound
-00E5DA  1  4C 4A E5       jmp stop_sl
-00E5DD  1               
-00E5DD  1               other:
-00E5DD  1  20 53 C6       jsr txpoll		; Write a letter of the filename currently being read
-00E5E0  1  B1 0C          lda (zp_sd_address),y
-00E5E2  1  8D 00 80       sta ACIAData
-00E5E5  1  C8             iny
-00E5E6  1  60             rts
-00E5E7  1               
-00E5E7  1               list:			; list file dir
-00E5E7  1  20 59 C5       jsr fat32_readdirent	; files?
-00E5EA  1  B0 36          bcs nofiles
-00E5EC  1  29 40          and #$40
-00E5EE  1  F0 05          beq arc
-00E5F0  1               dir:
-00E5F0  1  A9 44          lda #'D'		; directorys show up as
-00E5F2  1  4C F7 E5       jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
-00E5F5  1               arc:
-00E5F5  1  A9 46          lda #'F'		; files show up as
-00E5F7  1               ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
-00E5F7  1  20 63 C6       jsr print_chara	; f or d
-00E5FA  1  A9 20          lda #$20		; space
-00E5FC  1  20 63 C6       jsr print_chara
-00E5FF  1                 ; At this point, we know that there are no files, files, or a suddir
-00E5FF  1                 ; Now for the name
-00E5FF  1  A0 00          ldy #0
-00E601  1               nameloop:
-00E601  1  C0 08          cpy #8
-00E603  1  F0 06          beq dot
-00E605  1  20 DD E5       jsr other
-00E608  1  4C 01 E6       jmp nameloop
-00E60B  1               dot:
-00E60B  1  A9 2E          lda #'.'		; shows a file extention
-00E60D  1  20 63 C6       jsr print_chara
-00E610  1               lopii:
-00E610  1  C0 0B          cpy #11
-00E612  1  F0 06          beq endthat		; print 3-letter file extention
-00E614  1  20 DD E5       jsr other
-00E617  1  4C 10 E6       jmp lopii
-00E61A  1               endthat:
-00E61A  1  A9 09          lda #$09 ; Tab
-00E61C  1  20 63 C6       jsr print_chara	; tab
-00E61F  1  4C E7 E5       jmp list ; go again	; next file if there are any left
-00E622  1               nofiles:		; if not,
-00E622  1               endlist:		; exit listing code
-00E622  1  20 33 C6       jsr crlf
-00E625  1  60             rts
-00E626  1               
-00E626  1               WRITE_TRANSFER_MSG:
-00E626  1  A2 8B          	LDX 	#<TRANSFER_MSG
-00E628  1  A0 E6        	LDY	#>TRANSFER_MSG
-00E62A  1  20 77 C6     	JSR	w_acia_full
-00E62D  1  60             	RTS
-00E62E  1               
-00E62E  1               SAVE:				; BUG save dont work
-00E62E  1  48           	PHA
-00E62F  1  8A           	TXA
-00E630  1  48           	PHA			; Push registers on the stack
-00E631  1  98           	TYA
-00E632  1  48           	PHA
-00E633  1  20 26 E6     	JSR	WRITE_TRANSFER_MSG
-00E636  1  20 E6 E4     	JSR	SMCHECK
-00E639  1  B0 03        	bcs	SERIAL_SAVE
-00E63B  1  4C 85 E6     	jmp	MEMORY_SAVE
-00E63E  1               SERIAL_SAVE:
-00E63E  1  A2 B5        	LDX	#<SERIAL_MSG
-00E640  1  A0 E6        	LDY	#>SERIAL_MSG
-00E642  1  20 77 C6     	jsr	w_acia_full
-00E645  1  20 5B C6     	jsr	rxpoll
-00E648  1  A2 00        	LDX	#0
-00E64A  1  A0 00        	LDY	#0
-00E64C  1  A9 01        	LDA	#$01
-00E64E  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
-00E650  1  A9 06        	LDA	#$06
-00E652  1  85 BD        	STA	XYLODSAV2+1
-00E654  1               	; now for the loop
-00E654  1               SAVELOOP:
-00E654  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
-00E656  1  48           	PHA
-00E657  1  20 65 FF     	JSR	MONCOUT
-00E65A  1  68           	PLA
-00E65B  1  F0 0B        	BEQ	SAVE_EOF_CHECK
-00E65D  1  E6 BC        	INC	XYLODSAV2
-00E65F  1  F0 02        	BEQ	SAVE_NOT16BIT
-00E661  1  E6 BD        	INC	XYLODSAV2+1
-00E663  1               SAVE_NOT16BIT:
-00E663  1  20 84 FF     	JSR	MONISCNTC	; check if control+c is pressed.
-00E666  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
-00E668  1               SAVE_EOF_CHECK:			; if so, then send break error message
-00E668  1  A0 01        	ldy	#1
-00E66A  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
-00E66C  1  F0 0A        	beq	SAVE_END_WRITE
-00E66E  1               SAVE_CUT:
-00E66E  1  A2 F3        	ldx	#<ABORT_MSG
-00E670  1  A0 E6        	ldy	#>ABORT_MSG
-00E672  1  20 77 C6     	jsr	w_acia_full
-00E675  1  4C 7F E6     	jmp	END_SERIAL_SAVE
-00E678  1               SAVE_END_WRITE:
-00E678  1  A2 E0        	ldx	#<SAVE_DONE
-00E67A  1  A0 E6        	ldy	#>SAVE_DONE
-00E67C  1  20 77 C6     	jsr	w_acia_full
-00E67F  1               END_SERIAL_SAVE:
-00E67F  1  68           	PLA
-00E680  1  A8           	TAY
-00E681  1  68           	PLA
-00E682  1  AA           	TAX			; pull registers off stack
-00E683  1  68           	PLA
-00E684  1  60           	RTS
-00E685  1               
-00E685  1               MEMORY_SAVE:
-00E685  1               	; BUG oh darn i need to make this too
-00E685  1               	; same as the other one but it will save instead...
-00E685  1               	;
-00E685  1               	; e
-00E685  1               	;
-00E685  1  68           	PLA
-00E686  1  A8           	TAY
-00E687  1  68           	PLA
-00E688  1  AA           	TAX
-00E689  1  68           	PLA
-00E68A  1  60           	RTS
-00E68B  1               
-00E68B  1               TRANSFER_MSG:
-00E68B  1  53 65 72 69    .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
-00E68F  1  61 6C 20 5B  
-00E693  1  53 5D 20 6F  
-00E6B5  1               SERIAL_MSG:
-00E6B5  1  50 72 65 73    .byte	"Press Any Key To Begin.",CR,LF,$00
-00E6B9  1  73 20 41 6E  
-00E6BD  1  79 20 4B 65  
-00E6CF  1               LOAD_DONE:
-00E6CF  1  4C 6F 61 64    .byte	"Load Complete.",CR,LF,$00
-00E6D3  1  20 43 6F 6D  
-00E6D7  1  70 6C 65 74  
-00E6E0  1               SAVE_DONE:
-00E6E0  1  0D 0A 53 61    .byte	CR,LF,"Save Complete.",CR,LF,$00
-00E6E4  1  76 65 20 43  
-00E6E8  1  6F 6D 70 6C  
-00E6F3  1               ABORT_MSG:
-00E6F3  1  0D 0A 41 62    .byte	CR,LF,"Aborted.",CR,LF,0
-00E6F7  1  6F 72 74 65  
-00E6FB  1  64 2E 0D 0A  
-00E700  1               lodmsg:
-00E700  1  0D 0A 4C 6F    .byte $0d, $0a, "Loading...", $0d, $0a, $00
-00E704  1  61 64 69 6E  
-00E708  1  67 2E 2E 2E  
-00E70F  1               typemsg:
-00E70F  1  46 69 6C 65    .byte "Filename: ", $02, "_", $00
-00E713  1  6E 61 6D 65  
-00E717  1  3A 20 02 5F  
-00E71C  1               loadbuf:
-00E71C  1  20 20 20 20    .byte $20, $20, $20, $20, $20, $20, $20, $20
-00E720  1  20 20 20 20  
-00E724  1  42 41 53       .byte "BAS"
-00E727  1               fat_error:
-00E727  1  46 41 54 33    .byte "FAT32 Initialization Failed at Stage"
-00E72B  1  32 20 49 6E  
-00E72F  1  69 74 69 61  
-00E74B  1               sd_msg:
-00E74B  1  0E 14 0F 12    .byte	$0e, 20, $0f, 18
-00E74F  1  02 20          .byte $02, $20
-00E751  1  49 6E 69 74    .byte "Initializing SD Card...",0
-00E755  1  69 61 6C 69  
-00E759  1  7A 69 6E 67  
-00E769  1               
-00E769  1               
-00E769  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
-00E769  1               ; BY G. SEARLE 2013 =========================================================================
-00E769  1               ACIA := $8000
-00E769  1               ACIAControl := ACIA+3
-00E769  1               ACIACommand := ACIA+2
-00E769  1               ACIAStatus := ACIA+1
-00E769  1               ACIAData := ACIA+0
-00E769  1               
-00E769  1               .segment "IOHANDLER"
+00E5C9  1                 ; Find the subdirectory by name
+00E5C9  1  A2 E2          ldx #<dirname
+00E5CB  1  A0 C6          ldy #>dirname
+00E5CD  1  20 8F C5       jsr fat32_finddirent
+00E5D0  1  90 03          bcc foundsub
+00E5D2  1               
+00E5D2  1                 ; Subdirectory not found
+00E5D2  1  4C D9 E5       jmp transfer_error
+00E5D5  1               
+00E5D5  1               foundsub:
+00E5D5  1               
+00E5D5  1                 ; Open subdirectory
+00E5D5  1  20 26 C5       jsr fat32_opendirent	; open folder
+00E5D8  1               
+00E5D8  1  60             rts			; done
+00E5D9  1               
+00E5D9  1               transfer_error:
+00E5D9  1  A0 C6          ldy #>errormsg
+00E5DB  1  A2 EE          ldx #<errormsg
+00E5DD  1  20 77 C6       jsr w_acia_full
+00E5E0  1  20 9A C6       jsr error_sound
+00E5E3  1  4C 53 E5       jmp stop_sl
+00E5E6  1               
+00E5E6  1               other:
+00E5E6  1  20 53 C6       jsr txpoll		; Write a letter of the filename currently being read
+00E5E9  1  B1 0C          lda (zp_sd_address),y
+00E5EB  1  8D 00 80       sta ACIAData
+00E5EE  1  C8             iny
+00E5EF  1  60             rts
+00E5F0  1               
+00E5F0  1               list:			; list file dir
+00E5F0  1  20 59 C5       jsr fat32_readdirent	; files?
+00E5F3  1  B0 36          bcs nofiles
+00E5F5  1  29 40          and #$40
+00E5F7  1  F0 05          beq arc
+00E5F9  1               dir:
+00E5F9  1  A9 44          lda #'D'		; directorys show up as
+00E5FB  1  4C 00 E6       jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+00E5FE  1               arc:
+00E5FE  1  A9 46          lda #'F'		; files show up as
+00E600  1               ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+00E600  1  20 63 C6       jsr print_chara	; f or d
+00E603  1  A9 20          lda #$20		; space
+00E605  1  20 63 C6       jsr print_chara
+00E608  1                 ; At this point, we know that there are no files, files, or a suddir
+00E608  1                 ; Now for the name
+00E608  1  A0 00          ldy #0
+00E60A  1               nameloop:
+00E60A  1  C0 08          cpy #8
+00E60C  1  F0 06          beq dot
+00E60E  1  20 E6 E5       jsr other
+00E611  1  4C 0A E6       jmp nameloop
+00E614  1               dot:
+00E614  1  A9 2E          lda #'.'		; shows a file extention
+00E616  1  20 63 C6       jsr print_chara
+00E619  1               lopii:
+00E619  1  C0 0B          cpy #11
+00E61B  1  F0 06          beq endthat		; print 3-letter file extention
+00E61D  1  20 E6 E5       jsr other
+00E620  1  4C 19 E6       jmp lopii
+00E623  1               endthat:
+00E623  1  A9 09          lda #$09 ; Tab
+00E625  1  20 63 C6       jsr print_chara	; tab
+00E628  1  4C F0 E5       jmp list ; go again	; next file if there are any left
+00E62B  1               nofiles:		; if not,
+00E62B  1               endlist:		; exit listing code
+00E62B  1  20 33 C6       jsr crlf
+00E62E  1  60             rts
+00E62F  1               
+00E62F  1               WRITE_TRANSFER_MSG:
+00E62F  1  A2 94          	LDX 	#<TRANSFER_MSG
+00E631  1  A0 E6        	LDY	#>TRANSFER_MSG
+00E633  1  20 77 C6     	JSR	w_acia_full
+00E636  1  60             	RTS
+00E637  1               
+00E637  1               SAVE:				; BUG save dont work
+00E637  1  48           	PHA
+00E638  1  8A           	TXA
+00E639  1  48           	PHA			; Push registers on the stack
+00E63A  1  98           	TYA
+00E63B  1  48           	PHA
+00E63C  1  20 2F E6     	JSR	WRITE_TRANSFER_MSG
+00E63F  1  20 E6 E4     	JSR	SMCHECK
+00E642  1  B0 03        	bcs	SERIAL_SAVE
+00E644  1  4C 8E E6     	jmp	MEMORY_SAVE
+00E647  1               SERIAL_SAVE:
+00E647  1  A2 BE        	LDX	#<SERIAL_MSG
+00E649  1  A0 E6        	LDY	#>SERIAL_MSG
+00E64B  1  20 77 C6     	jsr	w_acia_full
+00E64E  1  20 5B C6     	jsr	rxpoll
+00E651  1  A2 00        	LDX	#0
+00E653  1  A0 00        	LDY	#0
+00E655  1  A9 01        	LDA	#$01
+00E657  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
+00E659  1  A9 06        	LDA	#$06
+00E65B  1  85 BD        	STA	XYLODSAV2+1
+00E65D  1               	; now for the loop
+00E65D  1               SAVELOOP:
+00E65D  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
+00E65F  1  48           	PHA
+00E660  1  20 65 FF     	JSR	MONCOUT
+00E663  1  68           	PLA
+00E664  1  F0 0B        	BEQ	SAVE_EOF_CHECK
+00E666  1  E6 BC        	INC	XYLODSAV2
+00E668  1  F0 02        	BEQ	SAVE_NOT16BIT
+00E66A  1  E6 BD        	INC	XYLODSAV2+1
+00E66C  1               SAVE_NOT16BIT:
+00E66C  1  20 84 FF     	JSR	MONISCNTC	; check if control+c is pressed.
+00E66F  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
+00E671  1               SAVE_EOF_CHECK:			; if so, then send break error message
+00E671  1  A0 01        	ldy	#1
+00E673  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+00E675  1  F0 0A        	beq	SAVE_END_WRITE
+00E677  1               SAVE_CUT:
+00E677  1  A2 FC        	ldx	#<ABORT_MSG
+00E679  1  A0 E6        	ldy	#>ABORT_MSG
+00E67B  1  20 77 C6     	jsr	w_acia_full
+00E67E  1  4C 88 E6     	jmp	END_SERIAL_SAVE
+00E681  1               SAVE_END_WRITE:
+00E681  1  A2 E9        	ldx	#<SAVE_DONE
+00E683  1  A0 E6        	ldy	#>SAVE_DONE
+00E685  1  20 77 C6     	jsr	w_acia_full
+00E688  1               END_SERIAL_SAVE:
+00E688  1  68           	PLA
+00E689  1  A8           	TAY
+00E68A  1  68           	PLA
+00E68B  1  AA           	TAX			; pull registers off stack
+00E68C  1  68           	PLA
+00E68D  1  60           	RTS
+00E68E  1               
+00E68E  1               MEMORY_SAVE:
+00E68E  1               	; BUG oh darn i need to make this too
+00E68E  1               	; same as the other one but it will save instead...
+00E68E  1               	;
+00E68E  1               	; e
+00E68E  1               	;
+00E68E  1  68           	PLA
+00E68F  1  A8           	TAY
+00E690  1  68           	PLA
+00E691  1  AA           	TAX
+00E692  1  68           	PLA
+00E693  1  60           	RTS
+00E694  1               
+00E694  1               TRANSFER_MSG:
+00E694  1  53 65 72 69    .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
+00E698  1  61 6C 20 5B  
+00E69C  1  53 5D 20 6F  
+00E6BE  1               SERIAL_MSG:
+00E6BE  1  50 72 65 73    .byte	"Press Any Key To Begin.",CR,LF,$00
+00E6C2  1  73 20 41 6E  
+00E6C6  1  79 20 4B 65  
+00E6D8  1               LOAD_DONE:
+00E6D8  1  4C 6F 61 64    .byte	"Load Complete.",CR,LF,$00
+00E6DC  1  20 43 6F 6D  
+00E6E0  1  70 6C 65 74  
+00E6E9  1               SAVE_DONE:
+00E6E9  1  0D 0A 53 61    .byte	CR,LF,"Save Complete.",CR,LF,$00
+00E6ED  1  76 65 20 43  
+00E6F1  1  6F 6D 70 6C  
+00E6FC  1               ABORT_MSG:
+00E6FC  1  0D 0A 41 62    .byte	CR,LF,"Aborted.",CR,LF,0
+00E700  1  6F 72 74 65  
+00E704  1  64 2E 0D 0A  
+00E709  1               lodmsg:
+00E709  1  0D 0A 4C 6F    .byte $0d, $0a, "Loading...", $0d, $0a, $00
+00E70D  1  61 64 69 6E  
+00E711  1  67 2E 2E 2E  
+00E718  1               typemsg:
+00E718  1  46 69 6C 65    .byte "Filename: ", $02, "_", $00
+00E71C  1  6E 61 6D 65  
+00E720  1  3A 20 02 5F  
+00E725  1               loadbuf:
+00E725  1  20 20 20 20    .byte $20, $20, $20, $20, $20, $20, $20, $20
+00E729  1  20 20 20 20  
+00E72D  1  42 41 53       .byte "BAS"
+00E730  1               fat_error:
+00E730  1  46 41 54 33    .byte "FAT32 Initialization Failed at Stage"
+00E734  1  32 20 49 6E  
+00E738  1  69 74 69 61  
+00E754  1               sd_msg:
+00E754  1  0E 14 0F 12    .byte	$0e, 20, $0f, 18
+00E758  1  02 20          .byte $02, $20
+00E75A  1  49 6E 69 74    .byte "Initializing SD Card...",0
+00E75E  1  69 61 6C 69  
+00E762  1  7A 69 6E 67  
+00E772  1               
+00E772  1               
+00E772  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
+00E772  1               ; BY G. SEARLE 2013 =========================================================================
+00E772  1               ACIA := $8000
+00E772  1               ACIAControl := ACIA+3
+00E772  1               ACIACommand := ACIA+2
+00E772  1               ACIAStatus := ACIA+1
+00E772  1               ACIAData := ACIA+0
+00E772  1               
+00E772  1               .segment "IOHANDLER"
 000000r 1               .org $FF00
 00FF00  1               Reset:
 00FF00  1  A2 FC        	LDX     #STACK_TOP
@@ -7503,7 +7508,7 @@ Current file: osi_bas.s
 00FF14  1               ;	DEY
 00FF14  1               ;	BNE InnerDelayLoop
 00FF14  1               
-00FF14  1  A2 4B        	ldx #<sd_msg
+00FF14  1  A2 54        	ldx #<sd_msg
 00FF16  1  A0 E7        	ldy #>sd_msg
 00FF18  1  20 77 C6     	jsr w_acia_full
 00FF1B  1               
@@ -7516,7 +7521,7 @@ Current file: osi_bas.s
 00FF26  1               
 00FF26  1  20 48 C6     	jsr cleardisplay
 00FF29  1  A0 E7        	ldy #>fat_error
-00FF2B  1  A2 27        	ldx #<fat_error
+00FF2B  1  A2 30        	ldx #<fat_error
 00FF2D  1  20 77 C6     	jsr w_acia_full
 00FF30  1  A5 D2        	lda fat32_errorstage
 00FF32  1  20 1C C6     	jsr print_hex_acia

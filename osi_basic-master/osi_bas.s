@@ -5815,10 +5815,10 @@ SMCHECK:
 	JSR	rxpoll
 	LDA	ACIAData
 	STA	XYLODSAV2	; save to tmp var
-	cmp	#'s'		; If "s" is pressed
+	cmp	#'S'		; If "s" is pressed
 	BEQ	SDET		; then use serial
 	LDA	XYLODSAV2	; load tmp var
-	cmp	#'m'		; If "m" is pressed
+	cmp	#'M'		; If "m" is pressed
 	BEQ	MDET		; then use a memory card
 	JMP	SMCHECK
 SDET:
@@ -5869,6 +5869,11 @@ rseof:
 	jsr	rxpoll
 	sta	(XYLODSAV2),Y
 	bne	ssl
+	ldy	#2
+	jsr	rxpoll
+	sta	(XYLODSAV2),Y
+	bne	ssl
+
 sdone:
   	ldx	#<LOAD_DONE
 	ldy	#>LOAD_DONE
@@ -5928,7 +5933,7 @@ foundfile:
   ldx #<lodmsg
   ldy #>lodmsg
   jsr w_acia_full
-  lda #$01
+  lda #$00
   sta fat32_address
   lda #$06
   sta fat32_address+1
