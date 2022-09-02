@@ -162,6 +162,7 @@ Current file: osi_bas.s
 000000r 1               FOR_STACK1		:= 2*BYTES_FP+5
 000000r 1               FOR_STACK2		:= BYTES_FP+4
 000000r 1               MAX_EXPON = 10
+000000r 1               sdbuffer		:= $7ff2
 000000r 1               STACK           := $0100
 000000r 1               
 000000r 1               INPUTBUFFERX = INPUTBUFFER & $FF00
@@ -178,24 +179,20 @@ Current file: osi_bas.s
 000000  1               .org ZP_START1
 000000  1               charbuffer:
 000000  1  xx           	.res 1
-000001  1               sdbuffer:
-000001  1  xx xx xx xx  	.res 11
-000005  1  xx xx xx xx  
-000009  1  xx xx xx     
-00000C  1               zp_sd_address:
-00000C  1  xx xx        	.res 2
-00000E  1               zp_sd_currentsector:
-00000E  1  xx xx xx xx  	.res 4
-000012  1               GORESTART:
-000012  1  xx xx xx     	.res 3
-000015  1               GOSTROUT:
-000015  1  xx xx xx     	.res 3
-000018  1               GOAYINT:
-000018  1  xx xx        	.res 2
-00001A  1               GOGIVEAYF:
-00001A  1  xx xx        	.res 2
-00001C  1               
-00001C  1               .org ZP_START2
+000001  1               zp_sd_address:
+000001  1  xx xx        	.res 2
+000003  1               zp_sd_currentsector:
+000003  1  xx xx xx xx  	.res 4
+000007  1               GORESTART:
+000007  1  xx xx xx     	.res 3
+00000A  1               GOSTROUT:
+00000A  1  xx xx xx     	.res 3
+00000D  1               GOAYINT:
+00000D  1  xx xx        	.res 2
+00000F  1               GOGIVEAYF:
+00000F  1  xx xx        	.res 2
+000011  1               
+000011  1               .org ZP_START2
 00000D  1               Z15:
 00000D  1  xx           	.res 1
 00000E  1               POSX:
@@ -370,7 +367,7 @@ Current file: osi_bas.s
 00C022  1  C6 CB        		.word NULL-1
 00C024  1  7D D9        		.word WAIT-1
 00C026  1  FE E4        		.word LOAD-1
-00C028  1  36 E6        		.word SAVE-1
+00C028  1  64 E6        		.word SAVE-1
 00C02A  1  29 D5        		.word DEF-1
 00C02C  1  74 D9        		.word POKE-1
 00C02E  1               TOKEN_PRINT=$80+(*-TOKEN_ADDRESS_TABLE)/2
@@ -628,9 +625,9 @@ Current file: osi_bas.s
 00C1C2  2               
 00C1C2  2               acmd0: ; GO_IDLE_STATE - resets card to idle state, and SPI mode
 00C1C2  2  A9 29          lda #<sd_cmd0_bytes
-00C1C4  2  85 0C          sta zp_sd_address
+00C1C4  2  85 01          sta zp_sd_address
 00C1C6  2  A9 C2          lda #>sd_cmd0_bytes
-00C1C8  2  85 0D          sta zp_sd_address+1
+00C1C8  2  85 02          sta zp_sd_address+1
 00C1CA  2               
 00C1CA  2  20 7B C2       jsr sd_sendcommand
 00C1CD  2               
@@ -640,9 +637,9 @@ Current file: osi_bas.s
 00C1CD  2               
 00C1CD  2               acmd8: ; SEND_IF_COND - tell the card how we want it to operate (3a3V, etc)
 00C1CD  2  A9 2F          lda #<sd_cmd8_bytes
-00C1CF  2  85 0C          sta zp_sd_address
+00C1CF  2  85 01          sta zp_sd_address
 00C1D1  2  A9 C2          lda #>sd_cmd8_bytes
-00C1D3  2  85 0D          sta zp_sd_address+1
+00C1D3  2  85 02          sta zp_sd_address+1
 00C1D5  2               
 00C1D5  2  20 7B C2       jsr sd_sendcommand
 00C1D8  2               
@@ -658,9 +655,9 @@ Current file: osi_bas.s
 00C1E8  2               
 00C1E8  2               acmd55: ; APP_CMD - required prefix for ACMD commands
 00C1E8  2  A9 35          lda #<sd_cmd55_bytes
-00C1EA  2  85 0C          sta zp_sd_address
+00C1EA  2  85 01          sta zp_sd_address
 00C1EC  2  A9 C2          lda #>sd_cmd55_bytes
-00C1EE  2  85 0D          sta zp_sd_address+1
+00C1EE  2  85 02          sta zp_sd_address+1
 00C1F0  2               
 00C1F0  2  20 7B C2       jsr sd_sendcommand
 00C1F3  2               
@@ -670,9 +667,9 @@ Current file: osi_bas.s
 00C1F7  2               
 00C1F7  2               acmd41: ; APP_SEND_OP_COND - send operating conditions, initialize card
 00C1F7  2  A9 3B          lda #<sd_cmd41_bytes
-00C1F9  2  85 0C          sta zp_sd_address
+00C1F9  2  85 01          sta zp_sd_address
 00C1FB  2  A9 C2          lda #>sd_cmd41_bytes
-00C1FD  2  85 0D          sta zp_sd_address+1
+00C1FD  2  85 02          sta zp_sd_address+1
 00C1FF  2               
 00C1FF  2  20 7B C2       jsr sd_sendcommand
 00C202  2               
@@ -819,22 +816,22 @@ Current file: osi_bas.s
 00C27D  2  8D 01 B0       sta PORTA
 00C280  2               
 00C280  2  A0 00          ldy #0
-00C282  2  B1 0C          lda (zp_sd_address),y    ; command byte
+00C282  2  B1 01          lda (zp_sd_address),y    ; command byte
 00C284  2  20 5C C2       jsr sd_writebyte
 00C287  2  A0 01          ldy #1
-00C289  2  B1 0C          lda (zp_sd_address),y    ; data 1
+00C289  2  B1 01          lda (zp_sd_address),y    ; data 1
 00C28B  2  20 5C C2       jsr sd_writebyte
 00C28E  2  A0 02          ldy #2
-00C290  2  B1 0C          lda (zp_sd_address),y    ; data 2
+00C290  2  B1 01          lda (zp_sd_address),y    ; data 2
 00C292  2  20 5C C2       jsr sd_writebyte
 00C295  2  A0 03          ldy #3
-00C297  2  B1 0C          lda (zp_sd_address),y    ; data 3
+00C297  2  B1 01          lda (zp_sd_address),y    ; data 3
 00C299  2  20 5C C2       jsr sd_writebyte
 00C29C  2  A0 04          ldy #4
-00C29E  2  B1 0C          lda (zp_sd_address),y    ; data 4
+00C29E  2  B1 01          lda (zp_sd_address),y    ; data 4
 00C2A0  2  20 5C C2       jsr sd_writebyte
 00C2A3  2  A0 05          ldy #5
-00C2A5  2  B1 0C          lda (zp_sd_address),y    ; crc
+00C2A5  2  B1 01          lda (zp_sd_address),y    ; crc
 00C2A7  2  20 5C C2       jsr sd_writebyte
 00C2AA  2               
 00C2AA  2  20 73 C2       jsr sd_waitresult
@@ -878,13 +875,13 @@ Current file: osi_bas.s
 00C2BA  2                 ; Command 17, arg is sector number, crc not checked
 00C2BA  2  A9 51          lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
 00C2BC  2  20 5C C2       jsr sd_writebyte
-00C2BF  2  A5 11          lda zp_sd_currentsector+3   ; sector a4:31
+00C2BF  2  A5 06          lda zp_sd_currentsector+3   ; sector a4:31
 00C2C1  2  20 5C C2       jsr sd_writebyte
-00C2C4  2  A5 10          lda zp_sd_currentsector+2   ; sector 16:23
+00C2C4  2  A5 05          lda zp_sd_currentsector+2   ; sector 16:23
 00C2C6  2  20 5C C2       jsr sd_writebyte
-00C2C9  2  A5 0F          lda zp_sd_currentsector+1   ; sector 8:15
+00C2C9  2  A5 04          lda zp_sd_currentsector+1   ; sector 8:15
 00C2CB  2  20 5C C2       jsr sd_writebyte
-00C2CE  2  A5 0E          lda zp_sd_currentsector     ; sector 0:7
+00C2CE  2  A5 03          lda zp_sd_currentsector     ; sector 0:7
 00C2D0  2  20 5C C2       jsr sd_writebyte
 00C2D3  2  A9 01          lda #$01                    ; crc (not checked)
 00C2D5  2  20 5C C2       jsr sd_writebyte
@@ -900,9 +897,9 @@ Current file: osi_bas.s
 00C2E6  2               
 00C2E6  2                 ; Need to read 51a bytes - two pages of a56 bytes each
 00C2E6  2  20 F9 C2       jsr areadpage
-00C2E9  2  E6 0D          inc zp_sd_address+1
+00C2E9  2  E6 02          inc zp_sd_address+1
 00C2EB  2  20 F9 C2       jsr areadpage
-00C2EE  2  C6 0D          dec zp_sd_address+1
+00C2EE  2  C6 02          dec zp_sd_address+1
 00C2F0  2               
 00C2F0  2                 ; End command
 00C2F0  2  A9 14          lda #SD_CS | SD_MOSI
@@ -928,7 +925,7 @@ Current file: osi_bas.s
 00C2F9  2  A0 00          ldy #0
 00C2FB  2               areadloop:
 00C2FB  2  20 41 C2       jsr sd_readbyte
-00C2FE  2  91 0C          sta (zp_sd_address),y
+00C2FE  2  91 01          sta (zp_sd_address),y
 00C300  2  C8             iny
 00C301  2  D0 F8          bne areadloop
 00C303  2  60             rts
@@ -987,16 +984,16 @@ Current file: osi_bas.s
 00C33A  2               
 00C33A  2                 ; Sector 0
 00C33A  2  A9 00          lda #0
-00C33C  2  85 0E          sta zp_sd_currentsector
-00C33E  2  85 0F          sta zp_sd_currentsector+1
-00C340  2  85 10          sta zp_sd_currentsector+2
-00C342  2  85 11          sta zp_sd_currentsector+3
+00C33C  2  85 03          sta zp_sd_currentsector
+00C33E  2  85 04          sta zp_sd_currentsector+1
+00C340  2  85 05          sta zp_sd_currentsector+2
+00C342  2  85 06          sta zp_sd_currentsector+3
 00C344  2               
 00C344  2                 ; Target buffer
 00C344  2  A9 00          lda #<fat32_readbuffer
-00C346  2  85 0C          sta zp_sd_address
+00C346  2  85 01          sta zp_sd_address
 00C348  2  A9 02          lda #>fat32_readbuffer
-00C34A  2  85 0D          sta zp_sd_address+1
+00C34A  2  85 02          sta zp_sd_address+1
 00C34C  2               
 00C34C  2                 ; Do the read
 00C34C  2  20 B5 C2       jsr sd_readsector
@@ -1041,13 +1038,13 @@ Current file: osi_bas.s
 00C388  2               
 00C388  2                 ; Read the FAT32 BPB
 00C388  2  BD C6 03       lda fat32_readbuffer+$1c6,x
-00C38B  2  85 0E          sta zp_sd_currentsector
+00C38B  2  85 03          sta zp_sd_currentsector
 00C38D  2  BD C7 03       lda fat32_readbuffer+$1c7,x
-00C390  2  85 0F          sta zp_sd_currentsector+1
+00C390  2  85 04          sta zp_sd_currentsector+1
 00C392  2  BD C8 03       lda fat32_readbuffer+$1c8,x
-00C395  2  85 10          sta zp_sd_currentsector+2
+00C395  2  85 05          sta zp_sd_currentsector+2
 00C397  2  BD C9 03       lda fat32_readbuffer+$1c9,x
-00C39A  2  85 11          sta zp_sd_currentsector+3
+00C39A  2  85 06          sta zp_sd_currentsector+3
 00C39C  2               
 00C39C  2  20 B5 C2       jsr sd_readsector
 00C39F  2               
@@ -1086,19 +1083,19 @@ Current file: osi_bas.s
 00C3D1  2               
 00C3D1  2                 ; Calculate the starting sector of the FAT
 00C3D1  2  18             clc
-00C3D2  2  A5 0E          lda zp_sd_currentsector
+00C3D2  2  A5 03          lda zp_sd_currentsector
 00C3D4  2  6D 0E 02       adc fat32_readbuffer+14    ; reserved sectors lo
 00C3D7  2  85 BE          sta fat32_fatstart
 00C3D9  2  85 C2          sta fat32_datastart
-00C3DB  2  A5 0F          lda zp_sd_currentsector+1
+00C3DB  2  A5 04          lda zp_sd_currentsector+1
 00C3DD  2  6D 0F 02       adc fat32_readbuffer+15    ; reserved sectors hi
 00C3E0  2  85 BF          sta fat32_fatstart+1
 00C3E2  2  85 C3          sta fat32_datastart+1
-00C3E4  2  A5 10          lda zp_sd_currentsector+2
+00C3E4  2  A5 05          lda zp_sd_currentsector+2
 00C3E6  2  69 00          adc #0
 00C3E8  2  85 C0          sta fat32_fatstart+2
 00C3EA  2  85 C4          sta fat32_datastart+2
-00C3EC  2  A5 11          lda zp_sd_currentsector+3
+00C3EC  2  A5 06          lda zp_sd_currentsector+3
 00C3EE  2  69 00          adc #0
 00C3F0  2  85 C1          sta fat32_fatstart+3
 00C3F2  2  85 C5          sta fat32_datastart+3
@@ -1152,34 +1149,34 @@ Current file: osi_bas.s
 00C436  2  0A             asl
 00C437  2  A5 CF          lda fat32_nextcluster+1
 00C439  2  2A             rol
-00C43A  2  85 0E          sta zp_sd_currentsector
+00C43A  2  85 03          sta zp_sd_currentsector
 00C43C  2  A5 D0          lda fat32_nextcluster+2
 00C43E  2  2A             rol
-00C43F  2  85 0F          sta zp_sd_currentsector+1
+00C43F  2  85 04          sta zp_sd_currentsector+1
 00C441  2  A5 D1          lda fat32_nextcluster+3
 00C443  2  2A             rol
-00C444  2  85 10          sta zp_sd_currentsector+2
+00C444  2  85 05          sta zp_sd_currentsector+2
 00C446  2                 ; note: cluster numbers never have the top bit set, so no carry can occur
 00C446  2               
 00C446  2                 ; Add FAT starting sector
-00C446  2  A5 0E          lda zp_sd_currentsector
+00C446  2  A5 03          lda zp_sd_currentsector
 00C448  2  65 BE          adc fat32_fatstart
-00C44A  2  85 0E          sta zp_sd_currentsector
-00C44C  2  A5 0F          lda zp_sd_currentsector+1
+00C44A  2  85 03          sta zp_sd_currentsector
+00C44C  2  A5 04          lda zp_sd_currentsector+1
 00C44E  2  65 BF          adc fat32_fatstart+1
-00C450  2  85 0F          sta zp_sd_currentsector+1
-00C452  2  A5 10          lda zp_sd_currentsector+2
+00C450  2  85 04          sta zp_sd_currentsector+1
+00C452  2  A5 05          lda zp_sd_currentsector+2
 00C454  2  65 C0          adc fat32_fatstart+2
-00C456  2  85 10          sta zp_sd_currentsector+2
+00C456  2  85 05          sta zp_sd_currentsector+2
 00C458  2  A9 00          lda #0
 00C45A  2  65 C1          adc fat32_fatstart+3
-00C45C  2  85 11          sta zp_sd_currentsector+3
+00C45C  2  85 06          sta zp_sd_currentsector+3
 00C45E  2               
 00C45E  2                 ; Target buffer
 00C45E  2  A9 00          lda #<fat32_readbuffer
-00C460  2  85 0C          sta zp_sd_address
+00C460  2  85 01          sta zp_sd_address
 00C462  2  A9 02          lda #>fat32_readbuffer
-00C464  2  85 0D          sta zp_sd_address+1
+00C464  2  85 02          sta zp_sd_address+1
 00C466  2               
 00C466  2                 ; Read the sector from the FAT
 00C466  2  20 B5 C2       jsr sd_readsector
@@ -1192,43 +1189,43 @@ Current file: osi_bas.s
 00C469  2  38             sec
 00C46A  2  A5 CE          lda fat32_nextcluster
 00C46C  2  E9 02          sbc #2
-00C46E  2  85 0E          sta zp_sd_currentsector
+00C46E  2  85 03          sta zp_sd_currentsector
 00C470  2  A5 CF          lda fat32_nextcluster+1
 00C472  2  E9 00          sbc #0
-00C474  2  85 0F          sta zp_sd_currentsector+1
+00C474  2  85 04          sta zp_sd_currentsector+1
 00C476  2  A5 D0          lda fat32_nextcluster+2
 00C478  2  E9 00          sbc #0
-00C47A  2  85 10          sta zp_sd_currentsector+2
+00C47A  2  85 05          sta zp_sd_currentsector+2
 00C47C  2  A5 D1          lda fat32_nextcluster+3
 00C47E  2  E9 00          sbc #0
-00C480  2  85 11          sta zp_sd_currentsector+3
+00C480  2  85 06          sta zp_sd_currentsector+3
 00C482  2               
 00C482  2                 ; Multiply by sectors-per-cluster which is a power of two between 1 and 128
 00C482  2  A5 CA          lda fat32_sectorspercluster
 00C484  2               uspcshiftloop:
 00C484  2  4A             lsr
 00C485  2  B0 0B          bcs uspcshiftloopdone
-00C487  2  06 0E          asl zp_sd_currentsector
-00C489  2  26 0F          rol zp_sd_currentsector+1
-00C48B  2  26 10          rol zp_sd_currentsector+2
-00C48D  2  26 11          rol zp_sd_currentsector+3
+00C487  2  06 03          asl zp_sd_currentsector
+00C489  2  26 04          rol zp_sd_currentsector+1
+00C48B  2  26 05          rol zp_sd_currentsector+2
+00C48D  2  26 06          rol zp_sd_currentsector+3
 00C48F  2  4C 84 C4       jmp uspcshiftloop
 00C492  2               uspcshiftloopdone:
 00C492  2               
 00C492  2                 ; Add the data region start sector
 00C492  2  18             clc
-00C493  2  A5 0E          lda zp_sd_currentsector
+00C493  2  A5 03          lda zp_sd_currentsector
 00C495  2  65 C2          adc fat32_datastart
-00C497  2  85 0E          sta zp_sd_currentsector
-00C499  2  A5 0F          lda zp_sd_currentsector+1
+00C497  2  85 03          sta zp_sd_currentsector
+00C499  2  A5 04          lda zp_sd_currentsector+1
 00C49B  2  65 C3          adc fat32_datastart+1
-00C49D  2  85 0F          sta zp_sd_currentsector+1
-00C49F  2  A5 10          lda zp_sd_currentsector+2
+00C49D  2  85 04          sta zp_sd_currentsector+1
+00C49F  2  A5 05          lda zp_sd_currentsector+2
 00C4A1  2  65 C4          adc fat32_datastart+2
-00C4A3  2  85 10          sta zp_sd_currentsector+2
-00C4A5  2  A5 11          lda zp_sd_currentsector+3
+00C4A3  2  85 05          sta zp_sd_currentsector+2
+00C4A5  2  A5 06          lda zp_sd_currentsector+3
 00C4A7  2  65 C5          adc fat32_datastart+3
-00C4A9  2  85 11          sta zp_sd_currentsector+3
+00C4A9  2  85 06          sta zp_sd_currentsector+3
 00C4AB  2               
 00C4AB  2                 ; That's now ready for later code to read this sector in - tell it how many consecutive
 00C4AB  2                 ; sectors it can now read
@@ -1246,21 +1243,21 @@ Current file: osi_bas.s
 00C4B5  2  A8             tay ; Y = low byte of offset
 00C4B6  2               
 00C4B6  2                 ; Add the potentially carried bit to the high byte of the address
-00C4B6  2  A5 0D          lda zp_sd_address+1
+00C4B6  2  A5 02          lda zp_sd_address+1
 00C4B8  2  69 00          adc #0
-00C4BA  2  85 0D          sta zp_sd_address+1
+00C4BA  2  85 02          sta zp_sd_address+1
 00C4BC  2               
 00C4BC  2                 ; Copy out the next cluster in the chain for later use
-00C4BC  2  B1 0C          lda (zp_sd_address),y
+00C4BC  2  B1 01          lda (zp_sd_address),y
 00C4BE  2  85 CE          sta fat32_nextcluster
 00C4C0  2  C8             iny
-00C4C1  2  B1 0C          lda (zp_sd_address),y
+00C4C1  2  B1 01          lda (zp_sd_address),y
 00C4C3  2  85 CF          sta fat32_nextcluster+1
 00C4C5  2  C8             iny
-00C4C6  2  B1 0C          lda (zp_sd_address),y
+00C4C6  2  B1 01          lda (zp_sd_address),y
 00C4C8  2  85 D0          sta fat32_nextcluster+2
 00C4CA  2  C8             iny
-00C4CB  2  B1 0C          lda (zp_sd_address),y
+00C4CB  2  B1 01          lda (zp_sd_address),y
 00C4CD  2  29 0F          and #$0f
 00C4CF  2  85 D1          sta fat32_nextcluster+3
 00C4D1  2               
@@ -1305,21 +1302,21 @@ Current file: osi_bas.s
 00C4F1  2               
 00C4F1  2                 ; Set up target address
 00C4F1  2  A5 CC          lda fat32_address
-00C4F3  2  85 0C          sta zp_sd_address
+00C4F3  2  85 01          sta zp_sd_address
 00C4F5  2  A5 CD          lda fat32_address+1
-00C4F7  2  85 0D          sta zp_sd_address+1
+00C4F7  2  85 02          sta zp_sd_address+1
 00C4F9  2               
 00C4F9  2                 ; Read the sector
 00C4F9  2  20 B5 C2       jsr sd_readsector
 00C4FC  2               
 00C4FC  2                 ; Advance to next sector
-00C4FC  2  E6 0E          inc zp_sd_currentsector
+00C4FC  2  E6 03          inc zp_sd_currentsector
 00C4FE  2  D0 0A          bne usectorincrementdone
-00C500  2  E6 0F          inc zp_sd_currentsector+1
+00C500  2  E6 04          inc zp_sd_currentsector+1
 00C502  2  D0 06          bne usectorincrementdone
-00C504  2  E6 10          inc zp_sd_currentsector+2
+00C504  2  E6 05          inc zp_sd_currentsector+2
 00C506  2  D0 02          bne usectorincrementdone
-00C508  2  E6 11          inc zp_sd_currentsector+3
+00C508  2  E6 06          inc zp_sd_currentsector+3
 00C50A  2               usectorincrementdone:
 00C50A  2               
 00C50A  2                 ; Success - clear carry and return
@@ -1348,7 +1345,7 @@ Current file: osi_bas.s
 00C521  2               
 00C521  2                 ; Set the pointer to a large value so we always read a sector the first time through
 00C521  2  A9 FF          lda #$ff
-00C523  2  85 0D          sta zp_sd_address+1
+00C523  2  85 02          sta zp_sd_address+1
 00C525  2               
 00C525  2  60             rts
 00C526  2               
@@ -1360,37 +1357,37 @@ Current file: osi_bas.s
 00C526  2               
 00C526  2                 ; Remember file size in bytes remaining
 00C526  2  A0 1C          ldy #28
-00C528  2  B1 0C          lda (zp_sd_address),y
+00C528  2  B1 01          lda (zp_sd_address),y
 00C52A  2  85 D2          sta fat32_bytesremaining
 00C52C  2  C8             iny
-00C52D  2  B1 0C          lda (zp_sd_address),y
+00C52D  2  B1 01          lda (zp_sd_address),y
 00C52F  2  85 D3          sta fat32_bytesremaining+1
 00C531  2  C8             iny
-00C532  2  B1 0C          lda (zp_sd_address),y
+00C532  2  B1 01          lda (zp_sd_address),y
 00C534  2  85 D4          sta fat32_bytesremaining+2
 00C536  2  C8             iny
-00C537  2  B1 0C          lda (zp_sd_address),y
+00C537  2  B1 01          lda (zp_sd_address),y
 00C539  2  85 D5          sta fat32_bytesremaining+3
 00C53B  2               
 00C53B  2                 ; Seek to first cluster
 00C53B  2  A0 1A          ldy #26
-00C53D  2  B1 0C          lda (zp_sd_address),y
+00C53D  2  B1 01          lda (zp_sd_address),y
 00C53F  2  85 CE          sta fat32_nextcluster
 00C541  2  C8             iny
-00C542  2  B1 0C          lda (zp_sd_address),y
+00C542  2  B1 01          lda (zp_sd_address),y
 00C544  2  85 CF          sta fat32_nextcluster+1
 00C546  2  A0 14          ldy #20
-00C548  2  B1 0C          lda (zp_sd_address),y
+00C548  2  B1 01          lda (zp_sd_address),y
 00C54A  2  85 D0          sta fat32_nextcluster+2
 00C54C  2  C8             iny
-00C54D  2  B1 0C          lda (zp_sd_address),y
+00C54D  2  B1 01          lda (zp_sd_address),y
 00C54F  2  85 D1          sta fat32_nextcluster+3
 00C551  2               
 00C551  2  20 34 C4       jsr fat32_seekcluster
 00C554  2               
 00C554  2                 ; Set the pointer to a large value so we always read a sector the first time through
 00C554  2  A9 FF          lda #$ff
-00C556  2  85 0D          sta zp_sd_address+1
+00C556  2  85 02          sta zp_sd_address+1
 00C558  2               
 00C558  2  60             rts
 00C559  2               
@@ -1406,12 +1403,12 @@ Current file: osi_bas.s
 00C559  2               
 00C559  2                 ; Increment pointer by 32 to point to next entry
 00C559  2  18             clc
-00C55A  2  A5 0C          lda zp_sd_address
+00C55A  2  A5 01          lda zp_sd_address
 00C55C  2  69 20          adc #32
-00C55E  2  85 0C          sta zp_sd_address
-00C560  2  A5 0D          lda zp_sd_address+1
+00C55E  2  85 01          sta zp_sd_address
+00C560  2  A5 02          lda zp_sd_address+1
 00C562  2  69 00          adc #0
-00C564  2  85 0D          sta zp_sd_address+1
+00C564  2  85 02          sta zp_sd_address+1
 00C566  2               
 00C566  2                 ; If it's not at the end of the buffer, we have data already
 00C566  2  C9 04          cmp #>(fat32_readbuffer+$200)
@@ -1433,7 +1430,7 @@ Current file: osi_bas.s
 00C579  2               ugotdata:
 00C579  2                 ; Check first character
 00C579  2  A0 00          ldy #0
-00C57B  2  B1 0C          lda (zp_sd_address),y
+00C57B  2  B1 01          lda (zp_sd_address),y
 00C57D  2               
 00C57D  2                 ; End of directory => abort
 00C57D  2  F0 F8          beq uendofdirectory
@@ -1444,7 +1441,7 @@ Current file: osi_bas.s
 00C583  2               
 00C583  2                 ; Check attributes
 00C583  2  A0 0B          ldy #11
-00C585  2  B1 0C          lda (zp_sd_address),y
+00C585  2  B1 01          lda (zp_sd_address),y
 00C587  2  29 3F          and #$3f
 00C589  2  C9 0F          cmp #$0f ; LFN => start again
 00C58B  2  F0 CC          beq fat32_readdirent
@@ -1470,7 +1467,7 @@ Current file: osi_bas.s
 00C59A  2  60             rts ; with carry set
 00C59B  2               
 00C59B  2               ucomparenameloop:
-00C59B  2  B1 0C          lda (zp_sd_address),y
+00C59B  2  B1 01          lda (zp_sd_address),y
 00C59D  2  D1 D2          cmp (fat32_filenamepointer),y
 00C59F  2  D0 F2          bne udirentloop ; no match
 00C5A1  2  88             dey
@@ -1510,7 +1507,7 @@ Current file: osi_bas.s
 00C5C7  2  85 D5          sta fat32_bytesremaining+3
 00C5C9  2               
 00C5C9  2                 ; Need to read a new sector?
-00C5C9  2  A5 0D          lda zp_sd_address+1
+00C5C9  2  A5 02          lda zp_sd_address+1
 00C5CB  2  C9 04          cmp #>(fat32_readbuffer+$200)
 00C5CD  2  90 0D          bcc uegotdata
 00C5CF  2               
@@ -1525,15 +1522,15 @@ Current file: osi_bas.s
 00C5DC  2               
 00C5DC  2               uegotdata:
 00C5DC  2  A0 00          ldy #0
-00C5DE  2  B1 0C          lda (zp_sd_address),y
+00C5DE  2  B1 01          lda (zp_sd_address),y
 00C5E0  2               
-00C5E0  2  E6 0C          inc zp_sd_address
+00C5E0  2  E6 01          inc zp_sd_address
 00C5E2  2  D0 0A          bne urts
-00C5E4  2  E6 0D          inc zp_sd_address+1
+00C5E4  2  E6 02          inc zp_sd_address+1
 00C5E6  2  D0 06          bne urts
-00C5E8  2  E6 0E          inc zp_sd_address+2
+00C5E8  2  E6 03          inc zp_sd_address+2
 00C5EA  2  D0 02          bne urts
-00C5EC  2  E6 0F          inc zp_sd_address+3
+00C5EC  2  E6 04          inc zp_sd_address+3
 00C5EE  2               
 00C5EE  2               urts:
 00C5EE  2  60             rts
@@ -1948,7 +1945,7 @@ Current file: osi_bas.s
 00C7CC  1  46 64                lsr     Z14
 00C7CE  1  A9 92                lda     #<QT_OK
 00C7D0  1  A0 C1                ldy     #>QT_OK
-00C7D2  1  20 15 00             jsr     GOSTROUT
+00C7D2  1  20 0A 00             jsr     GOSTROUT
 00C7D5  1               L2351:
 00C7D5  1  20 AF C8             jsr     INLIN
 00C7D8  1  86 DD                stx     TXTPTR
@@ -6920,21 +6917,21 @@ Current file: osi_bas.s
 00E261  1  9A                   txs
 00E262  1  A9 5D                lda     #<COLD_START
 00E264  1  A0 E2                ldy     #>COLD_START
-00E266  1  85 13                sta     GORESTART+1
-00E268  1  84 14                sty     GORESTART+2
-00E26A  1  85 16                sta     GOSTROUT+1
-00E26C  1  84 17                sty     GOSTROUT+2
+00E266  1  85 08                sta     GORESTART+1
+00E268  1  84 09                sty     GORESTART+2
+00E26A  1  85 0B                sta     GOSTROUT+1
+00E26C  1  84 0C                sty     GOSTROUT+2
 00E26E  1  A9 51                lda     #<AYINT
 00E270  1  A0 D3                ldy     #>AYINT
-00E272  1  85 18                sta     GOAYINT
-00E274  1  84 19                sty     GOAYINT+1
+00E272  1  85 0D                sta     GOAYINT
+00E274  1  84 0E                sty     GOAYINT+1
 00E276  1  A9 0D                lda     #<GIVAYF
 00E278  1  A0 D5                ldy     #>GIVAYF
-00E27A  1  85 1A                sta     GOGIVEAYF
-00E27C  1  84 1B                sty     GOGIVEAYF+1
+00E27A  1  85 0F                sta     GOGIVEAYF
+00E27C  1  84 10                sty     GOGIVEAYF+1
 00E27E  1  A9 4C                lda     #$4C
-00E280  1  85 12                sta     GORESTART
-00E282  1  85 15                sta     GOSTROUT
+00E280  1  85 07                sta     GORESTART
+00E282  1  85 0A                sta     GOSTROUT
 00E284  1  85 A1                sta     JMPADRS
 00E286  1  85 0A                sta     USR
 00E288  1  A9 D4                lda     #<IQERR
@@ -7061,14 +7058,14 @@ Current file: osi_bas.s
 00E36C  1  20 0F CE             jsr     STROUT
 00E36F  1  A9 0F                lda     #<STROUT
 00E371  1  A0 CE                ldy     #>STROUT
-00E373  1  85 16                sta     GOSTROUT+1
-00E375  1  84 17                sty     GOSTROUT+2
+00E373  1  85 0B                sta     GOSTROUT+1
+00E375  1  84 0C                sty     GOSTROUT+2
 00E377  1  20 BB C9             jsr     SCRTCH
 00E37A  1  A9 CC                lda     #<RESTART
 00E37C  1  A0 C7                ldy     #>RESTART
-00E37E  1  85 13                sta     GORESTART+1
-00E380  1  84 14                sty     GORESTART+2
-00E382  1  6C 13 00             jmp     (GORESTART+1)
+00E37E  1  85 08                sta     GORESTART+1
+00E380  1  84 09                sty     GORESTART+2
+00E382  1  6C 08 00             jmp     (GORESTART+1)
 00E385  1               
 00E385  1               ; OSI is compiled for ROM, but includes
 00E385  1               ; this unused string
@@ -7161,13 +7158,13 @@ Current file: osi_bas.s
 00E501  1  48           	pha 	; save registers
 00E502  1  98           	tya
 00E503  1  48           	pha
-00E504  1  20 2F E6     	jsr 	WRITE_TRANSFER_MSG
+00E504  1  20 5D E6     	jsr 	WRITE_TRANSFER_MSG
 00E507  1  20 E6 E4     	jsr	SMCHECK
 00E50A  1  B0 03        	bcs	SERIAL_LOAD
-00E50C  1  4C 59 E5     	jmp 	MEMORY_LOAD
+00E50C  1  4C 5E E5     	jmp 	MEMORY_LOAD
 00E50F  1               SERIAL_LOAD:
-00E50F  1  A2 BE        	ldx	#<SERIAL_MSG
-00E511  1  A0 E6        	ldy	#>SERIAL_MSG
+00E50F  1  A2 17        	ldx	#<SERIAL_MSG
+00E511  1  A0 E7        	ldy	#>SERIAL_MSG
 00E513  1  20 77 C6     	jsr	w_acia_full
 00E516  1  20 5B C6     	jsr	rxpoll
 00E519  1               receive_serial:
@@ -7182,301 +7179,329 @@ Current file: osi_bas.s
 00E525  1  20 5B C6       	jsr 	rxpoll
 00E528  1  AD 00 80       	lda 	ACIAData
 00E52B  1  91 BC          	sta 	(XYLODSAV2),Y
-00E52D  1  F0 0B        	beq	rseof
-00E52F  1                 	;lda 	#$2e
-00E52F  1                 	;jsr 	MONCOUT
-00E52F  1  E6 BC        	inc	XYLODSAV2
-00E531  1  A5 BC        	lda	XYLODSAV2
-00E533  1  F0 02        	beq	ssl
-00E535  1  E6 BD        	inc	XYLODSAV2+1
-00E537  1               ssl:
-00E537  1  4C 25 E5     	jmp rsl
-00E53A  1               rseof:
-00E53A  1  A0 01        	ldy	#1
-00E53C  1  20 5B C6     	jsr	rxpoll
-00E53F  1  91 BC        	sta	(XYLODSAV2),Y
-00E541  1  D0 F4        	bne	ssl
-00E543  1  A0 02        	ldy	#2
-00E545  1  20 5B C6     	jsr	rxpoll
-00E548  1  91 BC        	sta	(XYLODSAV2),Y
-00E54A  1  D0 EB        	bne	ssl
-00E54C  1               
-00E54C  1               sdone:
-00E54C  1  A2 D8          	ldx	#<LOAD_DONE
-00E54E  1  A0 E6        	ldy	#>LOAD_DONE
-00E550  1  20 77 C6     	jsr	w_acia_full
-00E553  1               stop_sl:
-00E553  1  68             	pla
-00E554  1  A8           	tay
-00E555  1  68             	pla
-00E556  1  AA           	tax
-00E557  1  68             	pla
-00E558  1  60             	rts
-00E559  1               
-00E559  1               MEMORY_LOAD:
-00E559  1  A2 00        	ldx	#0
-00E55B  1               lodbufloop:
-00E55B  1  BD 25 E7     	lda	loadbuf,x
-00E55E  1  95 01        	sta	sdbuffer,x
-00E560  1  E8           	inx
-00E561  1  E0 0C        	cpx	#12
-00E563  1  D0 F6        	bne	lodbufloop
-00E565  1  20 C6 E5     	jsr	rootsetup
-00E568  1  20 F0 E5     	jsr	list
-00E56B  1               
-00E56B  1               type:			; typing a filename
-00E56B  1  A2 18          ldx #<typemsg		; Filename:_
-00E56D  1  A0 E7          ldy #>typemsg
-00E56F  1  20 77 C6       jsr w_acia_full
-00E572  1  A2 00          ldx #0
-00E574  1  A9 20          lda #' '
-00E576  1  85 00          sta charbuffer
-00E578  1               
-00E578  1                typeloop:		; loop to type filenames
-00E578  1  20 5B C6       jsr rxpoll		; read a charactor
-00E57B  1  AD 00 80       lda ACIAData
-00E57E  1  85 00          sta charbuffer
-00E580  1  C9 0D          cmp #$0d		; enter?
-00E582  1  F0 0E          beq exitloop		; if so, load
-00E584  1  A5 00          lda charbuffer	; echo back
-00E586  1  8D 00 80       sta ACIAData
-00E589  1  A5 00          lda charbuffer	; and store it in the filename buffer
-00E58B  1  95 01          sta sdbuffer,x
-00E58D  1  E8             inx
-00E58E  1  E0 08          cpx #8
-00E590  1  D0 E6          bne typeloop
-00E592  1               exitloop:
-00E592  1  20 33 C6       jsr crlf
-00E595  1  20 C6 E5       jsr rootsetup
-00E598  1  A0 00          ldy #>sdbuffer
-00E59A  1  A2 01          ldx #<sdbuffer
-00E59C  1  20 8F C5       jsr fat32_finddirent
-00E59F  1  90 03          bcc foundfile
-00E5A1  1                 ; File not found
-00E5A1  1  4C D9 E5       jmp transfer_error
-00E5A4  1               foundfile:
-00E5A4  1                 ; Open file
-00E5A4  1  20 26 C5       jsr fat32_opendirent
-00E5A7  1  A2 09          ldx #<lodmsg
-00E5A9  1  A0 E7          ldy #>lodmsg
-00E5AB  1  20 77 C6       jsr w_acia_full
-00E5AE  1  A9 00          lda #$00
-00E5B0  1  85 CC          sta fat32_address
-00E5B2  1  A9 06          lda #$06
-00E5B4  1  85 CD          sta fat32_address+1
-00E5B6  1  20 EF C5       jsr fat32_file_read  ; Yes. It is finally time to read the file.
-00E5B9  1               end:
-00E5B9  1  A2 D8          ldx #<LOAD_DONE
-00E5BB  1  A0 E6          ldy #>LOAD_DONE
-00E5BD  1  20 77 C6       jsr w_acia_full
-00E5C0  1  68             pla
-00E5C1  1  A8             tay
-00E5C2  1  68             pla
-00E5C3  1  AA             tax
-00E5C4  1  68             pla
-00E5C5  1  60             rts
-00E5C6  1               
-00E5C6  1               rootsetup:		; setup <ROOT>
-00E5C6  1               
-00E5C6  1                 ; Open root directory
-00E5C6  1  20 0E C5       jsr fat32_openroot
-00E5C9  1               
-00E5C9  1                 ; Find the subdirectory by name
-00E5C9  1  A2 E2          ldx #<dirname
-00E5CB  1  A0 C6          ldy #>dirname
-00E5CD  1  20 8F C5       jsr fat32_finddirent
-00E5D0  1  90 03          bcc foundsub
-00E5D2  1               
-00E5D2  1                 ; Subdirectory not found
-00E5D2  1  4C D9 E5       jmp transfer_error
-00E5D5  1               
-00E5D5  1               foundsub:
-00E5D5  1               
-00E5D5  1                 ; Open subdirectory
-00E5D5  1  20 26 C5       jsr fat32_opendirent	; open folder
-00E5D8  1               
-00E5D8  1  60             rts			; done
-00E5D9  1               
-00E5D9  1               transfer_error:
-00E5D9  1  A0 C6          ldy #>errormsg
-00E5DB  1  A2 EE          ldx #<errormsg
-00E5DD  1  20 77 C6       jsr w_acia_full
-00E5E0  1  20 9A C6       jsr error_sound
-00E5E3  1  4C 53 E5       jmp stop_sl
-00E5E6  1               
-00E5E6  1               other:
-00E5E6  1  20 53 C6       jsr txpoll		; Write a letter of the filename currently being read
-00E5E9  1  B1 0C          lda (zp_sd_address),y
-00E5EB  1  8D 00 80       sta ACIAData
-00E5EE  1  C8             iny
-00E5EF  1  60             rts
-00E5F0  1               
-00E5F0  1               list:			; list file dir
-00E5F0  1  20 59 C5       jsr fat32_readdirent	; files?
-00E5F3  1  B0 36          bcs nofiles
-00E5F5  1  29 40          and #$40
-00E5F7  1  F0 05          beq arc
-00E5F9  1               dir:
-00E5F9  1  A9 44          lda #'D'		; directorys show up as
-00E5FB  1  4C 00 E6       jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
-00E5FE  1               arc:
-00E5FE  1  A9 46          lda #'F'		; files show up as
-00E600  1               ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
-00E600  1  20 63 C6       jsr print_chara	; f or d
-00E603  1  A9 20          lda #$20		; space
-00E605  1  20 63 C6       jsr print_chara
-00E608  1                 ; At this point, we know that there are no files, files, or a suddir
-00E608  1                 ; Now for the name
-00E608  1  A0 00          ldy #0
-00E60A  1               nameloop:
-00E60A  1  C0 08          cpy #8
-00E60C  1  F0 06          beq dot
-00E60E  1  20 E6 E5       jsr other
-00E611  1  4C 0A E6       jmp nameloop
-00E614  1               dot:
-00E614  1  A9 2E          lda #'.'		; shows a file extention
-00E616  1  20 63 C6       jsr print_chara
-00E619  1               lopii:
-00E619  1  C0 0B          cpy #11
-00E61B  1  F0 06          beq endthat		; print 3-letter file extention
-00E61D  1  20 E6 E5       jsr other
-00E620  1  4C 19 E6       jmp lopii
-00E623  1               endthat:
-00E623  1  A9 09          lda #$09 ; Tab
-00E625  1  20 63 C6       jsr print_chara	; tab
-00E628  1  4C F0 E5       jmp list ; go again	; next file if there are any left
-00E62B  1               nofiles:		; if not,
-00E62B  1               endlist:		; exit listing code
-00E62B  1  20 33 C6       jsr crlf
-00E62E  1  60             rts
-00E62F  1               
-00E62F  1               WRITE_TRANSFER_MSG:
-00E62F  1  A2 94          	LDX 	#<TRANSFER_MSG
-00E631  1  A0 E6        	LDY	#>TRANSFER_MSG
-00E633  1  20 77 C6     	JSR	w_acia_full
-00E636  1  60             	RTS
-00E637  1               
-00E637  1               SAVE:				; BUG save dont work
-00E637  1  48           	PHA
-00E638  1  8A           	TXA
-00E639  1  48           	PHA			; Push registers on the stack
-00E63A  1  98           	TYA
-00E63B  1  48           	PHA
-00E63C  1  20 2F E6     	JSR	WRITE_TRANSFER_MSG
-00E63F  1  20 E6 E4     	JSR	SMCHECK
-00E642  1  B0 03        	bcs	SERIAL_SAVE
-00E644  1  4C 8E E6     	jmp	MEMORY_SAVE
-00E647  1               SERIAL_SAVE:
-00E647  1  A2 BE        	LDX	#<SERIAL_MSG
-00E649  1  A0 E6        	LDY	#>SERIAL_MSG
-00E64B  1  20 77 C6     	jsr	w_acia_full
-00E64E  1  20 5B C6     	jsr	rxpoll
-00E651  1  A2 00        	LDX	#0
-00E653  1  A0 00        	LDY	#0
-00E655  1  A9 01        	LDA	#$01
-00E657  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
-00E659  1  A9 06        	LDA	#$06
-00E65B  1  85 BD        	STA	XYLODSAV2+1
-00E65D  1               	; now for the loop
-00E65D  1               SAVELOOP:
-00E65D  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
-00E65F  1  48           	PHA
-00E660  1  20 65 FF     	JSR	MONCOUT
-00E663  1  68           	PLA
-00E664  1  F0 0B        	BEQ	SAVE_EOF_CHECK
-00E666  1  E6 BC        	INC	XYLODSAV2
-00E668  1  F0 02        	BEQ	SAVE_NOT16BIT
-00E66A  1  E6 BD        	INC	XYLODSAV2+1
-00E66C  1               SAVE_NOT16BIT:
-00E66C  1  20 84 FF     	JSR	MONISCNTC	; check if control+c is pressed.
-00E66F  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
-00E671  1               SAVE_EOF_CHECK:			; if so, then send break error message
-00E671  1  A0 01        	ldy	#1
-00E673  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
-00E675  1  F0 0A        	beq	SAVE_END_WRITE
-00E677  1               SAVE_CUT:
-00E677  1  A2 FC        	ldx	#<ABORT_MSG
-00E679  1  A0 E6        	ldy	#>ABORT_MSG
-00E67B  1  20 77 C6     	jsr	w_acia_full
-00E67E  1  4C 88 E6     	jmp	END_SERIAL_SAVE
-00E681  1               SAVE_END_WRITE:
-00E681  1  A2 E9        	ldx	#<SAVE_DONE
-00E683  1  A0 E6        	ldy	#>SAVE_DONE
-00E685  1  20 77 C6     	jsr	w_acia_full
-00E688  1               END_SERIAL_SAVE:
-00E688  1  68           	PLA
-00E689  1  A8           	TAY
-00E68A  1  68           	PLA
-00E68B  1  AA           	TAX			; pull registers off stack
-00E68C  1  68           	PLA
-00E68D  1  60           	RTS
-00E68E  1               
-00E68E  1               MEMORY_SAVE:
-00E68E  1               	; BUG oh darn i need to make this too
-00E68E  1               	; same as the other one but it will save instead...
-00E68E  1               	;
-00E68E  1               	; e
-00E68E  1               	;
-00E68E  1  68           	PLA
-00E68F  1  A8           	TAY
-00E690  1  68           	PLA
-00E691  1  AA           	TAX
-00E692  1  68           	PLA
-00E693  1  60           	RTS
-00E694  1               
-00E694  1               TRANSFER_MSG:
-00E694  1  53 65 72 69    .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
-00E698  1  61 6C 20 5B  
-00E69C  1  53 5D 20 6F  
-00E6BE  1               SERIAL_MSG:
-00E6BE  1  50 72 65 73    .byte	"Press Any Key To Begin.",CR,LF,$00
-00E6C2  1  73 20 41 6E  
-00E6C6  1  79 20 4B 65  
-00E6D8  1               LOAD_DONE:
-00E6D8  1  4C 6F 61 64    .byte	"Load Complete.",CR,LF,$00
-00E6DC  1  20 43 6F 6D  
-00E6E0  1  70 6C 65 74  
-00E6E9  1               SAVE_DONE:
-00E6E9  1  0D 0A 53 61    .byte	CR,LF,"Save Complete.",CR,LF,$00
-00E6ED  1  76 65 20 43  
-00E6F1  1  6F 6D 70 6C  
-00E6FC  1               ABORT_MSG:
-00E6FC  1  0D 0A 41 62    .byte	CR,LF,"Aborted.",CR,LF,0
-00E700  1  6F 72 74 65  
-00E704  1  64 2E 0D 0A  
-00E709  1               lodmsg:
-00E709  1  0D 0A 4C 6F    .byte $0d, $0a, "Loading...", $0d, $0a, $00
-00E70D  1  61 64 69 6E  
-00E711  1  67 2E 2E 2E  
-00E718  1               typemsg:
-00E718  1  46 69 6C 65    .byte "Filename: ", $02, "_", $00
-00E71C  1  6E 61 6D 65  
-00E720  1  3A 20 02 5F  
-00E725  1               loadbuf:
-00E725  1  20 20 20 20    .byte $20, $20, $20, $20, $20, $20, $20, $20
-00E729  1  20 20 20 20  
-00E72D  1  42 41 53       .byte "BAS"
-00E730  1               fat_error:
-00E730  1  46 41 54 33    .byte "FAT32 Initialization Failed at Stage"
-00E734  1  32 20 49 6E  
-00E738  1  69 74 69 61  
-00E754  1               sd_msg:
-00E754  1  0E 14 0F 12    .byte	$0e, 20, $0f, 18
-00E758  1  02 20          .byte $02, $20
-00E75A  1  49 6E 69 74    .byte "Initializing SD Card...",0
-00E75E  1  69 61 6C 69  
-00E762  1  7A 69 6E 67  
-00E772  1               
-00E772  1               
-00E772  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
-00E772  1               ; BY G. SEARLE 2013 =========================================================================
-00E772  1               ACIA := $8000
-00E772  1               ACIAControl := ACIA+3
-00E772  1               ACIACommand := ACIA+2
-00E772  1               ACIAStatus := ACIA+1
-00E772  1               ACIAData := ACIA+0
-00E772  1               
-00E772  1               .segment "IOHANDLER"
+00E52D  1  F0 10        	beq	rseof
+00E52F  1               rsnot:
+00E52F  1  A9 2E          	lda 	#$2e		; for debug
+00E531  1  20 65 FF       	jsr 	MONCOUT		;
+00E534  1  E6 BC        	inc	XYLODSAV2
+00E536  1  A5 BC        	lda	XYLODSAV2
+00E538  1  F0 02        	beq	ssl
+00E53A  1  E6 BD        	inc	XYLODSAV2+1
+00E53C  1               ssl:
+00E53C  1  4C 25 E5     	jmp rsl
+00E53F  1               rseof:
+00E53F  1  A0 01        	ldy	#1
+00E541  1  20 5B C6     	jsr	rxpoll
+00E544  1  91 BC        	sta	(XYLODSAV2),Y
+00E546  1  D0 E7        	bne	rsnot
+00E548  1  A0 02        	ldy	#2
+00E54A  1  20 5B C6     	jsr	rxpoll
+00E54D  1  91 BC        	sta	(XYLODSAV2),Y
+00E54F  1  D0 DE        	bne	rsnot
+00E551  1               
+00E551  1               sdone:
+00E551  1  A2 31          	ldx	#<LOAD_DONE
+00E553  1  A0 E7        	ldy	#>LOAD_DONE
+00E555  1  20 77 C6     	jsr	w_acia_full
+00E558  1               stop_sl:
+00E558  1  68             	pla
+00E559  1  A8           	tay
+00E55A  1  68             	pla
+00E55B  1  AA           	tax
+00E55C  1  68             	pla
+00E55D  1  60             	rts
+00E55E  1               
+00E55E  1               MEMORY_LOAD:
+00E55E  1  20 D1 E5     	jsr	rootsetup
+00E561  1  20 17 E6     	jsr	list
+00E564  1  20 86 E5     	jsr	type
+00E567  1               
+00E567  1  A2 62        	ldx #<lodmsg
+00E569  1  A0 E7         	ldy #>lodmsg
+00E56B  1  20 77 C6       	jsr w_acia_full
+00E56E  1  A9 01          	lda #$01
+00E570  1  85 CC          	sta fat32_address
+00E572  1  A9 06          	lda #$06
+00E574  1  85 CD          	sta fat32_address+1
+00E576  1  20 EF C5       	jsr fat32_file_read  ; Yes. It is finally time to read the file.
+00E579  1  A2 31          	ldx #<LOAD_DONE
+00E57B  1  A0 E7          	ldy #>LOAD_DONE
+00E57D  1  20 77 C6       	jsr w_acia_full
+00E580  1  68             	pla
+00E581  1  A8             	tay
+00E582  1  68             	pla
+00E583  1  AA             	tax
+00E584  1  68             	pla
+00E585  1  60             	rts
+00E586  1               
+00E586  1               type:			; typing a filename
+00E586  1  A2 00          ldx	#0
+00E588  1               lodbufloop:
+00E588  1  BD 7E E7       lda	loadbuf,x	; copy the buffer into ram
+00E58B  1  9D F2 7F       sta	sdbuffer,x	; so we can use it
+00E58E  1  E8             inx
+00E58F  1  E0 0C          cpx	#12
+00E591  1  D0 F5          bne	lodbufloop
+00E593  1               
+00E593  1  A2 71          ldx #<typemsg		; Filename:_
+00E595  1  A0 E7          ldy #>typemsg
+00E597  1  20 77 C6       jsr w_acia_full
+00E59A  1  A2 00          ldx #0
+00E59C  1  A9 20          lda #' '
+00E59E  1  85 00          sta charbuffer
+00E5A0  1               
+00E5A0  1                typeloop:		; loop to type filenames
+00E5A0  1  20 5B C6       jsr rxpoll		; read a charactor
+00E5A3  1  AD 00 80       lda ACIAData
+00E5A6  1  85 00          sta charbuffer
+00E5A8  1  C9 0D          cmp #$0d		; enter?
+00E5AA  1  F0 0F          beq exitloop		; if so, load
+00E5AC  1  A5 00          lda charbuffer	; echo back
+00E5AE  1  8D 00 80       sta ACIAData
+00E5B1  1  A5 00          lda charbuffer	; and store it in the filename buffer
+00E5B3  1  9D F2 7F       sta sdbuffer,x
+00E5B6  1  E8             inx
+00E5B7  1  E0 08          cpx #8
+00E5B9  1  D0 E5          bne typeloop
+00E5BB  1               exitloop:
+00E5BB  1  20 33 C6       jsr crlf
+00E5BE  1  20 D1 E5       jsr rootsetup
+00E5C1  1  A0 7F          ldy #>sdbuffer
+00E5C3  1  A2 F2          ldx #<sdbuffer
+00E5C5  1  20 8F C5       jsr fat32_finddirent
+00E5C8  1  90 03          bcc foundfile
+00E5CA  1                 ; File not found
+00E5CA  1  4C E4 E5       jmp transfer_error
+00E5CD  1               foundfile:
+00E5CD  1                 ; Open file
+00E5CD  1  20 26 C5       jsr fat32_opendirent
+00E5D0  1  60             rts
+00E5D1  1               
+00E5D1  1               rootsetup:		; setup <ROOT>
+00E5D1  1               
+00E5D1  1                 ; Open root directory
+00E5D1  1  20 0E C5       jsr fat32_openroot
+00E5D4  1               
+00E5D4  1                 ; Find the subdirectory by name
+00E5D4  1  A2 E2          ldx #<dirname
+00E5D6  1  A0 C6          ldy #>dirname
+00E5D8  1  20 8F C5       jsr fat32_finddirent
+00E5DB  1  90 03          bcc foundsub
+00E5DD  1               
+00E5DD  1                 ; Subdirectory not found
+00E5DD  1  4C E4 E5       jmp transfer_error
+00E5E0  1               
+00E5E0  1               foundsub:
+00E5E0  1               
+00E5E0  1                 ; Open subdirectory
+00E5E0  1  20 26 C5       jsr fat32_opendirent	; open folder
+00E5E3  1               
+00E5E3  1  60             rts			; done
+00E5E4  1               
+00E5E4  1               transfer_error:
+00E5E4  1  A0 C6          ldy #>errormsg
+00E5E6  1  A2 EE          ldx #<errormsg
+00E5E8  1  20 77 C6       jsr w_acia_full
+00E5EB  1  20 9A C6       jsr error_sound
+00E5EE  1  4C 58 E5       jmp stop_sl
+00E5F1  1               
+00E5F1  1               other:
+00E5F1  1  20 53 C6       jsr txpoll		; Write a letter of the filename currently being read
+00E5F4  1  B1 01          lda (zp_sd_address),y
+00E5F6  1  8D 00 80       sta ACIAData
+00E5F9  1  C8             iny
+00E5FA  1  60             rts
+00E5FB  1               
+00E5FB  1               listmsg:
+00E5FB  1  4C 69 73 74    .byte "Listing Of SDCARD/folder:",CR,LF,0
+00E5FF  1  69 6E 67 20  
+00E603  1  4F 66 20 53  
+00E617  1               
+00E617  1               list:			; list file dir
+00E617  1  A2 FB          ldx #<listmsg
+00E619  1  A0 E5          ldy #>listmsg
+00E61B  1  20 77 C6       jsr w_acia_full
+00E61E  1               listing:
+00E61E  1  20 59 C5       jsr fat32_readdirent	; files?
+00E621  1  B0 36          bcs nofiles
+00E623  1  29 40          and #$40
+00E625  1  F0 05          beq arc
+00E627  1               dir:
+00E627  1  A9 44          lda #'D'		; directorys show up as
+00E629  1  4C 2E E6       jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+00E62C  1               arc:
+00E62C  1  A9 46          lda #'F'		; files show up as
+00E62E  1               ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+00E62E  1  20 63 C6       jsr print_chara	; f or d
+00E631  1  A9 20          lda #$20		; space
+00E633  1  20 63 C6       jsr print_chara
+00E636  1                 ; At this point, we know that there are no files, files, or a suddir
+00E636  1                 ; Now for the name
+00E636  1  A0 00          ldy #0
+00E638  1               nameloop:
+00E638  1  C0 08          cpy #8
+00E63A  1  F0 06          beq dot
+00E63C  1  20 F1 E5       jsr other
+00E63F  1  4C 38 E6       jmp nameloop
+00E642  1               dot:
+00E642  1  A9 2E          lda #'.'		; shows a file extention
+00E644  1  20 63 C6       jsr print_chara
+00E647  1               lopii:
+00E647  1  C0 0B          cpy #11
+00E649  1  F0 06          beq endthat		; print 3-letter file extention
+00E64B  1  20 F1 E5       jsr other
+00E64E  1  4C 47 E6       jmp lopii
+00E651  1               endthat:
+00E651  1  A9 09          lda #$09 ; Tab
+00E653  1  20 63 C6       jsr print_chara	; tab
+00E656  1  4C 1E E6       jmp listing 		; go again (next file if there are any left)
+00E659  1               nofiles:		; if not,
+00E659  1               endlist:		; exit listing code
+00E659  1  20 33 C6       jsr crlf
+00E65C  1  60             rts
+00E65D  1               
+00E65D  1               WRITE_TRANSFER_MSG:
+00E65D  1  A2 ED          	LDX 	#<TRANSFER_MSG
+00E65F  1  A0 E6        	LDY	#>TRANSFER_MSG
+00E661  1  20 77 C6     	JSR	w_acia_full
+00E664  1  60             	RTS
+00E665  1               
+00E665  1               SAVE:				; BUG save dont work
+00E665  1  48           	PHA
+00E666  1  8A           	TXA
+00E667  1  48           	PHA			; Push registers on the stack
+00E668  1  98           	TYA
+00E669  1  48           	PHA
+00E66A  1  20 5D E6     	JSR	WRITE_TRANSFER_MSG
+00E66D  1  20 E6 E4     	JSR	SMCHECK
+00E670  1  B0 03        	bcs	SERIAL_SAVE
+00E672  1  4C C5 E6     	jmp	MEMORY_SAVE
+00E675  1               SERIAL_SAVE:
+00E675  1  A2 17        	LDX	#<SERIAL_MSG
+00E677  1  A0 E7        	LDY	#>SERIAL_MSG
+00E679  1  20 77 C6     	jsr	w_acia_full
+00E67C  1  20 5B C6     	jsr	rxpoll
+00E67F  1  A2 00        	LDX	#0
+00E681  1  A0 00        	LDY	#0
+00E683  1  A9 01        	LDA	#$01
+00E685  1  85 BC        	STA	XYLODSAV2	; set to start of RAM
+00E687  1  A9 06        	LDA	#$06
+00E689  1  85 BD        	STA	XYLODSAV2+1
+00E68B  1               	; now for the loop
+00E68B  1               SAVELOOP:
+00E68B  1  B1 BC        	LDA	(XYLODSAV2),Y	; save out a byte
+00E68D  1  48           	PHA
+00E68E  1  20 65 FF     	JSR	MONCOUT
+00E691  1  68           	PLA
+00E692  1  F0 0B        	BEQ	SAVE_EOF_CHECK
+00E694  1               notit:
+00E694  1  E6 BC        	INC	XYLODSAV2
+00E696  1  F0 02        	BEQ	SAVE_NOT16BIT
+00E698  1  E6 BD        	INC	XYLODSAV2+1
+00E69A  1               SAVE_NOT16BIT:
+00E69A  1  20 84 FF     	JSR	MONISCNTC	; check if control+c is pressed.
+00E69D  1  90 EC        	BCC	SAVELOOP	; if not, then send the next byte
+00E69F  1               SAVE_EOF_CHECK:			; if so, then send break error message
+00E69F  1  A0 01        	ldy	#1
+00E6A1  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+00E6A3  1  D0 EF        	bne	notit
+00E6A5  1  A0 02        	ldy	#2
+00E6A7  1  B1 BC        	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+00E6A9  1  D0 E9        	bne	notit
+00E6AB  1  4C BF E6     	jmp	END_SERIAL_SAVE
+00E6AE  1               SAVE_CUT:
+00E6AE  1  A2 55        	ldx	#<ABORT_MSG
+00E6B0  1  A0 E7        	ldy	#>ABORT_MSG
+00E6B2  1  20 77 C6     	jsr	w_acia_full
+00E6B5  1  4C BF E6     	jmp	END_SERIAL_SAVE
+00E6B8  1               SAVE_END_WRITE:
+00E6B8  1  A2 42        	ldx	#<SAVE_DONE
+00E6BA  1  A0 E7        	ldy	#>SAVE_DONE
+00E6BC  1  20 77 C6     	jsr	w_acia_full
+00E6BF  1               END_SERIAL_SAVE:
+00E6BF  1  68           	PLA
+00E6C0  1  A8           	TAY
+00E6C1  1  68           	PLA
+00E6C2  1  AA           	TAX			; pull registers off stack
+00E6C3  1  68           	PLA
+00E6C4  1  60           	RTS
+00E6C5  1               
+00E6C5  1               MEMORY_SAVE:
+00E6C5  1  20 D1 E5     	jsr	rootsetup
+00E6C8  1  20 17 E6     	jsr	list
+00E6CB  1  20 86 E5     	jsr	type
+00E6CE  1               
+00E6CE  1  A2 62        	ldx #<lodmsg
+00E6D0  1  A0 E7         	ldy #>lodmsg
+00E6D2  1  20 77 C6       	jsr w_acia_full
+00E6D5  1  A9 01          	lda #$01
+00E6D7  1  85 CC          	sta fat32_address
+00E6D9  1  A9 06          	lda #$06
+00E6DB  1  85 CD          	sta fat32_address+1
+00E6DD  1  20 EF C5       	jsr fat32_file_read  ; Yes. It is finally time to save the file.
+00E6E0  1  A2 31          	ldx #<LOAD_DONE
+00E6E2  1  A0 E7          	ldy #>LOAD_DONE
+00E6E4  1  20 77 C6       	jsr w_acia_full
+00E6E7  1  68           	PLA
+00E6E8  1  A8           	TAY
+00E6E9  1  68           	PLA
+00E6EA  1  AA           	TAX
+00E6EB  1  68           	PLA
+00E6EC  1  60           	RTS
+00E6ED  1               
+00E6ED  1               TRANSFER_MSG:
+00E6ED  1  53 65 72 69    .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
+00E6F1  1  61 6C 20 5B  
+00E6F5  1  53 5D 20 6F  
+00E717  1               SERIAL_MSG:
+00E717  1  50 72 65 73    .byte	"Press Any Key To Begin.",CR,LF,$00
+00E71B  1  73 20 41 6E  
+00E71F  1  79 20 4B 65  
+00E731  1               LOAD_DONE:
+00E731  1  4C 6F 61 64    .byte	"Load Complete.",CR,LF,$00
+00E735  1  20 43 6F 6D  
+00E739  1  70 6C 65 74  
+00E742  1               SAVE_DONE:
+00E742  1  0D 0A 53 61    .byte	CR,LF,"Save Complete.",CR,LF,$00
+00E746  1  76 65 20 43  
+00E74A  1  6F 6D 70 6C  
+00E755  1               ABORT_MSG:
+00E755  1  0D 0A 41 62    .byte	CR,LF,"Aborted.",CR,LF,0
+00E759  1  6F 72 74 65  
+00E75D  1  64 2E 0D 0A  
+00E762  1               lodmsg:
+00E762  1  0D 0A 4C 6F    .byte $0d, $0a, "Loading...", $0d, $0a, $00
+00E766  1  61 64 69 6E  
+00E76A  1  67 2E 2E 2E  
+00E771  1               typemsg:
+00E771  1  46 69 6C 65    .byte "Filename: ", $02, "_", $00
+00E775  1  6E 61 6D 65  
+00E779  1  3A 20 02 5F  
+00E77E  1               loadbuf:
+00E77E  1  20 20 20 20    .byte $20, $20, $20, $20, $20, $20, $20, $20
+00E782  1  20 20 20 20  
+00E786  1  42 41 53       .byte "BAS"
+00E789  1               fat_error:
+00E789  1  46 41 54 33    .byte "FAT32 Initialization Failed at Stage"
+00E78D  1  32 20 49 6E  
+00E791  1  69 74 69 61  
+00E7AD  1               sd_msg:
+00E7AD  1  0E 14 0F 12    .byte	$0e, 20, $0f, 18
+00E7B1  1  02 20          .byte $02, $20
+00E7B3  1  49 6E 69 74    .byte "Initializing SD Card...",0
+00E7B7  1  69 61 6C 69  
+00E7BB  1  7A 69 6E 67  
+00E7CB  1               
+00E7CB  1               
+00E7CB  1               ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
+00E7CB  1               ; BY G. SEARLE 2013 =========================================================================
+00E7CB  1               ACIA := $8000
+00E7CB  1               ACIAControl := ACIA+3
+00E7CB  1               ACIACommand := ACIA+2
+00E7CB  1               ACIAStatus := ACIA+1
+00E7CB  1               ACIAData := ACIA+0
+00E7CB  1               
+00E7CB  1               .segment "IOHANDLER"
 000000r 1               .org $FF00
 00FF00  1               Reset:
 00FF00  1  A2 FC        	LDX     #STACK_TOP
@@ -7508,7 +7533,7 @@ Current file: osi_bas.s
 00FF14  1               ;	DEY
 00FF14  1               ;	BNE InnerDelayLoop
 00FF14  1               
-00FF14  1  A2 54        	ldx #<sd_msg
+00FF14  1  A2 AD        	ldx #<sd_msg
 00FF16  1  A0 E7        	ldy #>sd_msg
 00FF18  1  20 77 C6     	jsr w_acia_full
 00FF1B  1               
@@ -7521,7 +7546,7 @@ Current file: osi_bas.s
 00FF26  1               
 00FF26  1  20 48 C6     	jsr cleardisplay
 00FF29  1  A0 E7        	ldy #>fat_error
-00FF2B  1  A2 30        	ldx #<fat_error
+00FF2B  1  A2 89        	ldx #<fat_error
 00FF2D  1  20 77 C6     	jsr w_acia_full
 00FF30  1  A5 D2        	lda fat32_errorstage
 00FF32  1  20 1C C6     	jsr print_hex_acia

@@ -5899,7 +5899,6 @@ MEMORY_LOAD:
   	lda #$06
   	sta fat32_address+1
   	jsr fat32_file_read  ; Yes. It is finally time to read the file.
-end:
   	ldx #<LOAD_DONE
   	ldy #>LOAD_DONE
   	jsr w_acia_full
@@ -6113,7 +6112,6 @@ MEMORY_SAVE:
   	lda #$06
   	sta fat32_address+1
   	jsr fat32_file_read  ; Yes. It is finally time to save the file.
-end:
   	ldx #<LOAD_DONE
   	ldy #>LOAD_DONE
   	jsr w_acia_full
