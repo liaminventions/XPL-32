@@ -5925,18 +5925,20 @@ lodbufloop:
   lda #' '
   sta charbuffer
 
- typeloop:		; loop to type filenames
+typeloop:		; loop to type filenames
   jsr rxpoll		; read a charactor
   lda ACIAData
-  sta charbuffer
+  jsr print_chara	; echo back
+  sta charbuffer	; store
   cmp #$0d		; enter?
   beq exitloop		; if so, load
-  lda charbuffer	; echo back
-  sta ACIAData
-  lda charbuffer	; and store it in the filename buffer
+  lda charbuffer
+  cmp #$08		; backspace??
+  beq backspace		; then go there
+  lda charbuffer	; now store it in the filename buffer
   sta sdbuffer,x
   inx
-  cpx #8
+  cpx #8		; no more then *8 characters*
   bne typeloop
 exitloop:
   jsr crlf
@@ -5951,6 +5953,11 @@ foundfile:
   ; Open file
   jsr fat32_opendirent
   rts
+backspace:
+  dex
+  lda #$20
+  sta loadbuf,x
+  jmp typeloop
 
 rootsetup:		; setup <ROOT>
 
@@ -6079,7 +6086,7 @@ SAVE_EOF_CHECK:			; if so, then send break error message
 	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
 	bne	notit
 	ldy	#2
-	lda	(XYLODSAV2),Y	; End Of File? (NULL followed by another NULL)
+	lda	(XYLODSAV2),Y	; by a n o t h e r N U L L
 	bne	notit
 	jmp	END_SERIAL_SAVE
 SAVE_CUT:
@@ -6100,10 +6107,9 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-	jsr	rootsetup
-	jsr	list
-	jsr	type
-
+	jsr rootsetup
+	jsr list
+	jsr type
 	ldx #<lodmsg
  	ldy #>lodmsg
   	jsr w_acia_full

@@ -69,6 +69,7 @@ BYTES_PER_FRAME := 2*BYTES_FP+8
 FOR_STACK1		:= 2*BYTES_FP+5
 FOR_STACK2		:= BYTES_FP+4
 MAX_EXPON = 10
+sdbuffer		:= $7ff2
 STACK           := $0100
 
 INPUTBUFFERX = INPUTBUFFER & $FF00
@@ -85,8 +86,6 @@ CRLF_2 := LF
 .org ZP_START1
 charbuffer:
 	.res 1
-sdbuffer:
-	.res 11
 zp_sd_address:
 	.res 2
 zp_sd_currentsector:
@@ -5900,7 +5899,6 @@ MEMORY_LOAD:
   	lda #$06
   	sta fat32_address+1
   	jsr fat32_file_read  ; Yes. It is finally time to read the file.
-end:
   	ldx #<LOAD_DONE
   	ldy #>LOAD_DONE
   	jsr w_acia_full
@@ -5927,14 +5925,16 @@ lodbufloop:
   lda #' '
   sta charbuffer
 
- typeloop:		; loop to type filenames
+typeloop:		; loop to type filenames
   jsr rxpoll		; read a charactor
   lda ACIAData
-  sta charbuffer
+  jsr print_chara	; echo back
+  sta charbuffer	; store
   cmp #$0d		; enter?
   beq exitloop		; if so, load
-  lda charbuffer	; echo back
-  sta ACIAData
+  lda charbuffer
+  cmp #$08
+  beq backspace
   lda charbuffer	; and store it in the filename buffer
   sta sdbuffer,x
   inx
@@ -6114,7 +6114,6 @@ MEMORY_SAVE:
   	lda #$06
   	sta fat32_address+1
   	jsr fat32_file_read  ; Yes. It is finally time to save the file.
-end:
   	ldx #<LOAD_DONE
   	ldy #>LOAD_DONE
   	jsr w_acia_full
