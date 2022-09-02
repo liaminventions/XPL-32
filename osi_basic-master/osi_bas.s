@@ -5845,7 +5845,7 @@ SERIAL_LOAD:
 receive_serial:
   	ldx 	#0
 rcloopadd:
-  	lda 	#$01
+  	lda 	#$00
   	sta 	XYLODSAV2
 	lda	#$06
 	sta	XYLODSAV2+1
@@ -5894,7 +5894,7 @@ MEMORY_LOAD:
 	ldx #<lodmsg
  	ldy #>lodmsg
   	jsr w_acia_full
-  	lda #$01
+  	lda #$00
   	sta fat32_address
   	lda #$06
   	sta fat32_address+1
@@ -6063,7 +6063,7 @@ SERIAL_SAVE:
 	jsr	rxpoll
 	LDX	#0
 	LDY	#0
-	LDA	#$01
+	LDA	#$00
 	STA	XYLODSAV2	; set to start of RAM
 	LDA	#$06
 	STA	XYLODSAV2+1
@@ -6107,19 +6107,20 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-	jsr rootsetup
-	jsr list
-	jsr type
-	ldx #<lodmsg
- 	ldy #>lodmsg
-  	jsr w_acia_full
-  	lda #$01
-  	sta fat32_address
-  	lda #$06
-  	sta fat32_address+1
-  	jsr fat32_file_read  ; Yes. It is finally time to save the file.
-  	ldx #<LOAD_DONE
-  	ldy #>LOAD_DONE
+	;jsr rootsetup
+	;jsr list
+	;jsr type
+	;ldx #<lodmsg
+ 	;ldy #>lodmsg
+  	;jsr w_acia_full
+  	;lda #$00
+  	;sta fat32_address
+  	;lda #$06
+  	;sta fat32_address+1
+  	; jsr fat32_file_save..?  ; Yes. It is finally time to save the file.
+	; BUG there is no save mode for fat32... now, i need to make it aaaa (gfoot didnt)
+  	ldx #<SAVE_DONE
+  	ldy #>SAVE_DONE
   	jsr w_acia_full
 	PLA
 	TAY
