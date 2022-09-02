@@ -69,6 +69,7 @@ BYTES_PER_FRAME := 2*BYTES_FP+8
 FOR_STACK1		:= 2*BYTES_FP+5
 FOR_STACK2		:= BYTES_FP+4
 MAX_EXPON = 10
+sdbuffer		:= $7ff2
 STACK           := $0100
 
 INPUTBUFFERX = INPUTBUFFER & $FF00
@@ -85,8 +86,6 @@ CRLF_2 := LF
 .org ZP_START1
 charbuffer:
 	.res 1
-sdbuffer:
-	.res 11
 zp_sd_address:
 	.res 2
 zp_sd_currentsector:
@@ -6113,7 +6112,7 @@ MEMORY_SAVE:
   	sta fat32_address
   	lda #$06
   	sta fat32_address+1
-  	jsr fat32_file_read  ; Yes. It is finally time to read the file.
+  	jsr fat32_file_read  ; Yes. It is finally time to save the file.
 end:
   	ldx #<LOAD_DONE
   	ldy #>LOAD_DONE
