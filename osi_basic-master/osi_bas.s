@@ -5845,7 +5845,7 @@ SERIAL_LOAD:
 receive_serial:
   	ldx 	#0
 rcloopadd:
-  	lda 	#$00
+  	lda 	#$01
   	sta 	XYLODSAV2
 	lda	#$06
 	sta	XYLODSAV2+1
@@ -5894,7 +5894,7 @@ MEMORY_LOAD:
 	ldx #<lodmsg
  	ldy #>lodmsg
   	jsr w_acia_full
-  	lda #$00
+  	lda #$01
   	sta fat32_address
   	lda #$06
   	sta fat32_address+1
@@ -6063,7 +6063,7 @@ SERIAL_SAVE:
 	jsr	rxpoll
 	LDX	#0
 	LDY	#0
-	LDA	#$00
+	LDA	#$01
 	STA	XYLODSAV2	; set to start of RAM
 	LDA	#$06
 	STA	XYLODSAV2+1
@@ -6113,7 +6113,7 @@ MEMORY_SAVE:
 	;ldx #<lodmsg
  	;ldy #>lodmsg
   	;jsr w_acia_full
-  	;lda #$00
+  	;lda #$01
   	;sta fat32_address
   	;lda #$06
   	;sta fat32_address+1
