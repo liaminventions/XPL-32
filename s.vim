@@ -2,7 +2,7 @@
 " Language:	xa 6502 cross assembler
 " Maintainer:	Clemens Kirchgatterer <clemens@thf.ath.cx>
 " Last Change:	2003 May 03
-
+"
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
 if version < 600
