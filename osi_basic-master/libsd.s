@@ -259,7 +259,7 @@ sd_sendcommand:
 
 
 sd_readsector:
-  ; Read a sector from the SD carda  A sector is 51a bytesa
+  ; Read a sector from the SD carda  A sector is 512 bytes.
   ;
   ; Parameters:
   ;    zp_sd_currentsector   3a-bit sector number
@@ -271,7 +271,54 @@ sd_readsector:
   ; Command 17, arg is sector number, crc not checked
   lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
   jsr sd_writebyte
-  lda zp_sd_currentsector+3   ; sector a4:31
+  lda zp_sd_currentsector+3   ; sector 24:31
+  jsr sd_writebyte
+  lda zp_sd_currentsector+2   ; sector 16:23
+  jsr sd_writebyte
+  lda zp_sd_currentsector+1   ; sector 8:15
+  jsr sd_writebyte
+  lda zp_sd_currentsector     ; sector 0:7
+  jsr sd_writebyte
+  lda #$01                    ; crc (not checked)
+  jsr sd_writebyte
+
+  jsr sd_waitresult
+  cmp #$00
+  bne afail
+
+  ; wait for data
+  jsr sd_waitresult
+  cmp #$fe
+  bne afail
+
+  ; Need to read 512 bytes - two pages of 256 bytes each
+  jsr areadpage
+  inc zp_sd_address+1
+  jsr areadpage
+  dec zp_sd_address+1
+
+  ; End command
+  lda #SD_CS | SD_MOSI
+  sta PORTA
+
+  rts
+
+sd_readsector:
+  ; Read a sector from the SD carda  A sector is 512 bytes.
+  ;
+  ; Parameters:
+  ;    zp_sd_currentsector   3a-bit sector number
+  ;    zp_sd_address     address of buffer to receive data
+  
+  lda #SD_MISO
+  sta PORTA
+
+  ; Command 24, arg is sector number, crc not checked
+  ; BUG trying to find  the command number (aaa)
+; start of bug
+  lda #$51                    ; CMD24 - WRITE_BLOCK
+  jsr sd_writebyte
+  lda zp_sd_currentsector+3   ; sector 24:31
   jsr sd_writebyte
   lda zp_sd_currentsector+2   ; sector 16:23
   jsr sd_writebyte
@@ -301,23 +348,20 @@ sd_readsector:
   lda #SD_CS | SD_MOSI
   sta PORTA
 
+; end of bug
+
   rts
 
-
 afail:
-;  ldx #<statusmsg
-;  ldy #>statusmsg  ; Status:
-;  jsr w_acia_full
-
-;  ldx #<failedmsg
-;  ldy #>failedmsg  ; Failed!
-;  jsr w_acia_full
+  ldx #<failedmsg
+  ldy #>failedmsg  ;Failed!
+  jsr w_acia_full
 afailloop:
   jmp afailloop
 
 
 areadpage:
-  ; Read a56 bytes to the address at zp_sd_address
+  ; Read 256 bytes to the address at zp_sd_address
   ldy #0
 areadloop:
   jsr sd_readbyte
