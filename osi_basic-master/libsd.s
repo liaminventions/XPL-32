@@ -316,7 +316,7 @@ sd_readsector:
   ; Command 24, arg is sector number, crc not checked
   ; BUG trying to find  the command number (aaa)
 ; start of bug
-  lda #$51                    ; CMD24 - WRITE_BLOCK
+  lda #$58                    ; CMD24 - WRITE_BLOCK
   jsr sd_writebyte
   lda zp_sd_currentsector+3   ; sector 24:31
   jsr sd_writebyte
