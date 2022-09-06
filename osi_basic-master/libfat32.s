@@ -702,7 +702,7 @@ fat32_file_write:
   ; Read entire sectors to the user-supplied buffer
 wholesectorwriteloop:
   ; Read a sector to fat32_address
-  writefat32_writenextsector
+  jsr fat32_writenextsector
 
   ; Advance fat32_address by 512 bytes
   lda fat32_address+1
