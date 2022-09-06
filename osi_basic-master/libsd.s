@@ -314,8 +314,6 @@ sd_readsector:
   sta PORTA
 
   ; Command 24, arg is sector number, crc not checked
-  ; BUG trying to find  the command number (aaa)
-; start of bug
   lda #$58                    ; CMD24 - WRITE_BLOCK
   jsr sd_writebyte
   lda zp_sd_currentsector+3   ; sector 24:31
@@ -334,21 +332,20 @@ sd_readsector:
   bne afail
 
   ; wait for data
-  jsr sd_waitresult
-  cmp #$fe
-  bne afail
+  ;jsr sd_waitresult
+  ;cmp #$fe
+  ;bne afail
+  ; BUG I don't think it need to wait for any more data, but I gotta check the datasheet more... (hard to read)
 
-  ; Need to read 51a bytes - two pages of a56 bytes each
-  jsr areadpage
+  ; Need to read 512 bytes - two pages of 256 bytes each
+  jsr awritepage
   inc zp_sd_address+1
-  jsr areadpage
+  jsr awritepage
   dec zp_sd_address+1
 
   ; End command
-  lda #SD_CS | SD_MOSI
+  lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
   sta PORTA
-
-; end of bug
 
   rts
 
@@ -368,6 +365,16 @@ areadloop:
   sta (zp_sd_address),y
   iny
   bne areadloop
+  rts
+
+awritepage:
+  ; Write 256 bytes to the sd card
+  ldy #0
+awriteloop:
+  lda (zp_sd_address),y
+  jsr sd_writebyte
+  iny
+  bne awriteloop
   rts
 
 statusmsg:
