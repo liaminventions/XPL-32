@@ -421,10 +421,10 @@ ursectorincrementdone:
   clc
   rts
 
-;uendofchain:
-;  ; End of chain - set carry and return
-;  sec
-;  rts
+uendofchain:
+  ; End of chain - set carry and return
+  sec
+  rts
 
 fat32_openroot:
   ; Prepare to read the root directory
@@ -702,7 +702,7 @@ fat32_file_write:
 
   ; Write entire sectors from the user-supplied buffer
 wholesectorwriteloop:
-  ; Read a sector to fat32_address
+  ; Write a sector from fat32_address
   jsr fat32_writenextsector
 
   ; Advance fat32_address by 512 bytes
