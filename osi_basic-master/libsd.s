@@ -300,15 +300,16 @@ sd_readsector:
   ; End command
   lda #SD_CS | SD_MOSI
   sta PORTA
-
+  
+  sec
   rts
 
-sd_readsector:
-  ; Read a sector from the SD carda  A sector is 512 bytes.
+sd_writesector:
+  ; Write a sector to the SD card.  A sector is 512 bytes.
   ;
   ; Parameters:
-  ;    zp_sd_currentsector   3a-bit sector number
-  ;    zp_sd_address     address of buffer to receive data
+  ;    zp_sd_currentsector   32-bit sector number
+  ;    zp_sd_address     address of buffer to take data from
   
   lda #SD_MISO
   sta PORTA
@@ -337,7 +338,7 @@ sd_readsector:
   ;bne afail
   ; BUG I don't think it need to wait for any more data, but I gotta check the datasheet more... (hard to read)
 
-  ; Need to read 512 bytes - two pages of 256 bytes each
+  ; Need to write 512 bytes - two pages of 256 bytes each
   jsr awritepage
   inc zp_sd_address+1
   jsr awritepage
@@ -347,6 +348,7 @@ sd_readsector:
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
   sta PORTA
 
+  sec
   rts
 
 afail:
@@ -354,8 +356,8 @@ afail:
   ldy #>failedmsg  ;Failed!
   jsr w_acia_full
 afailloop:
-  jmp afailloop
-
+  clc
+  rts
 
 areadpage:
   ; Read 256 bytes to the address at zp_sd_address
