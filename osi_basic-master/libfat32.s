@@ -700,7 +700,7 @@ fat32_file_write:
   ; Store sector count - not a byte count any more
   sta fat32_bytesremaining
 
-  ; Read entire sectors to the user-supplied buffer
+  ; Write entire sectors from the user-supplied buffer
 wholesectorwriteloop:
   ; Read a sector to fat32_address
   jsr fat32_writenextsector
