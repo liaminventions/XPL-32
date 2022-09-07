@@ -393,6 +393,7 @@ fat32_writenextsector:
 
   ; Prepare to write the next cluster
   jsr fat32_seekcluster
+  ; BUG do i use this? or do i need to make a whole other thing so that I can use fat32_file_write..?
 
 writesector:
   dec fat32_pendingsectors
