@@ -6,7 +6,7 @@ error_sound:
 	sta $b802
 	lda #$0f
 	sta $b805
-	lda #$f8
+	lda #$f8 ; cheezy error sound that takes no memory (sad)
 	sta $b806
 	lda freq_table
 	sta $b800
