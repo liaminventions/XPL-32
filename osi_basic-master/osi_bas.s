@@ -6118,7 +6118,7 @@ MEMORY_SAVE:
   	sta fat32_address
   	lda #$06
   	sta fat32_address+1
-  	jsr fat32_file_save  ; Yes. It is finally time to save the file.
+  	jsr fat32_file_write  ; Yes. It is finally time to save the file.
 	; BUG theres a bunch on cluster, dirent and file creation stuff i will figure out soon, idk...
   	ldx #<SAVE_DONE
   	ldy #>SAVE_DONE

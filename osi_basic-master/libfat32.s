@@ -389,7 +389,7 @@ fat32_writenextsector:
 
   ; No pending sectors, check for end of cluster chain
   lda fat32_nextcluster+3
-  bmi uendofchain
+  bmi endofchainn
 
   ; Prepare to write the next cluster
   jsr fat32_seekcluster
@@ -421,7 +421,7 @@ ursectorincrementdone:
   clc
   rts
 
-uendofchain:
+endofchainn:
   ; End of chain - set carry and return
   sec
   rts
