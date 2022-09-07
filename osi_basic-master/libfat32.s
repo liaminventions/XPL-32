@@ -446,7 +446,7 @@ fat32_openroot:
 
   rts
 
-
+  ; BUG this is called after finalizing the filename, but I think its only ment for reading. hmm do i need to make another one for writing???!
 fat32_opendirent:
   ; Prepare to read from a file or directory based on a dirent
   ;
