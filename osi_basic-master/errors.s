@@ -23,14 +23,17 @@ inner:
 
 innerloop:
 	dex
+	nop
+	nop
+	nop
+	nop
 	bne innerloop
 
 	dey
 	beq ende
 	jmp inner
 ende:
-	lda #$40
-	sta $b804
+	jsr clear_sid
 	rts
 	
 clear_sid:
