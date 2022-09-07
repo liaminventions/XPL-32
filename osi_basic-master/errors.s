@@ -1,4 +1,5 @@
 error_sound:
+	sei
 	jsr clear_sid
 	lda #$0f
 	sta $b818
@@ -8,9 +9,9 @@ error_sound:
 	sta $b805
 	lda #$f8 ; cheezy error sound that takes no memory (sad)
 	sta $b806
-	lda freq_table
+	lda #$50
 	sta $b800
-	lda freq_table+1
+	lda #$50
 	sta $b801
 	lda #$41
 	sta $b804
@@ -32,11 +33,8 @@ ende:
 	sta $b804
 	rts
 	
-freq_table:
-	.byte $50, $50
-
 clear_sid:
-	ldx #$18
+	ldx #$17
 	lda #0
 csid:
 	sta $B800,X
