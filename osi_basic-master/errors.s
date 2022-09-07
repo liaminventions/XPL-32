@@ -5,15 +5,17 @@ error_sound:
 	sta $b818
 	lda #$e7
 	sta $b802
-	lda #$0f
+	lda #$00
 	sta $b805
-	lda #$00 ; cheezy error sound that takes no memory (sad)
+	lda #$ff ; cheezy error sound that takes no memory (sad)
 	sta $b806
 	lda #$50
 	sta $b800
 	lda #$50
 	sta $b801
 	lda #$41
+	sta $b804
+	lda #$40
 	sta $b804
 
 outer:
