@@ -1857,7 +1857,7 @@ Current file: osi_bas.s
 00C73C  2  8D 02 B8     	sta $b802
 00C73F  2  A9 0F        	lda #$0f
 00C741  2  8D 05 B8     	sta $b805
-00C744  2  A9 F8        	lda #$f8 ; cheezy error sound that takes no memory (sad)
+00C744  2  A9 00        	lda #$00 ; cheezy error sound that takes no memory (sad)
 00C746  2  8D 06 B8     	sta $b806
 00C749  2  A9 50        	lda #$50
 00C74B  2  8D 00 B8     	sta $b800

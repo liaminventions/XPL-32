@@ -7,7 +7,7 @@ error_sound:
 	sta $b802
 	lda #$0f
 	sta $b805
-	lda #$f8 ; cheezy error sound that takes no memory (sad)
+	lda #$00 ; cheezy error sound that takes no memory (sad)
 	sta $b806
 	lda #$50
 	sta $b800
