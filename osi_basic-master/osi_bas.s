@@ -45,9 +45,9 @@
 ; * And me, Waverider...
 ;
 ; to recap:
-; ------------------------------------coders---------------------------------------------
-; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, and Waverider
-; ---------------------------------------------------------------------------------------
+; ------------------------------------coders----------------------------------------------------------
+; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, George Foot, and Waverider
+; ----------------------------------------------------------------------------------------------------
 ;
 ; and now for the code...
 
