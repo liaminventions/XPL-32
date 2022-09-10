@@ -5952,6 +5952,7 @@ exitloop:
 foundfile:
   ; Open file
   jsr fat32_opendirent
+  ; BUG I dont think this works with saving... will find out later.
   rts
 backspace:
   dex
@@ -6046,7 +6047,7 @@ WRITE_TRANSFER_MSG:
 	JSR	w_acia_full
   	RTS
 
-SAVE:				; BUG save dont work
+SAVE:				; BUG serial save dont work
 	PHA
 	TXA
 	PHA			; Push registers on the stack
@@ -6110,15 +6111,15 @@ MEMORY_SAVE:
 	jsr rootsetup
 	jsr list
 	jsr type
-	ldx #<lodmsg
- 	ldy #>lodmsg
+	ldx #<savmsg
+ 	ldy #>savmsg
   	jsr w_acia_full
   	lda #$01
   	sta fat32_address
   	lda #$06
   	sta fat32_address+1
-  	; jsr fat32_file_save..?  ; Yes. It is finally time to save the file.
-	; BUG there is no save mode for fat32... now, i need to make it aaaa (gfoot didnt)
+  	jsr fat32_file_write  ; Yes. It is finally time to save the file.
+	; BUG theres a bunch on cluster, dirent and file creation stuff i will figure out soon, idk...
   	ldx #<SAVE_DONE
   	ldy #>SAVE_DONE
   	jsr w_acia_full
@@ -6141,6 +6142,8 @@ ABORT_MSG:
   .byte	CR,LF,"Aborted.",CR,LF,0
 lodmsg:
   .byte $0d, $0a, "Loading...", $0d, $0a, $00
+savmsg:
+  .byte $0d, $0a, "Saving...", $0d, $0a, $00
 typemsg:
   .byte "Filename: ", $02, "_", $00
 loadbuf:

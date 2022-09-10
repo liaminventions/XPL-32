@@ -1,11 +1,15 @@
-; Microsoft BASIC for 6502 (OSI VERSION)
+; Microsoft BASIC for the XPL-32 (OSI VERSION)
 ;
 ; ==================================================================================
 ; MODIFIED FROM THE ORIGINAL FILES AT http://www.pagetable.com/?p=46
 ; MERGED INTO ONE FILE AND MACROS AND CONDITIONAL STATEMENTS REMOVED
 ; BY G. SEARLE 2013
 ;
-; I/O and dummy load/saves added to the end of this code
+; Also is modified to work on the XPL-32 and with some various routines added
+; by Waverider  2020-2022
+;
+;
+; I/O and load/saves added to the end of this code
 ;
 ; This then assembles to the OSI version with the following
 ; minor changes to the original BASIC code:
@@ -32,6 +36,14 @@
 ; * Applesoft lite by Tom Greene http://cowgod.org/replica1/applesoft/ helped a lot, too.
 ; * Thanks to Joe Zbicak for help with Intellision Keyboard BASIC
 ; * This work is dedicated to the memory of my dear hacking pal Michael "acidity" Kollmann.
+; * And me, Waverider...
+;
+; to recap:
+; ------------------------------------coders---------------------------------
+; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, and Waverider
+; ---------------------------------------------------------------------------
+;
+; and now for the code...
 
 fat32_workspace = $200      ; two pages
 
