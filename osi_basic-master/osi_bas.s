@@ -31,17 +31,23 @@
 ;
 ; Credits:
 ; * main work by Michael Steil
+; * G. Searle for formatting and I/O
 ; * function names and all uppercase comments taken from Bob Sander-Cederlof's excellent AppleSoft II disassembly:
 ;   http://www.txbobsc.com/scsc/scdocumentor/
 ; * Applesoft lite by Tom Greene http://cowgod.org/replica1/applesoft/ helped a lot, too.
 ; * Thanks to Joe Zbicak for help with Intellision Keyboard BASIC
 ; * This work is dedicated to the memory of my dear hacking pal Michael "acidity" Kollmann.
+; wavid's creditz:
+; * Of course, Ben Eater is a major inspiration.
+; * George Foot made most of the SD Card stuff.
+; * krallja is very helpful
+; * JB Langston (lol)
 ; * And me, Waverider...
 ;
 ; to recap:
-; ------------------------------------coders---------------------------------
-; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, and Waverider
-; ---------------------------------------------------------------------------
+; ------------------------------------coders---------------------------------------------
+; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, and Waverider
+; ---------------------------------------------------------------------------------------
 ;
 ; and now for the code...
 
