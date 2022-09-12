@@ -24,13 +24,14 @@
 ;;; v8 added input command
 ;;; v9 added disassembler
 ;;; v10 software interrupt handling
-;;; v11 xpl-32 support and data transfer routines
+;;; v11 xpl-32 support and sd and serial loading routines
 ;;;
 ;;; Paul Dourish, March-October 2017
 ;;; Waverider, 2020-2022
 
 ;;; My ROM is actually 32K, but half of the ROM is only visible at once.
 ;;; So, everything starts at $C000.
+;;;
 
 * = $C000
 
@@ -65,7 +66,7 @@ PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
 ;;
 SCRATCH    = $0010  ; through to $001F
 
-ARGINDEX   = $0020  ; and on to $002F for up to 16 argument
+ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
 ;; block $0030-003F for xmodem variables
 ;; $0040 is free
 ;; $0041 is free
