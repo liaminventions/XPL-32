@@ -1,9 +1,20 @@
+;;; __   ________ _      ___  ___            _ _             
+;;; \ \ / /| ___ \ |     |  \/  |           (_) |            
+;;;  \ V / | |_/ / |     | .  . | ___  _ __  _| |_ ___  _ __ 
+;;;  /   \ |  __/| |     | |\/| |/ _ \| '_ \| | __/ _ \| '__|
+;;; / /^\ \| |   | |_32_ | |  | | (_) | | | | | || (_) | |   
+;;; \/   \/\_|   \_____/ \_|  |_/\___/|_| |_|_|\__\___/|_|   
 ;;;
 ;;; MITEMON (for XPL-32)
 ;;; 
-;;; Very simple ROM monitor for the 6502 Mite single-board computer. (but also for xpl)
+;;; Very simple ROM monitor for the 6502 Mite single-board computer..
+;;; But this version is for the XPL-32.
 ;;; Just basically enough to poke around and make sure that things
 ;;; are working.
+;;;
+;;; There are also some loading and saving stuff as well.
+;;;
+;;; This also technically acts as an OS for the XPL...
 ;;;
 ;;; v3 parses command line arguments
 ;;; v4 does basic command dispatch and some simple commands
@@ -3738,7 +3749,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 8688,$00
+  .dsb 8681,$00
 
 ; ----KERNAL----
 

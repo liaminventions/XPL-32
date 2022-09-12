@@ -1,7 +1,7 @@
 ;;;
-;;; MITEMON (for XPL-32)
-;;; 
-;;; Very simple ROM monitor for the 6502 Mite single-board computer. (but also for xpl)
+;;; MITEMON
+;;;
+;;; Very simple ROM monitor for the 6502 Mite single-board computer.
 ;;; Just basically enough to poke around and make sure that things
 ;;; are working.
 ;;;
@@ -15,24 +15,12 @@
 ;;; v10 software interrupt handling
 ;;;
 ;;; Paul Dourish, March-October 2017
-;;; Waverider, 2020-2022
+;;;
 
 ;;; My ROM is actually 32K, but the lower half ($8000-$BFFF) is masked
 ;;; by IO. So, everything starts at $C000.
-;;; (true)
-
+;;;
 * = $C000
-
-LCD_E  = %10000000
-LCD_RW = %01000000
-LCD_RS = %00100000
-
-SD_CS   = %00010000
-SD_SCK  = %00001000
-SD_MOSI = %00000100
-SD_MISO = %00000010
-
-PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -54,7 +42,7 @@ PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
 ;;
 SCRATCH    = $0010  ; through to $001F
 
-ARGINDEX   = $0020  ; and on to $002F for up to 16 argument
+ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
 ;; block $0030-003F for xmodem variables
 ;; $0040 is free
 ;; $0041 is free
@@ -66,22 +54,15 @@ MEMTESTBASE= $0046  ; and $0047
 INPUT      = $0200  ; block out this page for monitor command input
 ;; $0300-03FF is blocked for xmodem buffer
 ;; $0400-04FF is blocked for xmodem testing (temporary)
-XYLODSAV2	= $00  ; temporary address for save command
-STARTADDR	= $02  ; for start addr for receive
-ENDADDR		= $04
-serialvar	= $06
-
-SEN		= $7ffd
 
 ;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Include standard startup code
 ;;;
 ;;;;;;;;;;;;;;;;;
-;;; Er, you forgot a start address...
-;;; Better add it in the good ol' hex editor!
-reset
+
 #include "decl.a65"
+
 jmp startup
 
 ;;; Dispatch table
@@ -139,14 +120,6 @@ table11
   .byte "input", $00
   .word inputcmd
 table12
-  .word table13
-  .byte "receive", $00
-  .word receivecmd
-table13
-  .word table14
-  .byte "load", $00
-  .word loadcmd
-table14
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
@@ -165,7 +138,7 @@ startup
   ;; the stack!
 ;clearmem
 ;.(
-;  stz $00  
+;  stz $00
 ;  stz $01
 ;nextpage
 ;  ldy #0
@@ -182,15 +155,13 @@ startup
 
 #include "init.a65"
 
-#include "startupsound.s"
-
 init_acia
   lda #%00001011		;No parity, no echo, no interrupt
   sta ACIA_COMMAND
   lda #%00011111		;1 stop bit, 8 data bits, 19200 baud
   sta ACIA_CONTROL
 
-  ldx #$FF
+  jsr initstack
 
 ;; done with initialization. start actually being a monitor
 ;;
@@ -201,6 +172,8 @@ main
 ;;; first just in case there's other gunk on the screen.
 ;;;
 sayhello
+  jsr crlf
+  jsr crlf
   lda #<greeting
   sta PRINTVEC
   lda #>greeting
@@ -475,9 +448,7 @@ echocmd
   ldy #1                  ; start at 1 because we ignore the command itself
 echonext
   cpy ARGINDEX            ; have we just done the last?
-  bne nottend                 ; yes, so end
-  jmp end
-nottend
+  beq end                 ; yes, so end
   iny                     ; no, so move on to the next
   ldx ARGINDEX,y
   ;; not using printvecstr for this because we're printing
@@ -532,7 +503,7 @@ pokecmd
   sta (stackaccess)
   jsr putax
   jsr pop16
-  bra ende
+  bra end
 
 error
   lda #<pokeerrstring
@@ -540,7 +511,7 @@ error
   lda #>pokeerrstring
   sta PRINTVEC+1
   jsr printvecstr
-ende
+end
 .)
   jsr crlf
   rts
@@ -2187,1403 +2158,6 @@ backspace
 done
   rts
 
-;; data receive
-;; receives data from serial
-receivecmd
-  pha
-  phx  ; save registers
-  phy
-  lda XYLODSAV2
-  pha
-  lda XYLODSAV2+1
-  pha
-;  ldx #<transferstring
-;  ldy #>transferstring
-;  jsr w_acia_full
-END_LOAD_MSG
-SERIAL_LOAD
-  ldx #0
-WRMSG
-  ldx #<serialstring
-  ldy #>serialstring	; Start serial load. <CRLF>
-  jsr w_acia_full
-receive_serial
-  lda #$55
-  sta serialvar
-  lda $0208		; if "receive h"
-  cmp #'h'
-  bne rcloopstart	; then header mode
-  lda #0		; otherwize, receive <addr>
-  sta serialvar		; let rsl know
-  jmp serialheader
-rcloopstart
-  ldx #$04		; 4 bytes
-rcloopadd
-  lda $0207,x		; operand addr -1 (because of the loop)
-  pha			; preserve a
-  cmp #$41		; alphabet? (operand >= $41)
-  bcc rcloopadd1	; no
-  pla			; yes, restore a
-  sec			; $57 cuz $A = #10
-  sbc #$57		; $61 - $A = $57
-  jmp rcloopadd2	; continue
-rcloopadd1		; it is a number
-  pla			; restore a so we can compare it
-  sec			; (operand - $30)
-  sbc #$30
-rcloopadd2
-  sta $0207,x		; store the created nibble, one per byte...
-  dex
-  bne rcloopadd
-
-  lda $0208		; load the 4 nibbles into 2 bytes
-  asl			; a nibble per byte to 2 nibbles per byte
-  asl			; so it can be readable (little endian)
-  asl
-  asl
-  ora $0209
-  sta XYLODSAV2+1
-  lda $020a
-  asl
-  asl
-  asl
-  asl
-  ora $020b
-  sta XYLODSAV2
-
-  ldy #0
-  jmp rsl
-
-wop:
-  jsr MONRDKEY		; read a byte
-  bcc wop
-  lda ACIA_DATA
-  rts
-serialheader:
-  jsr wop		; load addr
-  sta XYLODSAV2		; (where the load to)
-  jsr wop
-  sta XYLODSAV2+1
-  jsr wop		; start addr
-  sta STARTADDR		; (where to jump to)
-  jsr wop
-  sta STARTADDR+1
-  jsr wop		; end addr
-  sta ENDADDR		; (when the program ends)
-  jsr wop
-  sta ENDADDR+1
-  stz serialvar		; a zero here means header mode
-  ldy #0
-rsl
-  jsr MONRDKEY		; byte received?
-  bcc rsl
-  ldy #0
-  lda ACIA_DATA		; then load it,
-  sta (XYLODSAV2),y	; and store it at the address (indexed because "sta (XYLODSAV2)" is illegal)
-  lda #$2e		; print a period
-  jsr MONCOUT		; to show it is working
-  inc XYLODSAV2
-  lda XYLODSAV2		; increment 16-bit address
-  bne checkit
-  inc XYLODSAV2+1
-checkit:
-  lda serialvar		; header mode?
-  bne rsl
-			; if so,
-  lda XYLODSAV2		; check if we are done.
-  cmp ENDADDR
-  bne rsl
-  lda XYLODSAV2+1
-  cmp ENDADDR+1
-  bne rsl
-
-  ; done
-  jmp (STARTADDR)	; jump to the start address.
-
-serialdone:
-  ldx #0
-sdone
-  lda loaddonestring,x
-  beq esl2		; idk
-  jsr MONCOUT		; not used
-  inx
-  jmp sdone
-esl2
-  pla
-  sta XYLODSAV2+1
-  pla
-  sta XYLODSAV2
-  ply
-  plx
-  pla
-  rts
-
-MONCOUT
-  PHA
-SerialOutWait
-  LDA ACIA_STATUS
-  AND #$10
-  CMP #$10
-  BNE SerialOutWait
-  PLA
-  STA ACIA_DATA
-  RTS
-
-MONRDKEY
-  LDA ACIA_STATUS
-  AND #$08
-  CMP #$08
-  BNE NoDataIn
-  LDA ACIA_DATA
-  SEC		
-  RTS
-NoDataIn
-  CLC		
-  RTS
-
-MONISCNTC
-  JSR MONRDKEY
-  BCC NotCTRLC  ; If no key pressed then exit
-  CMP #3
-  BNE NotCTRLC  ; if CTRL-C not pressed then exit
-  SEC           ; Carry set if control C pressed
-  RTS
-NotCTRLC
-  CLC           ; Carry clear if control C not pressed
-  RTS
-
-via_init:
-  lda #%11111111          ; Set all pins on port B to output
-  sta VIA_DDRB
-  lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
-  sta VIA_DDRA
-  rts
-
-; SD card interface module
-;
-; Requires zero-page variable storage:
-;   zp_sd_address - 2 bytes
-;   zp_sd_currentsector - 4 bytes
-
-cmsg
-  .byte "Command: ", $00
-
-sd_init
-  ; Let the SD card boot up, by pumping the clock with SD CS disabled
-
-  ; We need to apply around 80 clock pulses with CS and MOSI high.
-  ; Normally MOSI doesn't matter when CS is high, but the card is
-  ; not yet is SPI mode, and in this non-SPI state it does care.
-
-  lda #SD_CS | SD_MOSI
-  ldx #160               ; toggle the clock 160 times, so 80 low-high transitions
-preinitloop
-  eor #SD_SCK
-  sta VIA_PORTA
-  dex
-  bne preinitloop
-  
-
-cmd0 ; GO_IDLE_STATE - resets card to idle state, and SPI mode
-  lda #<sd_cmd0_bytes
-  sta zp_sd_address
-  lda #>sd_cmd0_bytes
-  sta zp_sd_address+1
-
-  jsr sd_sendcommand
-
-  ; Expect status response $01 (not initialized)
- ; cmp #$01
- ; bne initfailed
-
-cmd8 ; SEND_IF_COND - tell the card how we want it to operate (3.3V, etc)
-  lda #<sd_cmd8_bytes
-  sta zp_sd_address
-  lda #>sd_cmd8_bytes
-  sta zp_sd_address+1
-
-  jsr sd_sendcommand
-
-  ; Expect status response $01 (not initialized)
-  cmp #$01
-  bne initfailed
-
-  ; Read 32-bit return value, but ignore it
-  jsr sd_readbyte
-  jsr sd_readbyte
-  jsr sd_readbyte
-  jsr sd_readbyte
-
-cmd55 ; APP_CMD - required prefix for ACMD commands
-  lda #<sd_cmd55_bytes
-  sta zp_sd_address
-  lda #>sd_cmd55_bytes
-  sta zp_sd_address+1
-
-  jsr sd_sendcommand
-
-  ; Expect status response $01 (not initialized)
-  cmp #$01
-  bne initfailed
-
-cmd41 ; APP_SEND_OP_COND - send operating conditions, initialize card
-  lda #<sd_cmd41_bytes
-  sta zp_sd_address
-  lda #>sd_cmd41_bytes
-  sta zp_sd_address+1
-
-  jsr sd_sendcommand
-
-  ; Status response $00 means initialised
-  cmp #$00
-  beq initialized
-
-  ; Otherwise expect status response $01 (not initialized)
-  cmp #$01
-  bne initfailed
-
-  ; Not initialized yet, so wait a while then try again.
-  ; This retry is important, to give the card time to initialize.
-
-  ldx #0
-  ldy #0
-delayloop
-  dey
-  bne delayloop
-  dex
-  bne delayloop
-
-  jmp cmd55
-
-
-initialized
-;  ldy #>initmsg
-;  ldx #<initmsg
-;  jsr w_acia_full
-  rts
-
-initfailed
-  ldy #>initfailedmsg
-  ldx #<initfailedmsg
-  jsr w_acia_full
-
-sd_cmd0_bytes
-  .byte $40, $00, $00, $00, $00, $95
-sd_cmd8_bytes
-  .byte $48, $00, $00, $01, $aa, $87
-sd_cmd55_bytes
-  .byte $77, $00, $00, $00, $00, $01
-sd_cmd41_bytes
-  .byte $69, $40, $00, $00, $00, $01
-
-
-
-sd_readbyte
-  ; Enable the card and tick the clock 8 times with MOSI high, 
-  ; capturing bits from MISO and returning them
-
-  ldx #$fe    ; Preloaded with seven ones and a zero, so we stop after eight bits
-
-looop
-
-  lda #SD_MOSI                ; enable card (CS low), set MOSI (resting state), SCK low
-  sta VIA_PORTA
-
-  lda #SD_MOSI | SD_SCK       ; toggle the clock high
-  sta VIA_PORTA
-
-  lda VIA_PORTA                   ; read next bit
-  and #SD_MISO
-
-  clc                         ; default to clearing the bottom bit
-  beq bitnotset              ; unless MISO was set
-  sec                         ; in which case get ready to set the bottom bit
-bitnotset
-
-  txa                         ; transfer partial result from X
-  rol                         ; rotate carry bit into read result, and loop bit into carry
-  tax                         ; save partial result back to X
-  
-  bcs looop                   ; loop if we need to read more bits
-
-  rts
-
-
-sd_writebyte
-  ; Tick the clock 8 times with descending bits on MOSI
-  ; SD communication is mostly half-duplex so we ignore anything it sends back here
-
-  ldx #8                      ; send 8 bits
-
-loopp
-  asl                         ; shift next bit into carry
-  tay                         ; save remaining bits for later
-
-  lda #0
-  bcc sendbit                ; if carry clear, don't set MOSI for this bit
-  ora #SD_MOSI
-
-sendbit
-  sta VIA_PORTA                   ; set MOSI (or not) first with SCK low
-  eor #SD_SCK
-  sta VIA_PORTA                   ; raise SCK keeping MOSI the same, to send the bit
-
-  tya                         ; restore remaining bits to send
-
-  dex
-  bne loopp                   ; loop if there are more bits to send
-
-  rts
-
-
-sd_waitresult
-  ; Wait for the SD card to return something other than $ff
-  jsr sd_readbyte
-  cmp #$ff
-  beq sd_waitresult
-  rts
-
-loadtable:
-	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
-
-sd_sendcommand 
-
-  lda #SD_MOSI           ; pull CS low to begin command
-  sta VIA_PORTA
-
-  ldy #0
-  lda (zp_sd_address),y    ; command byte
-  jsr sd_writebyte
-  ldy #1
-  lda (zp_sd_address),y    ; data 1
-  jsr sd_writebyte
-  ldy #2
-  lda (zp_sd_address),y    ; data 2
-  jsr sd_writebyte
-  ldy #3
-  lda (zp_sd_address),y    ; data 3
-  jsr sd_writebyte
-  ldy #4
-  lda (zp_sd_address),y    ; data 4
-  jsr sd_writebyte
-  ldy #5
-  lda (zp_sd_address),y    ; crc
-  jsr sd_writebyte
-
-  jsr sd_waitresult
-  pha
-
-  ; End command
-  lda #SD_CS | SD_MOSI   ; set CS high again
-  sta VIA_PORTA
-
-  pla   ; restore result code
-  rts
-
-
-sd_readsector
-  ; Read a sector from the SD card.  A sector is 512 bytes.
-  ;
-  ; Parameters:
-  ;    zp_sd_currentsector   32-bit sector number
-  ;    zp_sd_address     address of buffer to receive data
-  
-  lda #SD_MOSI
-  sta VIA_PORTA
-
-  ; Command 17, arg is sector number, crc not checked
-  lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
-  jsr sd_writebyte
-  lda zp_sd_currentsector+3   
-  jsr sd_writebyte
-  lda zp_sd_currentsector+2  
-  jsr sd_writebyte
-  lda zp_sd_currentsector+1  
-  jsr sd_writebyte
-  lda zp_sd_currentsector 
-  jsr sd_writebyte
-  lda #$01                    ; crc (not checked)
-  jsr sd_writebyte
-
-  jsr sd_waitresult
-  cmp #$00
-  bne faill
-
-  ; wait for data
-  jsr sd_waitresult
-  cmp #$fe
-  bne faill
-
-  ; Need to read 512 bytes - two pages of 256 bytes each
-  jsr readpage
-  inc zp_sd_address+1
-  jsr readpage
-  dec zp_sd_address+1
-
-  ; End command
-  lda #SD_CS | SD_MOSI
-  sta VIA_PORTA
-
-  rts
-
-
-faill
-;  ldx #<statusmsg
-;  ldy #>statusmsg  ; Status:
-;  jsr w_acia_full
-
-  ldx #<failedmsg
-  ldy #>failedmsg  ; Failed!
-  jsr w_acia_full
-failloop
-  jmp $c000
-
-
-readpage
-  ; Read 256 bytes to the address at zp_sd_address
-  ldy #0
-readloop
-  jsr sd_readbyte
-  sta (zp_sd_address),y
-  iny
-  bne readloop
-  rts
-
-statusmsg
-  .byte "Status: ", $00
-initfailedmsg
-  .byte "Init "
-failedmsg
-  .byte "Failed!", $0d, $0a, $00
-respmsg
-  .byte "Response: ", $00
-initmsg
-  .byte "Initialized!", $0d, $0a, $00
-
-; FAT32/SD interface library
-;
-; This module requires some RAM workspace to be defined elsewhere:
-; 
-; fat32_workspace    - a large page-aligned 512-byte workspace
-; zp_fat32_variables - 24 bytes of zero-page storage for variables etc
-
-fat32_readbuffer = fat32_workspace
-
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-
-fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
-fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
-
-
-fat32_init
-  ; Initialize the module - read the MBR etc, find the partition,
-  ; and set up the variables ready for navigating the filesystem
-
-  ; Read the MBR and extract pertinent information
-
-  lda #0
-  sta fat32_errorstage
-
-  ; Sector 0
-  lda #0
-  sta zp_sd_currentsector
-  sta zp_sd_currentsector+1
-  sta zp_sd_currentsector+2
-  sta zp_sd_currentsector+3
-
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
-
-  ; Do the read
-  jsr sd_readsector
-
-
-  inc fat32_errorstage ; stage 1 = boot sector signature check
-
-  ; Check some things
-  lda fat32_readbuffer+510 ; Boot sector signature 55
-  cmp #$55
-  bne fail32
-  lda fat32_readbuffer+511 ; Boot sector signature aa
-  cmp #$aa
-  bne fail32
-
-
-  inc fat32_errorstage ; stage 2 = finding partition
-
-  ; Find a FAT32 partition
-FSTYPE_FAT32 = 12
-  ldx #0
-  lda fat32_readbuffer+$1c2,x
-  cmp #FSTYPE_FAT32
-  beq foundpart
-  ldx #16
-  lda fat32_readbuffer+$1c2,x
-  cmp #FSTYPE_FAT32
-  beq foundpart
-  ldx #32
-  lda fat32_readbuffer+$1c2,x
-  cmp #FSTYPE_FAT32
-  beq foundpart
-  ldx #48
-  lda fat32_readbuffer+$1c2,x
-  cmp #FSTYPE_FAT32
-  beq foundpart
-
-fail32
-  jmp error
-
-foundpart
-
-  ; Read the FAT32 BPB
-  lda fat32_readbuffer+$1c6,x
-  sta zp_sd_currentsector
-  lda fat32_readbuffer+$1c7,x
-  sta zp_sd_currentsector+1
-  lda fat32_readbuffer+$1c8,x
-  sta zp_sd_currentsector+2
-  lda fat32_readbuffer+$1c9,x
-  sta zp_sd_currentsector+3
-
-  jsr sd_readsector
-
-
-  inc fat32_errorstage ; stage 3 = BPB signature check
-
-  ; Check some things
-  lda fat32_readbuffer+510 ; BPB sector signature 55
-  cmp #$55
-  bne fail32
-  lda fat32_readbuffer+511 ; BPB sector signature aa
-  cmp #$aa
-  bne fail32
-
-  inc fat32_errorstage ; stage 4 = RootEntCnt check
-
-  lda fat32_readbuffer+17 ; RootEntCnt should be 0 for FAT32
-  ora fat32_readbuffer+18
-  bne fail32
-
-  inc fat32_errorstage ; stage 5 = TotSec16 check
-
-  lda fat32_readbuffer+19 ; TotSec16 should be 0 for FAT32
-  ora fat32_readbuffer+20
-  bne fail32
-
-  inc fat32_errorstage ; stage 6 = SectorsPerCluster check
-
-  ; Check bytes per filesystem sector, it should be 512 for any SD card that supports FAT32
-  lda fat32_readbuffer+11 ; low byte should be zero
-  bne fail32
-  lda fat32_readbuffer+12 ; high byte is 2 (512), 4, 8, or 16
-  cmp #2
-  bne fail32
-
-
-  ; Calculate the starting sector of the FAT
-  clc
-  lda zp_sd_currentsector
-  adc fat32_readbuffer+14    ; reserved sectors lo
-  sta fat32_fatstart
-  sta fat32_datastart
-  lda zp_sd_currentsector+1
-  adc fat32_readbuffer+15    ; reserved sectors hi
-  sta fat32_fatstart+1
-  sta fat32_datastart+1
-  lda zp_sd_currentsector+2
-  adc #0
-  sta fat32_fatstart+2
-  sta fat32_datastart+2
-  lda zp_sd_currentsector+3
-  adc #0
-  sta fat32_fatstart+3
-  sta fat32_datastart+3
-
-  ; Calculate the starting sector of the data area
-  ldx fat32_readbuffer+16   ; number of FATs
-skipfatsloop
-  clc
-  lda fat32_datastart
-  adc fat32_readbuffer+36 ; fatsize 0
-  sta fat32_datastart
-  lda fat32_datastart+1
-  adc fat32_readbuffer+37 ; fatsize 1
-  sta fat32_datastart+1
-  lda fat32_datastart+2
-  adc fat32_readbuffer+38 ; fatsize 2
-  sta fat32_datastart+2
-  lda fat32_datastart+3
-  adc fat32_readbuffer+39 ; fatsize 3
-  sta fat32_datastart+3
-  dex
-  bne skipfatsloop
-
-  ; Sectors-per-cluster is a power of two from 1 to 128
-  lda fat32_readbuffer+13
-  sta fat32_sectorspercluster
-
-  ; Remember the root cluster
-  lda fat32_readbuffer+44
-  sta fat32_rootcluster
-  lda fat32_readbuffer+45
-  sta fat32_rootcluster+1
-  lda fat32_readbuffer+46
-  sta fat32_rootcluster+2
-  lda fat32_readbuffer+47
-  sta fat32_rootcluster+3
-
-  clc
-  rts
-
-error
-  sec
-  rts
-
-
-fat32_seekcluster
-  ; Gets ready to read fat32_nextcluster, and advances it according to the FAT
-  
-  ; FAT sector = (cluster*4) / 512 = (cluster*2) / 256
-  lda fat32_nextcluster
-  asl
-  lda fat32_nextcluster+1
-  rol
-  sta zp_sd_currentsector
-  lda fat32_nextcluster+2
-  rol
-  sta zp_sd_currentsector+1
-  lda fat32_nextcluster+3
-  rol
-  sta zp_sd_currentsector+2
-
-  ; Add FAT starting sector
-  lda zp_sd_currentsector
-  adc fat32_fatstart
-  sta zp_sd_currentsector
-  lda zp_sd_currentsector+1
-  adc fat32_fatstart+1
-  sta zp_sd_currentsector+1
-  lda zp_sd_currentsector+2
-  adc fat32_fatstart+2
-  sta zp_sd_currentsector+2
-  lda #0
-  adc fat32_fatstart+3
-  sta zp_sd_currentsector+3
-
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
-
-  ; Read the sector from the FAT
-  jsr sd_readsector
-
-  ; Before using this FAT data, set currentsector ready to read the cluster itself
-  ; We need to multiply the cluster number minus two by the number of sectors per 
-  ; cluster, then add the data region start sector
-
-  ; Subtract two from cluster number
-  sec
-  lda fat32_nextcluster
-  sbc #2
-  sta zp_sd_currentsector
-  lda fat32_nextcluster+1
-  sbc #0
-  sta zp_sd_currentsector+1
-  lda fat32_nextcluster+2
-  sbc #0
-  sta zp_sd_currentsector+2
-  lda fat32_nextcluster+3
-  sbc #0
-  sta zp_sd_currentsector+3
-  
-  ; Multiply by sectors-per-cluster which is a power of two between 1 and 128
-  lda fat32_sectorspercluster
-spcshiftloop
-  lsr
-  bcs spcshiftloopdone
-  asl zp_sd_currentsector
-  rol zp_sd_currentsector+1
-  rol zp_sd_currentsector+2
-  rol zp_sd_currentsector+3
-  jmp spcshiftloop
-spcshiftloopdone
-
-  ; Add the data region start sector
-  clc
-  lda zp_sd_currentsector
-  adc fat32_datastart
-  sta zp_sd_currentsector
-  lda zp_sd_currentsector+1
-  adc fat32_datastart+1
-  sta zp_sd_currentsector+1
-  lda zp_sd_currentsector+2
-  adc fat32_datastart+2
-  sta zp_sd_currentsector+2
-  lda zp_sd_currentsector+3
-  adc fat32_datastart+3
-  sta zp_sd_currentsector+3
-
-  ; That's now ready for later code to read this sector in - tell it how many consecutive
-  ; sectors it can now read
-  lda fat32_sectorspercluster
-  sta fat32_pendingsectors
-
-  ; Now go back to looking up the next cluster in the chain
-  ; Find the offset to this cluster's entry in the FAT sector we loaded earlier
-
-  ; Offset = (cluster*4) & 511 = (cluster & 127) * 4
-  lda fat32_nextcluster
-  and #$7f
-  asl
-  asl
-  tay ; Y = low byte of offset
-
-  ; Add the potentially carried bit to the high byte of the address
-  lda zp_sd_address+1
-  adc #0
-  sta zp_sd_address+1
-
-  ; Copy out the next cluster in the chain for later use
-  lda (zp_sd_address),y
-  sta fat32_nextcluster
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+1
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+2
-  iny
-  lda (zp_sd_address),y
-  and #$0f
-  sta fat32_nextcluster+3
-
-  ; See if it's the end of the chain
-  ora #$f0
-  and fat32_nextcluster+2
-  and fat32_nextcluster+1
-  cmp #$ff
-  bne notendofchain
-  lda fat32_nextcluster
-  cmp #$f8
-  bcc notendofchain
-
-  ; It's the end of the chain, set the top bits so that we can tell this later on
-  sta fat32_nextcluster+3
-notendofchain
-
-  rts
-
-
-fat32_readnextsector
-  ; Reads the next sector from a cluster chain into the buffer at fat32_address.
-  ;
-  ; Advances the current sector ready for the next read and looks up the next cluster
-  ; in the chain when necessary.
-  ;
-  ; On return, carry is clear if data was read, or set if the cluster chain has ended.
-
-  ; Maybe there are pending sectors in the current cluster
-  lda fat32_pendingsectors
-  bne readsector
-
-  ; No pending sectors, check for end of cluster chain
-  lda fat32_nextcluster+3
-  bmi endofchain
-
-  ; Prepare to read the next cluster
-  jsr fat32_seekcluster
-
-readsector
-  dec fat32_pendingsectors
-
-  ; Set up target address  
-  lda fat32_address
-  sta zp_sd_address
-  lda fat32_address+1
-  sta zp_sd_address+1
-
-  ; Read the sector
-  jsr sd_readsector
-
-  ; Advance to next sector
-  inc zp_sd_currentsector
-  bne sectorincrementdone
-  inc zp_sd_currentsector+1
-  bne sectorincrementdone
-  inc zp_sd_currentsector+2
-  bne sectorincrementdone
-  inc zp_sd_currentsector+3
-sectorincrementdone
-
-  ; Success - clear carry and return
-  clc
-  rts
-
-endofchain
-  ; End of chain - set carry and return
-  sec
-  rts
-
-
-fat32_openroot
-  ; Prepare to read the root directory
-
-  lda fat32_rootcluster
-  sta fat32_nextcluster
-  lda fat32_rootcluster+1
-  sta fat32_nextcluster+1
-  lda fat32_rootcluster+2
-  sta fat32_nextcluster+2
-  lda fat32_rootcluster+3
-  sta fat32_nextcluster+3
-
-  jsr fat32_seekcluster
-
-  ; Set the pointer to a large value so we always read a sector the first time through
-  lda #$ff
-  sta zp_sd_address+1
-
-  rts
-
-
-fat32_opendirent
-  ; Prepare to read from a file or directory based on a dirent
-  ;
-  ; Point zp_sd_address at the dirent
-
-  ; Remember file size in bytes remaining
-  ldy #28
-  lda (zp_sd_address),y
-  sta fat32_bytesremaining
-  iny
-  lda (zp_sd_address),y
-  sta fat32_bytesremaining+1
-  iny
-  lda (zp_sd_address),y
-  sta fat32_bytesremaining+2
-  iny
-  lda (zp_sd_address),y
-  sta fat32_bytesremaining+3
-
-  ; Seek to first cluster
-  ldy #26
-  lda (zp_sd_address),y
-  sta fat32_nextcluster
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+1
-  ldy #20
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+2
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+3
-
-  jsr fat32_seekcluster
-
-  ; Set the pointer to a large value so we always read a sector the first time through
-  lda #$ff
-  sta zp_sd_address+1
-
-  rts
-
-
-fat32_readdirent
-  ; Read a directory entry from the open directory
-  ;
-  ; On exit the carry is set if there were no more directory entries.
-  ;
-  ; Otherwise, A is set to the file's attribute byte and
-  ; zp_sd_address points at the returned directory entry.
-  ; LFNs and empty entries are ignored automatically.
-
-  ; Increment pointer by 32 to point to next entry
-  clc
-  lda zp_sd_address
-  adc #32
-  sta zp_sd_address
-  lda zp_sd_address+1
-  adc #0
-  sta zp_sd_address+1
-
-  ; If it's not at the end of the buffer, we have data already
-  cmp #>(fat32_readbuffer+$200)
-  bcc gotdata3
-
-  ; Read another sector
-  lda #<fat32_readbuffer
-  sta fat32_address
-  lda #>fat32_readbuffer
-  sta fat32_address+1
-
-  jsr fat32_readnextsector
-  bcc gotdata3
-
-endofdirectory
-  sec
-  rts
-
-gotdata3
-  ; Check first character
-  ldy #0
-  lda (zp_sd_address),y
-
-  ; End of directory => abort
-  beq endofdirectory
-
-  ; Empty entry => start again
-  cmp #$e5
-  beq fat32_readdirent
-
-  ; Check attributes
-  ldy #11
-  lda (zp_sd_address),y
-  and #$3f
-  cmp #$0f ; LFN => start again
-  beq fat32_readdirent
-
-  ; Yield this result
-  clc
-  rts
-
-
-fat32_finddirent
-  ; Finds a particular directory entry.  X,Y point to the 11-character filename to seek.
-  ; The directory should already be open for iteration.
-
-  ; Form ZP pointer to user's filename
-  stx fat32_filenamepointer
-  sty fat32_filenamepointer+1
-  
-  ; Iterate until name is found or end of directory
-direntloop
-  jsr fat32_readdirent
-  ldy #10
-  bcc comparenameloop
-  rts ; with carry set
-
-comparenameloop
-  lda (zp_sd_address),y
-  cmp (fat32_filenamepointer),y
-  bne direntloop ; no match
-  dey
-  bpl comparenameloop
-
-  ; Found it
-  clc
-  rts
-
-
-fat32_file_readbyte
-  ; Read a byte from an open file
-  ;
-  ; The byte is returned in A with C clear; or if end-of-file was reached, C is set instead
-
-  sec
-
-  ; Is there any data to read at all?
-  lda fat32_bytesremaining
-  ora fat32_bytesremaining+1
-  ora fat32_bytesremaining+2
-  ora fat32_bytesremaining+3
-  beq ret
-
-  ; Decrement the remaining byte count
-  lda fat32_bytesremaining
-  sbc #1
-  sta fat32_bytesremaining
-  lda fat32_bytesremaining+1
-  sbc #0
-  sta fat32_bytesremaining+1
-  lda fat32_bytesremaining+2
-  sbc #0
-  sta fat32_bytesremaining+2
-  lda fat32_bytesremaining+3
-  sbc #0
-  sta fat32_bytesremaining+3
-  
-  ; Need to read a new sector?
-  lda zp_sd_address+1
-  cmp #>(fat32_readbuffer+$200)
-  bcc gotdata2
-
-  ; Read another sector
-  lda #<fat32_readbuffer
-  sta fat32_address
-  lda #>fat32_readbuffer
-  sta fat32_address+1
-
-  jsr fat32_readnextsector
-  bcs ret                   ; this shouldn't happen
-
-gotdata2
-  ldy #0
-  lda (zp_sd_address),y
-
-  inc zp_sd_address
-  bne ret
-  inc zp_sd_address+1
-  bne ret
-  inc zp_sd_address+2
-  bne ret
-  inc zp_sd_address+3
-
-ret
-  rts
-
-fat32_file_read
-  ; Read a whole file into memory.  It's assumed the file has just been opened 
-  ; and no data has been read yet.
-  ;
-  ; Also we read whole sectors, so data in the target region beyond the end of the 
-  ; file may get overwritten, up to the next 512-byte boundary.
-  ;
-  ; And we don't properly support 64k+ files, as it's unnecessary complication given
-  ; the 6502's small address space
-
-  ; Round the size up to the next whole sector
-  lda fat32_bytesremaining
-  cmp #1                      ; set carry if bottom 8 bits not zero
-  lda fat32_bytesremaining+1
-  adc #0                      ; add carry, if any
-  lsr                         ; divide by 2
-  adc #0                      ; round up
-
-  ; No data?
-  beq donee
-
-  ; Store sector count - not a byte count any more
-  sta fat32_bytesremaining
-
-  ; Read entire sectors to the user-supplied buffer
-wholesectorreadloop
-  ; Read a sector to fat32_address
-  jsr fat32_readnextsector
-
-  ; Advance fat32_address by 512 bytes
-  lda fat32_address+1
-  adc #2                      ; carry already clear
-  sta fat32_address+1
-
-  ldx fat32_bytesremaining    ; note - actually loads sectors remaining
-  dex
-  stx fat32_bytesremaining    ; note - actually stores sectors remaining
-
-  bne wholesectorreadloop
-
-donee
-  rts
-
-
-;;;       ------------------ 6551 ACIA Subroutine Library -------------------
-;;; Includes:
-;;; acia_init       - Initializes the ACIA
-;;; print_hex_acia  - Prints a hex value in A
-;;; clear_display   - Sends a <CLS> command
-;;; txpoll          - Polls the TX bit to see if the ACIA is ready
-;;; print_chara     - Prints a Character that is stored in A
-;;; print_char_acia - Same as print_chara
-;;; ascii_home      - Home the cursor
-;;; w_acia_full     - Print a NULL-Termintated String with >HIGH in Y and <LOW in X
-
-acia_init
-  pha
-  lda #%00001011          ; No parity, no echo, no interrupt
-  sta $8002
-  lda #%00011111          ; 1 stop bit, 8 data bits, 19200 baud
-  sta $8003
-  pla
-  rts
-
-print_hex_acia
-  pha
-  ror
-  ror
-  ror
-  ror
-  jsr print_nybble   ; This is just som usful hex cod
-  pla
-print_nybble
-  and #15
-  cmp #10
-  bmi skipletter
-  adc #6
-skipletter
-  adc #48
- ; jsr print_char
-  jsr print_chara
-  rts
-
-cleardisplay
-  pha
-  jsr txpoll  ; Poll the TX bit
-  lda #12     ; Print decimal 12 (CLS)
-  sta $8000
-  pla
-  rts
-
-txpoll
-  lda $8001
-  and #$10    ; Poll the TX bit
-  beq txpoll
-  rts
-
-print_chara
-  pha
-  jsr txpoll  ; Poll the TX bit
-  pla
-  sta $8000   ; Print character from A
-  rts
-
-print_char_acia
-  jmp print_chara  ; Same as "print_chara"
-
-ascii_home
-  pha
-  lda #1
-  jsr print_chara  ; Print 1 (HOME)
-  pla
-  rts
-
-w_acia_full
-  pha
-  lda $ff
-  pha        ; Push Previous States onto the stack
-  lda $fe
-  pha
-  sty $ff    ; Set Y as the Upper Address (8-15)
-  stx $fe    ; Set X as the Lower Adderss (0-7)
-  ldy #0
-acia_man
-  jsr txpoll   ; Poll TX
-  lda ($fe),y  ; Load the Address
-  sta $8000    ; Print what is at the address
-  beq endwacia ; If Done, End
-  iny          ; Next Character
-  jmp acia_man ; Back to the top
-endwacia
-  pla
-  sta $fe
-  pla          ; Restore Variables
-  sta $ff
-  pla
-  rts
-
-error_sound:
-  jsr clear_sid
-  lda #$0f
-  sta $b818
-  lda #$e7
-  sta $b802
-  lda #$0f
-  sta $b805
-  lda #$f8
-  sta $b806
-  lda freq_table
-  sta $b800
-  lda freq_table+1
-  sta $b801
-  lda #$41
-  sta $b804
-
-outer
-  ldy #$ff
-inner
-  ldx #$ff
-
-innerloop
-  dex
-  bne innerloop
-
-  dey
-  beq ende
-  jmp inner
-ende
-  lda #$40
-  sta $b804
-  rts
-	
-freq_table:
-  .byte $50, $50
-
-clear_sid
-  ldx #$17
-csid
-  stz $b800,x
-  dex
-  bne csid
-  rts
-
-zp_sd_address = $40         ; 2 bytes
-zp_sd_currentsector = $42   ; 4 bytes
-zp_fat32_variables = $46    ; 24 bytes
-
-fat32_workspace = $200      ; two pages
-
-buffer = $400
-
-
-subdirname
-  .byte "FOLDER     "
-filename
-  .byte "CODE    XPL"
-loadname
-  .byte "LOADADDRSAR"
-
-fat_error
-  .byte "FAT32 Error At Stage ", $00
-
-loadcmd
-
-  ; Initialise
- ; jsr acia_init
-  jsr via_init
- ; jsr lcd_init
-  jsr sd_init
-  jsr fat32_init
-  bcc initsuccess
- 
-  ; Error during FAT32 initialization
-
-  ldy #>fat_error
-  ldx #<fat_error
-  jsr w_acia_full
-  lda fat32_errorstage
-  jsr print_hex_acia
-  lda #'!'
-  jsr print_chara
-
- ; rts
- ; rts
- ; rts
-
-  jmp looopp
-
-initsuccess
-
-  ; Open root directory
-  jsr fat32_openroot
-
-  ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-
-  ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp looopp
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent
-
-  ; Find file by name
-  ldx #<loadname
-  ldy #>loadname
-  jsr fat32_finddirent
-  bcc foundfile
-
-  ; File not found
-  ldy #>filmsg
-  ldx #<filmsg
-  jsr w_acia_full
-  jmp looopp
-
-foundfile
- 
-  ; Open file
-  jsr fat32_opendirent
-
-  ; Read file contents into buffer
-  lda #<buffer
-  sta fat32_address
-  lda #>buffer
-  sta fat32_address+1
-
-  jsr fat32_file_read
-
-  ; Open root directory
-  jsr fat32_openroot
-
-  ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc startload
-
-  ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp looopp
- 
-startload
-
-  ; Open subdirectory
-  jsr fat32_opendirent
-
-  ldy #>lds
-  ldx #<lds
-  jsr w_acia_full
-
-  ldx #<filename
-  ldy #>filename
-  jsr fat32_finddirent
-  bcc foundcode
-
-  ldy #>filmsg2
-  ldx #<filmsg2
-  jsr w_acia_full
-  jmp looopp
-
-foundcode
-
-  jsr fat32_opendirent
-
-  lda buffer
-  sta fat32_address
-  lda buffer+1
-  sta fat32_address+1
-
-
-  jsr fat32_file_read
-
-  ldy #>ends
-  ldx #<ends
-  jsr w_acia_full
-
-  jmp (buffer+2)
-
-looopp
-  rts
-
-submsg
-  .byte "'folder' Not Found!", $00
-filmsg
-  .byte "'loadaddr.sar' Not Found!", $00
-filmsg2
-  .byte "'code.xpl' Not Found!", $00
-lds
-  .byte "Loading SD Handler...", $00
-ends
-  .byte "Done.", $0d, $0a, $0d, $0a, $00
-  
 
 ;; memory test
 ;; the process is, for each page of memory (and MEMTESTBASE points
@@ -3697,14 +2271,125 @@ endstr
   rts
 
 
+
+;;; Handle interrupts. Since the Mite doens't have interrupt lines
+;;; connected, we don't even bother decoding the interrupt; instead,
+;;; we just presume that it's a software interrupt (ie, a BRK),
+;;; print the registers, and jump back into the command loop for the
+;;; monitor.
+interrupt
+  pha               ; preserve registers
+  phx
+  phy
+  tsx               ; leaves SP in X
+  phx
+
+  ;; at this point, the stack is:
+  ;;   SP Y X A S PCl PCh
+  ;;  SP is at $101,SP, which is $100,X
+  ;;  PCh is at $106,X
+
+  jsr crlf
+
+  ;; print the PC
+  lda #"P
+  jsr puta
+  lda #"C
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $106,x
+  jsr putax
+  lda $105,x
+  jsr putax
+  lda #$20
+  jsr puta
+
+  ;; print A
+  lda #"A
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $103,x
+  jsr putax
+  lda #$20
+  jsr puta
+
+  ;; print X
+  lda #"X
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $102,x
+  jsr putax
+  lda #$20
+  jsr puta
+
+  ;; print Y
+  lda #"Y
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $101,x
+  jsr putax
+  lda #$20
+  jsr puta
+
+  ;; print SP
+  lda #"S
+  jsr puta
+  lda #"P
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $100,x
+  clc               ; BUG this isn't right...
+  adc #3            ; correct for the extra values we've pushed
+  jsr putax         ; so we print SP as it was when interrupt received
+  lda #$20
+  jsr puta
+
+  ;; print S
+  lda #"S
+  jsr puta
+  lda #"=
+  jsr puta
+  lda #"$
+  jsr puta
+  lda $104,x
+  jsr putax
+  lda #$20
+  jsr puta
+
+  pla               ; restore the stack to post-interrupt state
+  pla
+  pla
+  pla
+
+  jsr crlf
+  jmp reploop
+  
+
+
+
 ;;;
 ;;; Various string constants
 ;;;
 
 hextable:	 .byte "0123456789ABCDEF"
-greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
-prompt:		 .byte ">"
-helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, receive, load, rti", $0d, $0a, $00
+greeting:	 .byte "6502 Mite SBC simple monitor v10", $0d, $0a, $00
+prompt:		 .byte "*"
+helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, rti", $0d, $0a, $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
 implementstring: .byte "Not yet implemented", $0d, $0a, $00
 dumperrstring:   .byte "Usage: dump hexaddress [count:10]", $00
@@ -3716,99 +2401,4 @@ inputhelpstring: .byte "Enter two-digit hex bytes. Blank line to end.", $00
 inputerrstring:  .byte "Usage: input hexaddress", $00
 memerrstr:	 .byte "Memory test failed", $00
 diserrorstring:  .byte "Usage: dis hexaddress [count: 10]",$00
-transferstring:   .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
-serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
-loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
-
-rxpoll:
-  lda ACIA_STATUS
-  and #$08
-  beq rxpoll
-  rts
-
-;;; Handle interrupts. Since the Mite doens't have interrupt lines
-;;; connected, we don't even bother decoding the interrupt; instead,
-;;; we just presume that it's a software interrupt (ie, a BRK),
-;;; print the registers, and jump back into the command loop for the
-;;; monitor.
-
-;;; NOPE!!!
-interrupt
-  jmp ($7ffe)  
-  rti
-
-  .dsb 8681,$00
-
-; ----KERNAL----
-
-* = $FFB2
-
-; inits
-
-KERNAL_acia_init:
-  jmp acia_init
-KERNAL_via_init:
-  jmp via_init
-KERNAL_sd_init:
-  jmp sd_init
-KERNAL_fat32_init:
-  jmp fat32_init
-
-; acia
-
-KERNAL_print_hex_acia:
-  jmp print_hex_acia
-KERNAL_crlf:
-  jmp crlf
-KERNAL_cleardisplay:
-  jmp cleardisplay
-KERNAL_rxpoll:
-  jmp rxpoll
-KERNAL_txpoll:
-  jmp txpoll
-KERNAL_print_chara:
-KERNAL_print_char_acia:
-  jmp print_chara
-KERNAL_ascii_home:
-  jmp ascii_home
-KERNAL_w_acia_full
-  jmp w_acia_full
-
-; fat32
-
-KERNAL_fat32_seekcluster:
-  jmp fat32_seekcluster
-KERNAL_fat32_readnextsector
-  jmp fat32_readnextsector
-KERNAL_fat32_openroot:
-  jmp fat32_openroot
-KERNAL_fat32_opendirent:
-  jmp fat32_opendirent
-KERNAL_fat32_readdirent
-  jmp fat32_readdirent
-KERNAL_fat32_finddirent:
-  jmp fat32_finddirent
-KERNAL_fat32_file_readbyte:
-  jmp fat32_file_readbyte
-KERNAL_fat32_file_read:
-  jmp fat32_file_read
-
-; sd
-
-KERNAL_sd_readbyte:
-  jmp sd_readbyte
-KERNAL_sd_sendcommand:
-  jmp sd_sendcommand
-KERNAL_sd_readsector:
-  jmp sd_readsector
-
-; other
-
-KERNAL_loadcmd:
-  jmp loadcmd
-
-* = $FFFA
-	.word interrupt
-	.word reset
-	.word interrupt

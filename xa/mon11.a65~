@@ -29,8 +29,9 @@
 ;;; Paul Dourish, March-October 2017
 ;;; Waverider, 2020-2022
 
-;;; My ROM is actually 32K, but half of the ROM is only visible at once.
-;;; So, everything starts at $C000.
+;;; My ROM is actually 32K, but the lower half ($8000-$BFFF) is masked
+;;; by IO. So, everything starts at $C000.
+;;; (true)
 
 * = $C000
 
