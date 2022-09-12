@@ -1,4 +1,13 @@
+; _____ _____ _____           ______  ___   _____ _____ _____ 
+;|  _  /  ___|_   _|          | ___ \/ _ \ /  ___|_   _/  __ \
+;| | | \ `--.  | |    ______  | |_/ / /_\ \\ `--.  | | | /  \/
+;| | | |`--. \ | |   |______| | ___ \  _  | `--. \ | | | |    
+;\ \_/ /\__/ /_| |_           | |_/ / | | |/\__/ /_| |_| \__/\
+; \___/\____/ \___/           \____/\_| |_/\____/ \___/ \____/
+;
 ; Microsoft BASIC for the XPL-32 (OSI VERSION)
+;
+; (sorry for the cheesy ascii art)
 ;
 ; ==================================================================================
 ; MODIFIED FROM THE ORIGINAL FILES AT http://www.pagetable.com/?p=46
@@ -45,11 +54,15 @@
 ; * And me, Waverider...
 ;
 ; to recap:
-; ------------------------------------coders---------------------------------------------
-; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, and Waverider
-; ---------------------------------------------------------------------------------------
+; ----------------------------------------------coders------------------------------------------------
+; Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, George Foot, and Waverider
+; ----------------------------------------------------------------------------------------------------
 ;
 ; and now for the code...
+
+; ======================================================
+; -------------------- Definitions ---------------------
+; ======================================================
 
 fat32_workspace = $200      ; two pages
 
@@ -97,6 +110,10 @@ LF=10
 
 CRLF_1 := CR
 CRLF_2 := LF
+
+; ======================================================
+; ---------------------- Zero Page ---------------------
+; ======================================================
 
 .feature org_per_seg
 .zeropage
@@ -261,6 +278,10 @@ TXTPTR = <(GENERIC_TXTPTR-GENERIC_CHRGET + CHRGET)
 CHRGOT = <(GENERIC_CHRGOT-GENERIC_CHRGET + CHRGET)
 CHRGOT2 = <(GENERIC_CHRGOT2-GENERIC_CHRGET + CHRGET)
 RNDSEED = <(GENERIC_RNDSEED-GENERIC_CHRGET + CHRGET)
+
+; ======================================================
+; ------------------ Beginning of ROM ------------------
+; ======================================================
 
 .segment "CODE"
 .org $C000
@@ -480,6 +501,10 @@ QT_BREAK:
 		.byte CR,LF,"BREAK"
         .byte   0
 
+; ======================================================
+; --------------------- Libraries ----------------------
+; ======================================================
+
 	.include "hwconfig.s"
  	.include "libsd.s"
   	.include "libfat32.s"
@@ -490,6 +515,11 @@ dirname:
 errormsg:
 	.byte CR,LF,"ERROR!",CR,LF
 	.byte 0
+
+; ======================================================
+; --------------------- Main Code ----------------------
+; =================  (not in order) ====================
+; ------------------------------------------------------
 		
 ; generic stack and memory management code
 ; this code is identical across all versions of
@@ -508,6 +538,7 @@ errormsg:
 ;	.EQ. IF FOUND
 ;	(X) = STACK PNTR OF FRAME FOUND
 ; ----------------------------------------------------------------------------
+
 GTFORPNT:
         tsx
         inx
@@ -6302,9 +6333,20 @@ NotCTRLC:
 StartupMessage:
 	.byte	$0C,"Cold [C] or warm [W] start?",$0D,$0A,$00
 
+; ======================================================
+; --------------------- Vectors ------------------------
+; ======================================================
+
 .segment "VECTS"
 .org $FFFA
 	.word	Reset		; NMI 
 	.word	Reset		; RESET 
 	.word	Reset		; IRQ 
+
+;   ______ _   _ _____  
+;  |  ____| \ | |  __ \ 
+;  | |__  |  \| | |  | |
+;  |  __| | . ` | |  | |
+;  | |____| |\  | |__| |
+;  |______|_| \_|_____/ 
 
