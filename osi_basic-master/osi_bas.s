@@ -5939,7 +5939,15 @@ MEMORY_LOAD:
 	jsr	rootsetup
 	jsr	list
 	jsr	type
-
+	ldy #>sdbuffer
+	ldx #<sdbuffer
+	jsr fat32_finddirent
+	bcc foundfile
+	; File not found
+	jmp transfer_error
+foundfile:
+	; Open file
+	jsr fat32_opendirent
 	ldx #<lodmsg
  	ldy #>lodmsg
   	jsr w_acia_full
@@ -5992,16 +6000,6 @@ typeloop:		; loop to type filenames
 exitloop:
   jsr crlf
   jsr rootsetup
-  ldy #>sdbuffer
-  ldx #<sdbuffer
-  jsr fat32_finddirent
-  bcc foundfile
-  ; File not found
-  jmp transfer_error
-foundfile:
-  ; Open file
-  jsr fat32_opendirent
-  ; BUG I dont think this works with saving... will find out later.
   rts
 backspace:
   dex
@@ -6164,6 +6162,7 @@ MEMORY_SAVE:
 	jsr rootsetup
 	jsr list
 	jsr type
+	; BUG insert dirent and cluster stuff here
 	ldx #<savmsg
  	ldy #>savmsg
   	jsr w_acia_full

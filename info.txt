@@ -1,8 +1,0 @@
-h̴̨̰̹͙̣̻̰́͆̀̓̋̏̿̍̈́̌̇̾̒͘͝e̴̩̹͇͓͚͇̳̟̿̇͌̋́͆̓̂͗̚͝͠͝l̶̡̝̬̙̱̦̪̞̭͖̹̘̜̣̗̀͐̀̚̕p̵̢͇̗̱̝̤͓̈́̒̇͒͒͘̚̕͠͝ ̶̨͓͖̲̼̭̬̗͕̏͐̽͑͝ͅͅͅm̸̢̳͉̤͔͕͓͉͔̺͉͎͚̰̗̌͆̓̎̅̋̈́̋̍̕̕ȩ̷̗͓̰͈̮̠͕͓̥̮́̃̇̀̎̿͊́ͅ
-
-i cannot find out how to create a file on the sd card (fat32)
-there are some attributes that i need to add
-and i cant find the info anywhere...
-
-
-:(
