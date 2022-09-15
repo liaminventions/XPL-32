@@ -15,6 +15,7 @@ fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
 fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
+fat32_dwordspercluster  = zp_fat32_variables + $18  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -446,7 +447,6 @@ fat32_openroot:
 
   rts
 
-  ; BUG this is called after finalizing the filename, but I think its only ment for reading. hmm do i need to make another one for writing???!
 fat32_opendirent:
   ; Prepare to read from a file or directory based on a dirent
   ;
@@ -488,7 +488,27 @@ fat32_opendirent:
 
   rts
 
-
+fat32_makedirent:
+  
+fat32_calulate_bps:
+	lda $00
+	pha
+	lda #128
+	sta $00
+	; fat32_sectorspercluster * 128
+        LDA #0       ; Initialize RESULT to 0
+        LDX #8       ; There are 8 bits in NUM2
+cL1     LSR $00      ; Get low bit of NUM2
+        BCC cL2      ; 0 or 1?
+        CLC          ; If 1, add NUM1
+        ADC fat32_sectorspercluster
+cL2     ROR A        ; "Stairstep" shift (catching carry from add)
+        ROR RESULT
+        DEX
+        BNE cL1
+        STA RESULT+1
+	pla
+	sta $00
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;

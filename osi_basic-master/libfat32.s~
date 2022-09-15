@@ -15,6 +15,7 @@ fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
 fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
+fat32_quadbytepercluster= zp_fat32_variables + $18  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -375,6 +376,56 @@ uendofchain:
   sec
   rts
 
+fat32_writenextsector:
+  ; Writes the next sector from a cluster chain into the buffer at fat32_address.
+  ;
+  ; Advances the current sector ready for the next write and looks up the next cluster
+  ; in the chain when necessary.
+  ;
+  ; On return, data was written.
+
+  ; Maybe there are pending sectors in the current cluster
+  lda fat32_pendingsectors
+  bne writesector
+
+  ; No pending sectors, check for end of cluster chain
+  lda fat32_nextcluster+3
+  bmi endofchainn
+
+  ; Prepare to write the next cluster
+  jsr fat32_seekcluster
+  ; BUG do i use this? or do i need to make a whole other thing so that I can use fat32_file_write..?
+
+writesector:
+  dec fat32_pendingsectors
+
+  ; Set up target address
+  lda fat32_address
+  sta zp_sd_address
+  lda fat32_address+1
+  sta zp_sd_address+1
+
+  ; Write the sector
+  jsr sd_writesector
+
+  ; Advance to next sector
+  inc zp_sd_currentsector
+  bne ursectorincrementdone
+  inc zp_sd_currentsector+1
+  bne ursectorincrementdone
+  inc zp_sd_currentsector+2
+  bne ursectorincrementdone
+  inc zp_sd_currentsector+3
+ursectorincrementdone:
+
+  ; Success - clear carry and return
+  clc
+  rts
+
+endofchainn:
+  ; End of chain - set carry and return
+  sec
+  rts
 
 fat32_openroot:
   ; Prepare to read the root directory
@@ -395,7 +446,6 @@ fat32_openroot:
   sta zp_sd_address+1
 
   rts
-
 
 fat32_opendirent:
   ; Prepare to read from a file or directory based on a dirent
@@ -438,7 +488,27 @@ fat32_opendirent:
 
   rts
 
-
+fat32_makedirent:
+  
+fat32_calulate_bps:
+	lda $00
+	pha
+	lda #128
+	sta $00
+	; fat32_sectorspercluster * 128
+        LDA #0       ; Initialize RESULT to 0
+        LDX #8       ; There are 8 bits in NUM2
+cL1     LSR $00      ; Get low bit of NUM2
+        BCC cL2      ; 0 or 1?
+        CLC          ; If 1, add NUM1
+        ADC fat32_sectorspercluster
+cL2     ROR A        ; "Stairstep" shift (catching carry from add)
+        ROR RESULT
+        DEX
+        BNE cL1
+        STA RESULT+1
+	pla
+	sta $00
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
@@ -556,7 +626,7 @@ fat32_file_readbyte:
   ; Need to read a new sector?
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
-  bcc ugotdata
+  bcc uegotdata
 
   ; Read another sector
   lda #<fat32_readbuffer
@@ -567,7 +637,7 @@ fat32_file_readbyte:
   jsr fat32_readnextsector
   bcs urts                    ; this shouldn't happen
 
-ugotdata:
+uegotdata:
   ldy #0
   lda (zp_sd_address),y
 
@@ -624,6 +694,49 @@ uwholesectorreadloop:
   bne uwholesectorreadloop
 
 udone:
+  rts
+
+fat32_file_write:
+  ; Write a whole file from memoryu  It's assumed the file has just been opened 
+  ; and no data has been written yet.
+  ;
+  ; Also we write whole sectors, so data in the target region beyond the end of the 
+  ; file may get overwritten, up to the next 512-byte boundary.
+  ;
+  ; And we don't properly support 64k+ files, as it's unnecessary complication given
+  ; the 6502's small address space
+
+  ; Round the size up to the next whole sector
+  lda fat32_bytesremaining
+  cmp #1                      ; set carry if bottom 8 bits not zero
+  lda fat32_bytesremaining+1
+  adc #0                      ; add carry, if any
+  lsr                         ; divide by 2
+  adc #0                      ; round up
+
+  ; No data?
+  beq urdone
+
+  ; Store sector count - not a byte count any more
+  sta fat32_bytesremaining
+
+  ; Write entire sectors from the user-supplied buffer
+wholesectorwriteloop:
+  ; Write a sector from fat32_address
+  jsr fat32_writenextsector
+
+  ; Advance fat32_address by 512 bytes
+  lda fat32_address+1
+  adc #2                      ; carry already clear
+  sta fat32_address+1
+
+  ldx fat32_bytesremaining    ; note - actually loads sectors remaining
+  dex
+  stx fat32_bytesremaining    ; note - actually stores sectors remaining
+
+  bne wholesectorwriteloop
+
+urdone:
   rts
 
 
