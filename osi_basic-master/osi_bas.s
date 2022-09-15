@@ -6157,6 +6157,10 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
+	; BUG the memory save crashes the computer.
+        ; theres a bunch on cluster, dirent and file creation stuff i need to figure out.
+	; i am not so sure how to fully create a file right now.
+	; this code just does loading backwards...
 	jsr rootsetup
 	jsr list
 	jsr type
@@ -6168,7 +6172,6 @@ MEMORY_SAVE:
   	lda #$06
   	sta fat32_address+1
   	jsr fat32_file_write  ; Yes. It is finally time to save the file.
-	; BUG theres a bunch on cluster, dirent and file creation stuff i will figure out soon, idk...
   	ldx #<SAVE_DONE
   	ldy #>SAVE_DONE
   	jsr w_acia_full
