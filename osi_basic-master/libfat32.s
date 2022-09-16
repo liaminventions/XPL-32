@@ -490,8 +490,39 @@ fat32_opendirent:
 
 fat32_writedirent:
   ; Write a directory entry from the open directory
+  ; BUG if the FAT if full this overwrites the root.
   ;
+  ; Check first character
+  ldy #0
+  lda (zp_sd_address),y
+
+  ; End of directory => tell loop
+  sec
+
+  ; Empty entry => continue
+  cmp #$e5
+  beq fat32_readdirent
+  clc
+
+  ldy #0
+wdirlp:
+  lda (fat32_filenamepointer),y	; copy filename
+  sta (zp_sd_address),y
+  iny
+  cpy #$0b
+  bne wdirlp
+
+  ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
+  ; is this the end of the table?
+  bcc wdnot
+  ; if so, write that to the next 
+  ldy #20
+  stz (zp_sd_address),y
   
+
+wdnot:
+  jsr fat32_writenextsector ; write the data
+
   rts
 
 fat32_readdirent:
@@ -555,7 +586,7 @@ ugotdata:
 
 fat32_finddirent:
   ; Finds a particular directory entryu  X,Y point to the 11-character filename to seek.
-  ; The directory should already be open for iterationu
+  ; The directory should already be open for iteration.
 
   ; Form ZP pointer to user's filename
   stx fat32_filenamepointer

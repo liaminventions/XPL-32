@@ -491,30 +491,30 @@ fat32_opendirent:
 fat32_writedirent:
   ; Write a directory entry from the open directory
   ;
-  jsr fat32_calculate_dwps
-  ldy fat32_data_start
-  
+  ; Check first character
+  ldy #0
+  lda (zp_sd_address),y
+
+  ; End of directory => tell loop
+  sec
+
+  ; Empty entry => continue
+  cmp #$e5
+  beq fat32_readdirent
+  clc
+
+  ldy #0
+wdirlp:
+  lda (fat32_filenamepointer),y
+  sta (zp_sd_address),y
+  iny
+  cpy #12
+  bne wdirlp
+
+  jsr fat32_writenextsector ; write the data
+
   rts
-fat32_calulate_dwps:
-	lda $00
-	pha
-	lda #128
-	sta $00
-; fat32_dwordspercluster = fat32_sectorspercluster * 128
-        LDA #0       ; Initialize RESULT to 0
-        LDX #8       ; There are 8 bits in NUM2
-cL1     LSR $00      ; Get low bit of NUM2
-        BCC cL2      ; 0 or 1?
-        CLC          ; If 1, add NUM1
-        ADC fat32_sectorspercluster
-cL2     ROR A        ; "Stairstep" shift (catching carry from add)
-        ROR fat32_dwordspercluster
-        DEX
-        BNE cL1
-        STA fat32_dwordspercluster+1
-	pla
-	sta $00
-	rts
+
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
@@ -576,7 +576,7 @@ ugotdata:
 
 fat32_finddirent:
   ; Finds a particular directory entryu  X,Y point to the 11-character filename to seek.
-  ; The directory should already be open for iterationu
+  ; The directory should already be open for iteration.
 
   ; Form ZP pointer to user's filename
   stx fat32_filenamepointer
