@@ -514,7 +514,16 @@ wdirlp:
   sta (zp_sd_address),y
   pla			; Previous Index 0
   sta (zp_sd_address),y
-  iny 
+  iny			; no time/date
+  stz (zp_sd_address),y	; because I don't have an RTC
+  iny
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y
+  ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
+  ; look at "Directory entry" at 0x0E onward on the table.
 
   ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
   ; is this the end of the table?
