@@ -16,6 +16,7 @@ fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
+fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -502,9 +503,60 @@ fat32_writedirent:
   ; Write a directory entry from the open directory
   ; BUG if the FAT if full this overwrites the root.
   ;
+  ; this is WIP but what i need to do here is do:
+  ; lba=fat32_data_start
+  ; lba=+lastfountfreecluster/128
+  ; search for the next free cluster 
+  ; 
+  ; use ffs_get_next_free_cluster in https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c for reference
   lda fat32_data_start
-  
-  ; Check first character
+  sta $00
+  ; result = lastfoundfreecluster / 128
+  ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
+  	SEC             ; Detect overflow or /0 condition.
+        LDA     N+2     ; Divisor must be more than high cell of dividend.  To
+        SBC     #128       ; find out, subtract divisor from high cell of dividend;
+        LDA     N+3     ; if carry flag is still set at the end, the divisor was
+        SBC     #0     ; not big enough to avoid overflow. This also takes care
+        BCS     oflo$   ; of any /0 condition.  Branch if overflow or /0 error.
+                        ; We will loop 16 times; but since we shift the dividend
+        LDX     #11H    ; over at the same time as shifting the answer in, the
+                        ; operation must start AND finish with a shift of the
+                        ; low cell of the dividend (which ends up holding the
+                        ; quotient), so we start with 17 (11H) in X.
+ loop:  ROL     N+4     ; Move low cell of dividend left one bit, also shifting
+        ROL     N+5     ; answer in. The 1st rotation brings in a 0, which later
+                        ; gets pushed off the other end in the last rotation.
+        DEX
+        BEQ     end$    ; Branch to the end if finished.
+
+        ROL     N+2     ; Shift high cell of dividend left one bit, also
+        ROL     N+3     ; shifting next bit in from high bit of low cell.
+        STZ     CARRY   ; Zero old bits of CARRY so subtraction works right.
+        ROL     CARRY   ; Store old high bit of dividend in CARRY.  (For STZ
+                        ; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
+        SEC             ; See if divisor will fit into high 17 bits of dividend
+        LDA     N+2     ; by subtracting and then looking at carry flag.
+        SBC     #128       ; First do low byte.
+        STA     N+6     ; Save difference low byte until we know if we need it.
+        LDA     N+3     ;
+        SBC     #0     ; Then do high byte.
+        TAY             ; Save difference high byte until we know if we need it.
+        LDA     CARRY   ; Bit 0 of CARRY serves as 17th bit.
+        SBC     #0      ; Complete the subtraction by doing the 17th bit before
+        BCC     loop    ; determining if the divisor fit into the high 17 bits
+                        ; of the dividend.  If so, the carry flag remains set.
+        LDA     N+6     ; If divisor fit into dividend high 17 bits, update
+        STA     N+2     ; dividend high cell to what it would be after
+        STY     N+3     ; subtraction.
+        BRA     loop    ; Always branch.  NMOS 6502 could use BCS here.
+
+ oflo$: LDA     #FFH    ; If overflow occurred, put FF
+        STA     N+2     ; in remainder low byte
+        STA     N+3     ; and high byte,
+        STA     N+4     ; and in quotient low byte
+        STA     N+5     ; and high byte.
+ end$:	RTS  ; Check first character
   clc
   ldy #0
   lda (zp_sd_address),y

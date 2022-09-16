@@ -16,6 +16,7 @@ fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
+fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -182,6 +183,15 @@ uskipfatsloop:
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
 
+  ; Set the data start sector to the last fount free cluster.
+  lda fat32_datastart
+  sta fat32_lastfoundfreecluster
+  lda fat32_datastart+1
+  sta fat32_lastfoundfreecluster+1
+  lda fat32_datastart+2
+  sta fat32_lastfoundfreecluster+2
+  lda fat32_datastart+3
+  sta fat32_lastfoundfreeclusterrts+3
   clc
   rts
 
@@ -494,7 +504,20 @@ fat32_writedirent:
   ; BUG if the FAT if full this overwrites the root.
   ;
   lda fat32_data_start
-  
+  sta $00
+  lda #$80      ; Preload sentinel bit into RESULT
+  sta fat32_temp
+  asl A         ; Initialize RESULT hi byte to 0
+  dec NUM1
+wl1:
+  lsr NUM2      ; Get low bit of NUM2
+  bcc wl2       ; 0 or 1?
+  adc NUM1      ; If 1, add (NUM1-1)+1
+wl2:
+  ror A         ; "Stairstep" shift (catching carry from add)
+  ror fat32_temp
+  bcc wl1       ; When sentinel falls off into carry, we're done
+  sta fat32_temp+1
   ; Check first character
   clc
   ldy #0
