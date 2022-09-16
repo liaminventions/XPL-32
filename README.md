@@ -27,3 +27,13 @@ There is a 6581 SID at $B800 ($D400 in the c64) onboard with its potentiometer (
 I programmed support to convert most SID files, as well.
 # Memory Map
 ![](https://raw.githubusercontent.com/liaminventions/XPL-32/main/images/memory_map.jpg)
+# Tools I Use
+## PCB Design
+I currently use [EAGLE](https://www.autodesk.com/products/eagle/free-download)
+## 3D Modeling
+[Fusion 360](https://www.autodesk.com/products/fusion-360/overview?us_oa=dotcom-us&us_si=4e5471dc-07ed-4416-80c0-6f3e9f7c15b4&us_pt=NINVFUS&us_at=%5Bobject%20Object%5D&term=1-YEAR&tab=subscription&plc=F360)
+## Coding
+[VIM](https://www.vim.org/) for coding.
+[xa](https://github.com/pfusik/xasm), [ca65](https://github.com/cc65/cc65) (from cc65), and [vasm](http://sun.hasenbraten.de/vasm/) for assembly.
+"xa 6502 cross assembler" syntax highlighting in vim
+most source files are .s, but some are .a65 or .asm
