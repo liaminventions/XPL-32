@@ -496,6 +496,7 @@ fat32_writedirent:
   ; BUG if the FAT if full this overwrites the root.
   ;
   lda fat32_data_start
+  
   ; Check first character
   clc
   ldy #0

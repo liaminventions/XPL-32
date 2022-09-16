@@ -182,7 +182,7 @@ uskipfatsloop:
   sta fat32_rootcluster+3
 
   ; Calculate the amount of DWORDS per cluster
-  jsr fat32_calculate_dwps
+  jsr fat32_calculate_dwpc
 
   clc
   rts
@@ -546,7 +546,7 @@ wdnot:
 
   rts
 
-fat32_calulate_dwps:
+fat32_calulate_dwpc:
 	lda $00
 	pha
 	lda #128
