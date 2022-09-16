@@ -17,6 +17,7 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
+fat32_lba			= zp_fat32_variables + $1e  ; 4 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -508,6 +509,12 @@ fat32_writedirent:
   ; use ffs_get_next_free_cluster in https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c for reference
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
+	CLC
+	LDA	fat32_lastfoundfreecluster	; if there is no previously found free cluster
+	ADC	fat32_lastfoundfreecluster+1
+	ADC	fat32_lastfoundfreecluster+2
+	ADC	fat32_lastfoundfreecluster+3
+	BEQ	skipdiv				; then skip the division
 	LDA	fat32_lastfoundfreecluster
 	PHA
 	LDA	fat32_lastfoundfreecluster+1
@@ -582,6 +589,7 @@ divloop:
 	STA	fat32_lastfoundfreecluster+1
 	PLA
 	STA	fat32_lastfoundfreecluster
+skipdiv:
   ; Check first character
   clc
   ldy #0
