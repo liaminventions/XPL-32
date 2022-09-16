@@ -493,24 +493,28 @@ fat32_writedirent:
   ; BUG if the FAT if full this overwrites the root.
   ;
   ; Check first character
+  clc
   ldy #0
   lda (zp_sd_address),y
-
+  bne wdirlp
+  pha
   ; End of directory => tell loop
   sec
-
-  ; Empty entry => continue
-  cmp #$e5
-  beq fat32_readdirent
-  clc
-
-  ldy #0
 wdirlp:
   lda (fat32_filenamepointer),y	; copy filename
   sta (zp_sd_address),y
   iny
   cpy #$0b
-  bne wdirlp
+  bne wdirlp  
+
+  lda #$20		; File Type: ARCHIVE
+  sta (zp_sd_address),y
+  iny
+  lda #$10		; No checksum
+  sta (zp_sd_address),y
+  pla			; Previous Index 0
+  sta (zp_sd_address),y
+  iny 
 
   ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
   ; is this the end of the table?
@@ -518,9 +522,8 @@ wdirlp:
   ; if so, write that to the next 
   ldy #20
   stz (zp_sd_address),y
-  
-
 wdnot:
+
   jsr fat32_writenextsector ; write the data
 
   rts
