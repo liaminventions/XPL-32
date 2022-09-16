@@ -181,6 +181,9 @@ uskipfatsloop:
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
 
+  ; Calculate the amount of DWORDS per cluster
+  jsr fat32_calculate_dwps
+
   clc
   rts
 
@@ -492,6 +495,8 @@ fat32_writedirent:
   ; Write a directory entry from the open directory
   ; BUG if the FAT if full this overwrites the root.
   ;
+  lda fat32_data_start
+  
   ; Check first character
   clc
   ldy #0
@@ -524,6 +529,10 @@ wdirlp:
   stz (zp_sd_address),y
   ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
   ; look at "Directory entry" at 0x0E onward on the table.
+  iny
+  stz (zp_sd_address),y	; No ID
+  iny
+  stz (zp_sd_address),y
 
   ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
   ; is this the end of the table?
@@ -536,6 +545,27 @@ wdnot:
   jsr fat32_writenextsector ; write the data
 
   rts
+
+fat32_calulate_dwps:
+	lda $00
+	pha
+	lda #128
+	sta $00
+; fat32_dwordspercluster = fat32_sectorspercluster * 128
+        LDA #0       ; Initialize RESULT to 0
+        LDX #8       ; There are 8 bits in NUM2
+cL1     LSR $00      ; Get low bit of NUM2
+        BCC cL2      ; 0 or 1?
+        CLC          ; If 1, add NUM1
+        ADC fat32_sectorspercluster
+cL2     ROR A        ; "Stairstep" shift (catching carry from add)
+        ROR fat32_dwordspercluster
+        DEX
+        BNE cL1
+        STA fat32_dwordspercluster+1
+	pla
+	sta $00
+	rts
 
 fat32_readdirent:
   ; Read a directory entry from the open directory
