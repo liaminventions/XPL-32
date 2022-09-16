@@ -509,6 +509,14 @@ fat32_writedirent:
   ; use ffs_get_next_free_cluster in https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c for reference
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
+	LDA	fat32_fatstart
+	STA	fat32_lba
+	LDA	fat32_fatstart+1
+	STA	fat32_lba+1			; copy fat_start to lba
+	LDA	fat32_fatstart+2
+	STA	fat32_lba+2
+	LDA	fat32_fatstart+3
+	STA	fat32_lba+3
 	CLC
 	LDA	fat32_lastfoundfreecluster	; if there is no previously found free cluster
 	ADC	fat32_lastfoundfreecluster+1
@@ -528,60 +536,60 @@ fat32_writedirent:
 	LDA	$01
 	PHA
 
-  	SEC             ; Detect overflow or /0 condition.
-        LDA     fat32_lastfoundfreecluster     ; Divisor must be more than high cell of dividend.  To
-        SBC     #128       ; find out, subtract divisor from high cell of dividend;
-        LDA     fat32_lastfoundfreecluster+1     ; if carry flag is still set at the end, the divisor was
-        SBC     #0      ; not big enough to avoid overflow. This also takes care
-        BCS     oflo    ; of any /0 condition.  Branch if overflow or /0 error.
-                        ; We will loop 16 times; but since we shift the dividend
-        LDX     #$11    ; over at the same time as shifting the answer in, the
-                        ; operation must start AND finish with a shift of the
-                        ; low cell of the dividend (which ends up holding the
-                        ; quotient), so we start with 17 (11H) in X.
+  	SEC            				; Detect overflow or /0 condition.
+        LDA     fat32_lastfoundfreecluster      ; Divisor must be more than high cell of dividend.  To
+        SBC     #128       			; find out, subtract divisor from high cell of dividend;
+        LDA     fat32_lastfoundfreecluster+1    ; if carry flag is still set at the end, the divisor was
+        SBC     #0      			; not big enough to avoid overflow. This also takes care
+        BCS     oflo    			;	 of any /0 condition.  Branch if overflow or /0 error.
+                        			; We will loop 16 times; but since we shift the dividend
+        LDX     #$11    			; over at the same time as shifting the answer in, the
+                        			; operation must start AND finish with a shift of the
+                        			; low cell of the dividend (which ends up holding the
+                        			; quotient), so we start with 17 (11H) in X.
 divloop:
-	ROL     fat32_lastfoundfreecluster+2     ; Move low cell of dividend left one bit, also shifting
-        ROL     fat32_lastfoundfreecluster+3     ; answer in. The 1st rotation brings in a 0, which later
-                        ; gets pushed off the other end in the last rotation.
+	ROL     fat32_lastfoundfreecluster+2    ; Move low cell of dividend left one bit, also shifting
+        ROL     fat32_lastfoundfreecluster+3    ; answer in. The 1st rotation brings in a 0, which later
+                        			; gets pushed off the other end in the last rotation.
         DEX
-        BEQ     enddiv    ; Branch to the end if finished.
+        BEQ     enddiv    			; Branch to the end if finished.
 
-        ROL     fat32_lastfoundfreecluster       ; Shift high cell of dividend left one bit, also
-        ROL     fat32_lastfoundfreecluster+1     ; shifting next bit in from high bit of low cell.
-        STZ     $00   ; Zero old bits of CARRY so subtraction works right.
-        ROL     $00   ; Store old high bit of dividend in CARRY.  (For STZ
-                        ; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
-        SEC             ; See if divisor will fit into high 17 bits of dividend
-        LDA     fat32_lastfoundfreecluster     ; by subtracting and then looking at carry flag.
-        SBC     #128       ; First do low byte.
-        STA     $01     ; Save difference low byte until we know if we need it.
-        LDA     fat32_lastfoundfreecluster+1     ;
-        SBC     #0     ; Then do high byte.
-        TAY             ; Save difference high byte until we know if we need it.
-        LDA     $00   ; Bit 0 of CARRY serves as 17th bit.
-        SBC     #0      ; Complete the subtraction by doing the 17th bit before
-        BCC     divloop    ; determining if the divisor fit into the high 17 bits
-                        ; of the dividend.  If so, the carry flag remains set.
-        LDA     $01     ; If divisor fit into dividend high 17 bits, update
-        STA     fat32_lastfoundfreecluster     ; dividend high cell to what it would be after
-        STY     fat32_lastfoundfreecluster+1     ; subtraction.
-        BRA     divloop    ; Always branch.  NMOS 6502 could use BCS here.
+        ROL     fat32_lastfoundfreecluster      ; Shift high cell of dividend left one bit, also
+        ROL     fat32_lastfoundfreecluster+1    ; shifting next bit in from high bit of low cell.
+        STZ     $00   				; Zero old bits of CARRY so subtraction works right.
+        ROL     $00   				; Store old high bit of dividend in CARRY.  (For STZ
+                        			; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
+        SEC             			; See if divisor will fit into high 17 bits of dividend
+        LDA     fat32_lastfoundfreecluster      ; by subtracting and then looking at carry flag.
+        SBC     #128       			; First do low byte.
+        STA     $01     			; Save difference low byte until we know if we need it.
+        LDA     fat32_lastfoundfreecluster+1    ;
+        SBC     #0     				; Then do high byte.
+        TAY             			; Save difference high byte until we know if we need it.
+        LDA     $00   				; Bit 0 of CARRY serves as 17th bit.
+        SBC     #0      			; Complete the subtraction by doing the 17th bit before
+        BCC     divloop 			; determining if the divisor fit into the high 17 bits
+                        			; of the dividend.  If so, the carry flag remains set.
+        LDA     $01     			; If divisor fit into dividend high 17 bits, update
+        STA     fat32_lastfoundfreecluster      ; dividend high cell to what it would be after
+        STY     fat32_lastfoundfreecluster+1    ; subtraction.
+        BRA     divloop    			; Always branch.  NMOS 6502 could use BCS here.
 
- oflo:  LDA     #$FF    ; If overflow occurred, put FF
-        STA     fat32_lastfoundfreecluster     ; in remainder low byte
-        STA     fat32_lastfoundfreecluster+1     ; and high byte,
-        STA     fat32_lastfoundfreecluster+2     ; and in quotient low byte
-        STA     fat32_lastfoundfreecluster+3     ; and high byte.
+ oflo:  LDA     #$FF    			; If overflow occurred, put FF
+        STA     fat32_lastfoundfreecluster      ; in remainder low byte
+        STA     fat32_lastfoundfreecluster+1    ; and high byte,
+        STA     fat32_lastfoundfreecluster+2    ; and in quotient low byte
+        STA     fat32_lastfoundfreecluster+3    ; and high byte.
  enddiv:
 	LDA	lastfoundfreecluster+2
-	STA	fat32_result
+	STA	fat32_result			; store quotient into fat32_result
 	LDA	lastfoundfreecluster+3
 	STA	fat32_result+1
 	PLA
 	STA	$01
 	PLA
 	STA	$00
-	PLA
+	PLA					; restore
 	STA	fat32_lastfoundfreecluster+3
 	PLA
 	STA	fat32_lastfoundfreecluster+2
@@ -589,7 +597,21 @@ divloop:
 	STA	fat32_lastfoundfreecluster+1
 	PLA
 	STA	fat32_lastfoundfreecluster
+	; add the result to lba
+	CLC
+	LDA	fat32_lba
+	ADC	fat32_result
+	STA	fat32_lba
+	LDA	fat32_lba+1
+	ADC	fat32_result+1
+	STA	fat32_lba+1
+	BCC	skipdiv
+	INC	fat32_lda+2
 skipdiv:
+  ; now we have preformed LBA=+LASTFOUNDSECTOR/128
+  
+  ; insert more code here
+
   ; Check first character
   clc
   ldy #0
