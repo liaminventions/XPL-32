@@ -7,19 +7,20 @@
 
 fat32_readbuffer = fat32_workspace
 
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-fat32_dwordspercluster  = zp_fat32_variables + $18  ; 2 bytes
+fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
+fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
+fat32_rootcluster       	= zp_fat32_variables + $08  ; 4 bytes
+fat32_sectorspercluster 	= zp_fat32_variables + $0c  ; 1 byte
+fat32_pendingsectors    	= zp_fat32_variables + $0d  ; 1 byte
+fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
+fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
+fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
+fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 
+fat32_fat_entries_per_sector = #$80 ; 512/4 DWORDS per sector
 
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
@@ -180,9 +181,6 @@ uskipfatsloop:
   sta fat32_rootcluster+2
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
-
-  ; Calculate the amount of DWORDS per cluster
-  jsr fat32_calculate_dwpc
 
   clc
   rts
@@ -545,27 +543,6 @@ wdnot:
   jsr fat32_writenextsector ; write the data
 
   rts
-
-fat32_calulate_dwpc:
-	lda $00
-	pha
-	lda #128
-	sta $00
-; fat32_dwordspercluster = fat32_sectorspercluster * 128
-        LDA #0       ; Initialize RESULT to 0
-        LDX #8       ; There are 8 bits in NUM2
-cL1     LSR $00      ; Get low bit of NUM2
-        BCC cL2      ; 0 or 1?
-        CLC          ; If 1, add NUM1
-        ADC fat32_sectorspercluster
-cL2     ROR A        ; "Stairstep" shift (catching carry from add)
-        ROR fat32_dwordspercluster
-        DEX
-        BNE cL1
-        STA fat32_dwordspercluster+1
-	pla
-	sta $00
-	rts
 
 fat32_readdirent:
   ; Read a directory entry from the open directory
