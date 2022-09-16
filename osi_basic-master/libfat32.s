@@ -610,26 +610,34 @@ divloop:
 	STA	fat32_lba+3
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-
+dw_count=$00; through $03
   ; Target buffer
   lda #<fat32_readbuffer
   sta zp_sd_address
   lda #>fat32_readbuffer
   sta zp_sd_address+1
-  ; LBA+-FATSTART
+  lda $00
+  pha
+  lda $01
+  pha
+  lda $02 ; BUG remember to pull
+  pha
+  lda $03
+  pha
+  ; dw_count = LBA-FATSTART
   sec
   lda fat32_lba
   sbc fat32_fatstart
-  sta fat32_lba
+  sta $00
   lda fat32_lba+1
   sbc fat32_fatstart+1
-  sta fat32_lba+1
+  sta $01
   lda fat32_lba+2
   sbc fat32_fatstart+2
-  sta fat32_lba+2
+  sta $02
   lda fat32_lba+3
   sbc fat32_fatstart+3
-  sta fat32_lba+3
+  sta $03
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
