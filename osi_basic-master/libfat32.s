@@ -545,8 +545,11 @@ wdirlp:
   stz (zp_sd_address),y	; No ID
   iny
   stz (zp_sd_address),y
+  ; BUG insert cluster entries here
 
-  ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
+  ; BUG not so sure how to signal end of the dirent table without possibly going over the buffer.
+  ; idea: check y, if its at the end, reset it and load the next sector.
+
   ; is this the end of the table?
   bcc wdnot
   ; if so, write that to the next 
