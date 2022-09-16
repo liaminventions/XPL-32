@@ -15,7 +15,7 @@ fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
 fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-fat32_quadbytepercluster= zp_fat32_variables + $18  ; 2 bytes
+fat32_dwordspercluster  = zp_fat32_variables + $18  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -489,13 +489,16 @@ fat32_opendirent:
   rts
 
 fat32_makedirent:
+  jsr fat32_calculate_dwps
+  ldy fat32_data_start
   
-fat32_calulate_bps:
+  rts
+fat32_calulate_dwps:
 	lda $00
 	pha
 	lda #128
 	sta $00
-	; fat32_sectorspercluster * 128
+; fat32_dwordspercluster = fat32_sectorspercluster * 128
         LDA #0       ; Initialize RESULT to 0
         LDX #8       ; There are 8 bits in NUM2
 cL1     LSR $00      ; Get low bit of NUM2
@@ -503,12 +506,13 @@ cL1     LSR $00      ; Get low bit of NUM2
         CLC          ; If 1, add NUM1
         ADC fat32_sectorspercluster
 cL2     ROR A        ; "Stairstep" shift (catching carry from add)
-        ROR RESULT
+        ROR fat32_dwordspercluster
         DEX
         BNE cL1
-        STA RESULT+1
+        STA fat32_dwordspercluster+1
 	pla
 	sta $00
+	rts
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;

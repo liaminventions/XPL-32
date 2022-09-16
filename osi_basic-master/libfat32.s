@@ -488,14 +488,47 @@ fat32_opendirent:
 
   rts
 
-fat32_makedirent:
+fat32_writedirent:
+  ; Write a directory entry from the open directory
+  ;
+  ; Increment pointer by 32 to point to next entry
+  clc
+  lda zp_sd_address
+  adc #32
+  sta zp_sd_address
+  lda zp_sd_address+1
+  adc #0
+  sta zp_sd_address+1
+
+  ; If it's not at the end of the buffer, we have data already
+  cmp #>(fat32_readbuffer+$200)
+  bcc fat32_writedirent
+
+  ; Read another sector
+  lda #<fat32_readbuffer
+  sta fat32_address
+  lda #>fat32_readbuffer
+  sta fat32_address+1
+
+  jsr fat32_readnextsector
+  bcc ugotdata
+
+uendofdirectory:
+  sec
+  rts
+
+ugotdata:
+
+  jsr fat32_calculate_dwps
+  ldy fat32_data_start
   
-fat32_calulate_bps:
+  rts
+fat32_calulate_dwps:
 	lda $00
 	pha
 	lda #128
 	sta $00
-	; fat32_sectorspercluster * 128
+; fat32_dwordspercluster = fat32_sectorspercluster * 128
         LDA #0       ; Initialize RESULT to 0
         LDX #8       ; There are 8 bits in NUM2
 cL1     LSR $00      ; Get low bit of NUM2
@@ -503,12 +536,13 @@ cL1     LSR $00      ; Get low bit of NUM2
         CLC          ; If 1, add NUM1
         ADC fat32_sectorspercluster
 cL2     ROR A        ; "Stairstep" shift (catching carry from add)
-        ROR RESULT
+        ROR fat32_dwordspercluster
         DEX
         BNE cL1
-        STA RESULT+1
+        STA fat32_dwordspercluster+1
 	pla
 	sta $00
+	rts
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
