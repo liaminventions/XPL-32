@@ -18,6 +18,7 @@ fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
 fat32_lba			= zp_fat32_variables + $1e  ; 4 bytes
+fat32_currentfat		= zp_fat32_variables + $22  ; 4 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -501,14 +502,9 @@ fat32_writedirent:
   ; Write a directory entry from the open directory
   ; BUG if the FAT if full this overwrites the root.
   ;
-  ; this is WIP but what i need to do here is do:
-  ; lba=fat32_data_start
-  ; lba=+lastfountfreecluster/128
-  ; search for the next free cluster 
-  ; 
-  ; use ffs_get_next_free_cluster in https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c for reference
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
+
 	LDA	fat32_fatstart
 	STA	fat32_lba
 	LDA	fat32_fatstart+1
@@ -609,9 +605,56 @@ divloop:
 	INC	fat32_lda+2
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-  
-  ; insert more code here
 
+  ; Target buffer
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
+  ; LBA+-FATSTART
+  sec
+  lda fat32_lba
+  sbc fat32_fatstart
+  sta fat32_lba
+  lda fat32_lba+1
+  sbc fat32_fatstart+1
+  sta fat32_lba+1
+  lda fat32_lba+2
+  sbc fat32_fatstart+2
+  sta fat32_lba+2
+  lda fat32_lba+3
+  sbc fat32_fatstart+3
+  sta fat32_lba+3
+  ; Save zp_sd_address for later
+  lda zp_sd_address
+  pha
+  lda zp_sd_address
+  pha 
+  ; Now we will find a free cluster. (finally)
+findfreeclusterloop:
+  ; We will read at sector LBA
+  lda fat32_lba
+  sta zp_sd_currentsector
+  lda fat32_lba+1
+  sta zp_sd_currentsector+1
+  lda fat32_lba+2
+  sta zp_sd_currentsector+2
+  lda fat32_lba+3
+  sta zp_sd_currentsector+3
+  ; Read sector
+  jsr fat32_readsector
+    
+  ldx #0
+ffcinner:
+  
+
+
+
+  inx
+  cpx #129
+  bne ffcinner
+
+  jmp findfreeclusterloop
   ; Check first character
   clc
   ldy #0
