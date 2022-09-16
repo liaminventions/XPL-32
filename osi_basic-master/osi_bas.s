@@ -6155,14 +6155,17 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-	; BUG the memory save crashes the computer.
-        ; theres a bunch on cluster, dirent and file creation stuff i need to figure out.
-	; i am not so sure how to fully create a file right now.
-	; this code just does loading backwards...
+	; working on the BUG...
 	jsr rootsetup
 	jsr list
 	jsr type
-	; BUG insert dirent and cluster stuff here
+	ldy #>sdbuffer
+	ldx #<sdbuffer
+	jsr fat32_finddirent
+	bcs saveok
+	jsr file_exists
+saveok:
+	
 	ldx #<savmsg
  	ldy #>savmsg
   	jsr w_acia_full
@@ -6174,6 +6177,7 @@ MEMORY_SAVE:
   	ldx #<SAVE_DONE
   	ldy #>SAVE_DONE
   	jsr w_acia_full
+stopmemsave:
 	PLA
 	TAY
 	PLA
@@ -6181,6 +6185,33 @@ MEMORY_SAVE:
 	PLA
 	RTS
 
+file_exists:
+	; clc if 'y'
+	; sec if 'n'
+	ldx #<EXIST_MSG
+	ldy #>EXIST_MSG
+	jsr w_acia_full
+fexlp:
+	jsr rxpoll
+	lda ACIAData
+	pha
+	cmp #'y'
+	beq exy
+	cmp #'n'
+	beq exn
+	pla
+	jmp fexlp
+exy:
+	jsr crlf
+	clc
+	rts
+exn:
+	jsr crlf
+	sec
+	rts
+
+EXIST_MSG:
+  .byte "File Exists. Overwrite? (y) or (n): ",$00
 TRANSFER_MSG:
   .byte	"Serial [S] or Memory Card [M] Transfer?",CR,LF,$00
 SERIAL_MSG:

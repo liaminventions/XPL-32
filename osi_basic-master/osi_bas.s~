@@ -6162,6 +6162,7 @@ MEMORY_SAVE:
 	jsr rootsetup
 	jsr list
 	jsr type
+	; BUG insert dirent and cluster stuff here
 	ldx #<savmsg
  	ldy #>savmsg
   	jsr w_acia_full
