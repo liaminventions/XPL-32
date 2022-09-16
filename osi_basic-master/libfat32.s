@@ -501,11 +501,77 @@ fat32_opendirent:
 
 fat32_writedirent:
   ; Write a directory entry from the open directory
-  ; BUG if the FAT if full this overwrites the root.
+  ; BUG if the Dirent Table is full this overwrites the root.
   ;
-  ; result = lastfoundfreecluster / 128
-  ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
+  
+  jsr fat32_findnextfreecluster	; Find the next free cluster.
+  bcs wdfail
 
+  ; BUG insert cluster location system from FAT here.
+
+  ; Check first character
+  clc
+  ldy #0
+  lda (zp_sd_address),y
+  bne wdirlp
+  pha
+  ; End of directory => tell loop
+  sec
+wdirlp:
+  lda (fat32_filenamepointer),y	; copy filename
+  sta (zp_sd_address),y
+  iny
+  cpy #$0b
+  bne wdirlp  
+
+  lda #$20		; File Type: ARCHIVE
+  sta (zp_sd_address),y
+  iny
+  lda #$10		; No checksum
+  sta (zp_sd_address),y
+  pla			; Previous Index 0
+  sta (zp_sd_address),y
+  iny			; no time/date
+  stz (zp_sd_address),y	; because I don't have an RTC
+  iny
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y
+  ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
+  ; look at "Directory entry" at 0x0E onward on the table.
+  iny
+  stz (zp_sd_address),y	; No ID
+  iny
+  stz (zp_sd_address),y
+
+  ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
+  ; is this the end of the table?
+  bcc wdnot
+  ; if so, write that to the next 
+  ldy #20
+  stz (zp_sd_address),y
+wdnot:
+
+  jsr fat32_writenextsector ; write the data
+  
+  clc
+  rts
+
+wdfail:
+  ; Card Full
+  sec
+  rts
+
+fat32_findnextfreecluster
+; Find next free cluster
+; 
+; This program will search the FAT for an empty entry, and
+; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
+;
+; Also returns a 1 in the carry bit if the SD card is full.
+;
 	LDA	fat32_fatstart
 	STA	fat32_lba
 	LDA	fat32_fatstart+1
@@ -532,7 +598,8 @@ fat32_writedirent:
 	PHA
 	LDA	$01
 	PHA
-
+  ; result = lastfoundfreecluster / 128
+  ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
   	SEC            				; Detect overflow or /0 condition.
         LDA     fat32_lastfoundfreecluster      ; Divisor must be more than high cell of dividend.  To
         SBC     #128       			; find out, subtract divisor from high cell of dividend;
@@ -610,34 +677,24 @@ divloop:
 	STA	fat32_lba+3
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-dw_count=$00; through $03
   ; Target buffer
   lda #<fat32_readbuffer
   sta zp_sd_address
   lda #>fat32_readbuffer
   sta zp_sd_address+1
-  lda $00
-  pha
-  lda $01
-  pha
-  lda $02 ; BUG remember to pull
-  pha
-  lda $03
-  pha
-  ; dw_count = LBA-FATSTART
   sec
   lda fat32_lba
   sbc fat32_fatstart
-  sta $00
+  sta dw_count
   lda fat32_lba+1
   sbc fat32_fatstart+1
-  sta $01
+  sta dw_count_1
   lda fat32_lba+2
   sbc fat32_fatstart+2
-  sta $02
+  sta dw_count+2
   lda fat32_lba+3
   sbc fat32_fatstart+3
-  sta $03
+  sta dw_count+3
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
@@ -700,8 +757,8 @@ ffcdontinc:
   jmp diskfull	; Disk full
 ffcskip:
   inx
-  cpx #129
-  bne ffcinner
+  cpx #129 	; Sector read?
+  bne ffcinner	; If not go back to read another FAT entry
   ; Increment LBA
   inc fat32_lba
   bne dontinclba
@@ -710,55 +767,38 @@ ffcskip:
   inc fat32_lba+2
   bne dontinclba
   inc fat32_lba+3
-
+dontinclba:
+  ; Out of disk space?
+  dec fat32_sectorspercluster
+  lda fat32_result
+  cmp fat32_sectorspercluster
+  bcs dontsubtractdw
+  inc fat32_sectorspercluster
+  jmp diskfull ; Disk Full
+dontsubtractdw:
+  inc fat32_sectorspercluster
+  ; Increment fat32_result
+  inc fat32_result
+  bne dontincdw
+  inc fat32_result+1
+dontincdw:
   jmp findfreeclusterloop
-  ; Check first character
+gotfreecluster:
+; Got the free cluster. Carry clear.
+  pla
+  sta zp_sd_address+1
+  pla
+  sta zp_sd_address
   clc
-  ldy #0
-  lda (zp_sd_address),y
-  bne wdirlp
-  pha
-  ; End of directory => tell loop
+  rts
+
+diskfull:
+; The disk is full. Set carry bit.
+  pla
+  sta zp_sd_address+1
+  pla
+  sta zp_sd_address
   sec
-wdirlp:
-  lda (fat32_filenamepointer),y	; copy filename
-  sta (zp_sd_address),y
-  iny
-  cpy #$0b
-  bne wdirlp  
-
-  lda #$20		; File Type: ARCHIVE
-  sta (zp_sd_address),y
-  iny
-  lda #$10		; No checksum
-  sta (zp_sd_address),y
-  pla			; Previous Index 0
-  sta (zp_sd_address),y
-  iny			; no time/date
-  stz (zp_sd_address),y	; because I don't have an RTC
-  iny
-  stz (zp_sd_address),y
-  iny
-  stz (zp_sd_address),y
-  iny
-  stz (zp_sd_address),y
-  ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
-  ; look at "Directory entry" at 0x0E onward on the table.
-  iny
-  stz (zp_sd_address),y	; No ID
-  iny
-  stz (zp_sd_address),y
-
-  ; BUG not so sure how to signal end of FAT without possibly going over the buffer.
-  ; is this the end of the table?
-  bcc wdnot
-  ; if so, write that to the next 
-  ldy #20
-  stz (zp_sd_address),y
-wdnot:
-
-  jsr fat32_writenextsector ; write the data
-
   rts
 
 fat32_readdirent:
