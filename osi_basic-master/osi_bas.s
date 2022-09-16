@@ -6164,8 +6164,9 @@ MEMORY_SAVE:
 	jsr fat32_finddirent
 	bcs saveok
 	jsr file_exists
+	bcs stopmemsave
 saveok:
-	
+	jsr fat32_writedirent
 	ldx #<savmsg
  	ldy #>savmsg
   	jsr w_acia_full

@@ -491,34 +491,6 @@ fat32_opendirent:
 fat32_writedirent:
   ; Write a directory entry from the open directory
   ;
-  ; Increment pointer by 32 to point to next entry
-  clc
-  lda zp_sd_address
-  adc #32
-  sta zp_sd_address
-  lda zp_sd_address+1
-  adc #0
-  sta zp_sd_address+1
-
-  ; If it's not at the end of the buffer, we have data already
-  cmp #>(fat32_readbuffer+$200)
-  bcc fat32_writedirent
-
-  ; Read another sector
-  lda #<fat32_readbuffer
-  sta fat32_address
-  lda #>fat32_readbuffer
-  sta fat32_address+1
-
-  jsr fat32_readnextsector
-  bcc ugotdata
-
-uendofdirectory:
-  sec
-  rts
-
-ugotdata:
-
   jsr fat32_calculate_dwps
   ldy fat32_data_start
   
@@ -603,7 +575,7 @@ ugotdata:
 
 
 fat32_finddirent:
-  ; Finds a particular directory entryu  X,Y point to the 11-character filename to seeku
+  ; Finds a particular directory entryu  X,Y point to the 11-character filename to seek.
   ; The directory should already be open for iterationu
 
   ; Form ZP pointer to user's filename
