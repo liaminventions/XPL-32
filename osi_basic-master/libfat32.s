@@ -17,11 +17,12 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
-fat32_lba			= zp_fat32_variables + $1e  ; 4 bytes
-fat32_currentfat		= zp_fat32_variables + $22  ; 4 bytes
+fat32_currentfat		= zp_fat32_variables + $1e  ; 4 bytes
+fat32_buffer_pointer		= zp_fat32_variables + $22  ; 2 bytes
 
-fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
+fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
+fat32_lba		= fat32_bytesremaining  ; only used when making a dirent
 
 fat32_fat_entries_per_sector = #$80 ; 512/4 DWORDS per sector
 
@@ -601,8 +602,12 @@ divloop:
 	LDA	fat32_lba+1
 	ADC	fat32_result+1
 	STA	fat32_lba+1
-	BCC	skipdiv
-	INC	fat32_lda+2
+	LDA	fat32_lba+2
+	ADC	#0
+	STA	fat32_lba+2
+	LDA	fat32_lba+3
+	ADC	#0
+	STA	fat32_lba+3
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
 
@@ -628,7 +633,7 @@ skipdiv:
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
-  lda zp_sd_address
+  lda zp_sd_address+1
   pha 
   ; Now we will find a free cluster. (finally)
 findfreeclusterloop:
@@ -643,16 +648,60 @@ findfreeclusterloop:
   sta zp_sd_currentsector+3
   ; Read sector
   jsr fat32_readsector
-    
+  ; Make a pointer that points to the FAT32 read buffer.
+  lda #<fat32_readbuffer
+  sta fat32_buffer_pointer
+  lda #>fat32_readbuffer
+  sta fat32_buffer_pointer
+  ; Check each entry in the sector.
   ldx #0
+  ldy #0
 ffcinner:
-  
-
-
-
+  clc
+  lda (fat32_buffer_pointer),y
+  and #$0f			; First 4 bits are reserved.
+  iny
+  adc (fat32_buffer_pointer),y
+  iny
+  adc (fat32_buffer_pointer),y
+  iny
+  adc (fat32_buffer_pointer),y
+  beq gotfreecluster		; If the FAT entry is 0x00000000, we've got the next free cluster
+  ; Increment the last found free cluster count
+  inc fat32_lastfreecluster
+  bne ffcdontinc
+  inc fat32_lastfreecluster+1
+  bne ffcdontinc
+  inc fat32_lastfreecluster+2
+  bne ffcdontinc
+  inc fat32_lastfreecluster+3
+ffcdontinc:
+  ; Now check if the disk is full.
+  lda fat32_lastfreecluster
+  cmp #$ff
+  bne ffcskip
+  lda fat32_lastfreecluster
+  cmp #$ff
+  bne ffcskip
+  lda fat32_lastfreecluster
+  cmp #$ff
+  bne ffcskip
+  lda fat32_lastfreecluster
+  cmp #$f7
+  bne ffcskip
+  jmp diskfull	; Disk full
+ffcskip:
   inx
   cpx #129
   bne ffcinner
+  ; Increment LBA
+  inc fat32_lba
+  bne dontinclba
+  inc fat32_lba+1
+  bne dontinclba
+  inc fat32_lba+2
+  bne dontinclba
+  inc fat32_lba+3
 
   jmp findfreeclusterloop
   ; Check first character
