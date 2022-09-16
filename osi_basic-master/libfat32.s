@@ -182,6 +182,15 @@ uskipfatsloop:
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
 
+  ; Set the data start sector to the last fount free cluster.
+  lda fat32_datastart
+  sta fat32_lastfoundfreecluster
+  lda fat32_datastart+1
+  sta fat32_lastfoundfreecluster+1
+  lda fat32_datastart+2
+  sta fat32_lastfoundfreecluster+2
+  lda fat32_datastart+3
+  sta fat32_lastfoundfreeclusterrts+3
   clc
   rts
 

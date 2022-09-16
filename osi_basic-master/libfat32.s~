@@ -544,27 +544,6 @@ wdnot:
 
   rts
 
-fat32_calulate_dwpc:
-	lda $00
-	pha
-	lda #128
-	sta $00
-; fat32_dwordspercluster = fat32_sectorspercluster * 128
-        LDA #0       ; Initialize RESULT to 0
-        LDX #8       ; There are 8 bits in NUM2
-cL1     LSR $00      ; Get low bit of NUM2
-        BCC cL2      ; 0 or 1?
-        CLC          ; If 1, add NUM1
-        ADC fat32_sectorspercluster
-cL2     ROR A        ; "Stairstep" shift (catching carry from add)
-        ROR fat32_dwordspercluster
-        DEX
-        BNE cL1
-        STA fat32_dwordspercluster+1
-	pla
-	sta $00
-	rts
-
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
