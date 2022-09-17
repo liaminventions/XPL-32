@@ -619,6 +619,7 @@ fat32_findnextfreecluster
   pha
   lda $01
   pha
+; BUG is the math right?
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
   	SEC            				; Detect overflow or /0 condition.
@@ -817,6 +818,10 @@ diskfull:
   pla
   sta zp_sd_address
   sec
+  rts
+
+fat32_modifycluster:
+  ; Modify the FAT table to match a free cluster in the data reigon
   rts
 
 fat32_readdirent:
