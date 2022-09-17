@@ -825,6 +825,50 @@ diskfull:
 
 fat32_modifycluster:
   ; Modify the FAT table to match a free cluster in the data reigon
+  lda fat32_fatstart
+  sta fat32_lba
+  lda fat32_fatstart+1
+  sta fat32_lba+1			; copy fat_start to lba
+  lda fat32_fatstart+2
+  sta fat32_lba+2
+  lda fat32_fatstart+3
+  sta fat32_lba+3
+; add the result to lba
+	CLC
+	LDA	fat32_lba
+	ADC	fat32_result
+	STA	fat32_lba
+	LDA	fat32_lba+1
+	ADC	fat32_result+1
+	STA	fat32_lba+1
+	LDA	fat32_lba+2
+	ADC	#0
+	STA	fat32_lba+2
+	LDA	fat32_lba+3
+	ADC	#0
+	STA	fat32_lba+3
+  ; copy the last found free cluster to dwcount
+  lda fat32_lastfreecluster
+  sta fat32_dwcount
+  lda fat32_lastfreecluster+1
+  sta fat32_dwcount+1
+  lda fat32_lastfreecluster+2
+  sta fat32_dwcount+2
+  lda fat32_lastfreecluster+3
+  sta fat32_dwcount+3
+  ; now, for the loop.
+  ldx #1
+mcloop:
+  
+
+
+  txa
+  cmp #$10
+  beq stopmc
+  rol
+  tax
+  jmp mcloop
+stopmc:
   rts
 
 fat32_readdirent:
