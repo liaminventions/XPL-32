@@ -575,32 +575,32 @@ fat32_findnextfreecluster
 ;
 ; Also returns a 1 in the carry bit if the SD card is full.
 ;
-	LDA	fat32_fatstart
-	STA	fat32_lba
-	LDA	fat32_fatstart+1
-	STA	fat32_lba+1			; copy fat_start to lba
-	LDA	fat32_fatstart+2
-	STA	fat32_lba+2
-	LDA	fat32_fatstart+3
-	STA	fat32_lba+3
-	CLC
-	LDA	fat32_lastfoundfreecluster	; if there is no previously found free cluster
-	ADC	fat32_lastfoundfreecluster+1
-	ADC	fat32_lastfoundfreecluster+2
-	ADC	fat32_lastfoundfreecluster+3
-	BEQ	skipdiv				; then skip the division
-	LDA	fat32_lastfoundfreecluster
-	PHA
-	LDA	fat32_lastfoundfreecluster+1
-	PHA
-	LDA	fat32_lastfoundfreecluster+2
-	PHA
-	LDA	fat32_lastfoundfreecluster+3
-	PHA
-	LDA	$00
-	PHA
-	LDA	$01
-	PHA
+  lda fat32_fatstart
+  sta fat32_lba
+  lda fat32_fatstart+1
+  sta fat32_lba+1			; copy fat_start to lba
+  lda fat32_fatstart+2
+  sta fat32_lba+2
+  lda fat32_fatstart+3
+  sta fat32_lba+3
+  clc
+  lda fat32_lastfoundfreecluster	; if there is no previously found free cluster
+  adc fat32_lastfoundfreecluster+1
+  adc fat32_lastfoundfreecluster+2
+  adc fat32_lastfoundfreecluster+3
+  beq skipdiv				; then skip the division
+  lda fat32_lastfoundfreecluster
+  pha
+  lda fat32_lastfoundfreecluster+1
+  pha
+  lda fat32_lastfoundfreecluster+2	; save original states of the last found sector
+  pha					; (division clobbers it)
+  lda fat32_lastfoundfreecluster+3
+  pha
+  lda $00				; extra variable usage for division
+  pha
+  lda $01
+  pha
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
   	SEC            				; Detect overflow or /0 condition.
@@ -656,7 +656,7 @@ divloop:
 	STA	$01
 	PLA
 	STA	$00
-	PLA					; restore
+	PLA					; restore variables
 	STA	fat32_lastfoundfreecluster+3
 	PLA
 	STA	fat32_lastfoundfreecluster+2
