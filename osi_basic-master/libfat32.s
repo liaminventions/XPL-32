@@ -17,6 +17,7 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
+fat32_dwcount			= zp_fat32_variables + $1e  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -703,16 +704,16 @@ skipdiv:
   sec
   lda fat32_lba
   sbc fat32_fatstart
-  sta fat32_result
+  sta fat32_dwcount
   lda fat32_lba+1
   sbc fat32_fatstart+1
-  sta fat32_result_1
+  sta fat32_dwcount+1
   lda fat32_lba+2
   sbc fat32_fatstart+2
-  sta fat32_result+2
+  sta fat32_dwcount+2
   lda fat32_lba+3
   sbc fat32_fatstart+3
-  sta fat32_result+3
+  sta fat32_dwcount+3
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
@@ -791,7 +792,7 @@ dontinclba:
   ; BUG i should by comparing this with sectors per FAT, not per cluster...
   ; are they the same?
   dec fat32_sectorspercluster
-  lda fat32_result
+  lda fat32_dwcount
   cmp fat32_sectorspercluster
   bcs dontsubtractdw
   inc fat32_sectorspercluster
@@ -799,9 +800,9 @@ dontinclba:
 dontsubtractdw:
   inc fat32_sectorspercluster
   ; Increment fat32_result
-  inc fat32_result
+  inc fat32_dwcount
   bne dontincdw
-  inc fat32_result+1
+  inc fat32_dwcount+1
 dontincdw:
   jmp findfreeclusterloop
 gotfreecluster:

@@ -17,6 +17,7 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
+fat32_dwcount			= zp_fat32_variables + $1e  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -788,6 +789,8 @@ ffcskip:
   inc fat32_lba+3
 dontinclba:
   ; Out of disk space?
+  ; BUG i should by comparing this with sectors per FAT, not per cluster...
+  ; are they the same?
   dec fat32_sectorspercluster
   lda fat32_result
   cmp fat32_sectorspercluster
