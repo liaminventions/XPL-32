@@ -336,12 +336,12 @@ unotendofchain:
 
 
 fat32_readnextsector:
-  ; Reads the next sector from a cluster chain into the buffer at fat32_addressu
+  ; Reads the next sector from a cluster chain into the buffer at fat32_address.
   ;
   ; Advances the current sector ready for the next read and looks up the next cluster
-  ; in the chain when necessaryu
+  ; in the chain when necessary.
   ;
-  ; On return, carry is clear if data was read, or set if the cluster chain has endedu
+  ; On return, carry is clear if data was read, or set if the cluster chain has ended.
 
   ; Maybe there are pending sectors in the current cluster
   lda fat32_pendingsectors
@@ -391,7 +391,7 @@ fat32_writenextsector:
   ; Advances the current sector ready for the next write and looks up the next cluster
   ; in the chain when necessary.
   ;
-  ; On return, data was written.
+  ; On return, carry is set if its the end of the chain.
 
   ; Maybe there are pending sectors in the current cluster
   lda fat32_pendingsectors
@@ -499,20 +499,40 @@ fat32_opendirent:
 
 fat32_writedirent:
   ; Write a directory entry from the open directory
-  ; BUG if the Dirent Table is full this overwrites the root.
-  ;
-  
-  jsr fat32_findnextfreecluster	; Find the next free cluster.
-  bcs wdfail
 
-  ; BUG insert cluster location system from FAT here.
+  ; Increment pointer by 32 to point to next entry
+  clc
+  lda zp_sd_address
+  adc #32
+  sta zp_sd_address
+  lda zp_sd_address+1
+  adc #0
+  sta zp_sd_address+1
 
+  ; If it's not at the end of the buffer, we have data already
+  cmp #>(fat32_readbuffer+$200)
+  bcc wgotdata
+
+  ; Read another sector
+  lda #<fat32_readbuffer
+  sta fat32_address
+  lda #>fat32_readbuffer
+  sta fat32_address+1
+
+  jsr fat32_readnextsector
+  bcc wgotdata
+
+endofdirectoryy:
+  sec
+  rts
+
+wgotdata:
   ; Check first character
   clc
   ldy #0
   lda (zp_sd_address),y
-  bne wdirlp
   pha
+  bne wdirlp
   ; End of directory => tell loop
   sec
 wdirlp:
@@ -520,7 +540,7 @@ wdirlp:
   sta (zp_sd_address),y
   iny
   cpy #$0b
-  bne wdirlp  
+  bne wdirlp
 
   lda #$20		; File Type: ARCHIVE
   sta (zp_sd_address),y
@@ -543,18 +563,18 @@ wdirlp:
   stz (zp_sd_address),y	; No ID
   iny
   stz (zp_sd_address),y
-  ; BUG insert cluster entries here
+  ; insert cluster entries here
 
   ; BUG not so sure how to signal end of the dirent table without possibly going over the buffer.
   ; idea: check y, if its at the end, reset it and load the next sector.
 
   ; is this the end of the table?
   bcc wdnot
-  ; if so, write that to the next 
-  ldy #20
+  ; if so, next entry is 0
+  iny
   stz (zp_sd_address),y
 wdnot:
-
+  
   jsr fat32_writenextsector ; write the data
   
   clc
@@ -572,7 +592,7 @@ fat32_findnextfreecluster
 ; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
 ;
 ; Also returns a 1 in the carry bit if the SD card is full.
-;
+
 	LDA	fat32_fatstart
 	STA	fat32_lba
 	LDA	fat32_fatstart+1
@@ -802,11 +822,11 @@ diskfull:
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
-  ; On exit the carry is set if there were no more directory entriesu
+  ; On exit the carry is set if there were no more directory entries.
   ;
   ; Otherwise, A is set to the file's attribute byte and
-  ; zp_sd_address points at the returned directory entryu
-  ; LFNs and empty entries are ignored automaticallyu
+  ; zp_sd_address points at the returned directory entry.
+  ; LFNs and empty entries are ignored automatically.
 
   ; Increment pointer by 32 to point to next entry
   clc
