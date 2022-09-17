@@ -856,9 +856,28 @@ fat32_modifycluster:
   sta fat32_dwcount+2
   lda fat32_lastfreecluster+3
   sta fat32_dwcount+3
+
+  ; We will read at sector LBA
+  lda fat32_lba
+  sta zp_sd_currentsector
+  lda fat32_lba+1
+  sta zp_sd_currentsector+1
+  lda fat32_lba+2
+  sta zp_sd_currentsector+2
+  lda fat32_lba+3
+  sta zp_sd_currentsector+3
+
+  ; Target buffer
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
+
   ; now, for the loop.
   ldx #1
 mcloop:
+  
+  jsr fat32_readsector
   
   ; BUG this is a issue https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c
 

@@ -860,7 +860,7 @@ fat32_modifycluster:
   ldx #1
 mcloop:
   
-
+  ; BUG this is a issue https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c
 
   txa
   cmp #$10
