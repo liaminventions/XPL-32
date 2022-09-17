@@ -17,8 +17,6 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			= zp_fat32_variables + $1c  ; 2 bytes
-fat32_currentfat		= zp_fat32_variables + $1e  ; 4 bytes
-fat32_buffer_pointer		= zp_fat32_variables + $22  ; 2 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
@@ -680,11 +678,7 @@ divloop:
 	STA	fat32_lba+3
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
+
   sec
   lda fat32_lba
   sbc fat32_fatstart
@@ -714,27 +708,28 @@ findfreeclusterloop:
   sta zp_sd_currentsector+2
   lda fat32_lba+3
   sta zp_sd_currentsector+3
-  ; Read sector
-  jsr fat32_readsector
-  ; Make a pointer that points to the FAT32 read buffer.
+  ; Target buffer
   lda #<fat32_readbuffer
-  sta fat32_buffer_pointer
+  sta zp_sd_address
   lda #>fat32_readbuffer
-  sta fat32_buffer_pointer
-  ; Check each entry in the sector.
+  sta zp_sd_address+1
+  ; Read sector
+  jsr sd_readsector
+  ; Now Check each entry in the sector.
   ldx #0
   ldy #0
 ffcinner:
-  clc
-  lda (fat32_buffer_pointer),y
+  lda (zp_sd_address),y
   and #$0f			; First 4 bits are reserved.
   iny
-  adc (fat32_buffer_pointer),y
+  clc
+  adc (zp_sd_address),y
   iny
-  adc (fat32_buffer_pointer),y
+  adc (zp_sd_address),y
   iny
-  adc (fat32_buffer_pointer),y
+  adc (zp_sd_address),y
   beq gotfreecluster		; If the FAT entry is 0x00000000, we've got the next free cluster
+
   ; Increment the last found free cluster count
   inc fat32_lastfreecluster
   bne ffcdontinc
