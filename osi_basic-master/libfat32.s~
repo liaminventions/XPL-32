@@ -820,6 +820,10 @@ diskfull:
   sec
   rts
 
+fat32_modifycluster:
+  ; Modify the FAT table to match a free cluster in the data reigon
+  rts
+
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;

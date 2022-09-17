@@ -699,20 +699,20 @@ divloop:
 	STA	fat32_lba+3
 skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-
+  ; LBA - FATSTART = RESULT
   sec
   lda fat32_lba
   sbc fat32_fatstart
-  sta dw_count
+  sta fat32_result
   lda fat32_lba+1
   sbc fat32_fatstart+1
-  sta dw_count_1
+  sta fat32_result_1
   lda fat32_lba+2
   sbc fat32_fatstart+2
-  sta dw_count+2
+  sta fat32_result+2
   lda fat32_lba+3
   sbc fat32_fatstart+3
-  sta dw_count+3
+  sta fat32_result+3
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
