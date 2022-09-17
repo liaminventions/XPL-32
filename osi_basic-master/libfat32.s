@@ -788,6 +788,8 @@ ffcskip:
   inc fat32_lba+3
 dontinclba:
   ; Out of disk space?
+  ; BUG i should by comparing this with sectors per FAT, not per cluster...
+  ; are they the same?
   dec fat32_sectorspercluster
   lda fat32_result
   cmp fat32_sectorspercluster
