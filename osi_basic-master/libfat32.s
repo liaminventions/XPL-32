@@ -542,16 +542,17 @@ wdirlp:
   iny
   cpy #$0b
   bne wdirlp
-
+  ; The full Short filename is #11 bytes long so,
+  ; this start at 0x0b - File type
   lda #$20		; File Type: ARCHIVE
   sta (zp_sd_address),y
-  iny
-  lda #$10		; No checksum
+  iny ; 0x0c - Checksum/File accsess password
+  lda #$10		            ; No checksum or password
   sta (zp_sd_address),y
-  pla			; Previous Index 0
+  pla	; 0x0d - Previous byte at 0x00
   sta (zp_sd_address),y
-  iny			; no time/date
-  stz (zp_sd_address),y	; because I don't have an RTC
+  iny	; 0x0e-0x11 - File creation time/date
+  stz (zp_sd_address),y	; No time/date because I don't have an RTC
   iny
   stz (zp_sd_address),y
   iny
@@ -560,18 +561,40 @@ wdirlp:
   stz (zp_sd_address),y
   ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
   ; look at "Directory entry" at 0x0E onward on the table.
-  iny
+  iny ; 0x12-0x13 - User ID
   stz (zp_sd_address),y	; No ID
   iny
   stz (zp_sd_address),y
-  ; insert cluster entries here
-  iny
-  lda fat32_lastfoundfreecluster
+  iny ; 0x14-0x15 - File start cluster (high word)
+  lda fat32_lastfoundfreecluster ; BUG check byte order
   sta (zp_sd_address),y
   iny 
   lda fat32_lastfoundfreecluster+1
   sta (zp_sd_address),y
-  
+  iny ; 0x16-0x19 - File modifiaction date
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y   ; no rtc aaaaa
+  iny
+  stz (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y
+  iny ; 0x1a-0x1b - File start cluster low word
+  lda fat32_lastfoundfreecluster+2  ; BUG continues here
+  sta (zp_sd_address),y
+  iny
+  lda fat32_lastfoundfreecluster+3
+  sta (zp_sd_address),y
+  iny ; 0x1c-0x1f File size in bytes
+  lda fat32_filesize
+  sta (zp_sd_address),y
+  iny
+  lda fat32_filesize+1
+  sta (zp_sd_address),y
+  iny
+  stz (zp_sd_address),y ; Not bigger that 64k
+  iny
+  stz (zp_sd_address),y
   ; BUG not so sure how to signal end of the dirent table without possibly going over the buffer.
   ; idea: check y, if its at the end, reset it and load the next sector.
 
