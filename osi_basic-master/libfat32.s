@@ -880,6 +880,9 @@ mcloop:
   jsr fat32_readsector
   
   ; BUG this is a issue https://github.com/ibexuk/C_Memory_CompactFlash_Card_FAT_Driver/blob/master/mem-ffs.c
+  ; https://social.technet.microsoft.com/wiki/contents/articles/6771.the-fat-file-system.aspx
+
+  ; BUG!!!! I dont know how exactly to do this.. :(
 
   txa
   cmp #$10
