@@ -458,7 +458,7 @@ fat32_openroot:
   rts
 
 fat32_opendirent:
-  ; Prepare to read from a file or directory based on a dirent
+  ; Prepare to read/write a file or directory based on a dirent
   ;
   ; Point zp_sd_address at the dirent
 
@@ -565,7 +565,13 @@ wdirlp:
   iny
   stz (zp_sd_address),y
   ; insert cluster entries here
-
+  iny
+  lda fat32_lastfoundfreecluster
+  sta (zp_sd_address),y
+  iny 
+  lda fat32_lastfoundfreecluster+1
+  sta (zp_sd_address),y
+  
   ; BUG not so sure how to signal end of the dirent table without possibly going over the buffer.
   ; idea: check y, if its at the end, reset it and load the next sector.
 
