@@ -857,7 +857,7 @@ fat32_modifycluster:
   lda fat32_lastfreecluster+3
   sta fat32_dwcount+3
 
-  ; We will read at sector LBA
+  ; We will accsess sector LBA
   lda fat32_lba
   sta zp_sd_currentsector
   lda fat32_lba+1
