@@ -820,8 +820,8 @@ ffcskip:
 dontinclba:
   ; Out of disk space?
   ; BUG i should by comparing this with sectors per FAT, not per cluster...
-  ; are they the same?
-  dec fat32_sectorspercluster
+  ; are they the same? (i dont think so...)
+  dec fat32_dwcount
   lda fat32_dwcount
   cmp fat32_sectorspercluster
   bcs dontsubtractdw
