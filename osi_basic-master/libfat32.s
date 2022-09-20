@@ -566,9 +566,9 @@ wdirlp:
   iny
   stz (zp_sd_address),y
   iny ; 0x14-0x15 - File start cluster (high word)
-  lda fat32_lastfoundfreecluster ; BUG check byte order
+  lda fat32_lastfoundfreecluster ; WARNING latfoundfreeclster is in this goofy ahh byte order stated here: http://6502.org/source/integers/ummodfix/ummodfix.htm
   sta (zp_sd_address),y
-  iny 
+  iny ; the byte order works well here though ig...
   lda fat32_lastfoundfreecluster+1
   sta (zp_sd_address),y
   iny ; 0x16-0x19 - File modifiaction date
@@ -580,7 +580,7 @@ wdirlp:
   iny
   stz (zp_sd_address),y
   iny ; 0x1a-0x1b - File start cluster low word
-  lda fat32_lastfoundfreecluster+2  ; BUG continues here
+  lda fat32_lastfoundfreecluster+2
   sta (zp_sd_address),y
   iny
   lda fat32_lastfoundfreecluster+3
@@ -595,18 +595,24 @@ wdirlp:
   stz (zp_sd_address),y ; Not bigger that 64k
   iny
   stz (zp_sd_address),y
-  ; BUG not so sure how to signal end of the dirent table without possibly going over the buffer.
-  ; idea: check y, if its at the end, reset it and load the next sector.
-
+  iny
+  ; are we over the buffer?
+  lda zp_sd_address+1
+  cmp #>(fat32_readbuffer+$200)
+  bcc wdontt
+  jsr fat32_writenextsector ; if so, write the current sector
+  jsr fat32_readnextsector  ; then read the next one.
+  bcs wdfail
+  ldy #0
+  stz zp_sd_address
+  stz zp_sd_address+1
+wdontt:
   ; is this the end of the table?
   bcc wdnot
   ; if so, next entry is 0
-  iny
   stz (zp_sd_address),y
 wdnot:
-  
   jsr fat32_writenextsector ; write the data
-  
   clc
   rts
 
@@ -615,7 +621,7 @@ wdfail:
   sec
   rts
 
-fat32_findnextfreecluster
+fat32_findnextfreecluster:
 ; Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
@@ -821,7 +827,7 @@ dontinclba:
   ; Out of disk space?
   ; BUG i should by comparing this with sectors per FAT, not per cluster...
   ; are they the same? (i dont think so...)
-  dec fat32_dwcount
+  dec fat32_sectorspercluster
   lda fat32_dwcount
   cmp fat32_sectorspercluster
   bcs dontsubtractdw
@@ -829,7 +835,7 @@ dontinclba:
   jmp diskfull ; Disk Full
 dontsubtractdw:
   inc fat32_sectorspercluster
-  ; Increment fat32_result
+  ; Increment fat32_dwcount
   inc fat32_dwcount
   bne dontincdw
   inc fat32_dwcount+1
