@@ -6155,10 +6155,10 @@ END_SERIAL_SAVE:
 	RTS
 	
 MEMORY_SAVE:
-	; working on the BUG...
 	jsr rootsetup
 	jsr list
 	jsr type
+        jsr fat32_findnextfreecluster
 	ldy #>sdbuffer
 	ldx #<sdbuffer
 	jsr fat32_finddirent
