@@ -677,45 +677,45 @@ fat32_findnextfreecluster:
 ; BUG is the math right?
   ; result = lastfoundfreecluster / 128
   ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
-  	    SEC            				; Detect overflow or /0 condition.
-        LDA     fat32_lastfoundfreecluster      ; Divisor must be more than high cell of dividend.  To
-        SBC     #128       			; find out, subtract divisor from high cell of dividend;
-        LDA     fat32_lastfoundfreecluster+1    ; if carry flag is still set at the end, the divisor was
-        SBC     #0      			; not big enough to avoid overflow. This also takes care
-        BCS     oflo    			;	 of any /0 condition.  Branch if overflow or /0 error.
-                        			; We will loop 16 times; but since we shift the dividend
-        LDX     #$11    			; over at the same time as shifting the answer in, the
-                        			; operation must start AND finish with a shift of the
-                        			; low cell of the dividend (which ends up holding the
-                        			; quotient), so we start with 17 (11H) in X.
+  SEC            			                  	; Detect overflow or /0 condition.
+  LDA     fat32_lastfoundfreecluster      ; Divisor must be more than high cell of dividend.  To
+  SBC     #128                        		; find out, subtract divisor from high cell of dividend;
+  LDA     fat32_lastfoundfreecluster+1    ; if carry flag is still set at the end, the divisor was
+  SBC     #0                         			; not big enough to avoid overflow. This also takes care
+  BCS     oflo                      			;	 of any /0 condition.  Branch if overflow or /0 error.
+                                    			; We will loop 16 times; but since we shift the dividend
+  LDX     #$11    	                  		; over at the same time as shifting the answer in, the
+                   	                  		; operation must start AND finish with a shift of the
+                   	                  		; low cell of the dividend (which ends up holding the
+                   		                  	; quotient), so we start with 17 (11H) in X.
 divloop:
   ROL     fat32_lastfoundfreecluster+2    ; Move low cell of dividend left one bit, also shifting
   ROL     fat32_lastfoundfreecluster+3    ; answer in. The 1st rotation brings in a 0, which later
-                        			; gets pushed off the other end in the last rotation.
+                        	            		; gets pushed off the other end in the last rotation.
   DEX
-  BEQ     enddiv    			; Branch to the end if finished.
+  BEQ     enddiv    		                  	; Branch to the end if finished.
 
   ROL     fat32_lastfoundfreecluster      ; Shift high cell of dividend left one bit, also
   ROL     fat32_lastfoundfreecluster+1    ; shifting next bit in from high bit of low cell.
   LDA     #0
-  STA     $00   				; Zero old bits of CARRY so subtraction works right.
-  ROL     $00   				; Store old high bit of dividend in CARRY.  (For STZ
-                   			; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
-  SEC             			; See if divisor will fit into high 17 bits of dividend
+  STA     $00   		                   		; Zero old bits of CARRY so subtraction works right.
+  ROL     $00   		                  		; Store old high bit of dividend in CARRY.  (For STZ
+                   	                  		; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
+  SEC                               			; See if divisor will fit into high 17 bits of dividend
   LDA     fat32_lastfoundfreecluster      ; by subtracting and then looking at carry flag.
-  SBC     #128       			; First do low byte.
-  STA     $01     			; Save difference low byte until we know if we need it.
+  SBC     #128       		                	; First do low byte.
+  STA     $01     	                  		; Save difference low byte until we know if we need it.
   LDA     fat32_lastfoundfreecluster+1    ;
-  SBC     #0     				; Then do high byte.
-  TAY             			; Save difference high byte until we know if we need it.
-  LDA     $00   				; Bit 0 of CARRY serves as 17th bit.
-  SBC     #0      			; Complete the subtraction by doing the 17th bit before
-  BCC     divloop 			; determining if the divisor fit into the high 17 bits
-                  			; of the dividend.  If so, the carry flag remains set.
-  LDA     $01     			; If divisor fit into dividend high 17 bits, update
+  SBC     #0     	                  			; Then do high byte.
+  TAY             		                   	; Save difference high byte until we know if we need it.
+  LDA     $00   			                  	; Bit 0 of CARRY serves as 17th bit.
+  SBC     #0      		                  	; Complete the subtraction by doing the 17th bit before
+  BCC     divloop 	 	                  	; determining if the divisor fit into the high 17 bits
+                  	                  		; of the dividend.  If so, the carry flag remains set.
+  LDA     $01                        			; If divisor fit into dividend high 17 bits, update
   STA     fat32_lastfoundfreecluster      ; dividend high cell to what it would be after
   STY     fat32_lastfoundfreecluster+1    ; subtraction.
-  BCS     divloop    			; Branch If Carry Set.  CMOS WDC65C02 could use BCS here. CA65 doesent allow it though.
+  BCS     divloop    		                	; Branch If Carry Set.  CMOS WDC65C02 could use BCS here. CA65 doesent allow it though.
 
 oflo:  
   LDA     #$FF    			                  ; If overflow occurred, put FF
