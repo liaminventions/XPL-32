@@ -593,9 +593,10 @@ wdirlp:
   lda fat32_filesize+1
   sta (zp_sd_address),y
   iny
-  stz (zp_sd_address),y ; Not bigger that 64k
+  lda #0
+  sta (zp_sd_address),y ; Not bigger that 64k
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny
   ; are we over the buffer?
   lda zp_sd_address+1
