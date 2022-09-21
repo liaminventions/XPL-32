@@ -23,8 +23,6 @@ fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 fat32_lba		= fat32_bytesremaining  ; only used when making a dirent
 
-fat32_fat_entries_per_sector = #$80 ; 512/4 DWORDS per sector
-
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
   ; and set up the variables ready for navigating the filesystem
