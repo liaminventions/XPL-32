@@ -637,6 +637,9 @@ wdfail:
   sec
   rts
 
+jmpskipdiv:
+  jmp skipdiv
+
 fat32_findnextfreecluster:
 ; Find next free cluster
 ; 
@@ -658,7 +661,7 @@ fat32_findnextfreecluster:
   adc fat32_lastfoundfreecluster+1
   adc fat32_lastfoundfreecluster+2
   adc fat32_lastfoundfreecluster+3
-  beq skipdiv				; then skip the division
+  beq jmpskipdiv				; then skip the division
   lda fat32_lastfoundfreecluster
   pha
   lda fat32_lastfoundfreecluster+1
