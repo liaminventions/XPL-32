@@ -6153,7 +6153,16 @@ END_SERIAL_SAVE:
 	TAX			; pull registers off stack
 	PLA
 	RTS
-	
+msincremaining:
+        inc fat32_bytesremaining
+        bne msinca
+        inc fat32_bytesremaining
+msinca:
+        inc XYLODSAV2
+        bne msincb
+        inc XYLODSAV2+1
+msincb:
+        rts
 MEMORY_SAVE:
 	jsr rootsetup
 	jsr list
@@ -6166,6 +6175,28 @@ MEMORY_SAVE:
 	jsr file_exists
 	bcs stopmemsave
 saveok:
+        ; Now calculate file size and store it in fat32_bytesremaining.
+        lda #$01
+        sta XYLODSAV2
+        lda #$06
+        sta XYLODSAV2+1
+        lda #0
+        sta fat32_bytesremaining
+        sta fat32_bytesremaining
+        ldy #0
+savecalclp:
+        lda (XYLODSAV2)
+        beq mszero
+        jsr incremaining
+        jmp savecalclp
+mszero:
+        jsr incremaining
+        lda (XYLODSAV2)
+        bne savecalclp
+        jsr incremaining
+        lda (XYLODSAV2)
+        bne savecalclp
+        ; done
 	jsr fat32_writedirent
 	ldx #<savmsg
  	ldy #>savmsg

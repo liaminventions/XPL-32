@@ -498,7 +498,11 @@ fat32_opendirent:
 
 fat32_writedirent:
   ; Write a directory entry from the open directory
-
+  ; requires:
+  ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
+  ;   and the processes of:
+  ;     fat32_finddirent
+  ;     fat32_findnextfreecluster
   ; Increment pointer by 32 to point to next entry
   clc
   lda zp_sd_address
@@ -531,9 +535,11 @@ wgotdata:
   ldy #0
   lda (zp_sd_address),y
   pha
-  bne wdirlp
+  bne wdirlpstart
   ; End of directory => tell loop
   sec
+wdirlpstart:
+  php
 wdirlp:
   lda (fat32_filenamepointer),y	; copy filename
   sta (zp_sd_address),y
@@ -587,10 +593,10 @@ wdirlp:
   lda fat32_lastfoundfreecluster+3
   sta (zp_sd_address),y
   iny ; 0x1c-0x1f File size in bytes
-  lda fat32_filesize
+  lda fat32_bytesremaining
   sta (zp_sd_address),y
   iny
-  lda fat32_filesize+1
+  lda fat32_bytesremaining+1
   sta (zp_sd_address),y
   iny
   lda #0
@@ -612,11 +618,16 @@ wdirlp:
   sta zp_sd_address+1
 wdontt:
   ; is this the end of the table?
+  plp
   bcc wdnot
+  php
   ; if so, next entry is 0
   lda #0
   sta (zp_sd_address),y
+  jmp wdobut
 wdnot:
+  php
+wdobut:
   jsr fat32_writenextsector ; write the data
   clc
   rts
@@ -710,9 +721,9 @@ oflo:
   STA     fat32_lastfoundfreecluster+2    ; and in quotient low byte
   STA     fat32_lastfoundfreecluster+3    ; and high byte.
 enddiv:
-	LDA	lastfoundfreecluster+2
+	LDA	fat32_lastfoundfreecluster+2
 	STA	fat32_result			; store quotient into fat32_result
-	LDA	lastfoundfreecluster+3
+	LDA	fat32_lastfoundfreecluster+3
 	STA	fat32_result+1
 	PLA
 	STA	$01
@@ -795,25 +806,25 @@ ffcinner:
   beq gotfreecluster		; If the FAT entry is 0x00000000, we've got the next free cluster
 
   ; Increment the last found free cluster count
-  inc fat32_lastfreecluster
+  inc fat32_lastfoundfreecluster
   bne ffcdontinc
-  inc fat32_lastfreecluster+1
+  inc fat32_lastfoundfreecluster+1
   bne ffcdontinc
-  inc fat32_lastfreecluster+2
+  inc fat32_lastfoundfreecluster+2
   bne ffcdontinc
-  inc fat32_lastfreecluster+3
+  inc fat32_lastfoundfreecluster+3
 ffcdontinc:
   ; Now check if the disk is full.
-  lda fat32_lastfreecluster
+  lda fat32_lastfoundfreecluster
   cmp #$ff
   bne ffcskip
-  lda fat32_lastfreecluster
+  lda fat32_lastfoundfreecluster
   cmp #$ff
   bne ffcskip
-  lda fat32_lastfreecluster
+  lda fat32_lastfoundfreecluster
   cmp #$ff
   bne ffcskip
-  lda fat32_lastfreecluster
+  lda fat32_lastfoundfreecluster
   cmp #$f7
   bne ffcskip
   jmp diskfull	; Disk full
