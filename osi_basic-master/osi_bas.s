@@ -6164,6 +6164,7 @@ msinca:
 msincb:
         rts
 MEMORY_SAVE:
+        ; BUG this doesent work
 	jsr rootsetup
 	jsr list
 	jsr type
