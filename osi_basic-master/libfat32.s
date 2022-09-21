@@ -859,8 +859,6 @@ diskfull:
   sec
   rts
 
-  sta fat32_lba+1			; copy fat_start to lba
-  lda fat32_fatstart+2
 fat32_readdirent:
   ; Read a directory entry from the open directory
   ;
