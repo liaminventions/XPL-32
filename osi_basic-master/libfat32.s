@@ -188,7 +188,7 @@ uskipfatsloop:
   sta fat32_lastfoundfreecluster
   sta fat32_lastfoundfreecluster+1
   sta fat32_lastfoundfreecluster+2
-  sta fat32_lastfoundfreeclusterrts+3
+  sta fat32_lastfoundfreecluster+3
   clc
   rts
 

@@ -6187,13 +6187,13 @@ saveok:
 savecalclp:
         lda (XYLODSAV2),y
         beq mszero
-        jsr incremaining
+        jsr msincremaining
         jmp savecalclp
 mszero:
-        jsr incremaining
+        jsr msincremaining
         lda (XYLODSAV2),y
         bne savecalclp
-        jsr incremaining
+        jsr msincremaining
         lda (XYLODSAV2),y
         bne savecalclp
         ; done
