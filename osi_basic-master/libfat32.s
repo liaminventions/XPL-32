@@ -550,19 +550,21 @@ wdirlp:
   pla	; 0x0d - Previous byte at 0x00
   sta (zp_sd_address),y
   iny	; 0x0e-0x11 - File creation time/date
-  stz (zp_sd_address),y	; No time/date because I don't have an RTC
+  lda #0
+  sta (zp_sd_address),y	; No time/date because I don't have an RTC
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
   ; look at "Directory entry" at 0x0E onward on the table.
   iny ; 0x12-0x13 - User ID
-  stz (zp_sd_address),y	; No ID
+  lda #0
+  sta (zp_sd_address),y	; No ID
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny ; 0x14-0x15 - File start cluster (high word)
   lda fat32_lastfoundfreecluster ; WARNING latfoundfreeclster is in this goofy ahh byte order stated here: http://6502.org/source/integers/ummodfix/ummodfix.htm
   sta (zp_sd_address),y
@@ -570,13 +572,14 @@ wdirlp:
   lda fat32_lastfoundfreecluster+1
   sta (zp_sd_address),y
   iny ; 0x16-0x19 - File modifiaction date
-  stz (zp_sd_address),y
+  lda #0
+  sta (zp_sd_address),y
   iny
-  stz (zp_sd_address),y   ; no rtc aaaaa
+  sta (zp_sd_address),y   ; no rtc aaaaa
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny
-  stz (zp_sd_address),y
+  sta (zp_sd_address),y
   iny ; 0x1a-0x1b - File start cluster low word
   lda fat32_lastfoundfreecluster+2
   sta (zp_sd_address),y
