@@ -606,11 +606,16 @@ wdirlp:
   jsr fat32_readnextsector  ; then read the next one.
   bcs wdfail
   ldy #0
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
 wdontt:
   ; is this the end of the table?
   bcc wdnot
   ; if so, next entry is 0
-  stz (zp_sd_address),y
+  lda #0
+  sta (zp_sd_address),y
 wdnot:
   jsr fat32_writenextsector ; write the data
   clc
