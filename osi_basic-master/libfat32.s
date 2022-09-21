@@ -693,7 +693,7 @@ divloop:
   ROL     fat32_lastfoundfreecluster+3    ; answer in. The 1st rotation brings in a 0, which later
                         	            		; gets pushed off the other end in the last rotation.
   DEX
-  BEQ     enddiv    		                  	; Branch to the end if finished.
+  BEQ     enddiv    		                  ; Branch to the end if finished.
 
   ROL     fat32_lastfoundfreecluster      ; Shift high cell of dividend left one bit, also
   ROL     fat32_lastfoundfreecluster+1    ; shifting next bit in from high bit of low cell.
