@@ -8,37 +8,35 @@ error_sound:
   sta $b805
   lda #$f8
   sta $b806
-  lda freq_table
+  lda #$50 ; freq
   sta $b800
-  lda freq_table+1
+  lda #$50 ; freq+1
   sta $b801
   lda #$41
   sta $b804
 
-outer
+outer:
   ldy #$ff
-inner
+inner:
   ldx #$ff
 
-innerloop
+innerloop:
   dex
   bne innerloop
 
   dey
   beq ende
   jmp inner
-ende
+ende:
   lda #$40
   sta $b804
   rts
-	
-freq_table:
-  .byte $50, $50
 
-clear_sid
+clear_sid:
   ldx #$17
-csid
-  stz $b800,x
+  lda #0
+csid:
+  sta $b800,x
   dex
   bne csid
   rts
