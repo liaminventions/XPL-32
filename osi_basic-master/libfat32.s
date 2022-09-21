@@ -683,7 +683,8 @@ divloop:
 
   ROL     fat32_lastfoundfreecluster      ; Shift high cell of dividend left one bit, also
   ROL     fat32_lastfoundfreecluster+1    ; shifting next bit in from high bit of low cell.
-  STZ     $00   				; Zero old bits of CARRY so subtraction works right.
+  LDA     #0
+  STA     $00   				; Zero old bits of CARRY so subtraction works right.
   ROL     $00   				; Store old high bit of dividend in CARRY.  (For STZ
                    			; one line up, NMOS 6502 will need LDA #0, STA CARRY.)
   SEC             			; See if divisor will fit into high 17 bits of dividend
@@ -700,7 +701,7 @@ divloop:
   LDA     $01     			; If divisor fit into dividend high 17 bits, update
   STA     fat32_lastfoundfreecluster      ; dividend high cell to what it would be after
   STY     fat32_lastfoundfreecluster+1    ; subtraction.
-  BRA     divloop    			; Always branch.  NMOS 6502 could use BCS here.
+  BCS     divloop    			; Branch If Carry Set.  CMOS WDC65C02 could use BCS here. CA65 doesent allow it though.
 
 oflo:  
   LDA     #$FF    			                  ; If overflow occurred, put FF
