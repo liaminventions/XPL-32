@@ -6185,16 +6185,16 @@ saveok:
         sta fat32_bytesremaining
         ldy #0
 savecalclp:
-        lda (XYLODSAV2)
+        lda (XYLODSAV2),y
         beq mszero
         jsr incremaining
         jmp savecalclp
 mszero:
         jsr incremaining
-        lda (XYLODSAV2)
+        lda (XYLODSAV2),y
         bne savecalclp
         jsr incremaining
-        lda (XYLODSAV2)
+        lda (XYLODSAV2),y
         bne savecalclp
         ; done
 	jsr fat32_writedirent
