@@ -1024,11 +1024,11 @@ urts:
 
 
 fat32_file_read:
-  ; Read a whole file into memoryu  It's assumed the file has just been opened 
-  ; and no data has been read yetu
+  ; Read a whole file into memory.  It's assumed the file has just been opened 
+  ; and no data has been read yet.
   ;
   ; Also we read whole sectors, so data in the target region beyond the end of the 
-  ; file may get overwritten, up to the next 512-byte boundaryu
+  ; file may get overwritten, up to the next 512-byte boundary.
   ;
   ; And we don't properly support 64k+ files, as it's unnecessary complication given
   ; the 6502's small address space
@@ -1067,7 +1067,7 @@ udone:
   rts
 
 fat32_file_write:
-  ; Write a whole file from memoryu  It's assumed the file has just been opened 
+  ; Write a whole file from memory.  It's assumed the file has just been opened 
   ; and no data has been written yet.
   ;
   ; Also we write whole sectors, so data in the target region beyond the end of the 
@@ -1108,5 +1108,3 @@ wholesectorwriteloop:
 
 urdone:
   rts
-
-
