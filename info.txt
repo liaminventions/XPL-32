@@ -1,0 +1,1 @@
+i didn't make a debugger cartridge so i can't fix the current code that i'm working on. (sd card SAVING)
