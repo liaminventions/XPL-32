@@ -7,6 +7,7 @@ Laptop
 with 32k ram
 # [Blog](https://unstinkableinventions.wordpress.com/)
 Here I will post hardware updates to the XPL and more.
+Also, be sure to check info.txt to know if there are any issues when i code.
 # Hardware Overview
 ## CPU
 A 6502, of course. A W65C02 to be exact. 
