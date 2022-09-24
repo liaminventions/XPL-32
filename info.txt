@@ -1,1 +1,3 @@
 i didn't make a debugger cartridge so i can't fix the current code that i'm working on. (sd card SAVING)
+
+UPDATE: I wired up a debugger and its too slow, might need to get a logic analyser...
