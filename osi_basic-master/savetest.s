@@ -117,27 +117,27 @@ MEMORY_SAVE:
 	jsr file_exists
 	bcs stopmemsave
 saveok:
-        ; Now calculate file size and store it in fat32_bytesremaining.
-        lda #$01
-        sta XYLODSAV2
-        lda #$06
-        sta XYLODSAV2+1
-        lda #0
-        sta fat32_bytesremaining
-        sta fat32_bytesremaining
-        ldy #0
+    ; Now calculate file size and store it in fat32_bytesremaining.
+    lda #$01
+    sta XYLODSAV2
+    lda #$06
+    sta XYLODSAV2+1
+    lda #0
+    sta fat32_bytesremaining
+    sta fat32_bytesremaining
+    ldy #0
 savecalclp:
-        lda (XYLODSAV2),y
-        beq mszero
-        jsr msincremaining
-        jmp savecalclp
+    lda (XYLODSAV2),y
+    beq mszero
+    jsr msincremaining
+    jmp savecalclp
 mszero:
-        jsr msincremaining
-        lda (XYLODSAV2),y
-        bne savecalclp
-        jsr msincremaining
-        lda (XYLODSAV2),y
-        bne savecalclp
+    jsr msincremaining
+    lda (XYLODSAV2),y
+    bne savecalclp
+    jsr msincremaining
+    lda (XYLODSAV2),y
+    bne savecalclp
 ; done
 	jsr fat32_writedirent
 	ldx #<savmsg
