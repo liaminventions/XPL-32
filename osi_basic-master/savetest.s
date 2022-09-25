@@ -28,15 +28,15 @@ LF=10
 reset:
   ldx #$ff
   txs
-  jsr via_init
-  ; via init done
-  jsr txpoll
-  lda #'V'
-  sta ACIAData
   jsr acia_init
   ; acia init done
   jsr txpoll
   lda #'A'
+  sta ACIAData
+  jsr via_init
+  ; via init done
+  jsr txpoll
+  lda #'V'
   sta ACIAData
   jsr sd_init
   bcs initdone
@@ -72,7 +72,7 @@ faterror:
   lda #'f'
   sta ACIAData
   jmp doneloop
-  
+
 dirname:
 	.asciiz "FOLDER     "
 errormsg:
@@ -209,7 +209,7 @@ nmi:
 irq:
   rti
 
-  .org $fffc
+  .org $fffa
   .word nmi
   .word reset
   .word irq
