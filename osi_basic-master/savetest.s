@@ -17,7 +17,9 @@ endbuf = $600
 
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
-zp_fat32_variables = $46 ; 24
+zp_fat32_variables = $46 ; 32
+
+XYLODSAV2 = $64 ; 2
 
   .org $c000
 reset:
@@ -44,8 +46,20 @@ reset:
   lda #'F'
   sta ACIAData
   ; init done
+  ; now make a dummy file.
+  ldx #0
+dummyloop:
+  txa
+  sta $0601,x
+  inx
+  bne dummyloop
+  ; add an EOF
+  lda #0
+  sta $0701
+  sta $0702
+  sta $0703
 
-  jsr	rootsetup
+  jmp MEMORY_SAVE ; OK, here we go.
 
   .include "hwconfig.s"
   .include "libacia.s"
@@ -81,17 +95,17 @@ transfer_error:
   jmp stop_sl
 
 msincremaining:
-        inc fat32_bytesremaining
-        bne msinca
-        inc fat32_bytesremaining
+    inc fat32_bytesremaining
+    bne msinca
+    inc fat32_bytesremaining
 msinca:
-        inc XYLODSAV2
-        bne msincb
-        inc XYLODSAV2+1
+    inc XYLODSAV2
+    bne msincb
+    inc XYLODSAV2+1
 msincb:
-        rts
+    rts
 MEMORY_SAVE:
-        ; BUG this doesent work
+    ; finally. this is what we need to debug.
 	jsr rootsetup
 	jsr list
 	jsr type
