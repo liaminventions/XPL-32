@@ -99,6 +99,7 @@ ainitialized:
   ldy #>initmsg
   ldx #<initmsg
   jsr w_acia_full
+  clc
   rts
 
 ainitfailed:
@@ -106,7 +107,8 @@ ainitfailed:
   ldx #<initfailedmsg
   jsr w_acia_full
 aloop:
-  jmp dispstart
+  sec
+  rts
 
 sd_cmd0_bytes:
   .byte $40, $00, $00, $00, $00, $95

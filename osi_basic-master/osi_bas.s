@@ -6318,6 +6318,7 @@ Reset:
 
  	jsr via_init
 	jsr sd_init
+        bcs dispstart
 	jsr fat32_init
 	bcc dispstart
  
