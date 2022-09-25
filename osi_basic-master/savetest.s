@@ -45,6 +45,8 @@ reset:
   sta ACIAData
   ; init done
 
+  jsr	rootsetup
+
   .include "hwconfig.s"
   .include "libacia.s"
   .include "libsd.s"
@@ -77,10 +79,97 @@ transfer_error:
   jsr w_acia_full
   jsr error_sound
   jmp stop_sl
+
+msincremaining:
+        inc fat32_bytesremaining
+        bne msinca
+        inc fat32_bytesremaining
+msinca:
+        inc XYLODSAV2
+        bne msincb
+        inc XYLODSAV2+1
+msincb:
+        rts
+MEMORY_SAVE:
+        ; BUG this doesent work
+	jsr rootsetup
+	jsr list
+	jsr type
+        jsr fat32_findnextfreecluster
+	ldy #>sdbuffer
+	ldx #<sdbuffer
+	jsr fat32_finddirent
+	bcs saveok
+	jsr file_exists
+	bcs stopmemsave
+saveok:
+        ; Now calculate file size and store it in fat32_bytesremaining.
+        lda #$01
+        sta XYLODSAV2
+        lda #$06
+        sta XYLODSAV2+1
+        lda #0
+        sta fat32_bytesremaining
+        sta fat32_bytesremaining
+        ldy #0
+savecalclp:
+        lda (XYLODSAV2),y
+        beq mszero
+        jsr msincremaining
+        jmp savecalclp
+mszero:
+        jsr msincremaining
+        lda (XYLODSAV2),y
+        bne savecalclp
+        jsr msincremaining
+        lda (XYLODSAV2),y
+        bne savecalclp
+; done
+	jsr fat32_writedirent
+	ldx #<savmsg
+ 	ldy #>savmsg
+  	jsr w_acia_full
+  	lda #$01
+  	sta fat32_address
+  	lda #$06
+  	sta fat32_address+1
+  	jsr fat32_file_write  ; Yes. It is finally time to save the file.
+  	ldx #<SAVE_DONE
+  	ldy #>SAVE_DONE
+  	jsr w_acia_full
+stopmemsave:
+doneloop:
+	jmp doneloop
+file_exists:
+	; clc if 'y'
+	; sec if 'n'
+	ldx #<EXIST_MSG
+	ldy #>EXIST_MSG
+	jsr w_acia_full
+fexlp:
+	jsr rxpoll
+	lda ACIAData
+	pha
+	cmp #'y'
+	beq exy
+	cmp #'n'
+	beq exn
+	pla
+	jmp fexlp
+exy:
+	jsr crlf
+	clc
+	rts
+exn:
+	jsr crlf
+	sec
+	rts
+
 nmi:
   rti 
 irq:
-  rti 
+  rti
+
   .org $fffc
   .word nmi
   .word reset
