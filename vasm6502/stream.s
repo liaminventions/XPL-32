@@ -21,10 +21,10 @@ freq     = $80           ; CIA NMI timer delay, 8kHz
 darn
 	jmp ebutrocks
 
-datname:
-  .asciiz "FASTCMC RAW"  ; music file on SD card
-dirname:
-  .asciiz "FOLDER     "  ; folder
+;datname:
+;  .asciiz "FASTCMC RAW"  ; music file on SD card
+;dirname:
+;  .asciiz "FOLDER     "  ; folder
 
 	.org $1000
 
@@ -49,8 +49,7 @@ ebutrocks:
 ; Initialize DIGI_Player
 
         PHA                     ; We need to save both A
-        TXA                     ;
-        PHA                     ; and X as we use them
+        phx                     ; and X as we use them
 
         ; disable interrupts
         LDA #$00                ; was $7f in the_c64_digi.txt
@@ -90,6 +89,8 @@ ebutrocks:
 ;  bcc foundsubdir
 ;
 ;error:
+;  plx
+;  pla
 ;  rts
 ;  rts
 ;  rts
@@ -213,6 +214,8 @@ wee
 	RTS
 
 failed:
+  plx
+  pla
   rts
   rts
   rts
