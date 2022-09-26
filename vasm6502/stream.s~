@@ -3,9 +3,9 @@ sample = $01
 flag = $02
 zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
-zp_fat32_variables = $46    ; 24 bytes
+zp_fat32_variables = $46    ; 32 bytes
 
-fat32_workspace = $200      ; two pages
+bytepointer = $200	    ; 4 bytes
 
 buffer = $400               ; 512 bytes
 endbuf = $600
@@ -32,6 +32,9 @@ dirname:
 	.include "libsd.s" ; ah ye sd tim
 	;.include "libfat32.s"
 	; no filesystem
+
+jmpfailed:
+	jmp failed
 
 ebutrocks:
 ; init sd card (it was just plugged in)
@@ -69,7 +72,7 @@ ebutrocks:
 
   jsr sd_waitresult
   cmp #$00
-  bne failed
+  bne jmpfailed
   
 ;  ; Open root directory
 ;  jsr fat32_openroot
@@ -133,20 +136,21 @@ SIDCLR
         LDA #>NMI_HANDLER       ; set NMI handler address hi byte
         STA $7FFE               ;
 
-        LDA #<DATASTART         ; low byte
-	STA fat32_address
-        LDA #>DATASTART         ; high byte
-	STA fat32_address+1
+        ;LDA #<DATASTART         ; low byte
+	;STA fat32_address
+        ;LDA #>DATASTART         ; high byte
+	;STA fat32_address+1
 
         LDA #flagSeed           ; initialize flag used for
         STA flag                ; indicating which nibble to play
 	
-	; get the missle
-	LDX #<datname		; low byte
-	LDY #>datname		; high byte
-	JSR fat32_finddirent	; do it
-	JSR fat32_opendirent	; ignore errors >:)
-	JSR fat32_file_readbyte ; one. yes just one bomb for now.
+	;; get the missle
+	;LDX #<datname		; low byte
+	;LDY #>datname		; high byte
+	;JSR fat32_finddirent	; do it
+	;JSR fat32_opendirent	; ignore errors >:)
+	;JSR fat32_file_readbyte ; one. yes just one bomb for now.
+	
 	STA DATASTART		; load the missle
 	STA sample		; all right.
 	JSR wee			; prepare the cannons.
@@ -257,16 +261,13 @@ newcontinue:
  	lda #$01                    ; crc (not checked)
  	jsr sd_writebyte
 
-  	jsr sd_waitresult
-  	cmp #$fe
-  	bne fail
-
 	jsr sd_waitresult
 	cmp #$00
-	bne failed
+	bne stop
 
 	jsr sd_readbyte
         STA sample              ; 3- save to temp location
+	STA DATASTART
         ;BCS stop               ; 2-3- if thats it then stop
 	; BUG cannot stop sample when reading sd RAW
         PLA                     ; 3- local exit code is smaller and
