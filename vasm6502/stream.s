@@ -30,10 +30,12 @@ dirname:
 
 	.include "hwconfig.s"
 	.include "libsd.s" ; ah ye sd tim
-	.include "libfat32.s"
+	;.include "libfat32.s"
+	; no filesystem
 
 ebutrocks:
-
+; init sd card (it was just plugged in)
+	jsr sd_init
 ;-------------------------------------------------------------------------------
 ; Initialize DIGI_Player
 
@@ -202,10 +204,10 @@ shftupr
 
         ; loadnew+1,+2 is self-modifying ptr to sample, gets set in init
 loadnew
-        JSR fat32_file_readbyte ; manny! read da bite.
+        JSR sd_readbyte		; manny! read da bite.
         STA sample              ; 3- save to temp location
-        BCS stop               ; 2-3- if thats it then stop
-
+        ;BCS stop               ; 2-3- if thats it then stop
+	; BUG cannot stop sample when reading sd RAW
         PLA                     ; 3- local exit code is smaller and
         RTI                     ; 6- (14-25)faster than jumps/branches
 

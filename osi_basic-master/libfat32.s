@@ -63,22 +63,22 @@ fat32_init:
   inc fat32_errorstage ; stage 2 = finding partition
 
   ; Find a FAT32 partition
-uFSTYPE_FAT32 = 12
+FSTYPE_FAT32 = 12
   ldx #0
   lda fat32_readbuffer+$1c2,x
-  cmp #uFSTYPE_FAT32
+  cmp #FSTYPE_FAT32
   beq ufoundpart
   ldx #16
   lda fat32_readbuffer+$1c2,x
-  cmp #uFSTYPE_FAT32
+  cmp #FSTYPE_FAT32
   beq ufoundpart
   ldx #32
   lda fat32_readbuffer+$1c2,x
-  cmp #uFSTYPE_FAT32
+  cmp #FSTYPE_FAT32
   beq ufoundpart
   ldx #48
   lda fat32_readbuffer+$1c2,x
-  cmp #uFSTYPE_FAT32
+  cmp #FSTYPE_FAT32
   beq ufoundpart
 
 ufail:
