@@ -120,7 +120,7 @@ F02:0041         lda #>sd_cmd8_bytes
 F02:0042         sta zp_sd_address+1
                S02:00001032:  85 41
 F02:0043       
-F02:0044         jsr sd_sendcommand
+F02:0044         jsr sd_sendcommand ; BUG location in teraterm.log
                S02:00001034:  20 CB 10
 F02:0045       
 F02:0046         ; Expect status response $01 (not initialized)
