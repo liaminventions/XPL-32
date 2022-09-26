@@ -5,7 +5,7 @@ zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 32 bytes
 
-bytepointer = $200	    ; 4 bytes
+bytepointer = $66	    ; 4 bytes
 
 buffer = $400               ; 512 bytes
 endbuf = $600
@@ -39,6 +39,12 @@ jmpfailed:
 ebutrocks:
 ; init sd card (it was just plugged in)
 	jsr sd_init
+
+	lda #0
+	sta bytepointer
+	sta bytepointer+1
+	sta bytepointer+2
+	sta bytepointer+3
 ;-------------------------------------------------------------------------------
 ; Initialize DIGI_Player
 
@@ -170,8 +176,6 @@ SIDCLR
 	bne failed
 
 	jsr sd_readbyte
-        STA sample              ; 3- save to temp location
-	STA DATASTART
 
 	STA DATASTART		; load the missle
 	STA sample		; all right.
@@ -194,7 +198,7 @@ pause
         PLA                     ; Let's get our saved
         TAX                     ; X register and
         PLA                     ; A register back
-        CLI                     ; enable maskable interrutps again
+        SEI                     ; set interuppts again
         RTS                     ; and return
 wee
         ; setup VIA, watch out as it will lunch da cannon!!
