@@ -30,10 +30,12 @@ dirname:
 
 	.include "hwconfig.s"
 	.include "libsd.s" ; ah ye sd tim
-	.include "libfat32.s"
+	;.include "libfat32.s"
+	; no filesystem
 
 ebutrocks:
-
+; init sd card (it was just plugged in)
+	jsr sd_init
 ;-------------------------------------------------------------------------------
 ; Initialize DIGI_Player
 
@@ -46,29 +48,49 @@ ebutrocks:
         STA $B00D               ; ICR CIA #2
                ; read acks any pending interrupt
         LDA $B00D
-        SEI                    ; disables maskable interrupts
+        SEI                     ; disables maskable interrupts
 
 				; hold on les fix da sd
-  ; Open root directory
-  jsr fat32_openroot
+  lda #SD_MOSI
+  sta PORTA
+  ; Command 16, arg is sector number, crc not checked
+  lda #$50                    ; CMD16 - SET_BLOCKLEN
+  jsr sd_writebyte
+  lda #0		      ; byte 24:31
+  jsr sd_writebyte
+  lda #0		      ; byte 16:23
+  jsr sd_writebyte
+  lda #0		      ; byte 8:15
+  jsr sd_writebyte
+  lda #1                      ; byte 0:7
+  jsr sd_writebyte
+  lda #$01                    ; crc (not checked)
+  jsr sd_writebyte
 
-  ; Find subdirectory by name
-  ldx #<dirname
-  ldy #>dirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-
-error:
-  rts
-  rts
-  rts
-  rts
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent
-				; ok dats don
+  jsr sd_waitresult
+  cmp #$00
+  bne failed
+  
+;  ; Open root directory
+;  jsr fat32_openroot
+;
+;  ; Find subdirectory by name
+;  ldx #<dirname
+;  ldy #>dirname
+;  jsr fat32_finddirent
+;  bcc foundsubdir
+;
+;error:
+;  rts
+;  rts
+;  rts
+;  rts
+;
+;foundsubdir
+;
+;  ; Open subdirectory
+;  jsr fat32_opendirent
+;				; ok dats don
 
 
         ; initialize SID
@@ -160,6 +182,11 @@ wee
         STA $B007               ; TA HI
 	RTS
 
+failed:
+  rts
+  rts
+  rts
+  rts
 
 ;-------------------------------------------------------------------------------
 ; NMI handler routine, plays one 4bit sample per pass
@@ -202,7 +229,43 @@ shftupr
 
         ; loadnew+1,+2 is self-modifying ptr to sample, gets set in init
 loadnew
-        JSR sd_readbyte		; manny! read da bite.
+	; manny! read da bite.
+ 	lda #SD_MOSI
+  	sta PORTA
+
+	inc bytepointer
+	bne newcontinue
+	inc bytepointer+1
+	bne newcontinue
+	inc bytepointer+2
+	bne newcontinue
+	inc bytepointer+3
+
+newcontinue:
+
+  	; Command 17, arg is sector number, crc not checked
+  	lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
+  	jsr sd_writebyte
+  	lda bytepointer+3	    ; sector 24:31
+  	jsr sd_writebyte
+  	lda bytepointer+2	    ; sector 16:23
+  	jsr sd_writebyte
+  	lda bytepointer+1	    ; sector 8:15
+ 	jsr sd_writebyte
+ 	lda bytepointer+0           ; sector 0:7
+ 	jsr sd_writebyte
+ 	lda #$01                    ; crc (not checked)
+ 	jsr sd_writebyte
+
+  	jsr sd_waitresult
+  	cmp #$fe
+  	bne fail
+
+	jsr sd_waitresult
+	cmp #$00
+	bne failed
+
+	jsr sd_readbyte
         STA sample              ; 3- save to temp location
         ;BCS stop               ; 2-3- if thats it then stop
 	; BUG cannot stop sample when reading sd RAW
@@ -227,4 +290,4 @@ stop
 
 DATASTART 
 	.byte $00		; smol... ah ye its actually many MB. haha
-DATASTOP
+DATASTOP  
