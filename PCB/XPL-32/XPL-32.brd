@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.6.0">
+<eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.000123031496" unitdist="mil" unit="mil" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
@@ -161,7 +161,7 @@
 <layer number="255" name="routoute" color="7" fill="1" visible="yes" active="yes"/>
 </layers>
 <board>
-<fusionsync huburn="a.YnVzaW5lc3M6Z21haWw3NTMzMzA" projecturn="a.YnVzaW5lc3M6Z21haWw3NTMzMzAjRDIwMjAwMzMxMjgxNDI0ODI2" f3durn="urn:adsk.wipprod:dm.lineage:De2MEmJfSiSAVh_iSnSqNg" pcbguid="c65fccbd-a12b-41c7-a400-2cfe3fae957b" lastpulledtime="" lastsyncedchangeguid="" latestrevisionid="983463e9-adff-45ed-b69e-80bdb4fdf248" lastsyncedrevisionid="983463e9-adff-45ed-b69e-80bdb4fdf248" lastboardhashguid="ceaa1ca7-9094-21c5-b56a-de3c16d0c1f2" lastpushedtime="2021-03-05T13:30:02Z" linktopcb3d="%12"/>
+<fusionsync huburn="a.YnVzaW5lc3M6Z21haWw3NTMzMzA" projecturn="a.YnVzaW5lc3M6Z21haWw3NTMzMzAjRDIwMjAwMzMxMjgxNDI0ODI2" f3durn="urn:adsk.wipprod:dm.lineage:De2MEmJfSiSAVh_iSnSqNg" pcbguid="c65fccbd-a12b-41c7-a400-2cfe3fae957b" lastpulledtime="" lastsyncedchangeguid="" latestrevisionid="983463e9-adff-45ed-b69e-80bdb4fdf248" lastsyncedrevisionid="983463e9-adff-45ed-b69e-80bdb4fdf248" lastboardhashguid="ceaa1ca7-9094-21c5-b56a-de3c16d0c1f2" lastpushedtime="2021-03-05T13:30:02Z" linktopcb3d="false"/>
 <plain>
 <wire x1="20.32" y1="8.89" x2="323.83" y2="8.89" width="0" layer="20"/>
 <wire x1="323.83" y1="8.89" x2="323.195" y2="100" width="0" layer="20"/>
@@ -5790,8 +5790,8 @@ design rules under a new name.</description>
 <wire x1="97.155" y1="86.995" x2="96.52" y2="87.63" width="0.2032" layer="1"/>
 <wire x1="97.155" y1="63.5" x2="97.155" y2="86.995" width="0.2032" layer="1"/>
 <wire x1="98.425" y1="62.23" x2="97.155" y2="63.5" width="0.2032" layer="1"/>
-<wire x1="100.33" y1="62.23" x2="98.425" y2="62.23" width="0.2032" layer="1"/>
 <wire x1="100.33" y1="78.74" x2="100.33" y2="62.23" width="0.2032" layer="1"/>
+<wire x1="100.33" y1="62.23" x2="98.425" y2="62.23" width="0.2032" layer="1"/>
 <wire x1="111.125" y1="89.535" x2="100.33" y2="78.74" width="0.2032" layer="16"/>
 <wire x1="113.665" y1="89.535" x2="111.125" y2="89.535" width="0.2032" layer="16"/>
 <wire x1="113.665" y1="89.535" x2="113.8192625" y2="89.2779125" width="0.2032" layer="16"/>
