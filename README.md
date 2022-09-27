@@ -37,5 +37,7 @@ I currently use [EAGLE](https://www.autodesk.com/products/eagle/free-download)
 ## Coding
 [VIM](https://www.vim.org/) for coding.
 [xa](https://github.com/pfusik/xasm), [ca65](https://github.com/cc65/cc65) (from cc65), and [vasm](http://sun.hasenbraten.de/vasm/) for assembly.
-"xa 6502 cross assembler" syntax highlighting in vim
+
+I have "xa 6502 cross assembler" syntax highlighting in vim, but sometimes I use vscode with the "vasm" plugin.
+
 most source files are .s, but some are .a65 or .asm
