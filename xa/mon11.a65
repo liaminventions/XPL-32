@@ -2478,6 +2478,7 @@ initfailed
   ldy #>initfailedmsg
   ldx #<initfailedmsg
   jsr w_acia_full
+  rts
 
 sd_cmd0_bytes
   .byte $40, $00, $00, $00, $00, $95
