@@ -6756,13 +6756,13 @@ Addr: c3b0 R/W: r IRQ: H NMI: L Data: 8e
 Addr: c3b1 R/W: r IRQ: H NMI: L Data: 07      
 Addr: c3b2 R/W: r IRQ: H NMI: L Data: b0      
 Addr: b007 R/W: W IRQ: H NMI: L Data: 0f      
-Addr: c3b3 R/W: r IRQ: H NMI: L Data: 60      
-Addr: c3b4 R/W: r IRQ: H NMI: L Data: 20      
-Addr: 01fb R/W: r IRQ: H NMI: L Data: e9      
-Addr: 01fc R/W: r IRQ: H NMI: L Data: 36      
-Addr: 01fd R/W: r IRQ: H NMI: L Data: 80      
-Addr: 8036 R/W: r IRQ: H NMI: L Data: 00      
-Addr: 8037 R/W: r IRQ: H NMI: L Data: 00      
+Addr: c3b3 R/W: r IRQ: H NMI: L Data: 60 ; BUG      
+Addr: c3b4 R/W: r IRQ: H NMI: L Data: 20 ;     
+Addr: 01fb R/W: r IRQ: H NMI: L Data: e9 ;     
+Addr: 01fc R/W: r IRQ: H NMI: L Data: 36 ; BUG    
+Addr: 01fd R/W: r IRQ: H NMI: L Data: 80 ; BUG    
+Addr: 8036 R/W: r IRQ: H NMI: L Data: 00 ; BUG what!!?? "8036"??? (stack overflow)     
+Addr: 8037 R/W: r IRQ: H NMI: L Data: 00 ; everything goes downhill from here :(     
 Addr: 8038 R/W: r IRQ: H NMI: L Data: 00      
 Addr: 01fd R/W: W IRQ: H NMI: L Data: 80      
 Addr: 01fc R/W: W IRQ: H NMI: L Data: 39      
