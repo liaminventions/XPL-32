@@ -881,7 +881,7 @@ F00:0034       	; no filesystem
 F00:0035       
 F00:0036       jmpfailed:
 F00:0037       	jmp failed
-               S01:00001170:  4C 3C 12
+               S01:00001170:  4C 43 12
 F00:0038       
 F00:0039       begin:
 F00:0040       ; init sd card (it was just plugged in)
@@ -1032,7 +1032,7 @@ F00:0141               STA SID+$17             ; filter  voices+reso
 F00:0142       
 F00:0143               ; point to our player routine
 F00:0144               LDA #<IRQ_HANDLER       ; set NMI handler address low byte
-               S01:000011D7:  A9 3E
+               S01:000011D7:  A9 45
 F00:0145               STA $7FFF               ;
                S01:000011D9:  8D FF 7F
 F00:0146               LDA #>IRQ_HANDLER       ; set NMI handler address hi byte
@@ -1088,261 +1088,277 @@ F00:0178       	jsr sd_waitresult
 F00:0179       	cmp #$00
                S01:00001206:  C9 00
 F00:0180       	bne failed
-               S01:00001208:  D0 32
+               S01:00001208:  D0 39
 F00:0181       
-F00:0182       	jsr sd_readbyte
-               S01:0000120A:  20 2E 10
-F00:0183       
-F00:0184       ;	STA DATASTART		; load the missle      we don't need this
-F00:0185       	STA sample		; all right.
-               S01:0000120D:  85 01
-F00:0186       	JSR wee			; prepare the cannons.
-               S01:0000120F:  20 27 12
-F00:0187       
-F00:0188               LDA #$40                ; ICR set to TMR A underflow
-               S01:00001212:  A9 40
-F00:0189               STA $B00D               ; ICR CIA #2
-               S01:00001214:  8D 0D B0
-F00:0190               LDA #$c0                ;
-               S01:00001217:  A9 C0
-F00:0191               STA $B00E               ; CRA interrupt enable
-               S01:00001219:  8D 0E B0
+F00:0182               ; wait for data
+F00:0183               jsr sd_waitresult
+               S01:0000120A:  20 60 10
+F00:0184               cmp #$fe
+               S01:0000120D:  C9 FE
+F00:0185               bne failed
+               S01:0000120F:  D0 32
+F00:0186       
+F00:0187       	jsr sd_readbyte
+               S01:00001211:  20 2E 10
+F00:0188       
+F00:0189       ;	STA DATASTART		; load the missle      we don't need this
+F00:0190       	STA sample		; all right.
+               S01:00001214:  85 01
+F00:0191       	JSR wee			; prepare the cannons.
+               S01:00001216:  20 2E 12
 F00:0192       
-F00:0193       	cli
-               S01:0000121C:  58
-F00:0194       
-F00:0195               LDA #$00                ;
-               S01:0000121D:  A9 00
-F00:0196               STA done                ; reset player done flag
-               S01:0000121F:  85 00
+F00:0193               LDA #$40                ; ICR set to TMR A underflow
+               S01:00001219:  A9 40
+F00:0194               STA $B00D               ; ICR CIA #2
+               S01:0000121B:  8D 0D B0
+F00:0195               LDA #$c0                ;
+               S01:0000121E:  A9 C0
+F00:0196               STA $B00E               ; CRA interrupt enable
+               S01:00001220:  8D 0E B0
 F00:0197       
-F00:0198       pause
-F00:0199               LDA done                ; player sets'done' flag when finished, pause
-               S01:00001221:  A5 00
-F00:0200               BEQ pause               ; until then for clean return to BASIC
-               S01:00001223:  F0 FC
-F00:0201       
-F00:0202               SEI                     ; set interuppts again
-               S01:00001225:  78
-F00:0203               RTS                     ; and return
-               S01:00001226:  60
-F00:0204       wee
-F00:0205               ; setup VIA, watch out as it will lunch da cannon!!
-F00:0206               LDA #<freq              ; interrupt freq
-               S01:00001227:  A9 80
-F00:0207               STA $B004               ; TA LO
-               S01:00001229:  8D 04 B0
-F00:0208               LDA #>freq              ;
-               S01:0000122C:  A9 00
-F00:0209               STA $B005               ; TA HI
-               S01:0000122E:  8D 05 B0
-F00:0210               LDA #<freq              ; interrupt freq
-               S01:00001231:  A9 80
-F00:0211               STA $B006               ; TA LO
-               S01:00001233:  8D 06 B0
-F00:0212               LDA #>freq              ;
-               S01:00001236:  A9 00
-F00:0213               STA $B007               ; TA HI
-               S01:00001238:  8D 07 B0
-F00:0214       	RTS
-               S01:0000123B:  60
-F00:0215       
-F00:0216       failed:
-F00:0217         sei
-               S01:0000123C:  78
-F00:0218         rts
-               S01:0000123D:  60
-F00:0219       
-F00:0220       ;-------------------------------------------------------------------------------
-F00:0221       ; IRQ handler routine, plays one 4bit sample per pass
-F00:0222       ; Path A -> Play Lower, shift upper down. 3+19+13+23=58 cycles
-F00:0223       ; Path B -> Play upper, load new sample. 3+19+8+25=55 cycles
-F00:0224       ; Path C -> Play upper. load sample, new page. 3+19+8+14+21=65 cycles
-F00:0225       ; Sample's lower nybble holds the 4-bit sample to played on the "even" IRQs
-F00:0226       ; The upper nybble holds the next nybble to be played on "odd" IRQs
-F00:0227       IRQ_HANDLER        
-F00:0228               ; start with saving state       
-F00:0229               PHA                     ; 3- (3) will restore when returning
-               S01:0000123E:  48
-F00:0230       
-F00:0231       	lda #$40
-               S01:0000123F:  A9 40
-F00:0232       	sta $b00d		; ack
-               S01:00001241:  8D 0D B0
-F00:0233       
-F00:0234       	JSR wee			; prepare next missle
-               S01:00001244:  20 27 12
+F00:0198       	cli
+               S01:00001223:  58
+F00:0199       
+F00:0200               LDA #$00                ;
+               S01:00001224:  A9 00
+F00:0201               STA done                ; reset player done flag
+               S01:00001226:  85 00
+F00:0202       
+F00:0203       pause
+F00:0204               LDA done                ; player sets'done' flag when finished, pause
+               S01:00001228:  A5 00
+F00:0205               BEQ pause               ; until then for clean return to BASIC
+               S01:0000122A:  F0 FC
+F00:0206       
+F00:0207               SEI                     ; set interuppts again
+               S01:0000122C:  78
+F00:0208               RTS                     ; and return
+               S01:0000122D:  60
+F00:0209       wee
+F00:0210               ; setup VIA, watch out as it will lunch da cannon!!
+F00:0211               LDA #<freq              ; interrupt freq
+               S01:0000122E:  A9 80
+F00:0212               STA $B004               ; TA LO
+               S01:00001230:  8D 04 B0
+F00:0213               LDA #>freq              ;
+               S01:00001233:  A9 00
+F00:0214               STA $B005               ; TA HI
+               S01:00001235:  8D 05 B0
+F00:0215               LDA #<freq              ; interrupt freq
+               S01:00001238:  A9 80
+F00:0216               STA $B006               ; TA LO
+               S01:0000123A:  8D 06 B0
+F00:0217               LDA #>freq              ;
+               S01:0000123D:  A9 00
+F00:0218               STA $B007               ; TA HI
+               S01:0000123F:  8D 07 B0
+F00:0219       	RTS
+               S01:00001242:  60
+F00:0220       
+F00:0221       failed:
+F00:0222         sei
+               S01:00001243:  78
+F00:0223         rts
+               S01:00001244:  60
+F00:0224       
+F00:0225       ;-------------------------------------------------------------------------------
+F00:0226       ; IRQ handler routine, plays one 4bit sample per pass
+F00:0227       ; Path A -> Play Lower, shift upper down. 3+19+13+23=58 cycles
+F00:0228       ; Path B -> Play upper, load new sample. 3+19+8+25=55 cycles
+F00:0229       ; Path C -> Play upper. load sample, new page. 3+19+8+14+21=65 cycles
+F00:0230       ; Sample's lower nybble holds the 4-bit sample to played on the "even" IRQs
+F00:0231       ; The upper nybble holds the next nybble to be played on "odd" IRQs
+F00:0232       IRQ_HANDLER        
+F00:0233               ; start with saving state       
+F00:0234               PHA                     ; 3- (3) will restore when returning
+               S01:00001245:  48
 F00:0235       
-F00:0236               ; play 4-bit sample, first sample byte saved during Init
-F00:0237               LDA sample              ; 3- load sample byte
-               S01:00001247:  A5 01
-F00:0238               ORA #$10                ; 2- make sure wee no ded filter settings
-               S01:00001249:  09 10
-F00:0239               AND #$1F                ; 2- git rid of any put bits
-               S01:0000124B:  29 1F
-F00:0240               STA SID+$18             ; 4- save to ta regsiter
-               S01:0000124D:  8D 18 B8
-F00:0241               LDA $B00D               ; 4- (19)clear gobut
-               S01:00001250:  AD 0D B0
-F00:0242       
-F00:0243               ; flag init to $AA or $55, We shift alternating pattern though flag byte
-F00:0244               ASL flag                ; 5- shift patten left thru flag byte
-               S01:00001253:  06 02
-F00:0245               BCC loadnew             ; 2-3 
-               S01:00001255:  90 0C
-F00:0246               INC flag                ; 5 (8-13) so skip ahead to load new byte
-               S01:00001257:  E6 02
-F00:0247          
-F00:0248       shftupr
-F00:0249               LDA sample              ; 3- *1 shift upper nibble down
-               S01:00001259:  A5 01
-F00:0250               LSR a                   ; 2-
-               S01:0000125B:  4A
-F00:0251               LSR a                   ; 2-
-               S01:0000125C:  4A
-F00:0252               LSR a                   ; 2-
-               S01:0000125D:  4A
-F00:0253               LSR a                   ; 2-
-               S01:0000125E:  4A
-F00:0254               STA sample              ; 3- store it back to play next pass
-               S01:0000125F:  85 01
-F00:0255       
-F00:0256               PLA                     ; 3- local exit code is smaller and 
-               S01:00001261:  68
-F00:0257               RTI                     ; 6- (23) faster than jumps/branches
-               S01:00001262:  40
-F00:0258       
-F00:0259       
-F00:0260       loadnew
-F00:0261       	; manny! read da bite.
-F00:0262       
-F00:0263               inc readcounter
-               S01:00001263:  E6 6A
-F00:0264               bne yee
-               S01:00001265:  D0 08
-F00:0265               inc readcounter+1
-               S01:00001267:  E6 6B
-F00:0266               lda readcounter+1
-               S01:00001269:  A5 6B
-F00:0267               cmp #$02
-               S01:0000126B:  C9 02
-F00:0268               beq werwer
-               S01:0000126D:  F0 07
-F00:0269       yee
-F00:0270               jsr sd_readbyte
-               S01:0000126F:  20 2E 10
-F00:0271               sta sample
-               S01:00001272:  85 01
-F00:0272               pla
-               S01:00001274:  68
-F00:0273               rti
-               S01:00001275:  40
-F00:0274       werwer
-F00:0275        	lda #SD_MOSI
-               S01:00001276:  A9 04
-F00:0276         	sta PORTA
-               S01:00001278:  8D 01 B0
-F00:0277       
-F00:0278       	inc bytepointer
-               S01:0000127B:  E6 66
-F00:0279       	bne newcontinue
-               S01:0000127D:  D0 0A
-F00:0280       	inc bytepointer+1
-               S01:0000127F:  E6 67
-F00:0281       	bne newcontinue
-               S01:00001281:  D0 06
-F00:0282       	inc bytepointer+2
-               S01:00001283:  E6 68
-F00:0283       	bne newcontinue
-               S01:00001285:  D0 02
-F00:0284       	inc bytepointer+3
-               S01:00001287:  E6 69
-F00:0285       
-F00:0286       newcontinue:
-F00:0287       
-F00:0288         	; Command 17, arg is sector number, crc not checked
-F00:0289         	lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
-               S01:00001289:  A9 51
-F00:0290         	jsr sd_writebyte
-               S01:0000128B:  20 49 10
-F00:0291         	lda bytepointer+3	    ; sector 24:31
-               S01:0000128E:  A5 69
-F00:0292         	jsr sd_writebyte
-               S01:00001290:  20 49 10
-F00:0293         	lda bytepointer+2	    ; sector 16:23
-               S01:00001293:  A5 68
-F00:0294         	jsr sd_writebyte
-               S01:00001295:  20 49 10
-F00:0295         	lda bytepointer+1	    ; sector 8:15
-               S01:00001298:  A5 67
-F00:0296        	jsr sd_writebyte
-               S01:0000129A:  20 49 10
-F00:0297        	lda bytepointer+0           ; sector 0:7
-               S01:0000129D:  A5 66
-F00:0298        	jsr sd_writebyte
-               S01:0000129F:  20 49 10
-F00:0299        	lda #$01                    ; crc (not checked)
-               S01:000012A2:  A9 01
-F00:0300        	jsr sd_writebyte
-               S01:000012A4:  20 49 10
-F00:0301       
-F00:0302       	jsr sd_waitresult
-               S01:000012A7:  20 60 10
-F00:0303       	cmp #$00
-               S01:000012AA:  C9 00
-F00:0304       	bne stop
-               S01:000012AC:  D0 12
-F00:0305       
-F00:0306               lda #0
-               S01:000012AE:  A9 00
-F00:0307               sta readcounter
-               S01:000012B0:  85 6A
-F00:0308               sta readcounter+1
-               S01:000012B2:  85 6B
-F00:0309       
-F00:0310       	jsr sd_readbyte
-               S01:000012B4:  20 2E 10
-F00:0311       
-F00:0312               STA sample              ; 3- save to temp location
-               S01:000012B7:  85 01
-F00:0313       	;STA DATASTART
-F00:0314               ;BCS stop               ; 2-3- if thats it then stop
-F00:0315       	; BUG cannot stop sample when reading sd RAW
-F00:0316               lda #SD_CS | SD_MOSI
-               S01:000012B9:  A9 14
-F00:0317               sta PORTA
-               S01:000012BB:  8D 01 B0
-F00:0318       
-F00:0319               PLA                     ; 3- local exit code is smaller and
-               S01:000012BE:  68
-F00:0320               RTI                     ; 6- (14-25)faster than jumps/branches
-               S01:000012BF:  40
+F00:0236       	lda #$40
+               S01:00001246:  A9 40
+F00:0237       	sta $b00d		; ack
+               S01:00001248:  8D 0D B0
+F00:0238       
+F00:0239       	JSR wee			; prepare next missle
+               S01:0000124B:  20 2E 12
+F00:0240       
+F00:0241               ; play 4-bit sample, first sample byte saved during Init
+F00:0242               LDA sample              ; 3- load sample byte
+               S01:0000124E:  A5 01
+F00:0243               ORA #$10                ; 2- make sure wee no ded filter settings
+               S01:00001250:  09 10
+F00:0244               AND #$1F                ; 2- git rid of any put bits
+               S01:00001252:  29 1F
+F00:0245               STA SID+$18             ; 4- save to ta regsiter
+               S01:00001254:  8D 18 B8
+F00:0246               LDA $B00D               ; 4- (19)clear gobut
+               S01:00001257:  AD 0D B0
+F00:0247       
+F00:0248               ; flag init to $AA or $55, We shift alternating pattern though flag byte
+F00:0249               ASL flag                ; 5- shift patten left thru flag byte
+               S01:0000125A:  06 02
+F00:0250               BCC loadnew             ; 2-3 
+               S01:0000125C:  90 0C
+F00:0251               INC flag                ; 5 (8-13) so skip ahead to load new byte
+               S01:0000125E:  E6 02
+F00:0252          
+F00:0253       shftupr
+F00:0254               LDA sample              ; 3- *1 shift upper nibble down
+               S01:00001260:  A5 01
+F00:0255               LSR a                   ; 2-
+               S01:00001262:  4A
+F00:0256               LSR a                   ; 2-
+               S01:00001263:  4A
+F00:0257               LSR a                   ; 2-
+               S01:00001264:  4A
+F00:0258               LSR a                   ; 2-
+               S01:00001265:  4A
+F00:0259               STA sample              ; 3- store it back to play next pass
+               S01:00001266:  85 01
+F00:0260       
+F00:0261               PLA                     ; 3- local exit code is smaller and 
+               S01:00001268:  68
+F00:0262               RTI                     ; 6- (23) faster than jumps/branches
+               S01:00001269:  40
+F00:0263       
+F00:0264       
+F00:0265       loadnew
+F00:0266       	; manny! read da bite.
+F00:0267       
+F00:0268               inc readcounter
+               S01:0000126A:  E6 6A
+F00:0269               bne yee
+               S01:0000126C:  D0 08
+F00:0270               inc readcounter+1
+               S01:0000126E:  E6 6B
+F00:0271               lda readcounter+1
+               S01:00001270:  A5 6B
+F00:0272               cmp #$02
+               S01:00001272:  C9 02
+F00:0273               beq werwer
+               S01:00001274:  F0 07
+F00:0274       yee
+F00:0275               jsr sd_readbyte
+               S01:00001276:  20 2E 10
+F00:0276               sta sample
+               S01:00001279:  85 01
+F00:0277               pla
+               S01:0000127B:  68
+F00:0278               rti
+               S01:0000127C:  40
+F00:0279       werwer
+F00:0280        	lda #SD_MOSI
+               S01:0000127D:  A9 04
+F00:0281         	sta PORTA
+               S01:0000127F:  8D 01 B0
+F00:0282       
+F00:0283       	inc bytepointer
+               S01:00001282:  E6 66
+F00:0284       	bne newcontinue
+               S01:00001284:  D0 0A
+F00:0285       	inc bytepointer+1
+               S01:00001286:  E6 67
+F00:0286       	bne newcontinue
+               S01:00001288:  D0 06
+F00:0287       	inc bytepointer+2
+               S01:0000128A:  E6 68
+F00:0288       	bne newcontinue
+               S01:0000128C:  D0 02
+F00:0289       	inc bytepointer+3
+               S01:0000128E:  E6 69
+F00:0290       
+F00:0291       newcontinue:
+F00:0292       
+F00:0293         	; Command 17, arg is sector number, crc not checked
+F00:0294         	lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
+               S01:00001290:  A9 51
+F00:0295         	jsr sd_writebyte
+               S01:00001292:  20 49 10
+F00:0296         	lda bytepointer+3	    ; sector 24:31
+               S01:00001295:  A5 69
+F00:0297         	jsr sd_writebyte
+               S01:00001297:  20 49 10
+F00:0298         	lda bytepointer+2	    ; sector 16:23
+               S01:0000129A:  A5 68
+F00:0299         	jsr sd_writebyte
+               S01:0000129C:  20 49 10
+F00:0300         	lda bytepointer+1	    ; sector 8:15
+               S01:0000129F:  A5 67
+F00:0301        	jsr sd_writebyte
+               S01:000012A1:  20 49 10
+F00:0302        	lda bytepointer+0           ; sector 0:7
+               S01:000012A4:  A5 66
+F00:0303        	jsr sd_writebyte
+               S01:000012A6:  20 49 10
+F00:0304        	lda #$01                    ; crc (not checked)
+               S01:000012A9:  A9 01
+F00:0305        	jsr sd_writebyte
+               S01:000012AB:  20 49 10
+F00:0306       
+F00:0307       	jsr sd_waitresult
+               S01:000012AE:  20 60 10
+F00:0308       	cmp #$00
+               S01:000012B1:  C9 00
+F00:0309       	bne stop
+               S01:000012B3:  D0 19
+F00:0310       
+F00:0311               ; wait for data
+F00:0312               jsr sd_waitresult
+               S01:000012B5:  20 60 10
+F00:0313               cmp #$fe
+               S01:000012B8:  C9 FE
+F00:0314               bne stop
+               S01:000012BA:  D0 12
+F00:0315       
+F00:0316               lda #0
+               S01:000012BC:  A9 00
+F00:0317               sta readcounter
+               S01:000012BE:  85 6A
+F00:0318               sta readcounter+1
+               S01:000012C0:  85 6B
+F00:0319       
+F00:0320       	jsr sd_readbyte
+               S01:000012C2:  20 2E 10
 F00:0321       
-F00:0322       
-F00:0323       stop
-F00:0324               LDA #$08                ; 2- turn off IRQ
-               S01:000012C0:  A9 08
-F00:0325               STA $B00E               ; 4- timer A stop-CRA, CIA #1 DC0E
-               S01:000012C2:  8D 0E B0
-F00:0326               LDA #$4F                ; 2- disable all CIA-2 IRQs 
-               S01:000012C5:  A9 4F
-F00:0327               STA $B00D               ; 4- ICR - interrupt control / status
-               S01:000012C7:  8D 0D B0
-F00:0328               LDA $B00D               ; 4- (16) sta/lda to ack any pending int
-               S01:000012CA:  AD 0D B0
-F00:0329       
-F00:0330               INC done                ; set player done flag
-               S01:000012CD:  E6 00
-F00:0331               
-F00:0332               PLA                     ; 3- local exit code is smaller and
-               S01:000012CF:  68
-F00:0333               RTI                     ; 6- faster than jumps/branches
-               S01:000012D0:  40
-F00:0334       
-F00:0335       ;DATASTART 
-F00:0336       ;	.byte $00		; smol... ah ye its actually many MB. haha
-F00:0337       ;DATASTOP  
-F00:0338       
+F00:0322               STA sample              ; 3- save to temp location
+               S01:000012C5:  85 01
+F00:0323       	;STA DATASTART
+F00:0324               ;BCS stop               ; 2-3- if thats it then stop
+F00:0325       	; BUG cannot stop sample when reading sd RAW
+F00:0326               lda #SD_CS | SD_MOSI
+               S01:000012C7:  A9 14
+F00:0327               sta PORTA
+               S01:000012C9:  8D 01 B0
+F00:0328       
+F00:0329               PLA                     ; 3- local exit code is smaller and
+               S01:000012CC:  68
+F00:0330               RTI                     ; 6- (14-25)faster than jumps/branches
+               S01:000012CD:  40
+F00:0331       
+F00:0332       
+F00:0333       stop
+F00:0334               LDA #$08                ; 2- turn off IRQ
+               S01:000012CE:  A9 08
+F00:0335               STA $B00E               ; 4- timer A stop-CRA, CIA #1 DC0E
+               S01:000012D0:  8D 0E B0
+F00:0336               LDA #$4F                ; 2- disable all CIA-2 IRQs 
+               S01:000012D3:  A9 4F
+F00:0337               STA $B00D               ; 4- ICR - interrupt control / status
+               S01:000012D5:  8D 0D B0
+F00:0338               LDA $B00D               ; 4- (16) sta/lda to ack any pending int
+               S01:000012D8:  AD 0D B0
+F00:0339       
+F00:0340               INC done                ; set player done flag
+               S01:000012DB:  E6 00
+F00:0341               
+F00:0342               PLA                     ; 3- local exit code is smaller and
+               S01:000012DD:  68
+F00:0343               RTI                     ; 6- faster than jumps/branches
+               S01:000012DE:  40
+F00:0344       
+F00:0345       ;DATASTART 
+F00:0346       ;	.byte $00		; smol... ah ye its actually many MB. haha
+F00:0347       ;DATASTOP  
+F00:0348       
 
 
 Sections:
@@ -1357,17 +1373,17 @@ F03  libsd.s
 
 
 Symbols:
-stop EXPR(4800=0x12c0) ABS 
-newcontinue EXPR(4745=0x1289) ABS 
-werwer EXPR(4726=0x1276) ABS 
-yee EXPR(4719=0x126f) ABS 
-shftupr EXPR(4697=0x1259) UNUSED ABS 
-loadnew EXPR(4707=0x1263) ABS 
-pause EXPR(4641=0x1221) ABS 
-wee EXPR(4647=0x1227) ABS 
-IRQ_HANDLER EXPR(4670=0x123e) ABS 
+stop EXPR(4814=0x12ce) ABS 
+newcontinue EXPR(4752=0x1290) ABS 
+werwer EXPR(4733=0x127d) ABS 
+yee EXPR(4726=0x1276) ABS 
+shftupr EXPR(4704=0x1260) UNUSED ABS 
+loadnew EXPR(4714=0x126a) ABS 
+pause EXPR(4648=0x1228) ABS 
+wee EXPR(4654=0x122e) ABS 
+IRQ_HANDLER EXPR(4677=0x1245) ABS 
 SIDCLR EXPR(4501=0x1195) ABS 
-failed EXPR(4668=0x123c) ABS 
+failed EXPR(4675=0x1243) ABS 
 jmpfailed EXPR(4464=0x1170) ABS 
 respmsg EXPR(4438=0x1156) UNUSED ABS 
 statusmsg EXPR(4414=0x113e) UNUSED ABS 
