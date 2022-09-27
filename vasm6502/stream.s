@@ -179,6 +179,11 @@ SIDCLR
 	cmp #$00
 	bne failed
 
+        ; wait for data
+        jsr sd_waitresult
+        cmp #$fe
+        bne failed
+
 	jsr sd_readbyte
 
 ;	STA DATASTART		; load the missle      we don't need this
@@ -302,6 +307,11 @@ newcontinue:
 	jsr sd_waitresult
 	cmp #$00
 	bne stop
+
+        ; wait for data
+        jsr sd_waitresult
+        cmp #$fe
+        bne stop
 
         lda #0
         sta readcounter
