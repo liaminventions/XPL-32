@@ -39,6 +39,9 @@ jmpfailed:
 
 ebutrocks:
 ; init sd card (it was just plugged in)
+        PHA                     ; We need to save both A
+        phx                     ; and X as we use them
+        
 	jsr sd_init
         bcs jmpfailed
 
@@ -49,9 +52,6 @@ ebutrocks:
 	sta bytepointer+3
 ;-------------------------------------------------------------------------------
 ; Initialize DIGI_Player
-
-        PHA                     ; We need to save both A
-        phx                     ; and X as we use them
 
         ; disable interrupts
         LDA #$00                ; was $7f in the_c64_digi.txt

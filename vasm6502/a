@@ -886,28 +886,28 @@ F00:0038       	jmp failed
 F00:0039       
 F00:0040       ebutrocks:
 F00:0041       ; init sd card (it was just plugged in)
-F00:0042       	jsr sd_init
-               S02:00001270:  20 A0 10
-F00:0043               bcs jmpfailed
-               S02:00001273:  B0 F8
-F00:0044       
-F00:0045       	lda #0
-               S02:00001275:  A9 00
-F00:0046       	sta bytepointer
-               S02:00001277:  85 66
-F00:0047       	sta bytepointer+1
-               S02:00001279:  85 67
-F00:0048       	sta bytepointer+2
-               S02:0000127B:  85 68
-F00:0049       	sta bytepointer+3
-               S02:0000127D:  85 69
-F00:0050       ;-------------------------------------------------------------------------------
-F00:0051       ; Initialize DIGI_Player
-F00:0052       
-F00:0053               PHA                     ; We need to save both A
-               S02:0000127F:  48
-F00:0054               phx                     ; and X as we use them
-               S02:00001280:  DA
+F00:0042               PHA                     ; We need to save both A
+               S02:00001270:  48
+F00:0043               phx                     ; and X as we use them
+               S02:00001271:  DA
+F00:0044               
+F00:0045       	jsr sd_init
+               S02:00001272:  20 A0 10
+F00:0046               bcs jmpfailed
+               S02:00001275:  B0 F6
+F00:0047       
+F00:0048       	lda #0
+               S02:00001277:  A9 00
+F00:0049       	sta bytepointer
+               S02:00001279:  85 66
+F00:0050       	sta bytepointer+1
+               S02:0000127B:  85 67
+F00:0051       	sta bytepointer+2
+               S02:0000127D:  85 68
+F00:0052       	sta bytepointer+3
+               S02:0000127F:  85 69
+F00:0053       ;-------------------------------------------------------------------------------
+F00:0054       ; Initialize DIGI_Player
 F00:0055       
 F00:0056               ; disable interrupts
 F00:0057               LDA #$00                ; was $7f in the_c64_digi.txt
