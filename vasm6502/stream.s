@@ -6,6 +6,7 @@ zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 32 bytes
 
 bytepointer = $66	    ; 4 bytes
+readcounter = $6a           ; 2 bytes
 
 buffer = $400               ; 512 bytes
 endbuf = $600
@@ -19,14 +20,12 @@ freq     = $80           ; CIA NMI timer delay, 8kHz
 
 	.org $0f00
 darn
-	jmp ebutrocks
+	jmp begin
 
 ;datname:
 ;  .asciiz "FASTCMC RAW"  ; music file on SD card
 ;dirname:
 ;  .asciiz "FOLDER     "  ; folder
-
-	.org $1000
 
 	.include "hwconfig.s"
         .include "libacia.s"
@@ -37,10 +36,8 @@ darn
 jmpfailed:
 	jmp failed
 
-ebutrocks:
+begin:
 ; init sd card (it was just plugged in)
-        PHA                     ; We need to save both A
-        phx                     ; and X as we use them
         
 	jsr sd_init
         bcs jmpfailed
@@ -50,6 +47,10 @@ ebutrocks:
 	sta bytepointer+1
 	sta bytepointer+2
 	sta bytepointer+3
+
+        lda #0
+        sta readcounter
+        sta readcounter+1
 ;-------------------------------------------------------------------------------
 ; Initialize DIGI_Player
 
@@ -61,27 +62,27 @@ ebutrocks:
         SEI                     ; disables maskable interrupts
 
 				; hold on les fix da sd
-  lda #SD_MOSI
-  sta PORTA
-  ; Command 16, arg is size in bytes, crc not checked
-  lda #$50                    ; CMD16 - SET_BLOCKLEN
-  jsr sd_writebyte
-  lda #0		      ; byte 24:31
-  jsr sd_writebyte
-  lda #0		      ; byte 16:23
-  jsr sd_writebyte
-  lda #0		      ; byte 8:15
-  jsr sd_writebyte
-  lda #1                      ; byte 0:7
-  jsr sd_writebyte
-  lda #$01                    ; crc (not checked)
-  jsr sd_writebyte
-
-  jsr sd_waitresult
-  cmp #$00
-  bne jmpfailed
+;  lda #SD_MOSI
+;  sta PORTA
+;  ; Command 16, arg is size in bytes, crc not checked
+;  lda #$50                    ; CMD16 - SET_BLOCKLEN
+;  jsr sd_writebyte
+;  lda #0		      ; byte 24:31
+;  jsr sd_writebyte
+;  lda #0		      ; byte 16:23
+;  jsr sd_writebyte
+;  lda #0		      ; byte 8:15
+;  jsr sd_writebyte
+;  lda #1                      ; byte 0:7
+;  jsr sd_writebyte
+;  lda #$01                    ; crc (not checked)
+;  jsr sd_writebyte
+;
+;  jsr sd_waitresult
+;  cmp #$00
+;  bne jmpfailed        BUG i don't think this works on SDHC or SDXC, only on SD.
   
-;  ; Open root directory
+;  ; Open root directory                we dont want fat32 here
 ;  jsr fat32_openroot
 ;
 ;  ; Find subdirectory by name
@@ -140,9 +141,9 @@ SIDCLR
         STA SID+$17             ; filter  voices+reso 
 
         ; point to our player routine
-        LDA #<NMI_HANDLER       ; set NMI handler address low byte
+        LDA #<IRQ_HANDLER       ; set NMI handler address low byte
         STA $7FFF               ;
-        LDA #>NMI_HANDLER       ; set NMI handler address hi byte
+        LDA #>IRQ_HANDLER       ; set NMI handler address hi byte
         STA $7FFE               ;
 
         ;LDA #<DATASTART         ; low byte
@@ -180,7 +181,7 @@ SIDCLR
 
 	jsr sd_readbyte
 
-	STA DATASTART		; load the missle
+;	STA DATASTART		; load the missle      we don't need this
 	STA sample		; all right.
 	JSR wee			; prepare the cannons.
 
@@ -198,9 +199,6 @@ pause
         LDA done                ; player sets'done' flag when finished, pause
         BEQ pause               ; until then for clean return to BASIC
 
-        PLA                     ; Let's get our saved
-        TAX                     ; X register and
-        PLA                     ; A register back
         SEI                     ; set interuppts again
         RTS                     ; and return
 wee
@@ -216,21 +214,17 @@ wee
 	RTS
 
 failed:
-  plx
-  pla
-  rts
-  rts
-  rts
+  sei
   rts
 
 ;-------------------------------------------------------------------------------
-; NMI handler routine, plays one 4bit sample per pass
+; IRQ handler routine, plays one 4bit sample per pass
 ; Path A -> Play Lower, shift upper down. 3+19+13+23=58 cycles
 ; Path B -> Play upper, load new sample. 3+19+8+25=55 cycles
 ; Path C -> Play upper. load sample, new page. 3+19+8+14+21=65 cycles
-; Sample's lower nybble holds the 4-bit sample to played on the "even" NMIs
-; The upper nybble holds the next nybble to be played on "odd" NMIs
-NMI_HANDLER        
+; Sample's lower nybble holds the 4-bit sample to played on the "even" IRQs
+; The upper nybble holds the next nybble to be played on "odd" IRQs
+IRQ_HANDLER        
         ; start with saving state       
         PHA                     ; 3- (3) will restore when returning
 
@@ -262,9 +256,22 @@ shftupr
         PLA                     ; 3- local exit code is smaller and 
         RTI                     ; 6- (23) faster than jumps/branches
 
-        ; loadnew+1,+2 is self-modifying ptr to sample, gets set in init
+
 loadnew
 	; manny! read da bite.
+
+        inc readcounter
+        bne yee
+        inc readcounter+1
+        lda readcounter+1
+        cmp #$02
+        beq werwer
+yee
+        jsr sd_readbyte
+        sta sample
+        pla
+        rti
+werwer
  	lda #SD_MOSI
   	sta PORTA
 
@@ -296,30 +303,35 @@ newcontinue:
 	cmp #$00
 	bne stop
 
+        lda #0
+        sta readcounter
+        sta readcounter+1
+
 	jsr sd_readbyte
+
         STA sample              ; 3- save to temp location
-	STA DATASTART
+	;STA DATASTART
         ;BCS stop               ; 2-3- if thats it then stop
 	; BUG cannot stop sample when reading sd RAW
+        lda #SD_CS | SD_MOSI
+        sta PORTA
+
         PLA                     ; 3- local exit code is smaller and
         RTI                     ; 6- (14-25)faster than jumps/branches
 
 
 stop
-        LDA #$08                ; 2- turn off NMI (IRQ AAAAAA)
+        LDA #$08                ; 2- turn off IRQ
         STA $B00E               ; 4- timer A stop-CRA, CIA #1 DC0E
-        LDA #$4F                ; 2- disable all CIA-2 NMIs 
+        LDA #$4F                ; 2- disable all CIA-2 IRQs 
         STA $B00D               ; 4- ICR - interrupt control / status
         LDA $B00D               ; 4- (16) sta/lda to ack any pending int
-
-        LDA #$37                ; 2- reset kernal banking
-        STA $01                 ; 3- (5)
 
         INC done                ; set player done flag
         
         PLA                     ; 3- local exit code is smaller and
         RTI                     ; 6- faster than jumps/branches
 
-DATASTART 
-	.byte $00		; smol... ah ye its actually many MB. haha
-DATASTOP  
+;DATASTART 
+;	.byte $00		; smol... ah ye its actually many MB. haha
+;DATASTOP  
