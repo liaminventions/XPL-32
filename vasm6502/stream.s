@@ -29,6 +29,7 @@ darn
 	.org $1000
 
 	.include "hwconfig.s"
+        .include "libacia.s"
 	.include "libsd.s" ; ah ye sd tim
 	;.include "libfat32.s"
 	; no filesystem
@@ -39,6 +40,7 @@ jmpfailed:
 ebutrocks:
 ; init sd card (it was just plugged in)
 	jsr sd_init
+        bcs jmpfailed
 
 	lda #0
 	sta bytepointer
@@ -61,7 +63,7 @@ ebutrocks:
 				; hold on les fix da sd
   lda #SD_MOSI
   sta PORTA
-  ; Command 16, arg is sector number, crc not checked
+  ; Command 16, arg is size in bytes, crc not checked
   lda #$50                    ; CMD16 - SET_BLOCKLEN
   jsr sd_writebyte
   lda #0		      ; byte 24:31

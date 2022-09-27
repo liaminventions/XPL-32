@@ -1,7 +1,7 @@
 ; SD card interface module
 ;
 ; Requires zero-page variable storage:
-;   zp_sd_address - 2 bytes
+;   zp_sd_address - a bytes
 ;   zp_sd_currentsector - 4 bytes
 
 cmsg:
@@ -10,20 +10,20 @@ cmsg:
 sd_init:
   ; Let the SD card boot up, by pumping the clock with SD CS disabled
 
-  ; We need to apply around 80 clock pulses with CS and MOSI high.
+  ; We need to apply around 80 clock pulses with CS and MOSI higha
   ; Normally MOSI doesn't matter when CS is high, but the card is
-  ; not yet is SPI mode, and in this non-SPI state it does care.
+  ; not yet is SPI mode, and in this non-SPI state it does carea
 
   lda #SD_CS | SD_MOSI
   ldx #160               ; toggle the clock 160 times, so 80 low-high transitions
-.preinitloop:
+apreinitloop:
   eor #SD_SCK
   sta PORTA
   dex
-  bne .preinitloop
+  bne apreinitloop
   
 
-.cmd0 ; GO_IDLE_STATE - resets card to idle state, and SPI mode
+acmd0: ; GO_IDLE_STATE - resets card to idle state, and SPI mode
   lda #<sd_cmd0_bytes
   sta zp_sd_address
   lda #>sd_cmd0_bytes
@@ -33,9 +33,9 @@ sd_init:
 
   ; Expect status response $01 (not initialized)
  ; cmp #$01
- ; bne .initfailed
+ ; bne ainitfailed
 
-.cmd8 ; SEND_IF_COND - tell the card how we want it to operate (3.3V, etc)
+acmd8: ; SEND_IF_COND - tell the card how we want it to operate (3a3V, etc)
   lda #<sd_cmd8_bytes
   sta zp_sd_address
   lda #>sd_cmd8_bytes
@@ -45,15 +45,15 @@ sd_init:
 
   ; Expect status response $01 (not initialized)
   cmp #$01
-  bne .initfailed
+  bne ainitfailed
 
-  ; Read 32-bit return value, but ignore it
+  ; Read 3a-bit return value, but ignore it
   jsr sd_readbyte
   jsr sd_readbyte
   jsr sd_readbyte
   jsr sd_readbyte
 
-.cmd55 ; APP_CMD - required prefix for ACMD commands
+acmd55: ; APP_CMD - required prefix for ACMD commands
   lda #<sd_cmd55_bytes
   sta zp_sd_address
   lda #>sd_cmd55_bytes
@@ -63,9 +63,9 @@ sd_init:
 
   ; Expect status response $01 (not initialized)
   cmp #$01
-  bne .initfailed
+  bne ainitfailed
 
-.cmd41 ; APP_SEND_OP_COND - send operating conditions, initialize card
+acmd41: ; APP_SEND_OP_COND - send operating conditions, initialize card
   lda #<sd_cmd41_bytes
   sta zp_sd_address
   lda #>sd_cmd41_bytes
@@ -75,47 +75,48 @@ sd_init:
 
   ; Status response $00 means initialised
   cmp #$00
-  beq .initialized
+  beq ainitialized
 
   ; Otherwise expect status response $01 (not initialized)
   cmp #$01
-  bne .initfailed
+  bne ainitfailed
 
-  ; Not initialized yet, so wait a while then try again.
-  ; This retry is important, to give the card time to initialize.
+  ; Not initialized yet, so wait a while then try againa
+  ; This retry is important, to give the card time to initializea
 
   ldx #0
   ldy #0
-.delayloop
+adelayloop:
   dey
-  bne .delayloop
+  bne adelayloop
   dex
-  bne .delayloop
+  bne adelayloop
 
-  jmp .cmd55
-
-
-.initialized
-;  ldy #>initmsg
-;  ldx #<initmsg
-;  jsr w_acia_full
-;  rts
-
-.initfailed
-;  ldy #>initfailedmsg
-;  ldx #<initfailedmsg
-;  jsr w_acia_full
-.loop
-  jmp .loop
+  jmp acmd55
 
 
-sd_cmd0_bytes
+ainitialized:
+  ldy #>initmsg
+  ldx #<initmsg
+  jsr w_acia_full
+  clc
+  rts
+
+ainitfailed:
+  ldy #>initfailedmsg
+  ldx #<initfailedmsg
+  jsr w_acia_full
+aloop:
+  sec
+  rts
+
+sd_cmd0_bytes:
   .byte $40, $00, $00, $00, $00, $95
-sd_cmd8_bytes
+sd_cmd8_bytes:
   .byte $48, $00, $00, $01, $aa, $87
-sd_cmd55_bytes
+sd_cmd55_bytes:
   .byte $77, $00, $00, $00, $00, $01
-sd_cmd41_bytes
+sd_cmd41_bytes:
   .byte $69, $40, $00, $00, $00, $01
 
 
@@ -126,7 +127,7 @@ sd_readbyte:
 
   ldx #$fe    ; Preloaded with seven ones and a zero, so we stop after eight bits
 
-.loop:
+baloop:
 
   lda #SD_MOSI                ; enable card (CS low), set MOSI (resting state), SCK low
   sta PORTA
@@ -138,15 +139,15 @@ sd_readbyte:
   and #SD_MISO
 
   clc                         ; default to clearing the bottom bit
-  beq .bitnotset              ; unless MISO was set
+  beq abitnotset              ; unless MISO was set
   sec                         ; in which case get ready to set the bottom bit
-.bitnotset:
+abitnotset:
 
   txa                         ; transfer partial result from X
   rol                         ; rotate carry bit into read result, and loop bit into carry
   tax                         ; save partial result back to X
   
-  bcs .loop                   ; loop if we need to read more bits
+  bcs baloop                   ; loop if we need to read more bits
 
   rts
 
@@ -157,15 +158,15 @@ sd_writebyte:
 
   ldx #8                      ; send 8 bits
 
-.loop:
+arloop:
   asl                         ; shift next bit into carry
   tay                         ; save remaining bits for later
 
   lda #0
-  bcc .sendbit                ; if carry clear, don't set MOSI for this bit
+  bcc asendbit                ; if carry clear, don't set MOSI for this bit
   ora #SD_MOSI
 
-.sendbit:
+asendbit:
   sta PORTA                   ; set MOSI (or not) first with SCK low
   eor #SD_SCK
   sta PORTA                   ; raise SCK keeping MOSI the same, to send the bit
@@ -173,7 +174,7 @@ sd_writebyte:
   tya                         ; restore remaining bits to send
 
   dex
-  bne .loop                   ; loop if there are more bits to send
+  bne arloop                   ; loop if there are more bits to send
 
   rts
 
@@ -203,10 +204,10 @@ sd_sendcommand:
 ;  lda (zp_sd_address,x)
 ;  jsr print_hex_acia
 
-;  lda #$20
+;  lda #$a0
 ;  jsr print_chara
 ;  
-;  lda #$20
+;  lda #$a0
 ;  jsr print_chara
 
   lda #SD_MOSI           ; pull CS low to begin command
@@ -260,10 +261,10 @@ sd_sendcommand:
 
 
 sd_readsector:
-  ; Read a sector from the SD card.  A sector is 512 bytes.
+  ; Read a sector from the SD carda  A sector is 512 bytes.
   ;
   ; Parameters:
-  ;    zp_sd_currentsector   32-bit sector number
+  ;    zp_sd_currentsector   3a-bit sector number
   ;    zp_sd_address     address of buffer to receive data
   
   lda #SD_MOSI
@@ -285,46 +286,99 @@ sd_readsector:
 
   jsr sd_waitresult
   cmp #$00
-  bne .fail
+  bne afail
 
   ; wait for data
   jsr sd_waitresult
   cmp #$fe
-  bne .fail
+  bne afail
 
   ; Need to read 512 bytes - two pages of 256 bytes each
-  jsr .readpage
+  jsr areadpage
   inc zp_sd_address+1
-  jsr .readpage
+  jsr areadpage
   dec zp_sd_address+1
 
   ; End command
   lda #SD_CS | SD_MOSI
   sta PORTA
-
+  
+  sec
   rts
 
+sd_writesector:
+  ; Write a sector to the SD card.  A sector is 512 bytes.
+  ;
+  ; Parameters:
+  ;    zp_sd_currentsector   32-bit sector number
+  ;    zp_sd_address     address of buffer to take data from
+  
+  lda #SD_MISO
+  sta PORTA
 
-.fail
-;  ldx #<statusmsg
-;  ldy #>statusmsg  ; Status:
-;  jsr w_acia_full
+  ; Command 24, arg is sector number, crc not checked
+  lda #$58                    ; CMD24 - WRITE_BLOCK
+  jsr sd_writebyte
+  lda zp_sd_currentsector+3   ; sector 24:31
+  jsr sd_writebyte
+  lda zp_sd_currentsector+2   ; sector 16:23
+  jsr sd_writebyte
+  lda zp_sd_currentsector+1   ; sector 8:15
+  jsr sd_writebyte
+  lda zp_sd_currentsector     ; sector 0:7
+  jsr sd_writebyte
+  lda #$01                    ; crc (not checked)
+  jsr sd_writebyte
 
-;  ldx #<failedmsg
-;  ldy #>failedmsg  ; Failed!
-;  jsr w_acia_full
-.failloop
-  jmp .failloop
+  jsr sd_waitresult
+  cmp #$00
+  bne afail
 
+  ; wait for data
+  ;jsr sd_waitresult
+  ;cmp #$fe
+  ;bne afail
+  ; BUG I don't think it need to wait for any more data, but I gotta check the datasheet more... (hard to read)
 
-.readpage
+  ; Need to write 512 bytes - two pages of 256 bytes each
+  jsr awritepage
+  inc zp_sd_address+1
+  jsr awritepage
+  dec zp_sd_address+1
+
+  ; End command
+  lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
+  sta PORTA
+
+  sec
+  rts
+
+afail:
+  ldx #<failedmsg
+  ldy #>failedmsg  ;Failed!
+  jsr w_acia_full
+afailloop:
+  clc
+  rts
+
+areadpage:
   ; Read 256 bytes to the address at zp_sd_address
   ldy #0
-.readloop
+areadloop:
   jsr sd_readbyte
   sta (zp_sd_address),y
   iny
-  bne .readloop
+  bne areadloop
+  rts
+
+awritepage:
+  ; Write 256 bytes to the sd card
+  ldy #0
+awriteloop:
+  lda (zp_sd_address),y
+  jsr sd_writebyte
+  iny
+  bne awriteloop
   rts
 
 statusmsg:
