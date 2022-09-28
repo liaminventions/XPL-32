@@ -6,12 +6,34 @@ name: Assemble ROM
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    paths:
-      - 'osi_basic-master/'
+    paths-ignore:
+      - '19200 Baud (a demo)/**'
+      - 'New Serial Header System!/**'
+      - 'PCB/**'
+      - 'SYSMON65-main/**'
+      - 'basic tinkering/**'
+      - 'debug/**'
+      - 'images/**'
+      - 'sd card contents/**'
+      - 'stuff thats on loader/**'
+      - 'tests/**'
+      - 'the video chip/**'
+      - 'vasm6502/**'
     branches: [ "main" ]
   pull_request:
-    paths:
-      - 'osi_basic-master/'
+    paths-ignore:
+      - '19200 Baud (a demo)/**'
+      - 'New Serial Header System!/**'
+      - 'PCB/**'
+      - 'SYSMON65-main/**'
+      - 'basic tinkering/**'
+      - 'debug/**'
+      - 'images/**'
+      - 'sd card contents/**'
+      - 'stuff thats on loader/**'
+      - 'tests/**'
+      - 'the video chip/**'
+      - 'vasm6502/**'
     branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
