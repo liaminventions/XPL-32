@@ -46,6 +46,7 @@ jobs:
       # Link XPL monitor with BASIC
       - name: Link XPL monitor with BASIC
         run: |
+          cd xa
           cp xpl.BIN ../osi_basic-master/xpl.BIN
           cd ../osi_basic-master
           rm ROM.BIN
