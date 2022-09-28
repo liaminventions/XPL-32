@@ -25,6 +25,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       
+      - name: Install cc65
+        run: sudo apt-get install cc65
+      
       # Assemble BASIC with ca65
       - name: Assemble BASIC with ca65
         run: |
