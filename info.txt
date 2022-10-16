@@ -1,6 +1,20 @@
+----------------------------INFO-------------------------------
+--this file is here so you can see why things arent happening--
+-------------also its for me so I can remember (lol)-----------
+
 i didn't make a debugger cartridge so i can't fix the current code that i'm working on. (sd card SAVING)
 
 UPDATE: I wired up a debugger and its too slow, might need to get a logic analyser...
-  UPDATE UPDATE: im getting a debugger (but i dont got it yet thats why im not codin...)
+  UPDATE UPDATE: im getting a logic analyser (but i dont got it yet thats why im not codin...)
 
 oh also i am trying to make a 4-bit sample streaming system, but that currently doesn't work.
+
+then i went on a trip to new york city and montoulk and i was busy seeing sights and spending time in the car (lol again)
+
+and then i'm making a part of a demo for atlantis (yay)
+
+
+
+
+
+so there
