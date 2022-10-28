@@ -59,14 +59,14 @@ InitSid             jsr putbut
 
   .org $1006
 PlaySid             ldx #$18
-L1008               lda $04,x
-                    sta d400_sVoc1FreqLo,x
+L1008               lda $04,x	; ah, well. this is a register dump situation (lol)
+                    sta d400_sVoc1FreqLo,x	; $04-$1c -> the sid
                     dex
                     bpl L1008
                     dec $02
                     bmi L1015
-                    rts
-                    
+                    rts		; wow that can be very fast... (reg dump aaa)
+                    		; kinda like playing a sample, its fast and ez, but takes up time and MEMORY...
 L1015               stx $02
                     lda $03
                     bne L1033
@@ -144,56 +144,56 @@ L1093               pha
                     pla
                     jmp L1085
                     
-S10a1               ldy $26
+S10a1               ldy $26	; $29 and $26 are switched?
                     ldx $29
                     sty $29
                     stx $26
-                    ldy $27
+                    ldy $27	; and $2a and $27 are switched...
                     ldx $2a
                     sty $2a
                     stx $27
-                    rts
-                    
-L10b2               sty $26
-                    stx $27
+                    rts		; idk...
+                    		; on init, these are
+L10b2               sty $26	; #$09
+                    stx $27	; #$11
                     ldx #$06
-L10b8               lda $10c6,x
-                    sta $1f,x
-                    dex
-                    bpl L10b8
-                    lda #$60
-                    sta $28
-                    bne L10d0
-                    inc $26
-                    bne L10cc
+L10b8               lda $10c6,x	; hold up, wait a minute
+                    sta $1f,x	; this is copying som cod 2 z zero pagee!!!1!1!!11
+                    dex		; seems to copy code from $10c6-$10cc to the zp at $1f-$25
+                    bpl L10b8	
+                    lda #$60	; rts after this.
+                    sta $28	; this aint the best code (kinda odd)
+                    bne L10d0	; the equal bit is 0, so this is a BRanhAlways command for nmos 6502s!!!
+                    inc $26	; this is $10c6 (huh location)
+                    bne L10cc	; this seems to increment the 16-bit address in the lda abs command, then run that lda opcode.
                     inc $27
-L10cc               lda $ffff
+L10cc               lda $ffff	; $ffff is at $26,$27 and this becomes lda $1109!
                     rts
-                    
-L10d0               jsr $001f
-                    sta $dc04
+
+L10d0               jsr $001f	; so this does inc $26; bne L10cc; lda $1109; rts!
+                    sta $dc04	; $dc04=$110a
                     jsr $001f
-                    sta $dc05
+                    sta $dc05	; $dc05=$110b
                     jsr $001f
-                    sta $29
+                    sta $29	; $29=$110c
                     jsr $001f
-                    sta $2a
+                    sta $2a	; $2a=$110d
                     inc $26
-                    bne L10ec
+                    bne L10ec	; $110e
                     inc $27
 L10ec               lda $26
-                    sta $1095
+                    sta $1095	; $1095 = $0e
                     lda $27
-                    sta $1096
+                    sta $1096	; $1096 = $11
                     ldx #$1c
                     lda #$00
-L10fa               sta $02,x
+L10fa               sta $02,x	; zero out $02-$1e?
                     dex
                     bpl L10fa
-                    jsr S10a1
-                    rts
+                    jsr S10a1	; switch the locations of the variables at $29 and $26, and $2a and $27 (??????????)
+                    rts		; end init? this might be called by the play routine too...
                     
-InitSid2            ldy #$09
+InitSid2            ldy #$09	; init $001f subroutine to $1109 
                     ldx #$11
                     jmp L10b2
 
