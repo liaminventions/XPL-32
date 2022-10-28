@@ -59,90 +59,91 @@ InitSid             jsr putbut
 
   .org $1006
 PlaySid             ldx #$18
-L1008               lda $04,x	; ah, well. this is a register dump situation (lol)
+L1008               lda $04,x			; ah, well. this is a register dump situation (lol)
                     sta d400_sVoc1FreqLo,x	; $04-$1c -> the sid
                     dex
                     bpl L1008
-                    dec $02
-                    bmi L1015
+                    dec $02	; decrement $02
+                    bmi L1015	; and if it's wrapped around to #$ff, then go to L1015
                     rts		; wow that can be very fast... (reg dump aaa)
                     		; kinda like playing a sample, its fast and ez, but takes up time and MEMORY...
-L1015               stx $02
+L1015               stx $02	; zero out $02
                     lda $03
-                    bne L1033
-                    jsr $001f
-                    beq L1038
+                    bne L1033	; if $03 is not zero, then go to L1033
+                    jsr $001f	; incremental load...
+                    beq L1038	; but if its zero then goto L1038
                     cmp #$a0
-                    bcs L102e
-                    sta $2a
+                    bcs L102e	; if a >= #$a0, then goto L102e
+                    sta $2a	; otherwise, put it in $2a
                     jsr $001f
-                    sta $29
-                    jmp L1076
+                    sta $29	; and the next into $29
+                    jmp L1076	; 1076
                     
-L102e               sec
-                    sbc #$9f
-                    sta $03
-L1033               dec $03
-                    jmp L1076
+L102e               sec		; it was >= #$a0
+                    sbc #$9f	; a = a - #$9f
+                    sta $03	; that goes in $03
+L1033               dec $03	; $03--
+                    jmp L1076	; 1076
                     
-L1038               jsr $001f
+L1038               jsr $001f	; load the next byte
                     cmp #$fd
-                    beq L106b
+                    beq L106b	; if its #$fd goto L106b
                     cmp #$fe
-                    beq L1060
+                    beq L1060	; if its #$fe goto L1060
                     cmp #$ff
-                    beq L104a
-                    sta $02
+                    beq L104a	; if its #$ff goto L104a
+                    sta $02	; if its none of those, put the value in $02.
                     rts
                     
-L104a               lda #$00
-                    sta d404_sVoc1Control
+L104a               lda #$00			; if the value was $ff,
+                    sta d404_sVoc1Control	; zero out the voice control bytes (???)
                     sta d40b_sVoc2Control
                     sta d412_sVoc3Control
                     lda #$5e
                     sta $26
-                    lda #$10
+                    lda #$10	; and set the current location to $105e
                     sta $27
                     rts
                     
-                      .byte $ff, $00 
-L1060               lda $1d
+                      .byte $ff, $00	; ???? 
+
+L1060               lda $1d	; if the value was #$fe,
                     sta $26
-                    lda $1e
+                    lda $1e	; read from $1e1d (??????)
                     sta $27
-                    jmp L1015
+                    jmp L1015	; then goto L1015
                     
-L106b               lda $26
+L106b               lda $26	; if the value was #$fd,
                     sta $1d
-                    lda $27
+                    lda $27	; $1d = the number at $26 and $1e = the number at $26
                     sta $1e
-                    jmp L1015
+                    jmp L1015	; then goto L1015
                     
-L1076               jsr S10a1
+L1076               jsr S10a1	; switch some stuff around (??)
                     lda #$f8
 L107b               clc
-                    adc #$07
-                    pha
-                    tax
-                    jsr $001f
-                    lsr a
-                    php
-L1085               inx
-                    lsr a
-                    bcs L1093
-                    bne L1085
-                    plp
-                    pla
-                    bcs L107b
-                    jsr S10a1
-                    rts
+                    adc #$07	; add 7..?
+                    pha		; then put it in the stack
+                    tax		; and the x register?
+                    jsr $001f	; read next byte
+                    lsr a	; and shift it right into the carry bit
+                    php		; save the carry bit for later
+L1085               inx		; inc a+7
+                    lsr a	; push a right into carry again?
+                    bcs L1093	; a bit 0 is a 1?
+                    bne L1085	; or a 0?
+                    plp		; umm how does it get here... it can only be a 1 or a 0...
+                    pla		; anyway, restore all the saved data
+                    bcs L107b	; if the first lsr stated that bit 0 of a was a one, then go there
+                    jsr S10a1	; if it was a zero, switch $29-$26 and $2a-$27 (what)
+                    rts		; leave
                     
-L1093               pha
-                    ldy $ffff,x
-                    jsr $001f
-                    sta $0004,y
+L1093               pha			; idk
+                    ldy $ffff,x		; load $0000,(x-1)
+                    jsr $001f		; next byte
+                    sta $0004,y		; since when are we using y?!??
                     pla
-                    jmp L1085
+                    jmp L1085		; go back to L1085???????
                     
 S10a1               ldy $26	; $29 and $26 are switched?
                     ldx $29
@@ -164,7 +165,7 @@ L10b8               lda $10c6,x	; hold up, wait a minute
                     lda #$60	; rts after this.
                     sta $28	; this aint the best code (kinda odd)
                     bne L10d0	; the equal bit is 0, so this is a BRanhAlways command for nmos 6502s!!!
-                    inc $26	; this is $10c6 (huh location)
+                    inc $26	; this is $10c6 (huh location) also the same at $001f
                     bne L10cc	; this seems to increment the 16-bit address in the lda abs command, then run that lda opcode.
                     inc $27
 L10cc               lda $ffff	; $ffff is at $26,$27 and this becomes lda $1109!
