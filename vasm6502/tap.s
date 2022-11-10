@@ -87,9 +87,9 @@ inout:
   pha
   phx
   phy
-  ldy #$20
+  ldy #$40
 outer:
-  ldx #$10		; 32 * 16 times make the sound
+  ldx #$10		; $40 * $10 times make the sound
 starter:
   jsr one		; sound
   dex
@@ -107,19 +107,35 @@ one:			; 2400hz sound 8 cyc
   stz PORTA
   jsr togtap ; 1
   jsr onefreq
+  jsr togtap
+  jsr onefreq
   jsr togtap ; 2
+  jsr onefreq
+  jsr togtap
   jsr onefreq
   jsr togtap ; 3
   jsr onefreq
+  jsr togtap
+  jsr onefreq
   jsr togtap ; 4
   jsr onefreq
-  jsr togtap ; 5
+  jsr togtap
   jsr onefreq
-  jsr togtap ; 6
+  jsr togtap ; 1
   jsr onefreq
-  jsr togtap ; 7
+  jsr togtap
   jsr onefreq
-  jsr togtap ; 8
+  jsr togtap ; 2
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 3
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 4
+  jsr onefreq
+  jsr togtap
   jsr onefreq
   pla
   rts
@@ -144,14 +160,23 @@ zero: 			; 1200hz sound 4 cyc
   jsr zerofreq
   jsr togtap ; 4
   jsr zerofreq
+  jsr togtap ; 1
+  jsr zerofreq
+  jsr togtap ; 2
+  jsr zerofreq
+  jsr togtap ; 3
+  jsr zerofreq
+  jsr togtap ; 4
+  jsr zerofreq
+
   pla
   rts
 
 onefreq:
   stz $b00b
-  lda #$9e
+  lda #$ce
   sta $b004		; freq
-  lda #$01
+  lda #$00
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -160,9 +185,9 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$3f
+  lda #$9e
   sta $b004
-  lda #$03
+  lda #$01
   sta $b005
 intro2:
   bit $b00d

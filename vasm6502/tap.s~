@@ -61,6 +61,7 @@ noo:
   lda #1		; byte done
   sta thing
   jsr zero		; end prev. byte, start new byte
+  jsr zero
   jsr one
   inx			; next byte
   bne wop
@@ -86,9 +87,9 @@ inout:
   pha
   phx
   phy
-  ldy #$20
+  ldy #$40
 outer:
-  ldx #$10		; 32 * 16 times make the sound
+  ldx #$10		; $40 * $10 times make the sound
 starter:
   jsr one		; sound
   dex
@@ -148,9 +149,9 @@ zero: 			; 1200hz sound 4 cyc
 
 onefreq:
   stz $b00b
-  lda #$9e
+  lda #$ce
   sta $b004		; freq
-  lda #$01
+  lda #$00
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -159,9 +160,9 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$3f
+  lda #$9e
   sta $b004
-  lda #$03
+  lda #$01
   sta $b005
 intro2:
   bit $b00d
