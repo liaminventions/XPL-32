@@ -60,11 +60,11 @@ jsrone:
 noo:
   lda #1		; byte done
   sta thing
-  jsr zero		; end prev. byte, start new byte
-  jsr zero
+  jsr one
+  jsr one
   lda dat,x
   beq savedone
-  jsr one
+  jsr zero
   inx			; next byte
   bne wop
 savedone

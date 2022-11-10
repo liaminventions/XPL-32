@@ -60,11 +60,10 @@ jsrone:
 noo:
   lda #1		; byte done
   sta thing
-  jsr zero		; end prev. byte, start new byte
-  jsr zero
+  jsr one
+  jsr one
   lda dat,x
   beq savedone
-  jsr one
   inx			; next byte
   bne wop
 savedone
@@ -213,7 +212,7 @@ msg2:
 ;       |      | CR | LF |cursor on| NULL
   .byte "Done!", $0d, $0a, $02, $5f, $00
 dat:
-  .byte "Hello, world!", $0d, $0a, $0d, $0a, $00
+  .byte "Hello, World!", $0d, $0a, $0d, $0a, $00
 
   .org $1200
 

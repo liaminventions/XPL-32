@@ -16,7 +16,7 @@ F00:0015         .org $0f00
 F00:0016       
 F00:0017       start:
 F00:0018         jsr via_init		; init VIA
-               S01:00000F00:  20 4A 10
+               S01:00000F00:  20 4C 10
 F00:0019         stz $b00e
                S01:00000F03:  9C 0E B0
 F00:0020         stz tapest
@@ -29,29 +29,29 @@ F00:0025       ;  inx
 F00:0026       ;  bne datlop
 F00:0027       
 F00:0028         ldx #<msg
-               S01:00000F08:  A2 E0
+               S01:00000F08:  A2 E2
 F00:0029         ldy #>msg		; press rec and play
                S01:00000F0A:  A0 10
 F00:0030         jsr w_acia_full
-               S01:00000F0C:  20 BD 10
+               S01:00000F0C:  20 BF 10
 F00:0031       
 F00:0032         lda #$18		; 4 seconds
                S01:00000F0F:  A9 18
 F00:0033         jsr TDELAY		; (ye fumble)
-               S01:00000F11:  20 3B 10
+               S01:00000F11:  20 3D 10
 F00:0034       
 F00:0035         ldx #<saving_msg	; Saving...
-               S01:00000F14:  A2 0E
+               S01:00000F14:  A2 10
 F00:0036         ldy #>saving_msg
                S01:00000F16:  A0 11
 F00:0037         jsr w_acia_full
-               S01:00000F18:  20 BD 10
+               S01:00000F18:  20 BF 10
 F00:0038       
 F00:0039         jsr inout		; intro sound
-               S01:00000F1B:  20 61 0F
+               S01:00000F1B:  20 63 0F
 F00:0040       
 F00:0041         jsr zero
-               S01:00000F1E:  20 E2 0F
+               S01:00000F1E:  20 E4 0F
 F00:0042       
 F00:0043         ldx #0
                S01:00000F21:  A2 00
@@ -61,13 +61,13 @@ F00:0045         sty thing		; first bit
                S01:00000F25:  84 00
 F00:0046       wop:
 F00:0047         lda dat,x		; load data
-               S01:00000F27:  BD 22 11
+               S01:00000F27:  BD 24 11
 F00:0048         and thing		; mask it
                S01:00000F2A:  25 00
 F00:0049         bne jsrone		; one
                S01:00000F2C:  D0 0E
 F00:0050         jsr zero		; or zero
-               S01:00000F2E:  20 E2 0F
+               S01:00000F2E:  20 E4 0F
 F00:0051       oner:
 F00:0052         lda thing		; load the bitmask
                S01:00000F31:  A5 00
@@ -81,7 +81,7 @@ F00:0056         jmp wop		; next bit
                S01:00000F39:  4C 27 0F
 F00:0057       jsrone:
 F00:0058         jsr one		; a one
-               S01:00000F3C:  20 75 0F
+               S01:00000F3C:  20 77 0F
 F00:0059         jmp oner
                S01:00000F3F:  4C 31 0F
 F00:0060       noo:
@@ -89,257 +89,259 @@ F00:0061         lda #1		; byte done
                S01:00000F42:  A9 01
 F00:0062         sta thing
                S01:00000F44:  85 00
-F00:0063         jsr zero		; end prev. byte, start new byte
-               S01:00000F46:  20 E2 0F
-F00:0064         jsr zero
-               S01:00000F49:  20 E2 0F
-F00:0065         jsr one
-               S01:00000F4C:  20 75 0F
-F00:0066         inx			; next byte
-               S01:00000F4F:  E8
-F00:0067         bne wop
-               S01:00000F50:  D0 D5
-F00:0068       
-F00:0069         jsr inout		; we are done, ending sound  
-               S01:00000F52:  20 61 0F
-F00:0070       
-F00:0071         ; done
-F00:0072         ldx #<msg2
-               S01:00000F55:  A2 18
-F00:0073         ldy #>msg2		; "Done!"
-               S01:00000F57:  A0 11
-F00:0074         jsr w_acia_full
-               S01:00000F59:  20 BD 10
-F00:0075       
-F00:0076         rts
-               S01:00000F5C:  60
+F00:0063         jsr one
+               S01:00000F46:  20 77 0F
+F00:0064         jsr one
+               S01:00000F49:  20 77 0F
+F00:0065         lda dat,x
+               S01:00000F4C:  BD 24 11
+F00:0066         beq savedone
+               S01:00000F4F:  F0 03
+F00:0067         inx			; next byte
+               S01:00000F51:  E8
+F00:0068         bne wop
+               S01:00000F52:  D0 D3
+F00:0069       savedone
+F00:0070         jsr inout		; we are done, ending sound  
+               S01:00000F54:  20 63 0F
+F00:0071       
+F00:0072         ; done
+F00:0073         ldx #<msg2
+               S01:00000F57:  A2 1A
+F00:0074         ldy #>msg2		; "Done!"
+               S01:00000F59:  A0 11
+F00:0075         jsr w_acia_full
+               S01:00000F5B:  20 BF 10
+F00:0076       
 F00:0077         rts
-               S01:00000F5D:  60
-F00:0078         rts			; return
                S01:00000F5E:  60
-F00:0079         rts
+F00:0078         rts
                S01:00000F5F:  60
-F00:0080         rts
+F00:0079         rts			; return
                S01:00000F60:  60
-F00:0081       
+F00:0080         rts
+               S01:00000F61:  60
+F00:0081         rts
+               S01:00000F62:  60
 F00:0082       
 F00:0083       
-F00:0084       ; subs
-F00:0085       
-F00:0086       inout:
-F00:0087         pha
-               S01:00000F61:  48
-F00:0088         phx
-               S01:00000F62:  DA
-F00:0089         phy
-               S01:00000F63:  5A
-F00:0090         ldy #$40
-               S01:00000F64:  A0 40
-F00:0091       outer:
-F00:0092         ldx #$10		; $40 * $10 times make the sound
-               S01:00000F66:  A2 10
-F00:0093       starter:
-F00:0094         jsr one		; sound
-               S01:00000F68:  20 75 0F
-F00:0095         dex
-               S01:00000F6B:  CA
-F00:0096         bne starter
-               S01:00000F6C:  D0 FA
-F00:0097         dey
-               S01:00000F6E:  88
-F00:0098         bne outer
-               S01:00000F6F:  D0 F5
-F00:0099         ply
-               S01:00000F71:  7A
-F00:0100         plx
-               S01:00000F72:  FA
-F00:0101         pla
-               S01:00000F73:  68
-F00:0102         rts
-               S01:00000F74:  60
-F00:0103       
-F00:0104       one:			; 2400hz sound 8 cyc
-F00:0105         pha
-               S01:00000F75:  48
-F00:0106         jsr togtap ; 1
-               S01:00000F76:  20 D8 0F
-F00:0107         jsr onefreq
-               S01:00000F79:  20 15 10
-F00:0108         jsr togtap
-               S01:00000F7C:  20 D8 0F
-F00:0109         jsr onefreq
-               S01:00000F7F:  20 15 10
-F00:0110         jsr togtap ; 2
-               S01:00000F82:  20 D8 0F
-F00:0111         jsr onefreq
-               S01:00000F85:  20 15 10
-F00:0112         jsr togtap
-               S01:00000F88:  20 D8 0F
-F00:0113         jsr onefreq
-               S01:00000F8B:  20 15 10
-F00:0114         jsr togtap ; 3
-               S01:00000F8E:  20 D8 0F
-F00:0115         jsr onefreq
-               S01:00000F91:  20 15 10
-F00:0116         jsr togtap
-               S01:00000F94:  20 D8 0F
-F00:0117         jsr onefreq
-               S01:00000F97:  20 15 10
-F00:0118         jsr togtap ; 4
-               S01:00000F9A:  20 D8 0F
-F00:0119         jsr onefreq
-               S01:00000F9D:  20 15 10
-F00:0120         jsr togtap
-               S01:00000FA0:  20 D8 0F
-F00:0121         jsr onefreq
-               S01:00000FA3:  20 15 10
-F00:0122         jsr togtap ; 5
-               S01:00000FA6:  20 D8 0F
-F00:0123         jsr onefreq
-               S01:00000FA9:  20 15 10
-F00:0124         jsr togtap
-               S01:00000FAC:  20 D8 0F
-F00:0125         jsr onefreq
-               S01:00000FAF:  20 15 10
-F00:0126         jsr togtap ; 6
-               S01:00000FB2:  20 D8 0F
-F00:0127         jsr onefreq
-               S01:00000FB5:  20 15 10
-F00:0128         jsr togtap
-               S01:00000FB8:  20 D8 0F
-F00:0129         jsr onefreq
-               S01:00000FBB:  20 15 10
-F00:0130         jsr togtap ; 7
-               S01:00000FBE:  20 D8 0F
-F00:0131         jsr onefreq
-               S01:00000FC1:  20 15 10
-F00:0132         jsr togtap
-               S01:00000FC4:  20 D8 0F
-F00:0133         jsr onefreq
-               S01:00000FC7:  20 15 10
-F00:0134         jsr togtap ; 8
-               S01:00000FCA:  20 D8 0F
-F00:0135         jsr onefreq
-               S01:00000FCD:  20 15 10
-F00:0136         jsr togtap
-               S01:00000FD0:  20 D8 0F
-F00:0137         jsr onefreq
-               S01:00000FD3:  20 15 10
-F00:0138         pla
-               S01:00000FD6:  68
-F00:0139         rts
-               S01:00000FD7:  60
-F00:0140       
-F00:0141       togtap:
-F00:0142         lda tapest
-               S01:00000FD8:  A5 04
-F00:0143         eor #%00000010
-               S01:00000FDA:  49 02
-F00:0144         sta tapest
-               S01:00000FDC:  85 04
-F00:0145         sta PORTA
-               S01:00000FDE:  8D 01 B0
-F00:0146         rts
-               S01:00000FE1:  60
-F00:0147       
-F00:0148       zero: 			; 1200hz sound 4 cyc
-F00:0149         pha 
-               S01:00000FE2:  48
-F00:0150         jsr togtap ; 1
-               S01:00000FE3:  20 D8 0F
-F00:0151         jsr zerofreq
-               S01:00000FE6:  20 28 10
-F00:0152         jsr togtap
-               S01:00000FE9:  20 D8 0F
-F00:0153         jsr zerofreq
-               S01:00000FEC:  20 28 10
-F00:0154         jsr togtap ; 2
-               S01:00000FEF:  20 D8 0F
-F00:0155         jsr zerofreq
-               S01:00000FF2:  20 28 10
-F00:0156         jsr togtap
-               S01:00000FF5:  20 D8 0F
-F00:0157         jsr zerofreq
-               S01:00000FF8:  20 28 10
-F00:0158         jsr togtap ; 3
-               S01:00000FFB:  20 D8 0F
-F00:0159         jsr zerofreq
-               S01:00000FFE:  20 28 10
-F00:0160         jsr togtap
-               S01:00001001:  20 D8 0F
-F00:0161         jsr zerofreq
-               S01:00001004:  20 28 10
-F00:0162         jsr togtap ; 4
-               S01:00001007:  20 D8 0F
-F00:0163         jsr zerofreq
-               S01:0000100A:  20 28 10
-F00:0164         jsr togtap
-               S01:0000100D:  20 D8 0F
-F00:0165         jsr zerofreq
-               S01:00001010:  20 28 10
-F00:0166         pla
-               S01:00001013:  68
-F00:0167         rts
-               S01:00001014:  60
-F00:0168       
-F00:0169       onefreq:
-F00:0170         stz $b00b
-               S01:00001015:  9C 0B B0
-F00:0171         lda #$ae
-               S01:00001018:  A9 AE
-F00:0172         sta $b004		; freq
-               S01:0000101A:  8D 04 B0
-F00:0173         lda #$00
-               S01:0000101D:  A9 00
-F00:0174         sta $b005
-               S01:0000101F:  8D 05 B0
-F00:0175       intro:
-F00:0176         bit $b00d		; delay complete?
-               S01:00001022:  2C 0D B0
-F00:0177         bvc intro
-               S01:00001025:  50 FB
-F00:0178         rts
-               S01:00001027:  60
-F00:0179       
-F00:0180       zerofreq:
-F00:0181         stz $b00b
-               S01:00001028:  9C 0B B0
-F00:0182         lda #$3f
-               S01:0000102B:  A9 3F
-F00:0183         sta $b004
-               S01:0000102D:  8D 04 B0
-F00:0184         lda #$01
-               S01:00001030:  A9 01
-F00:0185         sta $b005
-               S01:00001032:  8D 05 B0
-F00:0186       intro2:
-F00:0187         bit $b00d
-               S01:00001035:  2C 0D B0
-F00:0188         bvc intro2
-               S01:00001038:  50 FB
-F00:0189         rts
-               S01:0000103A:  60
-F00:0190       
-F00:0191       TDELAY  LDX     #$FF            ; wait for ye fumble.
-               S01:0000103B:  A2 FF
-F00:0192       RD1     LDA     #$7A            ; (Y times through inner loop,
-               S01:0000103D:  A9 7A
-F00:0193       RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
-               S01:0000103F:  E9 01
-F00:0194               BNE     RD2
-               S01:00001041:  D0 FC
-F00:0195       RD3     DEX
-               S01:00001043:  CA
-F00:0196               BNE     RD1
-               S01:00001044:  D0 F7
-F00:0197               DEY
-               S01:00001046:  88
-F00:0198               BNE     TDELAY
-               S01:00001047:  D0 F2
-F00:0199               RTS
-               S01:00001049:  60
-F00:0200       
-F00:0201         .include "hwtape.s"
+F00:0084       
+F00:0085       ; subs
+F00:0086       
+F00:0087       inout:
+F00:0088         pha
+               S01:00000F63:  48
+F00:0089         phx
+               S01:00000F64:  DA
+F00:0090         phy
+               S01:00000F65:  5A
+F00:0091         ldy #$40
+               S01:00000F66:  A0 40
+F00:0092       outer:
+F00:0093         ldx #$10		; $40 * $10 times make the sound
+               S01:00000F68:  A2 10
+F00:0094       starter:
+F00:0095         jsr one		; sound
+               S01:00000F6A:  20 77 0F
+F00:0096         dex
+               S01:00000F6D:  CA
+F00:0097         bne starter
+               S01:00000F6E:  D0 FA
+F00:0098         dey
+               S01:00000F70:  88
+F00:0099         bne outer
+               S01:00000F71:  D0 F5
+F00:0100         ply
+               S01:00000F73:  7A
+F00:0101         plx
+               S01:00000F74:  FA
+F00:0102         pla
+               S01:00000F75:  68
+F00:0103         rts
+               S01:00000F76:  60
+F00:0104       
+F00:0105       one:			; 2400hz sound 8 cyc
+F00:0106         pha
+               S01:00000F77:  48
+F00:0107         jsr togtap ; 1
+               S01:00000F78:  20 DA 0F
+F00:0108         jsr onefreq
+               S01:00000F7B:  20 17 10
+F00:0109         jsr togtap
+               S01:00000F7E:  20 DA 0F
+F00:0110         jsr onefreq
+               S01:00000F81:  20 17 10
+F00:0111         jsr togtap ; 2
+               S01:00000F84:  20 DA 0F
+F00:0112         jsr onefreq
+               S01:00000F87:  20 17 10
+F00:0113         jsr togtap
+               S01:00000F8A:  20 DA 0F
+F00:0114         jsr onefreq
+               S01:00000F8D:  20 17 10
+F00:0115         jsr togtap ; 3
+               S01:00000F90:  20 DA 0F
+F00:0116         jsr onefreq
+               S01:00000F93:  20 17 10
+F00:0117         jsr togtap
+               S01:00000F96:  20 DA 0F
+F00:0118         jsr onefreq
+               S01:00000F99:  20 17 10
+F00:0119         jsr togtap ; 4
+               S01:00000F9C:  20 DA 0F
+F00:0120         jsr onefreq
+               S01:00000F9F:  20 17 10
+F00:0121         jsr togtap
+               S01:00000FA2:  20 DA 0F
+F00:0122         jsr onefreq
+               S01:00000FA5:  20 17 10
+F00:0123         jsr togtap ; 5
+               S01:00000FA8:  20 DA 0F
+F00:0124         jsr onefreq
+               S01:00000FAB:  20 17 10
+F00:0125         jsr togtap
+               S01:00000FAE:  20 DA 0F
+F00:0126         jsr onefreq
+               S01:00000FB1:  20 17 10
+F00:0127         jsr togtap ; 6
+               S01:00000FB4:  20 DA 0F
+F00:0128         jsr onefreq
+               S01:00000FB7:  20 17 10
+F00:0129         jsr togtap
+               S01:00000FBA:  20 DA 0F
+F00:0130         jsr onefreq
+               S01:00000FBD:  20 17 10
+F00:0131         jsr togtap ; 7
+               S01:00000FC0:  20 DA 0F
+F00:0132         jsr onefreq
+               S01:00000FC3:  20 17 10
+F00:0133         jsr togtap
+               S01:00000FC6:  20 DA 0F
+F00:0134         jsr onefreq
+               S01:00000FC9:  20 17 10
+F00:0135         jsr togtap ; 8
+               S01:00000FCC:  20 DA 0F
+F00:0136         jsr onefreq
+               S01:00000FCF:  20 17 10
+F00:0137         jsr togtap
+               S01:00000FD2:  20 DA 0F
+F00:0138         jsr onefreq
+               S01:00000FD5:  20 17 10
+F00:0139         pla
+               S01:00000FD8:  68
+F00:0140         rts
+               S01:00000FD9:  60
+F00:0141       
+F00:0142       togtap:
+F00:0143         lda tapest
+               S01:00000FDA:  A5 04
+F00:0144         eor #%00000010
+               S01:00000FDC:  49 02
+F00:0145         sta tapest
+               S01:00000FDE:  85 04
+F00:0146         sta PORTA
+               S01:00000FE0:  8D 01 B0
+F00:0147         rts
+               S01:00000FE3:  60
+F00:0148       
+F00:0149       zero: 			; 1200hz sound 4 cyc
+F00:0150         pha 
+               S01:00000FE4:  48
+F00:0151         jsr togtap ; 1
+               S01:00000FE5:  20 DA 0F
+F00:0152         jsr zerofreq
+               S01:00000FE8:  20 2A 10
+F00:0153         jsr togtap
+               S01:00000FEB:  20 DA 0F
+F00:0154         jsr zerofreq
+               S01:00000FEE:  20 2A 10
+F00:0155         jsr togtap ; 2
+               S01:00000FF1:  20 DA 0F
+F00:0156         jsr zerofreq
+               S01:00000FF4:  20 2A 10
+F00:0157         jsr togtap
+               S01:00000FF7:  20 DA 0F
+F00:0158         jsr zerofreq
+               S01:00000FFA:  20 2A 10
+F00:0159         jsr togtap ; 3
+               S01:00000FFD:  20 DA 0F
+F00:0160         jsr zerofreq
+               S01:00001000:  20 2A 10
+F00:0161         jsr togtap
+               S01:00001003:  20 DA 0F
+F00:0162         jsr zerofreq
+               S01:00001006:  20 2A 10
+F00:0163         jsr togtap ; 4
+               S01:00001009:  20 DA 0F
+F00:0164         jsr zerofreq
+               S01:0000100C:  20 2A 10
+F00:0165         jsr togtap
+               S01:0000100F:  20 DA 0F
+F00:0166         jsr zerofreq
+               S01:00001012:  20 2A 10
+F00:0167         pla
+               S01:00001015:  68
+F00:0168         rts
+               S01:00001016:  60
+F00:0169       
+F00:0170       onefreq:
+F00:0171         stz $b00b
+               S01:00001017:  9C 0B B0
+F00:0172         lda #$ae
+               S01:0000101A:  A9 AE
+F00:0173         sta $b004		; freq
+               S01:0000101C:  8D 04 B0
+F00:0174         lda #$00
+               S01:0000101F:  A9 00
+F00:0175         sta $b005
+               S01:00001021:  8D 05 B0
+F00:0176       intro:
+F00:0177         bit $b00d		; delay complete?
+               S01:00001024:  2C 0D B0
+F00:0178         bvc intro
+               S01:00001027:  50 FB
+F00:0179         rts
+               S01:00001029:  60
+F00:0180       
+F00:0181       zerofreq:
+F00:0182         stz $b00b
+               S01:0000102A:  9C 0B B0
+F00:0183         lda #$3f
+               S01:0000102D:  A9 3F
+F00:0184         sta $b004
+               S01:0000102F:  8D 04 B0
+F00:0185         lda #$01
+               S01:00001032:  A9 01
+F00:0186         sta $b005
+               S01:00001034:  8D 05 B0
+F00:0187       intro2:
+F00:0188         bit $b00d
+               S01:00001037:  2C 0D B0
+F00:0189         bvc intro2
+               S01:0000103A:  50 FB
+F00:0190         rts
+               S01:0000103C:  60
+F00:0191       
+F00:0192       TDELAY  LDX     #$FF            ; wait for ye fumble.
+               S01:0000103D:  A2 FF
+F00:0193       RD1     LDA     #$7A            ; (Y times through inner loop,
+               S01:0000103F:  A9 7A
+F00:0194       RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
+               S01:00001041:  E9 01
+F00:0195               BNE     RD2
+               S01:00001043:  D0 FC
+F00:0196       RD3     DEX
+               S01:00001045:  CA
+F00:0197               BNE     RD1
+               S01:00001046:  D0 F7
+F00:0198               DEY
+               S01:00001048:  88
+F00:0199               BNE     TDELAY
+               S01:00001049:  D0 F2
+F00:0200               RTS
+               S01:0000104B:  60
+F00:0201       
+F00:0202         .include "hwtape.s"
 F01:0001       PORTB = $b000
 F01:0002       PORTA = $b001
 F01:0003       DDRB = $b002
@@ -360,18 +362,18 @@ F01:0017       PORTA_OUTPUTPINS = TAPE_EAR | TAPE_MIC
 F01:0018       
 F01:0019       via_init:
 F01:0020         lda #%11111111          ; Set all pins on port B to output
-               S01:0000104A:  A9 FF
+               S01:0000104C:  A9 FF
 F01:0021         sta DDRB
-               S01:0000104C:  8D 02 B0
+               S01:0000104E:  8D 02 B0
 F01:0022         lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
-               S01:0000104F:  A9 02
+               S01:00001051:  A9 02
 F01:0023         sta DDRA
-               S01:00001051:  8D 03 B0
+               S01:00001053:  8D 03 B0
 F01:0024         rts
-               S01:00001054:  60
+               S01:00001056:  60
 F01:0025       
 F01:0026       
-F00:0202         .include "libacia.s"
+F00:0203         .include "libacia.s"
 F02:0001       ;       ------------------ 6551 ACIA Subroutine Library -------------------
 F02:0002       ; Includes:
 F02:0003       ; acia_init       - Initializes the ACIA
@@ -386,428 +388,428 @@ F02:0011       ; w_acia_full     - Print a NULL-Termintated String with >HIGH in
 F02:0012       
 F02:0013       acia_init:
 F02:0014         pha
-               S01:00001055:  48
+               S01:00001057:  48
 F02:0015         lda #%00001011          ; No parity, no echo, no interrupt
-               S01:00001056:  A9 0B
+               S01:00001058:  A9 0B
 F02:0016         sta $8002
-               S01:00001058:  8D 02 80
+               S01:0000105A:  8D 02 80
 F02:0017         lda #%00011111          ; 1 stop bit, 8 data bits, 19200 baud
-               S01:0000105B:  A9 1F
+               S01:0000105D:  A9 1F
 F02:0018         sta $8003
-               S01:0000105D:  8D 03 80
+               S01:0000105F:  8D 03 80
 F02:0019         pla
-               S01:00001060:  68
+               S01:00001062:  68
 F02:0020         rts
-               S01:00001061:  60
+               S01:00001063:  60
 F02:0021       
 F02:0022       print_hex_acia:
 F02:0023         pha
-               S01:00001062:  48
+               S01:00001064:  48
 F02:0024         ror
-               S01:00001063:  6A
-F02:0025         ror
-               S01:00001064:  6A
-F02:0026         ror
                S01:00001065:  6A
-F02:0027         ror
+F02:0025         ror
                S01:00001066:  6A
+F02:0026         ror
+               S01:00001067:  6A
+F02:0027         ror
+               S01:00001068:  6A
 F02:0028         jsr print_nybble   ; This is just som usful hex cod
-               S01:00001067:  20 6B 10
+               S01:00001069:  20 6D 10
 F02:0029         pla
-               S01:0000106A:  68
+               S01:0000106C:  68
 F02:0030       print_nybble:
 F02:0031         and #15
-               S01:0000106B:  29 0F
+               S01:0000106D:  29 0F
 F02:0032         cmp #10
-               S01:0000106D:  C9 0A
+               S01:0000106F:  C9 0A
 F02:0033         bmi cskipletter
-               S01:0000106F:  30 02
+               S01:00001071:  30 02
 F02:0034         adc #6
-               S01:00001071:  69 06
+               S01:00001073:  69 06
 F02:0035       cskipletter:
 F02:0036         adc #48
-               S01:00001073:  69 30
+               S01:00001075:  69 30
 F02:0037        ; jsr print_char
 F02:0038         jsr print_chara
-               S01:00001075:  20 A9 10
+               S01:00001077:  20 AB 10
 F02:0039         rts
-               S01:00001078:  60
+               S01:0000107A:  60
 F02:0040       
 F02:0041       crlf:
 F02:0042         pha
-               S01:00001079:  48
-F02:0043         txa
-               S01:0000107A:  8A
-F02:0044         pha
                S01:0000107B:  48
-F02:0045         tya
-               S01:0000107C:  98
-F02:0046         pha
+F02:0043         txa
+               S01:0000107C:  8A
+F02:0044         pha
                S01:0000107D:  48
+F02:0045         tya
+               S01:0000107E:  98
+F02:0046         pha
+               S01:0000107F:  48
 F02:0047         lda #$0d
-               S01:0000107E:  A9 0D
+               S01:00001080:  A9 0D
 F02:0048         jsr print_chara
-               S01:00001080:  20 A9 10
+               S01:00001082:  20 AB 10
 F02:0049         lda #$0a
-               S01:00001083:  A9 0A
+               S01:00001085:  A9 0A
 F02:0050         jsr print_chara
-               S01:00001085:  20 A9 10
+               S01:00001087:  20 AB 10
 F02:0051         pla
-               S01:00001088:  68
-F02:0052         tay
-               S01:00001089:  A8
-F02:0053         pla
                S01:0000108A:  68
-F02:0054         tax
-               S01:0000108B:  AA
-F02:0055         pla
+F02:0052         tay
+               S01:0000108B:  A8
+F02:0053         pla
                S01:0000108C:  68
+F02:0054         tax
+               S01:0000108D:  AA
+F02:0055         pla
+               S01:0000108E:  68
 F02:0056         rts
-               S01:0000108D:  60
+               S01:0000108F:  60
 F02:0057       
 F02:0058       cleardisplay:
 F02:0059         pha
-               S01:0000108E:  48
+               S01:00001090:  48
 F02:0060         jsr txpoll  ; Poll the TX bit
-               S01:0000108F:  20 99 10
+               S01:00001091:  20 9B 10
 F02:0061         lda #12     ; Print decimal 12 (CLS)
-               S01:00001092:  A9 0C
+               S01:00001094:  A9 0C
 F02:0062         sta $8000
-               S01:00001094:  8D 00 80
+               S01:00001096:  8D 00 80
 F02:0063         pla
-               S01:00001097:  68
+               S01:00001099:  68
 F02:0064         rts
-               S01:00001098:  60
+               S01:0000109A:  60
 F02:0065       
 F02:0066       txpoll:
 F02:0067         lda $8001
-               S01:00001099:  AD 01 80
+               S01:0000109B:  AD 01 80
 F02:0068         and #$10    ; Poll the TX bit
-               S01:0000109C:  29 10
+               S01:0000109E:  29 10
 F02:0069         beq txpoll
-               S01:0000109E:  F0 F9
+               S01:000010A0:  F0 F9
 F02:0070         rts
-               S01:000010A0:  60
+               S01:000010A2:  60
 F02:0071       
 F02:0072       rxpoll:
 F02:0073         lda $8001
-               S01:000010A1:  AD 01 80
+               S01:000010A3:  AD 01 80
 F02:0074         and #$08    ; Poll the RX bit
-               S01:000010A4:  29 08
+               S01:000010A6:  29 08
 F02:0075         beq rxpoll
-               S01:000010A6:  F0 F9
+               S01:000010A8:  F0 F9
 F02:0076         rts
-               S01:000010A8:  60
+               S01:000010AA:  60
 F02:0077       
 F02:0078       
 F02:0079       print_chara:
 F02:0080         pha
-               S01:000010A9:  48
+               S01:000010AB:  48
 F02:0081         jsr txpoll  ; Poll the TX bit
-               S01:000010AA:  20 99 10
+               S01:000010AC:  20 9B 10
 F02:0082         pla
-               S01:000010AD:  68
+               S01:000010AF:  68
 F02:0083         sta $8000   ; Print character from A
-               S01:000010AE:  8D 00 80
+               S01:000010B0:  8D 00 80
 F02:0084         rts
-               S01:000010B1:  60
+               S01:000010B3:  60
 F02:0085       
 F02:0086       print_char_acia:
 F02:0087         jmp print_chara  ; Same as "print_chara"
-               S01:000010B2:  4C A9 10
+               S01:000010B4:  4C AB 10
 F02:0088       
 F02:0089       ascii_home:
 F02:0090         pha
-               S01:000010B5:  48
+               S01:000010B7:  48
 F02:0091         lda #1
-               S01:000010B6:  A9 01
+               S01:000010B8:  A9 01
 F02:0092         jsr print_chara  ; Print 1 (HOME)
-               S01:000010B8:  20 A9 10
+               S01:000010BA:  20 AB 10
 F02:0093         pla
-               S01:000010BB:  68
+               S01:000010BD:  68
 F02:0094         rts
-               S01:000010BC:  60
+               S01:000010BE:  60
 F02:0095       
 F02:0096       w_acia_full:
 F02:0097         pha
-               S01:000010BD:  48
+               S01:000010BF:  48
 F02:0098         lda $ff
-               S01:000010BE:  A5 FF
+               S01:000010C0:  A5 FF
 F02:0099         pha        ; Push Previous States onto the stack
-               S01:000010C0:  48
+               S01:000010C2:  48
 F02:0100         lda $fe
-               S01:000010C1:  A5 FE
+               S01:000010C3:  A5 FE
 F02:0101         pha
-               S01:000010C3:  48
+               S01:000010C5:  48
 F02:0102         sty $ff    ; Set Y as the Upper Address (8-15)
-               S01:000010C4:  84 FF
+               S01:000010C6:  84 FF
 F02:0103         stx $fe    ; Set X as the Lower Adderss (0-7)
-               S01:000010C6:  86 FE
+               S01:000010C8:  86 FE
 F02:0104         ldy #0
-               S01:000010C8:  A0 00
+               S01:000010CA:  A0 00
 F02:0105       acia_man:
 F02:0106         jsr txpoll   ; Poll TX
-               S01:000010CA:  20 99 10
+               S01:000010CC:  20 9B 10
 F02:0107         lda ($fe),y  ; Load the Address
-               S01:000010CD:  B1 FE
+               S01:000010CF:  B1 FE
 F02:0108         sta $8000    ; Print what is at the address
-               S01:000010CF:  8D 00 80
+               S01:000010D1:  8D 00 80
 F02:0109         beq endwacia ; If Done, End
-               S01:000010D2:  F0 04
+               S01:000010D4:  F0 04
 F02:0110         iny          ; Next Character
-               S01:000010D4:  C8
+               S01:000010D6:  C8
 F02:0111         jmp acia_man ; Back to the top
-               S01:000010D5:  4C CA 10
+               S01:000010D7:  4C CC 10
 F02:0112       endwacia:
 F02:0113         pla
-               S01:000010D8:  68
+               S01:000010DA:  68
 F02:0114         sta $fe
-               S01:000010D9:  85 FE
+               S01:000010DB:  85 FE
 F02:0115         pla          ; Restore Variables
-               S01:000010DB:  68
+               S01:000010DD:  68
 F02:0116         sta $ff
-               S01:000010DC:  85 FF
+               S01:000010DE:  85 FF
 F02:0117         pla
-               S01:000010DE:  68
+               S01:000010E0:  68
 F02:0118         rts
-               S01:000010DF:  60
+               S01:000010E1:  60
 F02:0119       
-F00:0203       ;     cursor off   |                               | CR | LF | NULL
-F00:0204       msg:
-F00:0205         .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
-               S01:000010E0:  02
-               S01:000010E1:  FF
-               S01:000010E2:  50 72 65 73 73 20 52 65 63 6F 72 64 20 41 6E 64
-               S01:000010F2:  20 70 6C 61 79 20 6F 6E 20 54 61 70 65 2E
-               S01:00001100:  0D
-               S01:00001101:  0A
-               S01:00001102:  00
-F00:0206       loading_msg:         ;NULL
-F00:0207         .byte "Loading...", $00
-               S01:00001103:  4C 6F 61 64 69 6E 67 2E 2E 2E
-               S01:0000110D:  00
-F00:0208       saving_msg:
-F00:0209         .byte "Saving...", $00
-               S01:0000110E:  53 61 76 69 6E 67 2E 2E 2E
-               S01:00001117:  00
-F00:0210       msg2:
-F00:0211       ;       |      | CR | LF |cursor on| NULL
-F00:0212         .byte "Done!", $0d, $0a, $02, $5f, $00
-               S01:00001118:  44 6F 6E 65 21
-               S01:0000111D:  0D
-               S01:0000111E:  0A
-               S01:0000111F:  02
-               S01:00001120:  5F
-               S01:00001121:  00
-F00:0213       dat:
-F00:0214         .byte "Hello, world!", $0d, $0a, $0d, $0a, $00
-               S01:00001122:  48 65 6C 6C 6F 2C 20 77 6F 72 6C 64 21
-               S01:0000112F:  0D
-               S01:00001130:  0A
+F00:0204       ;     cursor off   |                               | CR | LF | NULL
+F00:0205       msg:
+F00:0206         .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
+               S01:000010E2:  02
+               S01:000010E3:  FF
+               S01:000010E4:  50 72 65 73 73 20 52 65 63 6F 72 64 20 41 6E 64
+               S01:000010F4:  20 70 6C 61 79 20 6F 6E 20 54 61 70 65 2E
+               S01:00001102:  0D
+               S01:00001103:  0A
+               S01:00001104:  00
+F00:0207       loading_msg:         ;NULL
+F00:0208         .byte "Loading...", $00
+               S01:00001105:  4C 6F 61 64 69 6E 67 2E 2E 2E
+               S01:0000110F:  00
+F00:0209       saving_msg:
+F00:0210         .byte "Saving...", $00
+               S01:00001110:  53 61 76 69 6E 67 2E 2E 2E
+               S01:00001119:  00
+F00:0211       msg2:
+F00:0212       ;       |      | CR | LF |cursor on| NULL
+F00:0213         .byte "Done!", $0d, $0a, $02, $5f, $00
+               S01:0000111A:  44 6F 6E 65 21
+               S01:0000111F:  0D
+               S01:00001120:  0A
+               S01:00001121:  02
+               S01:00001122:  5F
+               S01:00001123:  00
+F00:0214       dat:
+F00:0215         .byte "Hello, World!", $0d, $0a, $0d, $0a, $00
+               S01:00001124:  48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21
                S01:00001131:  0D
                S01:00001132:  0A
-               S01:00001133:  00
-F00:0215       
-F00:0216         .org $1200
-F00:0217       
-F00:0218       clear:
-F00:0219         ldx #0
+               S01:00001133:  0D
+               S01:00001134:  0A
+               S01:00001135:  00
+F00:0216       
+F00:0217         .org $1200
+F00:0218       
+F00:0219       clear:
+F00:0220         ldx #0
                S02:00001200:  A2 00
-F00:0220       clearlop:
-F00:0221         stz dat,x
-               S02:00001202:  9E 22 11
-F00:0222         dex
+F00:0221       clearlop:
+F00:0222         stz dat,x
+               S02:00001202:  9E 24 11
+F00:0223         dex
                S02:00001205:  CA
-F00:0223         bne clearlop
+F00:0224         bne clearlop
                S02:00001206:  D0 FA
-F00:0224         ldx #<clearmsg
+F00:0225         ldx #<clearmsg
                S02:00001208:  A2 13
-F00:0225         ldy #>clearmsg
+F00:0226         ldy #>clearmsg
                S02:0000120A:  A0 12
-F00:0226         jsr w_acia_full
-               S02:0000120C:  20 BD 10
-F00:0227         rts
-               S02:0000120F:  60
+F00:0227         jsr w_acia_full
+               S02:0000120C:  20 BF 10
 F00:0228         rts
-               S02:00001210:  60
+               S02:0000120F:  60
 F00:0229         rts
-               S02:00001211:  60
+               S02:00001210:  60
 F00:0230         rts
+               S02:00001211:  60
+F00:0231         rts
                S02:00001212:  60
-F00:0231       
-F00:0232       clearmsg:
-F00:0233         .byte "Cleared!", $0d, $0a, $00
+F00:0232       
+F00:0233       clearmsg:
+F00:0234         .byte "Cleared!", $0d, $0a, $00
                S02:00001213:  43 6C 65 61 72 65 64 21
                S02:0000121B:  0D
                S02:0000121C:  0A
                S02:0000121D:  00
-F00:0234       
-F00:0235       RDBYTE	LDX     #$08            ; Set up bit read counter (8 bits)
+F00:0235       
+F00:0236       RDBYTE	LDX     #$08            ; Set up bit read counter (8 bits)
                S02:0000121E:  A2 08
-F00:0236       RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
+F00:0237       RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
                S02:00001220:  48
-F00:0237               JSR     RD2BIT          ; Look for two tape state transitions
+F00:0238               JSR     RD2BIT          ; Look for two tape state transitions
                S02:00001221:  20 2A 12
-F00:0238               PLA
+F00:0239               PLA
                S02:00001224:  68
-F00:0239               ROL                     ; Roll the read bit into A (from carry)
+F00:0240               ROL                     ; Roll the read bit into A (from carry)
                S02:00001225:  2A
-F00:0240       ;	LDY     #$3A            ; Set the compensated read width
-F00:0241               DEX
+F00:0241       ;	LDY     #$3A            ; Set the compensated read width
+F00:0242               DEX
                S02:00001226:  CA
-F00:0242               BNE     RDBYT2          ; Keep going until 8 bits read.
+F00:0243               BNE     RDBYT2          ; Keep going until 8 bits read.
                S02:00001227:  D0 F7
-F00:0243               RTS
+F00:0244               RTS
                S02:00001229:  60
-F00:0244       
-F00:0245       RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
+F00:0245       
+F00:0246       RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
                S02:0000122A:  20 2D 12
-F00:0246       RDBIT   JSR 	waitfreq
+F00:0247       RDBIT   JSR 	waitfreq
                S02:0000122D:  20 46 12
-F00:0247       hmmm:
-F00:0248               LDA     PORTA
+F00:0248       hmmm:
+F00:0249               LDA     PORTA
                S02:00001230:  AD 01 B0
-F00:0249               EOR     tapest
+F00:0250               EOR     tapest
                S02:00001233:  45 04
-F00:0250               BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
+F00:0251               BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
                S02:00001235:  F0 F9
-F00:0251       	lda	tapest
+F00:0252       	lda	tapest
                S02:00001237:  A5 04
-F00:0252               eor     tapest
+F00:0253               eor     tapest
                S02:00001239:  45 04
-F00:0253               STA     tapest
+F00:0254               STA     tapest
                S02:0000123B:  85 04
-F00:0254       	BIT 	$b00d		; is the counter 750 us?
+F00:0255       	BIT 	$b00d		; is the counter 750 us?
                S02:0000123D:  2C 0D B0
-F00:0255       	BVC	RDBIT0
+F00:0256       	BVC	RDBIT0
                S02:00001240:  50 02
-F00:0256       	SEC			; sec if 1
+F00:0257       	SEC			; sec if 1
                S02:00001242:  38
-F00:0257       	RTS
+F00:0258       	RTS
                S02:00001243:  60
-F00:0258       RDBIT0	CLC			; clc if 0
+F00:0259       RDBIT0	CLC			; clc if 0
                S02:00001244:  18
-F00:0259       	RTS
+F00:0260       	RTS
                S02:00001245:  60
-F00:0260       ;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
-F00:0261       
-F00:0262       waitfreq:
-F00:0263         stz $b00b
+F00:0261       ;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
+F00:0262       
+F00:0263       waitfreq:
+F00:0264         stz $b00b
                S02:00001246:  9C 0B B0
-F00:0264         lda #$ec
+F00:0265         lda #$ec
                S02:00001249:  A9 EC
-F00:0265         sta $b004		; freq
+F00:0266         sta $b004		; freq
                S02:0000124B:  8D 04 B0
-F00:0266         lda #$02
+F00:0267         lda #$02
                S02:0000124E:  A9 02
-F00:0267         sta $b005
+F00:0268         sta $b005
                S02:00001250:  8D 05 B0
-F00:0268         rts
+F00:0269         rts
                S02:00001253:  60
-F00:0269       
-F00:0270         .org $1300
-F00:0271       
-F00:0272       load:
-F00:0273         stz PORTA
+F00:0270       
+F00:0271         .org $1300
+F00:0272       
+F00:0273       load:
+F00:0274         stz PORTA
                S03:00001300:  9C 01 B0
-F00:0274         stz DDRA
+F00:0275         stz DDRA
                S03:00001303:  9C 03 B0
-F00:0275       
-F00:0276         ldx #<loadmsg		; PRESS PLAY ON TAPE
+F00:0276       
+F00:0277         ldx #<loadmsg		; PRESS PLAY ON TAPE
                S03:00001306:  A2 59
-F00:0277         ldy #>loadmsg
+F00:0278         ldy #>loadmsg
                S03:00001308:  A0 13
-F00:0278         jsr w_acia_full
-               S03:0000130A:  20 BD 10
-F00:0279       
-F00:0280         lda #$18		; ye fumble
+F00:0279         jsr w_acia_full
+               S03:0000130A:  20 BF 10
+F00:0280       
+F00:0281         lda #$18		; ye fumble
                S03:0000130D:  A9 18
-F00:0281         jsr TDELAY		; 4 second delay
-               S03:0000130F:  20 3B 10
-F00:0282       
-F00:0283         ldx #<loading_msg	; Loading...
-               S03:00001312:  A2 03
-F00:0284         ldy #>loading_msg
+F00:0282         jsr TDELAY		; 4 second delay
+               S03:0000130F:  20 3D 10
+F00:0283       
+F00:0284         ldx #<loading_msg	; Loading...
+               S03:00001312:  A2 05
+F00:0285         ldy #>loading_msg
                S03:00001314:  A0 11
-F00:0285         jsr w_acia_full
-               S03:00001316:  20 BD 10
-F00:0286       
-F00:0287         lda PORTA
+F00:0286         jsr w_acia_full
+               S03:00001316:  20 BF 10
+F00:0287       
+F00:0288         lda PORTA
                S03:00001319:  AD 01 B0
-F00:0288         and #1
+F00:0289         and #1
                S03:0000131C:  29 01
-F00:0289         sta tapest
+F00:0290         sta tapest
                S03:0000131E:  85 04
-F00:0290       
-F00:0291         jsr wait1
+F00:0291       
+F00:0292         jsr wait1
                S03:00001320:  20 4D 13
-F00:0292         jsr wait0		; header
+F00:0293         jsr wait0		; header
                S03:00001323:  20 53 13
-F00:0293         jsr wait1
+F00:0294         jsr wait1
                S03:00001326:  20 4D 13
-F00:0294         jsr RDBYTE
+F00:0295         jsr RDBYTE
                S03:00001329:  20 1E 12
-F00:0295         sta dat
-               S03:0000132C:  8D 22 11
-F00:0296         ldx #1
+F00:0296         sta dat
+               S03:0000132C:  8D 24 11
+F00:0297         ldx #1
                S03:0000132F:  A2 01
-F00:0297       loadloop:
-F00:0298         jsr wait0
+F00:0298       loadloop:
+F00:0299         jsr wait0
                S03:00001331:  20 53 13
-F00:0299         jsr wait1
+F00:0300         jsr wait1
                S03:00001334:  20 4D 13
-F00:0300         jsr RDBYTE
+F00:0301         jsr RDBYTE
                S03:00001337:  20 1E 12
-F00:0301         sta dat,x
-               S03:0000133A:  9D 22 11
-F00:0302         inx
+F00:0302         sta dat,x
+               S03:0000133A:  9D 24 11
+F00:0303         inx
                S03:0000133D:  E8
-F00:0303         cpx #$ff
+F00:0304         cpx #$ff
                S03:0000133E:  E0 FF
-F00:0304         bne loadloop
+F00:0305         bne loadloop
                S03:00001340:  D0 EF
-F00:0305       
-F00:0306         ldx #<msg2
-               S03:00001342:  A2 18
-F00:0307         ldy #>msg2
+F00:0306       
+F00:0307         ldx #<msg2
+               S03:00001342:  A2 1A
+F00:0308         ldy #>msg2
                S03:00001344:  A0 11
-F00:0308         jsr w_acia_full
-               S03:00001346:  20 BD 10
-F00:0309       
-F00:0310         rts
-               S03:00001349:  60
+F00:0309         jsr w_acia_full
+               S03:00001346:  20 BF 10
+F00:0310       
 F00:0311         rts
-               S03:0000134A:  60
+               S03:00001349:  60
 F00:0312         rts
-               S03:0000134B:  60
+               S03:0000134A:  60
 F00:0313         rts
+               S03:0000134B:  60
+F00:0314         rts
                S03:0000134C:  60
-F00:0314       ; subs
-F00:0315       
-F00:0316       wait1:
-F00:0317         jsr RD2BIT
+F00:0315       ; subs
+F00:0316       
+F00:0317       wait1:
+F00:0318         jsr RD2BIT
                S03:0000134D:  20 2A 12
-F00:0318         bcs wait1
+F00:0319         bcs wait1
                S03:00001350:  B0 FB
-F00:0319         rts
+F00:0320         rts
                S03:00001352:  60
-F00:0320       
-F00:0321       wait0:
-F00:0322         jsr RD2BIT
+F00:0321       
+F00:0322       wait0:
+F00:0323         jsr RD2BIT
                S03:00001353:  20 2A 12
-F00:0323         bcc wait0
+F00:0324         bcc wait0
                S03:00001356:  90 FB
-F00:0324         rts
+F00:0325         rts
                S03:00001358:  60
-F00:0325       
-F00:0326       loadmsg:
-F00:0327         .byte "Press Play On Tape.", $0d, $0a, $00
+F00:0326       
+F00:0327       loadmsg:
+F00:0328         .byte "Press Play On Tape.", $0d, $0a, $00
                S03:00001359:  50 72 65 73 73 20 50 6C 61 79 20 4F 6E 20 54 61
                S03:00001369:  70 65 2E
                S03:0000136C:  0D
                S03:0000136D:  0A
                S03:0000136E:  00
-F00:0328       
+F00:0329       
 
 
 Sections:
@@ -838,20 +840,20 @@ RDBYTE EXPR(4638=0x121e) ABS
 clearmsg EXPR(4627=0x1213) ABS 
 clearlop EXPR(4610=0x1202) ABS 
 clear EXPR(4608=0x1200) UNUSED ABS 
-loading_msg EXPR(4355=0x1103) ABS 
-endwacia EXPR(4312=0x10d8) ABS 
-acia_man EXPR(4298=0x10ca) ABS 
-ascii_home EXPR(4277=0x10b5) UNUSED ABS 
-print_char_acia EXPR(4274=0x10b2) UNUSED ABS 
-rxpoll EXPR(4257=0x10a1) ABS 
-txpoll EXPR(4249=0x1099) ABS 
-cleardisplay EXPR(4238=0x108e) UNUSED ABS 
-crlf EXPR(4217=0x1079) UNUSED ABS 
-print_chara EXPR(4265=0x10a9) ABS 
-cskipletter EXPR(4211=0x1073) ABS 
-print_nybble EXPR(4203=0x106b) ABS 
-print_hex_acia EXPR(4194=0x1062) UNUSED ABS 
-acia_init EXPR(4181=0x1055) UNUSED ABS 
+loading_msg EXPR(4357=0x1105) ABS 
+endwacia EXPR(4314=0x10da) ABS 
+acia_man EXPR(4300=0x10cc) ABS 
+ascii_home EXPR(4279=0x10b7) UNUSED ABS 
+print_char_acia EXPR(4276=0x10b4) UNUSED ABS 
+rxpoll EXPR(4259=0x10a3) ABS 
+txpoll EXPR(4251=0x109b) ABS 
+cleardisplay EXPR(4240=0x1090) UNUSED ABS 
+crlf EXPR(4219=0x107b) UNUSED ABS 
+print_chara EXPR(4267=0x10ab) ABS 
+cskipletter EXPR(4213=0x1075) ABS 
+print_nybble EXPR(4205=0x106d) ABS 
+print_hex_acia EXPR(4196=0x1064) UNUSED ABS 
+acia_init EXPR(4183=0x1057) UNUSED ABS 
 PORTA_OUTPUTPINS EXPR(2=0x2) EQU 
 TAPE_MIC EXPR(2=0x2) EQU 
 TAPE_EAR EXPR(0=0x0) EQU 
@@ -865,31 +867,32 @@ LCD_E EXPR(128=0x80) UNUSED EQU
 DDRA EXPR(45059=0xb003) EQU 
 DDRB EXPR(45058=0xb002) EQU 
 PORTB EXPR(45056=0xb000) UNUSED EQU 
-RD3 EXPR(4163=0x1043) UNUSED ABS 
-RD2 EXPR(4159=0x103f) ABS 
-RD1 EXPR(4157=0x103d) ABS 
-intro2 EXPR(4149=0x1035) ABS 
-intro EXPR(4130=0x1022) ABS 
-zerofreq EXPR(4136=0x1028) ABS 
+RD3 EXPR(4165=0x1045) UNUSED ABS 
+RD2 EXPR(4161=0x1041) ABS 
+RD1 EXPR(4159=0x103f) ABS 
+intro2 EXPR(4151=0x1037) ABS 
+intro EXPR(4132=0x1024) ABS 
+zerofreq EXPR(4138=0x102a) ABS 
 PORTA EXPR(45057=0xb001) EQU 
-onefreq EXPR(4117=0x1015) ABS 
-togtap EXPR(4056=0xfd8) ABS 
-starter EXPR(3944=0xf68) ABS 
-outer EXPR(3942=0xf66) ABS 
-msg2 EXPR(4376=0x1118) ABS 
-one EXPR(3957=0xf75) ABS 
+onefreq EXPR(4119=0x1017) ABS 
+togtap EXPR(4058=0xfda) ABS 
+starter EXPR(3946=0xf6a) ABS 
+outer EXPR(3944=0xf68) ABS 
+msg2 EXPR(4378=0x111a) ABS 
+savedone EXPR(3924=0xf54) ABS 
+one EXPR(3959=0xf77) ABS 
 noo EXPR(3906=0xf42) ABS 
 oner EXPR(3889=0xf31) ABS 
 jsrone EXPR(3900=0xf3c) ABS 
-dat EXPR(4386=0x1122) ABS 
+dat EXPR(4388=0x1124) ABS 
 wop EXPR(3879=0xf27) ABS 
-zero EXPR(4066=0xfe2) ABS 
-inout EXPR(3937=0xf61) ABS 
-saving_msg EXPR(4366=0x110e) ABS 
-TDELAY EXPR(4155=0x103b) ABS 
-w_acia_full EXPR(4285=0x10bd) ABS 
-msg EXPR(4320=0x10e0) ABS 
-via_init EXPR(4170=0x104a) ABS 
+zero EXPR(4068=0xfe4) ABS 
+inout EXPR(3939=0xf63) ABS 
+saving_msg EXPR(4368=0x1110) ABS 
+TDELAY EXPR(4157=0x103d) ABS 
+w_acia_full EXPR(4287=0x10bf) ABS 
+msg EXPR(4322=0x10e2) ABS 
+via_init EXPR(4172=0x104c) ABS 
 start EXPR(3840=0xf00) UNUSED ABS 
 tapest EXPR(4=0x4) EQU 
 eorr EXPR(3=0x3) UNUSED EQU 
