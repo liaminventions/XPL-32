@@ -62,10 +62,12 @@ noo:
   sta thing
   jsr zero		; end prev. byte, start new byte
   jsr zero
+  lda dat,x
+  beq savedone
   jsr one
   inx			; next byte
   bne wop
-
+savedone
   jsr inout		; we are done, ending sound  
 
   ; done
@@ -179,7 +181,7 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$5f
+  lda #$3f
   sta $b004
   lda #$01
   sta $b005
