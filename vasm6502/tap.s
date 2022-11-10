@@ -168,7 +168,7 @@ zero: 			; 1200hz sound 4 cyc
 
 onefreq:
   stz $b00b
-  lda #$ce
+  lda #$ae
   sta $b004		; freq
   lda #$00
   sta $b005
@@ -179,7 +179,7 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$9e
+  lda #$5f
   sta $b004
   lda #$01
   sta $b005
