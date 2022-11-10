@@ -213,7 +213,7 @@ msg2:
 ;       |      | CR | LF |cursor on| NULL
   .byte "Done!", $0d, $0a, $02, $5f, $00
 dat:
-  .byte "Hello, world!", $0d, $0a, $0d, $0a, $00
+  .byte "Hello, World!", $0d, $0a, $0d, $0a, $00
 
   .org $1200
 

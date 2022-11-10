@@ -18,13 +18,12 @@ start:
   jsr via_init		; init VIA
   stz $b00e
   stz tapest
-  ldx #0
-  lda #0
-datlop:
+;  ldx #0
+;datlop:
 ;  txa
-  sta dat,x		; store data that counts
-  inx
-  bne datlop
+;  sta dat,x		; store data that counts
+;  inx
+;  bne datlop
 
   ldx #<msg
   ldy #>msg		; press rec and play
@@ -63,10 +62,12 @@ noo:
   sta thing
   jsr zero		; end prev. byte, start new byte
   jsr zero
+  lda dat,x
+  beq savedone
   jsr one
   inx			; next byte
   bne wop
-
+savedone
   jsr inout		; we are done, ending sound  
 
   ; done
