@@ -1,3 +1,11 @@
+; The Kansas City Standard for the XPL-32
+; 2400hz = 1
+; 1200hz = 0
+; data is encoded with 2400hz starting sound (for alignment)
+; start bit is a 0
+; end bit is a >2 1s
+; a byte is LEAST SIGNIFICANT TO MOST SIGNIFICANT as in 011 -> 110
+
 thing  = $00
 odd    = $01
 buf    = $02
@@ -81,7 +89,7 @@ inout:
   phy
   ldy #16
 outer:
-  ldx $ff		; 16 * 255 times make the sound
+  ldx #16		; 16 * 16 times make the sound
 starter:
   jsr one		; sound
   dex
@@ -93,14 +101,26 @@ starter:
   pla
   rts
 
-one:			; 2 khz sound 1 cyc
+one:			; 2400hz sound 8 cyc
   pha
   stz tapest
   stz PORTA
+  jsr togtap ; 1
   jsr onefreq
-  jsr togtap
+  jsr togtap ; 2
   jsr onefreq
-  jsr togtap
+  jsr togtap ; 3
+  jsr onefreq
+  jsr togtap ; 4
+  jsr onefreq
+  jsr togtap ; 5
+  jsr onefreq
+  jsr togtap ; 6
+  jsr onefreq
+  jsr togtap ; 7
+  jsr onefreq
+  jsr togtap ; 8
+  jsr onefreq
   pla
   rts
 
@@ -111,15 +131,19 @@ togtap:
   sta PORTA
   rts
 
-zero:
+zero: 			; 1200hz sound 4 cyc
   pha 
   lda #$55
   sta odd
   stz PORTA
+  jsr togtap ; 1
   jsr zerofreq
-  jsr togtap
+  jsr togtap ; 2
   jsr zerofreq
-  jsr togtap
+  jsr togtap ; 3
+  jsr zerofreq
+  jsr togtap ; 4
+  jsr zerofreq
   pla
   rts
 
