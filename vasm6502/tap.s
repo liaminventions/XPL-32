@@ -149,9 +149,9 @@ zero: 			; 1200hz sound 4 cyc
 
 onefreq:
   stz $b00b
-  lda #$f8
+  lda #$9e
   sta $b004		; freq
-  lda #$00
+  lda #$01
   sta $b005
 intro:
   bit $b00d		; delay complete?
@@ -160,9 +160,9 @@ intro:
 
 zerofreq:
   stz $b00b
-  lda #$f2
+  lda #$3f
   sta $b004
-  lda #$01
+  lda #$03
   sta $b005
 intro2:
   bit $b00d

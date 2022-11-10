@@ -89,7 +89,7 @@ inout:
   phy
   ldy #16
 outer:
-  ldx $ff		; 16 * 255 times make the sound
+  ldx #16		; 16 * 16 times make the sound
 starter:
   jsr one		; sound
   dex
