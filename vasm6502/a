@@ -1,34 +1,312 @@
-F00:0001       done = $00
-F00:0002       sample = $01
-F00:0003       flag = $02
-F00:0004       zp_sd_address = $40         ; 2 bytes
-F00:0005       zp_sd_currentsector = $42   ; 4 bytes
-F00:0006       zp_fat32_variables = $46    ; 32 bytes
-F00:0007       
-F00:0008       bytepointer = $66	    ; 4 bytes
-F00:0009       readcounter = $6a           ; 2 bytes
-F00:0010       
-F00:0011       buffer = $400               ; 512 bytes
-F00:0012       endbuf = $600
-F00:0013       
-F00:0014       SID = $b800
-F00:0015       
-F00:0016       flagSeed = $55           ; flag seed, 8kHz
-F00:0017       freq     = $80           ; CIA NMI timer delay, 8kHz
-F00:0018       ;flagSeed = $00          ; flag seed, 4Hz
-F00:0019       ;freq    = $100          ; CIA NMI timer delay, 4kHz
-F00:0020       
-F00:0021       	.org $0f00
-F00:0022       darn
-F00:0023       	jmp begin
-               S01:00000F00:  4C 73 11
-F00:0024       
-F00:0025       ;datname:
-F00:0026       ;  .asciiz "FASTCMC RAW"  ; music file on SD card
-F00:0027       ;dirname:
-F00:0028       ;  .asciiz "FOLDER     "  ; folder
-F00:0029       
-F00:0030       	.include "hwconfig.s"
+F00:0001       ; The Kansas City Standard for the XPL-32
+F00:0002       ; 2400hz = 1
+F00:0003       ; 1200hz = 0
+F00:0004       ; data is encoded with 2400hz starting sound (for alignment)
+F00:0005       ; start bit is a 0
+F00:0006       ; end bit is a >2 1s
+F00:0007       ; a byte is LEAST SIGNIFICANT TO MOST SIGNIFICANT as in 011 -> 110
+F00:0008       
+F00:0009       thing  = $00
+F00:0010       odd    = $01
+F00:0011       buf    = $02
+F00:0012       eorr   = $03
+F00:0013       tapest = $04
+F00:0014       
+F00:0015         .org $0f00
+F00:0016       
+F00:0017       start:
+F00:0018         jsr via_init		; init VIA
+               S01:00000F00:  20 17 10
+F00:0019         stz $b00e
+               S01:00000F03:  9C 0E B0
+F00:0020         stz tapest
+               S01:00000F06:  64 04
+F00:0021         ldx #0
+               S01:00000F08:  A2 00
+F00:0022       datlop:
+F00:0023         txa
+               S01:00000F0A:  8A
+F00:0024         sta dat,x		; store data that counts
+               S01:00000F0B:  9D EF 10
+F00:0025         inx
+               S01:00000F0E:  E8
+F00:0026         bne datlop
+               S01:00000F0F:  D0 F9
+F00:0027       
+F00:0028         ldx #<msg
+               S01:00000F11:  A2 AD
+F00:0029         ldy #>msg		; press rec and play
+               S01:00000F13:  A0 10
+F00:0030         jsr w_acia_full
+               S01:00000F15:  20 8A 10
+F00:0031       
+F00:0032         lda #$18		; 4 seconds
+               S01:00000F18:  A9 18
+F00:0033         jsr TDELAY		; (ye fumble)
+               S01:00000F1A:  20 08 10
+F00:0034       
+F00:0035         ldx #<saving_msg	; Saving...
+               S01:00000F1D:  A2 DB
+F00:0036         ldy #>saving_msg
+               S01:00000F1F:  A0 10
+F00:0037         jsr w_acia_full
+               S01:00000F21:  20 8A 10
+F00:0038       
+F00:0039         jsr inout		; intro sound
+               S01:00000F24:  20 6A 0F
+F00:0040       
+F00:0041         jsr zero
+               S01:00000F27:  20 C0 0F
+F00:0042         jsr one
+               S01:00000F2A:  20 7E 0F
+F00:0043       
+F00:0044         ldx #0
+               S01:00000F2D:  A2 00
+F00:0045         ldy #1
+               S01:00000F2F:  A0 01
+F00:0046         sty thing		; first bit
+               S01:00000F31:  84 00
+F00:0047       wop:
+F00:0048         lda dat,x		; load data
+               S01:00000F33:  BD EF 10
+F00:0049         and thing		; mask it
+               S01:00000F36:  25 00
+F00:0050         bne jsrone		; one
+               S01:00000F38:  D0 0E
+F00:0051         jsr zero		; or zero
+               S01:00000F3A:  20 C0 0F
+F00:0052       oner:
+F00:0053         lda thing		; load the bitmask
+               S01:00000F3D:  A5 00
+F00:0054         cmp #$80		; end of byte?
+               S01:00000F3F:  C9 80
+F00:0055         beq noo
+               S01:00000F41:  F0 0B
+F00:0056         asl thing
+               S01:00000F43:  06 00
+F00:0057         jmp wop		; next bit
+               S01:00000F45:  4C 33 0F
+F00:0058       jsrone:
+F00:0059         jsr one		; a one
+               S01:00000F48:  20 7E 0F
+F00:0060         jmp oner
+               S01:00000F4B:  4C 3D 0F
+F00:0061       noo:
+F00:0062         lda #1		; byte done
+               S01:00000F4E:  A9 01
+F00:0063         sta thing
+               S01:00000F50:  85 00
+F00:0064         jsr zero		; end prev. byte, start new byte
+               S01:00000F52:  20 C0 0F
+F00:0065         jsr one
+               S01:00000F55:  20 7E 0F
+F00:0066         inx			; next byte
+               S01:00000F58:  E8
+F00:0067         bne wop
+               S01:00000F59:  D0 D8
+F00:0068       
+F00:0069         jsr inout		; we are done, ending sound  
+               S01:00000F5B:  20 6A 0F
+F00:0070       
+F00:0071         ; done
+F00:0072         ldx #<msg2
+               S01:00000F5E:  A2 E5
+F00:0073         ldy #>msg2		; "Done!"
+               S01:00000F60:  A0 10
+F00:0074         jsr w_acia_full
+               S01:00000F62:  20 8A 10
+F00:0075       
+F00:0076         rts
+               S01:00000F65:  60
+F00:0077         rts
+               S01:00000F66:  60
+F00:0078         rts			; return
+               S01:00000F67:  60
+F00:0079         rts
+               S01:00000F68:  60
+F00:0080         rts
+               S01:00000F69:  60
+F00:0081       
+F00:0082       
+F00:0083       
+F00:0084       ; subs
+F00:0085       
+F00:0086       inout:
+F00:0087         pha
+               S01:00000F6A:  48
+F00:0088         phx
+               S01:00000F6B:  DA
+F00:0089         phy
+               S01:00000F6C:  5A
+F00:0090         ldy #16
+               S01:00000F6D:  A0 10
+F00:0091       outer:
+F00:0092         ldx #16		; 16 * 16 times make the sound
+               S01:00000F6F:  A2 10
+F00:0093       starter:
+F00:0094         jsr one		; sound
+               S01:00000F71:  20 7E 0F
+F00:0095         dex
+               S01:00000F74:  CA
+F00:0096         bne starter
+               S01:00000F75:  D0 FA
+F00:0097         dey
+               S01:00000F77:  88
+F00:0098         bne outer
+               S01:00000F78:  D0 F5
+F00:0099         ply
+               S01:00000F7A:  7A
+F00:0100         plx
+               S01:00000F7B:  FA
+F00:0101         pla
+               S01:00000F7C:  68
+F00:0102         rts
+               S01:00000F7D:  60
+F00:0103       
+F00:0104       one:			; 2400hz sound 8 cyc
+F00:0105         pha
+               S01:00000F7E:  48
+F00:0106         stz tapest
+               S01:00000F7F:  64 04
+F00:0107         stz PORTA
+               S01:00000F81:  9C 01 B0
+F00:0108         jsr togtap ; 1
+               S01:00000F84:  20 B6 0F
+F00:0109         jsr onefreq
+               S01:00000F87:  20 E2 0F
+F00:0110         jsr togtap ; 2
+               S01:00000F8A:  20 B6 0F
+F00:0111         jsr onefreq
+               S01:00000F8D:  20 E2 0F
+F00:0112         jsr togtap ; 3
+               S01:00000F90:  20 B6 0F
+F00:0113         jsr onefreq
+               S01:00000F93:  20 E2 0F
+F00:0114         jsr togtap ; 4
+               S01:00000F96:  20 B6 0F
+F00:0115         jsr onefreq
+               S01:00000F99:  20 E2 0F
+F00:0116         jsr togtap ; 5
+               S01:00000F9C:  20 B6 0F
+F00:0117         jsr onefreq
+               S01:00000F9F:  20 E2 0F
+F00:0118         jsr togtap ; 6
+               S01:00000FA2:  20 B6 0F
+F00:0119         jsr onefreq
+               S01:00000FA5:  20 E2 0F
+F00:0120         jsr togtap ; 7
+               S01:00000FA8:  20 B6 0F
+F00:0121         jsr onefreq
+               S01:00000FAB:  20 E2 0F
+F00:0122         jsr togtap ; 8
+               S01:00000FAE:  20 B6 0F
+F00:0123         jsr onefreq
+               S01:00000FB1:  20 E2 0F
+F00:0124         pla
+               S01:00000FB4:  68
+F00:0125         rts
+               S01:00000FB5:  60
+F00:0126       
+F00:0127       togtap:
+F00:0128         lda tapest
+               S01:00000FB6:  A5 04
+F00:0129         eor #%00000010
+               S01:00000FB8:  49 02
+F00:0130         sta tapest
+               S01:00000FBA:  85 04
+F00:0131         sta PORTA
+               S01:00000FBC:  8D 01 B0
+F00:0132         rts
+               S01:00000FBF:  60
+F00:0133       
+F00:0134       zero: 			; 1200hz sound 4 cyc
+F00:0135         pha 
+               S01:00000FC0:  48
+F00:0136         lda #$55
+               S01:00000FC1:  A9 55
+F00:0137         sta odd
+               S01:00000FC3:  85 01
+F00:0138         stz PORTA
+               S01:00000FC5:  9C 01 B0
+F00:0139         jsr togtap ; 1
+               S01:00000FC8:  20 B6 0F
+F00:0140         jsr zerofreq
+               S01:00000FCB:  20 F5 0F
+F00:0141         jsr togtap ; 2
+               S01:00000FCE:  20 B6 0F
+F00:0142         jsr zerofreq
+               S01:00000FD1:  20 F5 0F
+F00:0143         jsr togtap ; 3
+               S01:00000FD4:  20 B6 0F
+F00:0144         jsr zerofreq
+               S01:00000FD7:  20 F5 0F
+F00:0145         jsr togtap ; 4
+               S01:00000FDA:  20 B6 0F
+F00:0146         jsr zerofreq
+               S01:00000FDD:  20 F5 0F
+F00:0147         pla
+               S01:00000FE0:  68
+F00:0148         rts
+               S01:00000FE1:  60
+F00:0149       
+F00:0150       onefreq:
+F00:0151         stz $b00b
+               S01:00000FE2:  9C 0B B0
+F00:0152         lda #$9e
+               S01:00000FE5:  A9 9E
+F00:0153         sta $b004		; freq
+               S01:00000FE7:  8D 04 B0
+F00:0154         lda #$01
+               S01:00000FEA:  A9 01
+F00:0155         sta $b005
+               S01:00000FEC:  8D 05 B0
+F00:0156       intro:
+F00:0157         bit $b00d		; delay complete?
+               S01:00000FEF:  2C 0D B0
+F00:0158         bvc intro
+               S01:00000FF2:  50 FB
+F00:0159         rts
+               S01:00000FF4:  60
+F00:0160       
+F00:0161       zerofreq:
+F00:0162         stz $b00b
+               S01:00000FF5:  9C 0B B0
+F00:0163         lda #$3f
+               S01:00000FF8:  A9 3F
+F00:0164         sta $b004
+               S01:00000FFA:  8D 04 B0
+F00:0165         lda #$03
+               S01:00000FFD:  A9 03
+F00:0166         sta $b005
+               S01:00000FFF:  8D 05 B0
+F00:0167       intro2:
+F00:0168         bit $b00d
+               S01:00001002:  2C 0D B0
+F00:0169         bvc intro2
+               S01:00001005:  50 FB
+F00:0170         rts
+               S01:00001007:  60
+F00:0171       
+F00:0172       TDELAY  LDX     #$FF            ; wait for ye fumble.
+               S01:00001008:  A2 FF
+F00:0173       RD1     LDA     #$7A            ; (Y times through inner loop,
+               S01:0000100A:  A9 7A
+F00:0174       RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
+               S01:0000100C:  E9 01
+F00:0175               BNE     RD2
+               S01:0000100E:  D0 FC
+F00:0176       RD3     DEX
+               S01:00001010:  CA
+F00:0177               BNE     RD1
+               S01:00001011:  D0 F7
+F00:0178               DEY
+               S01:00001013:  88
+F00:0179               BNE     TDELAY
+               S01:00001014:  D0 F2
+F00:0180               RTS
+               S01:00001016:  60
+F00:0181       
+F00:0182         .include "hwtape.s"
 F01:0001       PORTB = $b000
 F01:0002       PORTA = $b001
 F01:0003       DDRB = $b002
@@ -38,27 +316,29 @@ F01:0006       LCD_E  = %10000000
 F01:0007       LCD_RW = %01000000
 F01:0008       LCD_RS = %00100000
 F01:0009       
-F01:0010       SD_CS   = %00010000
-F01:0011       SD_SCK  = %00001000
-F01:0012       SD_MOSI = %00000100
-F01:0013       SD_MISO = %00000010
-F01:0014       
-F01:0015       PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
+F01:0010       SD_CS    = %00010000
+F01:0011       SD_SCK   = %00001000
+F01:0012       SD_MOSI  = %00000100
+F01:0013       SD_MISO  = %00000010
+F01:0014       TAPE_EAR = %00000000 ; PA0 IN
+F01:0015       TAPE_MIC = %00000010 ; PA1 OUT
 F01:0016       
-F01:0017       via_init:
-F01:0018         lda #%11111111          ; Set all pins on port B to output
-               S01:00000F03:  A9 FF
-F01:0019         sta DDRB
-               S01:00000F05:  8D 02 B0
-F01:0020         lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
-               S01:00000F08:  A9 FC
-F01:0021         sta DDRA
-               S01:00000F0A:  8D 03 B0
-F01:0022         rts
-               S01:00000F0D:  60
-F01:0023       
-F01:0024       
-F00:0031               .include "libacia.s"
+F01:0017       PORTA_OUTPUTPINS = TAPE_EAR | TAPE_MIC
+F01:0018       
+F01:0019       via_init:
+F01:0020         lda #%11111111          ; Set all pins on port B to output
+               S01:00001017:  A9 FF
+F01:0021         sta DDRB
+               S01:00001019:  8D 02 B0
+F01:0022         lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+               S01:0000101C:  A9 02
+F01:0023         sta DDRA
+               S01:0000101E:  8D 03 B0
+F01:0024         rts
+               S01:00001021:  60
+F01:0025       
+F01:0026       
+F00:0183         .include "libacia.s"
 F02:0001       ;       ------------------ 6551 ACIA Subroutine Library -------------------
 F02:0002       ; Includes:
 F02:0003       ; acia_init       - Initializes the ACIA
@@ -73,1396 +353,512 @@ F02:0011       ; w_acia_full     - Print a NULL-Termintated String with >HIGH in
 F02:0012       
 F02:0013       acia_init:
 F02:0014         pha
-               S01:00000F0E:  48
+               S01:00001022:  48
 F02:0015         lda #%00001011          ; No parity, no echo, no interrupt
-               S01:00000F0F:  A9 0B
+               S01:00001023:  A9 0B
 F02:0016         sta $8002
-               S01:00000F11:  8D 02 80
+               S01:00001025:  8D 02 80
 F02:0017         lda #%00011111          ; 1 stop bit, 8 data bits, 19200 baud
-               S01:00000F14:  A9 1F
+               S01:00001028:  A9 1F
 F02:0018         sta $8003
-               S01:00000F16:  8D 03 80
+               S01:0000102A:  8D 03 80
 F02:0019         pla
-               S01:00000F19:  68
+               S01:0000102D:  68
 F02:0020         rts
-               S01:00000F1A:  60
+               S01:0000102E:  60
 F02:0021       
 F02:0022       print_hex_acia:
 F02:0023         pha
-               S01:00000F1B:  48
+               S01:0000102F:  48
 F02:0024         ror
-               S01:00000F1C:  6A
+               S01:00001030:  6A
 F02:0025         ror
-               S01:00000F1D:  6A
+               S01:00001031:  6A
 F02:0026         ror
-               S01:00000F1E:  6A
+               S01:00001032:  6A
 F02:0027         ror
-               S01:00000F1F:  6A
+               S01:00001033:  6A
 F02:0028         jsr print_nybble   ; This is just som usful hex cod
-               S01:00000F20:  20 24 0F
+               S01:00001034:  20 38 10
 F02:0029         pla
-               S01:00000F23:  68
+               S01:00001037:  68
 F02:0030       print_nybble:
 F02:0031         and #15
-               S01:00000F24:  29 0F
+               S01:00001038:  29 0F
 F02:0032         cmp #10
-               S01:00000F26:  C9 0A
+               S01:0000103A:  C9 0A
 F02:0033         bmi cskipletter
-               S01:00000F28:  30 02
+               S01:0000103C:  30 02
 F02:0034         adc #6
-               S01:00000F2A:  69 06
+               S01:0000103E:  69 06
 F02:0035       cskipletter:
 F02:0036         adc #48
-               S01:00000F2C:  69 30
+               S01:00001040:  69 30
 F02:0037        ; jsr print_char
 F02:0038         jsr print_chara
-               S01:00000F2E:  20 62 0F
+               S01:00001042:  20 76 10
 F02:0039         rts
-               S01:00000F31:  60
+               S01:00001045:  60
 F02:0040       
 F02:0041       crlf:
 F02:0042         pha
-               S01:00000F32:  48
+               S01:00001046:  48
 F02:0043         txa
-               S01:00000F33:  8A
+               S01:00001047:  8A
 F02:0044         pha
-               S01:00000F34:  48
+               S01:00001048:  48
 F02:0045         tya
-               S01:00000F35:  98
+               S01:00001049:  98
 F02:0046         pha
-               S01:00000F36:  48
+               S01:0000104A:  48
 F02:0047         lda #$0d
-               S01:00000F37:  A9 0D
+               S01:0000104B:  A9 0D
 F02:0048         jsr print_chara
-               S01:00000F39:  20 62 0F
+               S01:0000104D:  20 76 10
 F02:0049         lda #$0a
-               S01:00000F3C:  A9 0A
+               S01:00001050:  A9 0A
 F02:0050         jsr print_chara
-               S01:00000F3E:  20 62 0F
+               S01:00001052:  20 76 10
 F02:0051         pla
-               S01:00000F41:  68
+               S01:00001055:  68
 F02:0052         tay
-               S01:00000F42:  A8
+               S01:00001056:  A8
 F02:0053         pla
-               S01:00000F43:  68
+               S01:00001057:  68
 F02:0054         tax
-               S01:00000F44:  AA
+               S01:00001058:  AA
 F02:0055         pla
-               S01:00000F45:  68
+               S01:00001059:  68
 F02:0056         rts
-               S01:00000F46:  60
+               S01:0000105A:  60
 F02:0057       
 F02:0058       cleardisplay:
 F02:0059         pha
-               S01:00000F47:  48
+               S01:0000105B:  48
 F02:0060         jsr txpoll  ; Poll the TX bit
-               S01:00000F48:  20 52 0F
+               S01:0000105C:  20 66 10
 F02:0061         lda #12     ; Print decimal 12 (CLS)
-               S01:00000F4B:  A9 0C
+               S01:0000105F:  A9 0C
 F02:0062         sta $8000
-               S01:00000F4D:  8D 00 80
+               S01:00001061:  8D 00 80
 F02:0063         pla
-               S01:00000F50:  68
+               S01:00001064:  68
 F02:0064         rts
-               S01:00000F51:  60
+               S01:00001065:  60
 F02:0065       
 F02:0066       txpoll:
 F02:0067         lda $8001
-               S01:00000F52:  AD 01 80
+               S01:00001066:  AD 01 80
 F02:0068         and #$10    ; Poll the TX bit
-               S01:00000F55:  29 10
+               S01:00001069:  29 10
 F02:0069         beq txpoll
-               S01:00000F57:  F0 F9
+               S01:0000106B:  F0 F9
 F02:0070         rts
-               S01:00000F59:  60
+               S01:0000106D:  60
 F02:0071       
 F02:0072       rxpoll:
 F02:0073         lda $8001
-               S01:00000F5A:  AD 01 80
+               S01:0000106E:  AD 01 80
 F02:0074         and #$08    ; Poll the RX bit
-               S01:00000F5D:  29 08
+               S01:00001071:  29 08
 F02:0075         beq rxpoll
-               S01:00000F5F:  F0 F9
+               S01:00001073:  F0 F9
 F02:0076         rts
-               S01:00000F61:  60
+               S01:00001075:  60
 F02:0077       
 F02:0078       
 F02:0079       print_chara:
 F02:0080         pha
-               S01:00000F62:  48
+               S01:00001076:  48
 F02:0081         jsr txpoll  ; Poll the TX bit
-               S01:00000F63:  20 52 0F
+               S01:00001077:  20 66 10
 F02:0082         pla
-               S01:00000F66:  68
+               S01:0000107A:  68
 F02:0083         sta $8000   ; Print character from A
-               S01:00000F67:  8D 00 80
+               S01:0000107B:  8D 00 80
 F02:0084         rts
-               S01:00000F6A:  60
+               S01:0000107E:  60
 F02:0085       
 F02:0086       print_char_acia:
 F02:0087         jmp print_chara  ; Same as "print_chara"
-               S01:00000F6B:  4C 62 0F
+               S01:0000107F:  4C 76 10
 F02:0088       
 F02:0089       ascii_home:
 F02:0090         pha
-               S01:00000F6E:  48
+               S01:00001082:  48
 F02:0091         lda #1
-               S01:00000F6F:  A9 01
+               S01:00001083:  A9 01
 F02:0092         jsr print_chara  ; Print 1 (HOME)
-               S01:00000F71:  20 62 0F
+               S01:00001085:  20 76 10
 F02:0093         pla
-               S01:00000F74:  68
+               S01:00001088:  68
 F02:0094         rts
-               S01:00000F75:  60
+               S01:00001089:  60
 F02:0095       
 F02:0096       w_acia_full:
 F02:0097         pha
-               S01:00000F76:  48
+               S01:0000108A:  48
 F02:0098         lda $ff
-               S01:00000F77:  A5 FF
+               S01:0000108B:  A5 FF
 F02:0099         pha        ; Push Previous States onto the stack
-               S01:00000F79:  48
+               S01:0000108D:  48
 F02:0100         lda $fe
-               S01:00000F7A:  A5 FE
+               S01:0000108E:  A5 FE
 F02:0101         pha
-               S01:00000F7C:  48
+               S01:00001090:  48
 F02:0102         sty $ff    ; Set Y as the Upper Address (8-15)
-               S01:00000F7D:  84 FF
+               S01:00001091:  84 FF
 F02:0103         stx $fe    ; Set X as the Lower Adderss (0-7)
-               S01:00000F7F:  86 FE
+               S01:00001093:  86 FE
 F02:0104         ldy #0
-               S01:00000F81:  A0 00
+               S01:00001095:  A0 00
 F02:0105       acia_man:
 F02:0106         jsr txpoll   ; Poll TX
-               S01:00000F83:  20 52 0F
+               S01:00001097:  20 66 10
 F02:0107         lda ($fe),y  ; Load the Address
-               S01:00000F86:  B1 FE
+               S01:0000109A:  B1 FE
 F02:0108         sta $8000    ; Print what is at the address
-               S01:00000F88:  8D 00 80
+               S01:0000109C:  8D 00 80
 F02:0109         beq endwacia ; If Done, End
-               S01:00000F8B:  F0 04
+               S01:0000109F:  F0 04
 F02:0110         iny          ; Next Character
-               S01:00000F8D:  C8
+               S01:000010A1:  C8
 F02:0111         jmp acia_man ; Back to the top
-               S01:00000F8E:  4C 83 0F
+               S01:000010A2:  4C 97 10
 F02:0112       endwacia:
 F02:0113         pla
-               S01:00000F91:  68
+               S01:000010A5:  68
 F02:0114         sta $fe
-               S01:00000F92:  85 FE
+               S01:000010A6:  85 FE
 F02:0115         pla          ; Restore Variables
-               S01:00000F94:  68
+               S01:000010A8:  68
 F02:0116         sta $ff
-               S01:00000F95:  85 FF
+               S01:000010A9:  85 FF
 F02:0117         pla
-               S01:00000F97:  68
+               S01:000010AB:  68
 F02:0118         rts
-               S01:00000F98:  60
+               S01:000010AC:  60
 F02:0119       
-F00:0032       	.include "libsd.s" ; ah ye sd tim
-F03:0001       ; SD card interface module
-F03:0002       ;
-F03:0003       ; Requires zero-page variable storage:
-F03:0004       ;   zp_sd_address - a bytes
-F03:0005       ;   zp_sd_currentsector - 4 bytes
-F03:0006       
-F03:0007       cmsg:
-F03:0008         .byte "Command: ", $00
-               S01:00000F99:  43 6F 6D 6D 61 6E 64 3A 20
-               S01:00000FA2:  00
-F03:0009       
-F03:0010       sd_init:
-F03:0011         ; Let the SD card boot up, by pumping the clock with SD CS disabled
-F03:0012       
-F03:0013         ; We need to apply around 80 clock pulses with CS and MOSI higha
-F03:0014         ; Normally MOSI doesn't matter when CS is high, but the card is
-F03:0015         ; not yet is SPI mode, and in this non-SPI state it does carea
-F03:0016       
-F03:0017         lda #SD_CS | SD_MOSI
-               S01:00000FA3:  A9 14
-F03:0018         ldx #160               ; toggle the clock 160 times, so 80 low-high transitions
-               S01:00000FA5:  A2 A0
-F03:0019       apreinitloop:
-F03:0020         eor #SD_SCK
-               S01:00000FA7:  49 08
-F03:0021         sta PORTA
-               S01:00000FA9:  8D 01 B0
-F03:0022         dex
-               S01:00000FAC:  CA
-F03:0023         bne apreinitloop
-               S01:00000FAD:  D0 F8
-F03:0024         
-F03:0025       
-F03:0026       acmd0: ; GO_IDLE_STATE - resets card to idle state, and SPI mode
-F03:0027         lda #<sd_cmd0_bytes
-               S01:00000FAF:  A9 16
-F03:0028         sta zp_sd_address
-               S01:00000FB1:  85 40
-F03:0029         lda #>sd_cmd0_bytes
-               S01:00000FB3:  A9 10
-F03:0030         sta zp_sd_address+1
-               S01:00000FB5:  85 41
-F03:0031       
-F03:0032         jsr sd_sendcommand
-               S01:00000FB7:  20 68 10
-F03:0033       
-F03:0034         ; Expect status response $01 (not initialized)
-F03:0035        ; cmp #$01
-F03:0036        ; bne ainitfailed
-F03:0037       
-F03:0038       acmd8: ; SEND_IF_COND - tell the card how we want it to operate (3a3V, etc)
-F03:0039         lda #<sd_cmd8_bytes
-               S01:00000FBA:  A9 1C
-F03:0040         sta zp_sd_address
-               S01:00000FBC:  85 40
-F03:0041         lda #>sd_cmd8_bytes
-               S01:00000FBE:  A9 10
-F03:0042         sta zp_sd_address+1
-               S01:00000FC0:  85 41
-F03:0043       
-F03:0044         jsr sd_sendcommand
-               S01:00000FC2:  20 68 10
-F03:0045       
-F03:0046         ; Expect status response $01 (not initialized)
-F03:0047         cmp #$01
-               S01:00000FC5:  C9 01
-F03:0048         bne ainitfailed
-               S01:00000FC7:  D0 44
-F03:0049       
-F03:0050         ; Read 3a-bit return value, but ignore it
-F03:0051         jsr sd_readbyte
-               S01:00000FC9:  20 2E 10
-F03:0052         jsr sd_readbyte
-               S01:00000FCC:  20 2E 10
-F03:0053         jsr sd_readbyte
-               S01:00000FCF:  20 2E 10
-F03:0054         jsr sd_readbyte
-               S01:00000FD2:  20 2E 10
-F03:0055       
-F03:0056       acmd55: ; APP_CMD - required prefix for ACMD commands
-F03:0057         lda #<sd_cmd55_bytes
-               S01:00000FD5:  A9 22
-F03:0058         sta zp_sd_address
-               S01:00000FD7:  85 40
-F03:0059         lda #>sd_cmd55_bytes
-               S01:00000FD9:  A9 10
-F03:0060         sta zp_sd_address+1
-               S01:00000FDB:  85 41
-F03:0061       
-F03:0062         jsr sd_sendcommand
-               S01:00000FDD:  20 68 10
-F03:0063       
-F03:0064         ; Expect status response $01 (not initialized)
-F03:0065         cmp #$01
-               S01:00000FE0:  C9 01
-F03:0066         bne ainitfailed
-               S01:00000FE2:  D0 29
-F03:0067       
-F03:0068       acmd41: ; APP_SEND_OP_COND - send operating conditions, initialize card
-F03:0069         lda #<sd_cmd41_bytes
-               S01:00000FE4:  A9 28
-F03:0070         sta zp_sd_address
-               S01:00000FE6:  85 40
-F03:0071         lda #>sd_cmd41_bytes
-               S01:00000FE8:  A9 10
-F03:0072         sta zp_sd_address+1
-               S01:00000FEA:  85 41
-F03:0073       
-F03:0074         jsr sd_sendcommand
-               S01:00000FEC:  20 68 10
-F03:0075       
-F03:0076         ; Status response $00 means initialised
-F03:0077         cmp #$00
-               S01:00000FEF:  C9 00
-F03:0078         beq ainitialized
-               S01:00000FF1:  F0 11
-F03:0079       
-F03:0080         ; Otherwise expect status response $01 (not initialized)
-F03:0081         cmp #$01
-               S01:00000FF3:  C9 01
-F03:0082         bne ainitfailed
-               S01:00000FF5:  D0 16
-F03:0083       
-F03:0084         ; Not initialized yet, so wait a while then try againa
-F03:0085         ; This retry is important, to give the card time to initializea
-F03:0086       
-F03:0087         ldx #0
-               S01:00000FF7:  A2 00
-F03:0088         ldy #0
-               S01:00000FF9:  A0 00
-F03:0089       adelayloop:
-F03:0090         dey
-               S01:00000FFB:  88
-F03:0091         bne adelayloop
-               S01:00000FFC:  D0 FD
-F03:0092         dex
-               S01:00000FFE:  CA
-F03:0093         bne adelayloop
-               S01:00000FFF:  D0 FA
-F03:0094       
-F03:0095         jmp acmd55
-               S01:00001001:  4C D5 0F
-F03:0096       
-F03:0097       
-F03:0098       ainitialized:
-F03:0099         ldy #>initmsg
-               S01:00001004:  A0 11
-F03:0100         ldx #<initmsg
-               S01:00001006:  A2 61
-F03:0101         jsr w_acia_full
-               S01:00001008:  20 76 0F
-F03:0102         clc
-               S01:0000100B:  18
-F03:0103         rts
-               S01:0000100C:  60
-F03:0104       
-F03:0105       ainitfailed:
-F03:0106         ldy #>initfailedmsg
-               S01:0000100D:  A0 11
-F03:0107         ldx #<initfailedmsg
-               S01:0000100F:  A2 47
-F03:0108         jsr w_acia_full
-               S01:00001011:  20 76 0F
-F03:0109       aloop:
-F03:0110         sec
-               S01:00001014:  38
-F03:0111         rts
-               S01:00001015:  60
-F03:0112       
-F03:0113       sd_cmd0_bytes:
-F03:0114         .byte $40, $00, $00, $00, $00, $95
-               S01:00001016:  40
-               S01:00001017:  00
-               S01:00001018:  00
-               S01:00001019:  00
-               S01:0000101A:  00
-               S01:0000101B:  95
-F03:0115       sd_cmd8_bytes:
-F03:0116         .byte $48, $00, $00, $01, $aa, $87
-               S01:0000101C:  48
-               S01:0000101D:  00
-               S01:0000101E:  00
-               S01:0000101F:  01
-               S01:00001020:  AA
-               S01:00001021:  87
-F03:0117       sd_cmd55_bytes:
-F03:0118         .byte $77, $00, $00, $00, $00, $01
-               S01:00001022:  77
-               S01:00001023:  00
-               S01:00001024:  00
-               S01:00001025:  00
-               S01:00001026:  00
-               S01:00001027:  01
-F03:0119       sd_cmd41_bytes:
-F03:0120         .byte $69, $40, $00, $00, $00, $01
-               S01:00001028:  69
-               S01:00001029:  40
-               S01:0000102A:  00
-               S01:0000102B:  00
-               S01:0000102C:  00
-               S01:0000102D:  01
-F03:0121       
-F03:0122       
-F03:0123       
-F03:0124       sd_readbyte:
-F03:0125         ; Enable the card and tick the clock 8 times with MOSI high, 
-F03:0126         ; capturing bits from MISO and returning them
-F03:0127       
-F03:0128         ldx #$fe    ; Preloaded with seven ones and a zero, so we stop after eight bits
-               S01:0000102E:  A2 FE
-F03:0129       
-F03:0130       baloop:
-F03:0131       
-F03:0132         lda #SD_MOSI                ; enable card (CS low), set MOSI (resting state), SCK low
-               S01:00001030:  A9 04
-F03:0133         sta PORTA
-               S01:00001032:  8D 01 B0
-F03:0134       
-F03:0135         lda #SD_MOSI | SD_SCK       ; toggle the clock high
-               S01:00001035:  A9 0C
-F03:0136         sta PORTA
-               S01:00001037:  8D 01 B0
-F03:0137       
-F03:0138         lda PORTA                   ; read next bit
-               S01:0000103A:  AD 01 B0
-F03:0139         and #SD_MISO
-               S01:0000103D:  29 02
-F03:0140       
-F03:0141         clc                         ; default to clearing the bottom bit
-               S01:0000103F:  18
-F03:0142         beq abitnotset              ; unless MISO was set
-               S01:00001040:  F0 01
-F03:0143         sec                         ; in which case get ready to set the bottom bit
-               S01:00001042:  38
-F03:0144       abitnotset:
-F03:0145       
-F03:0146         txa                         ; transfer partial result from X
-               S01:00001043:  8A
-F03:0147         rol                         ; rotate carry bit into read result, and loop bit into carry
-               S01:00001044:  2A
-F03:0148         tax                         ; save partial result back to X
-               S01:00001045:  AA
-F03:0149         
-F03:0150         bcs baloop                   ; loop if we need to read more bits
-               S01:00001046:  B0 E8
-F03:0151       
-F03:0152         rts
-               S01:00001048:  60
-F03:0153       
-F03:0154       
-F03:0155       sd_writebyte:
-F03:0156         ; Tick the clock 8 times with descending bits on MOSI
-F03:0157         ; SD communication is mostly half-duplex so we ignore anything it sends back here
-F03:0158       
-F03:0159         ldx #8                      ; send 8 bits
-               S01:00001049:  A2 08
-F03:0160       
-F03:0161       arloop:
-F03:0162         asl                         ; shift next bit into carry
-               S01:0000104B:  0A
-F03:0163         tay                         ; save remaining bits for later
-               S01:0000104C:  A8
-F03:0164       
-F03:0165         lda #0
-               S01:0000104D:  A9 00
-F03:0166         bcc asendbit                ; if carry clear, don't set MOSI for this bit
-               S01:0000104F:  90 02
-F03:0167         ora #SD_MOSI
-               S01:00001051:  09 04
-F03:0168       
-F03:0169       asendbit:
-F03:0170         sta PORTA                   ; set MOSI (or not) first with SCK low
-               S01:00001053:  8D 01 B0
-F03:0171         eor #SD_SCK
-               S01:00001056:  49 08
-F03:0172         sta PORTA                   ; raise SCK keeping MOSI the same, to send the bit
-               S01:00001058:  8D 01 B0
-F03:0173       
-F03:0174         tya                         ; restore remaining bits to send
-               S01:0000105B:  98
-F03:0175       
-F03:0176         dex
-               S01:0000105C:  CA
-F03:0177         bne arloop                   ; loop if there are more bits to send
-               S01:0000105D:  D0 EC
-F03:0178       
-F03:0179         rts
-               S01:0000105F:  60
-F03:0180       
-F03:0181       
-F03:0182       sd_waitresult:
-F03:0183         ; Wait for the SD card to return something other than $ff
-F03:0184         jsr sd_readbyte
-               S01:00001060:  20 2E 10
-F03:0185         cmp #$ff
-               S01:00001063:  C9 FF
-F03:0186         beq sd_waitresult
-               S01:00001065:  F0 F9
-F03:0187         rts
-               S01:00001067:  60
-F03:0188       
-F03:0189       
-F03:0190       sd_sendcommand:
-F03:0191         ; Debug print which command is being executed
-F03:0192        ; jsr lcd_cleardisplay
-F03:0193        ; jsr cleardisplay
-F03:0194       
-F03:0195       ;  phx
-F03:0196       ;  phy
-F03:0197       ;  ldx #<cmsg
-F03:0198       ;  ldy #>cmsg
-F03:0199       ;  jsr w_acia_full
-F03:0200       ;  ply
-F03:0201       ;  plx
-F03:0202       
-F03:0203       ;  ldx #0
-F03:0204       ;  lda (zp_sd_address,x)
-F03:0205       ;  jsr print_hex_acia
-F03:0206       
-F03:0207       ;  lda #$a0
-F03:0208       ;  jsr print_chara
-F03:0209       ;  
-F03:0210       ;  lda #$a0
-F03:0211       ;  jsr print_chara
-F03:0212       
-F03:0213         lda #SD_MOSI           ; pull CS low to begin command
-               S01:00001068:  A9 04
-F03:0214         sta PORTA
-               S01:0000106A:  8D 01 B0
-F03:0215       
-F03:0216         ldy #0
-               S01:0000106D:  A0 00
-F03:0217         lda (zp_sd_address),y    ; command byte
-               S01:0000106F:  B1 40
-F03:0218         jsr sd_writebyte
-               S01:00001071:  20 49 10
-F03:0219         ldy #1
-               S01:00001074:  A0 01
-F03:0220         lda (zp_sd_address),y    ; data 1
-               S01:00001076:  B1 40
-F03:0221         jsr sd_writebyte
-               S01:00001078:  20 49 10
-F03:0222         ldy #2
-               S01:0000107B:  A0 02
-F03:0223         lda (zp_sd_address),y    ; data 2
-               S01:0000107D:  B1 40
-F03:0224         jsr sd_writebyte
-               S01:0000107F:  20 49 10
-F03:0225         ldy #3
-               S01:00001082:  A0 03
-F03:0226         lda (zp_sd_address),y    ; data 3
-               S01:00001084:  B1 40
-F03:0227         jsr sd_writebyte
-               S01:00001086:  20 49 10
-F03:0228         ldy #4
-               S01:00001089:  A0 04
-F03:0229         lda (zp_sd_address),y    ; data 4
-               S01:0000108B:  B1 40
-F03:0230         jsr sd_writebyte
-               S01:0000108D:  20 49 10
-F03:0231         ldy #5
-               S01:00001090:  A0 05
-F03:0232         lda (zp_sd_address),y    ; crc
-               S01:00001092:  B1 40
-F03:0233         jsr sd_writebyte
-               S01:00001094:  20 49 10
-F03:0234       
-F03:0235         jsr sd_waitresult
-               S01:00001097:  20 60 10
-F03:0236         pha
-               S01:0000109A:  48
-F03:0237       
-F03:0238       ;  phy
-F03:0239       ;  phx
-F03:0240       ;  ldy #>respmsg
-F03:0241       ;  ldx #<respmsg
-F03:0242       ;  jsr w_acia_full
-F03:0243       ;  ply
-F03:0244       ;  plx
-F03:0245       
-F03:0246         ; Debug print the result code
-F03:0247       ;  jsr print_hex_acia
-F03:0248       
-F03:0249       ;  lda #$0d
-F03:0250       ;  jsr print_chara
-F03:0251       ;  
-F03:0252       ;  lda #$0a
-F03:0253       ;  jsr print_chara
-F03:0254       
-F03:0255         ; End command
-F03:0256         lda #SD_CS | SD_MOSI   ; set CS high again
-               S01:0000109B:  A9 14
-F03:0257         sta PORTA
-               S01:0000109D:  8D 01 B0
-F03:0258       
-F03:0259         pla   ; restore result code
-               S01:000010A0:  68
-F03:0260         rts
-               S01:000010A1:  60
-F03:0261       
-F03:0262       
-F03:0263       sd_readsector:
-F03:0264         ; Read a sector from the SD carda  A sector is 512 bytes.
-F03:0265         ;
-F03:0266         ; Parameters:
-F03:0267         ;    zp_sd_currentsector   3a-bit sector number
-F03:0268         ;    zp_sd_address     address of buffer to receive data
-F03:0269         
-F03:0270         lda #SD_MOSI
-               S01:000010A2:  A9 04
-F03:0271         sta PORTA
-               S01:000010A4:  8D 01 B0
-F03:0272       
-F03:0273         ; Command 17, arg is sector number, crc not checked
-F03:0274         lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
-               S01:000010A7:  A9 51
-F03:0275         jsr sd_writebyte
-               S01:000010A9:  20 49 10
-F03:0276         lda zp_sd_currentsector+3   ; sector 24:31
-               S01:000010AC:  A5 45
-F03:0277         jsr sd_writebyte
-               S01:000010AE:  20 49 10
-F03:0278         lda zp_sd_currentsector+2   ; sector 16:23
-               S01:000010B1:  A5 44
-F03:0279         jsr sd_writebyte
-               S01:000010B3:  20 49 10
-F03:0280         lda zp_sd_currentsector+1   ; sector 8:15
-               S01:000010B6:  A5 43
-F03:0281         jsr sd_writebyte
-               S01:000010B8:  20 49 10
-F03:0282         lda zp_sd_currentsector     ; sector 0:7
-               S01:000010BB:  A5 42
-F03:0283         jsr sd_writebyte
-               S01:000010BD:  20 49 10
-F03:0284         lda #$01                    ; crc (not checked)
-               S01:000010C0:  A9 01
-F03:0285         jsr sd_writebyte
-               S01:000010C2:  20 49 10
-F03:0286       
-F03:0287         jsr sd_waitresult
-               S01:000010C5:  20 60 10
-F03:0288         cmp #$00
-               S01:000010C8:  C9 00
-F03:0289         bne afail
-               S01:000010CA:  D0 53
-F03:0290       
-F03:0291         ; wait for data
-F03:0292         jsr sd_waitresult
-               S01:000010CC:  20 60 10
-F03:0293         cmp #$fe
-               S01:000010CF:  C9 FE
-F03:0294         bne afail
-               S01:000010D1:  D0 4C
-F03:0295       
-F03:0296         ; Need to read 512 bytes - two pages of 256 bytes each
-F03:0297         jsr areadpage
-               S01:000010D3:  20 28 11
-F03:0298         inc zp_sd_address+1
-               S01:000010D6:  E6 41
-F03:0299         jsr areadpage
-               S01:000010D8:  20 28 11
-F03:0300         dec zp_sd_address+1
-               S01:000010DB:  C6 41
-F03:0301       
-F03:0302         ; End command
-F03:0303         lda #SD_CS | SD_MOSI
-               S01:000010DD:  A9 14
-F03:0304         sta PORTA
-               S01:000010DF:  8D 01 B0
-F03:0305         
-F03:0306         sec
-               S01:000010E2:  38
-F03:0307         rts
-               S01:000010E3:  60
-F03:0308       
-F03:0309       sd_writesector:
-F03:0310         ; Write a sector to the SD card.  A sector is 512 bytes.
-F03:0311         ;
-F03:0312         ; Parameters:
-F03:0313         ;    zp_sd_currentsector   32-bit sector number
-F03:0314         ;    zp_sd_address     address of buffer to take data from
-F03:0315         
-F03:0316         lda #SD_MISO
-               S01:000010E4:  A9 02
-F03:0317         sta PORTA
-               S01:000010E6:  8D 01 B0
-F03:0318       
-F03:0319         ; Command 24, arg is sector number, crc not checked
-F03:0320         lda #$58                    ; CMD24 - WRITE_BLOCK
-               S01:000010E9:  A9 58
-F03:0321         jsr sd_writebyte
-               S01:000010EB:  20 49 10
-F03:0322         lda zp_sd_currentsector+3   ; sector 24:31
-               S01:000010EE:  A5 45
-F03:0323         jsr sd_writebyte
-               S01:000010F0:  20 49 10
-F03:0324         lda zp_sd_currentsector+2   ; sector 16:23
-               S01:000010F3:  A5 44
-F03:0325         jsr sd_writebyte
-               S01:000010F5:  20 49 10
-F03:0326         lda zp_sd_currentsector+1   ; sector 8:15
-               S01:000010F8:  A5 43
-F03:0327         jsr sd_writebyte
-               S01:000010FA:  20 49 10
-F03:0328         lda zp_sd_currentsector     ; sector 0:7
-               S01:000010FD:  A5 42
-F03:0329         jsr sd_writebyte
-               S01:000010FF:  20 49 10
-F03:0330         lda #$01                    ; crc (not checked)
-               S01:00001102:  A9 01
-F03:0331         jsr sd_writebyte
-               S01:00001104:  20 49 10
-F03:0332       
-F03:0333         jsr sd_waitresult
-               S01:00001107:  20 60 10
-F03:0334         cmp #$00
-               S01:0000110A:  C9 00
-F03:0335         bne afail
-               S01:0000110C:  D0 11
-F03:0336       
-F03:0337         ; wait for data
-F03:0338         ;jsr sd_waitresult
-F03:0339         ;cmp #$fe
-F03:0340         ;bne afail
-F03:0341         ; BUG I don't think it need to wait for any more data, but I gotta check the datasheet more... (hard to read)
-F03:0342       
-F03:0343         ; Need to write 512 bytes - two pages of 256 bytes each
-F03:0344         jsr awritepage
-               S01:0000110E:  20 33 11
-F03:0345         inc zp_sd_address+1
-               S01:00001111:  E6 41
-F03:0346         jsr awritepage
-               S01:00001113:  20 33 11
-F03:0347         dec zp_sd_address+1
-               S01:00001116:  C6 41
-F03:0348       
-F03:0349         ; End command
-F03:0350         lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
-               S01:00001118:  A9 14
-F03:0351         sta PORTA
-               S01:0000111A:  8D 01 B0
-F03:0352       
-F03:0353         sec
-               S01:0000111D:  38
-F03:0354         rts
-               S01:0000111E:  60
-F03:0355       
-F03:0356       afail:
-F03:0357         ldx #<failedmsg
-               S01:0000111F:  A2 4C
-F03:0358         ldy #>failedmsg  ;Failed!
-               S01:00001121:  A0 11
-F03:0359         jsr w_acia_full
-               S01:00001123:  20 76 0F
-F03:0360       afailloop:
-F03:0361         clc
-               S01:00001126:  18
-F03:0362         rts
-               S01:00001127:  60
-F03:0363       
-F03:0364       areadpage:
-F03:0365         ; Read 256 bytes to the address at zp_sd_address
-F03:0366         ldy #0
-               S01:00001128:  A0 00
-F03:0367       areadloop:
-F03:0368         jsr sd_readbyte
-               S01:0000112A:  20 2E 10
-F03:0369         sta (zp_sd_address),y
-               S01:0000112D:  91 40
-F03:0370         iny
-               S01:0000112F:  C8
-F03:0371         bne areadloop
-               S01:00001130:  D0 F8
-F03:0372         rts
-               S01:00001132:  60
-F03:0373       
-F03:0374       awritepage:
-F03:0375         ; Write 256 bytes to the sd card
-F03:0376         ldy #0
-               S01:00001133:  A0 00
-F03:0377       awriteloop:
-F03:0378         lda (zp_sd_address),y
-               S01:00001135:  B1 40
-F03:0379         jsr sd_writebyte
-               S01:00001137:  20 49 10
-F03:0380         iny
-               S01:0000113A:  C8
-F03:0381         bne awriteloop
-               S01:0000113B:  D0 F8
-F03:0382         rts
-               S01:0000113D:  60
-F03:0383       
-F03:0384       statusmsg:
-F03:0385         .byte "Status: ", $00
-               S01:0000113E:  53 74 61 74 75 73 3A 20
-               S01:00001146:  00
-F03:0386       initfailedmsg:
-F03:0387         .byte "Init "
-               S01:00001147:  49 6E 69 74 20
-F03:0388       failedmsg:
-F03:0389         .byte "Failed!", $0d, $0a, $00
-               S01:0000114C:  46 61 69 6C 65 64 21
-               S01:00001153:  0D
-               S01:00001154:  0A
-               S01:00001155:  00
-F03:0390       respmsg:
-F03:0391         .byte "Response: ", $00
-               S01:00001156:  52 65 73 70 6F 6E 73 65 3A 20
-               S01:00001160:  00
-F03:0392       initmsg:
-F03:0393         .byte "Initialized!", $0d, $0a, $00
-               S01:00001161:  49 6E 69 74 69 61 6C 69 7A 65 64 21
-               S01:0000116D:  0D
-               S01:0000116E:  0A
-               S01:0000116F:  00
-F03:0394       
-F00:0033       	;.include "libfat32.s"
-F00:0034       	; no filesystem
-F00:0035       
-F00:0036       jmpfailed:
-F00:0037       	jmp failed
-               S01:00001170:  4C 43 12
-F00:0038       
-F00:0039       begin:
-F00:0040       ; init sd card (it was just plugged in)
-F00:0041               
-F00:0042       	jsr sd_init
-               S01:00001173:  20 A3 0F
-F00:0043               bcs jmpfailed
-               S01:00001176:  B0 F8
-F00:0044       
-F00:0045       	lda #0
-               S01:00001178:  A9 00
-F00:0046       	sta bytepointer
-               S01:0000117A:  85 66
-F00:0047       	sta bytepointer+1
-               S01:0000117C:  85 67
-F00:0048       	sta bytepointer+2
-               S01:0000117E:  85 68
-F00:0049       	sta bytepointer+3
-               S01:00001180:  85 69
-F00:0050       
-F00:0051               lda #0
-               S01:00001182:  A9 00
-F00:0052               sta readcounter
-               S01:00001184:  85 6A
-F00:0053               sta readcounter+1
-               S01:00001186:  85 6B
-F00:0054       ;-------------------------------------------------------------------------------
-F00:0055       ; Initialize DIGI_Player
-F00:0056       
-F00:0057               ; disable interrupts
-F00:0058               LDA #$00                ; was $7f in the_c64_digi.txt
-               S01:00001188:  A9 00
-F00:0059               STA $B00D               ; ICR CIA #2
-               S01:0000118A:  8D 0D B0
-F00:0060                      ; read acks any pending interrupt
-F00:0061               LDA $B00D
-               S01:0000118D:  AD 0D B0
-F00:0062               SEI                     ; disables maskable interrupts
-               S01:00001190:  78
-F00:0063       
-F00:0064       				; hold on les fix da sd
-F00:0065       ;  lda #SD_MOSI
-F00:0066       ;  sta PORTA
-F00:0067       ;  ; Command 16, arg is size in bytes, crc not checked
-F00:0068       ;  lda #$50                    ; CMD16 - SET_BLOCKLEN
-F00:0069       ;  jsr sd_writebyte
-F00:0070       ;  lda #0		      ; byte 24:31
-F00:0071       ;  jsr sd_writebyte
-F00:0072       ;  lda #0		      ; byte 16:23
-F00:0073       ;  jsr sd_writebyte
-F00:0074       ;  lda #0		      ; byte 8:15
-F00:0075       ;  jsr sd_writebyte
-F00:0076       ;  lda #1                      ; byte 0:7
-F00:0077       ;  jsr sd_writebyte
-F00:0078       ;  lda #$01                    ; crc (not checked)
-F00:0079       ;  jsr sd_writebyte
-F00:0080       ;
-F00:0081       ;  jsr sd_waitresult
-F00:0082       ;  cmp #$00
-F00:0083       ;  bne jmpfailed        BUG i don't think this works on SDHC or SDXC, only on SD.
-F00:0084         
-F00:0085       ;  ; Open root directory                we dont want fat32 here
-F00:0086       ;  jsr fat32_openroot
-F00:0087       ;
-F00:0088       ;  ; Find subdirectory by name
-F00:0089       ;  ldx #<dirname
-F00:0090       ;  ldy #>dirname
-F00:0091       ;  jsr fat32_finddirent
-F00:0092       ;  bcc foundsubdir
-F00:0093       ;
-F00:0094       ;error:
-F00:0095       ;  plx
-F00:0096       ;  pla
-F00:0097       ;  rts
-F00:0098       ;  rts
-F00:0099       ;  rts
-F00:0100       ;  rts
-F00:0101       ;
-F00:0102       ;foundsubdir
-F00:0103       ;
-F00:0104       ;  ; Open subdirectory
-F00:0105       ;  jsr fat32_opendirent
-F00:0106       ;				; ok dats don
-F00:0107       
-F00:0108       
-F00:0109               ; initialize SID
-F00:0110               LDA #$00                ; zeros out all SID registers
-               S01:00001191:  A9 00
-F00:0111               LDX #$00                ;
-               S01:00001193:  A2 00
-F00:0112       SIDCLR                          
-F00:0113               STA SID,x               ; 
-               S01:00001195:  9D 00 B8
-F00:0114               INX                     ;
-               S01:00001198:  E8
-F00:0115               BNE SIDCLR             
-               S01:00001199:  D0 FA
-F00:0116       
-F00:0117               ; SID voices modulated too, increases volume on 8580 SIDs
-F00:0118               LDA #$00                ; 
-               S01:0000119B:  A9 00
-F00:0119               STA SID+$05             ; voice 1 Attach/Decay 
-               S01:0000119D:  8D 05 B8
-F00:0120               LDA #$F0                ;
-               S01:000011A0:  A9 F0
-F00:0121               STA SID+$06             ;         Systain/Release 
-               S01:000011A2:  8D 06 B8
-F00:0122               LDA #$01                ;
-               S01:000011A5:  A9 01
-F00:0123               STA SID+$04             ;         ctrl 
-               S01:000011A7:  8D 04 B8
-F00:0124               LDA #$00 
-               S01:000011AA:  A9 00
-F00:0125               STA SID+$0C             ; voice 2 Attach/Decay 
-               S01:000011AC:  8D 0C B8
-F00:0126               LDA #$F0                ;
-               S01:000011AF:  A9 F0
-F00:0127               STA SID+$0D             ;         Systain/Release 
-               S01:000011B1:  8D 0D B8
-F00:0128               LDA #$01                ;
-               S01:000011B4:  A9 01
-F00:0129               STA SID+$0B             ;         ctrl 
-               S01:000011B6:  8D 0B B8
-F00:0130               LDA #$00        
-               S01:000011B9:  A9 00
-F00:0131               STA SID+$13             ; voice 3 Attach/Decay 
-               S01:000011BB:  8D 13 B8
-F00:0132               LDA #$F0                ;
-               S01:000011BE:  A9 F0
-F00:0133               STA SID+$14             ;         Systain/Release 
-               S01:000011C0:  8D 14 B8
-F00:0134               LDA #$01                ;
-               S01:000011C3:  A9 01
-F00:0135               STA SID+$12             ;         ctrl 
-               S01:000011C5:  8D 12 B8
-F00:0136               LDA #$00 
-               S01:000011C8:  A9 00
-F00:0137               STA SID+$15             ; filter  lo 
-               S01:000011CA:  8D 15 B8
-F00:0138               LDA #$10                ;
-               S01:000011CD:  A9 10
-F00:0139               STA SID+$16             ; filter  hi 
-               S01:000011CF:  8D 16 B8
-F00:0140               LDA #$F7                ;
-               S01:000011D2:  A9 F7
-F00:0141               STA SID+$17             ; filter  voices+reso 
-               S01:000011D4:  8D 17 B8
-F00:0142       
-F00:0143               ; point to our player routine
-F00:0144               LDA #<IRQ_HANDLER       ; set NMI handler address low byte
-               S01:000011D7:  A9 45
-F00:0145               STA $7FFF               ;
-               S01:000011D9:  8D FF 7F
-F00:0146               LDA #>IRQ_HANDLER       ; set NMI handler address hi byte
-               S01:000011DC:  A9 12
-F00:0147               STA $7FFE               ;
-               S01:000011DE:  8D FE 7F
-F00:0148       
-F00:0149               ;LDA #<DATASTART         ; low byte
-F00:0150       	;STA fat32_address
-F00:0151               ;LDA #>DATASTART         ; high byte
-F00:0152       	;STA fat32_address+1
-F00:0153       
-F00:0154               LDA #flagSeed           ; initialize flag used for
-               S01:000011E1:  A9 55
-F00:0155               STA flag                ; indicating which nibble to play
-               S01:000011E3:  85 02
-F00:0156       	
-F00:0157       	;; get the missle
-F00:0158       	;LDX #<datname		; low byte
-F00:0159       	;LDY #>datname		; high byte
-F00:0160       	;JSR fat32_finddirent	; do it
-F00:0161       	;JSR fat32_opendirent	; ignore errors >:)
-F00:0162       	;JSR fat32_file_readbyte ; one. yes just one bomb for now.
-F00:0163       
-F00:0164       	; Command 17, arg is sector number, crc not checked
-F00:0165         	lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
-               S01:000011E5:  A9 51
-F00:0166         	jsr sd_writebyte
-               S01:000011E7:  20 49 10
-F00:0167         	lda bytepointer+3	    ; sector 24:31
-               S01:000011EA:  A5 69
-F00:0168         	jsr sd_writebyte
-               S01:000011EC:  20 49 10
-F00:0169         	lda bytepointer+2	    ; sector 16:23
-               S01:000011EF:  A5 68
-F00:0170         	jsr sd_writebyte
-               S01:000011F1:  20 49 10
-F00:0171         	lda bytepointer+1	    ; sector 8:15
-               S01:000011F4:  A5 67
-F00:0172        	jsr sd_writebyte
-               S01:000011F6:  20 49 10
-F00:0173        	lda bytepointer+0           ; sector 0:7
-               S01:000011F9:  A5 66
-F00:0174        	jsr sd_writebyte
-               S01:000011FB:  20 49 10
-F00:0175        	lda #$01                    ; crc (not checked)
-               S01:000011FE:  A9 01
-F00:0176        	jsr sd_writebyte
-               S01:00001200:  20 49 10
-F00:0177       
-F00:0178       	jsr sd_waitresult
-               S01:00001203:  20 60 10
-F00:0179       	cmp #$00
-               S01:00001206:  C9 00
-F00:0180       	bne failed
-               S01:00001208:  D0 39
-F00:0181       
-F00:0182               ; wait for data
-F00:0183               jsr sd_waitresult
-               S01:0000120A:  20 60 10
-F00:0184               cmp #$fe
-               S01:0000120D:  C9 FE
-F00:0185               bne failed
-               S01:0000120F:  D0 32
-F00:0186       
-F00:0187       	jsr sd_readbyte
-               S01:00001211:  20 2E 10
-F00:0188       
-F00:0189       ;	STA DATASTART		; load the missle      we don't need this
-F00:0190       	STA sample		; all right.
-               S01:00001214:  85 01
-F00:0191       	JSR wee			; prepare the cannons.
-               S01:00001216:  20 2E 12
-F00:0192       
-F00:0193               LDA #$40                ; ICR set to TMR A underflow
-               S01:00001219:  A9 40
-F00:0194               STA $B00D               ; ICR CIA #2
-               S01:0000121B:  8D 0D B0
-F00:0195               LDA #$c0                ;
-               S01:0000121E:  A9 C0
-F00:0196               STA $B00E               ; CRA interrupt enable
-               S01:00001220:  8D 0E B0
-F00:0197       
-F00:0198       	cli
-               S01:00001223:  58
-F00:0199       
-F00:0200               LDA #$00                ;
-               S01:00001224:  A9 00
-F00:0201               STA done                ; reset player done flag
-               S01:00001226:  85 00
-F00:0202       
-F00:0203       pause
-F00:0204               LDA done                ; player sets'done' flag when finished, pause
-               S01:00001228:  A5 00
-F00:0205               BEQ pause               ; until then for clean return to BASIC
-               S01:0000122A:  F0 FC
-F00:0206       
-F00:0207               SEI                     ; set interuppts again
-               S01:0000122C:  78
-F00:0208               RTS                     ; and return
-               S01:0000122D:  60
-F00:0209       wee
-F00:0210               ; setup VIA, watch out as it will lunch da cannon!!
-F00:0211               LDA #<freq              ; interrupt freq
-               S01:0000122E:  A9 80
-F00:0212               STA $B004               ; TA LO
-               S01:00001230:  8D 04 B0
-F00:0213               LDA #>freq              ;
-               S01:00001233:  A9 00
-F00:0214               STA $B005               ; TA HI
-               S01:00001235:  8D 05 B0
-F00:0215               LDA #<freq              ; interrupt freq
-               S01:00001238:  A9 80
-F00:0216               STA $B006               ; TA LO
-               S01:0000123A:  8D 06 B0
-F00:0217               LDA #>freq              ;
-               S01:0000123D:  A9 00
-F00:0218               STA $B007               ; TA HI
-               S01:0000123F:  8D 07 B0
-F00:0219       	RTS
-               S01:00001242:  60
-F00:0220       
-F00:0221       failed:
-F00:0222         sei
-               S01:00001243:  78
-F00:0223         rts
-               S01:00001244:  60
-F00:0224       
-F00:0225       ;-------------------------------------------------------------------------------
-F00:0226       ; IRQ handler routine, plays one 4bit sample per pass
-F00:0227       ; Path A -> Play Lower, shift upper down. 3+19+13+23=58 cycles
-F00:0228       ; Path B -> Play upper, load new sample. 3+19+8+25=55 cycles
-F00:0229       ; Path C -> Play upper. load sample, new page. 3+19+8+14+21=65 cycles
-F00:0230       ; Sample's lower nybble holds the 4-bit sample to played on the "even" IRQs
-F00:0231       ; The upper nybble holds the next nybble to be played on "odd" IRQs
-F00:0232       IRQ_HANDLER        
-F00:0233               ; start with saving state       
-F00:0234               PHA                     ; 3- (3) will restore when returning
-               S01:00001245:  48
-F00:0235       
-F00:0236       	lda #$40
-               S01:00001246:  A9 40
-F00:0237       	sta $b00d		; ack
-               S01:00001248:  8D 0D B0
-F00:0238       
-F00:0239       	JSR wee			; prepare next missle
-               S01:0000124B:  20 2E 12
-F00:0240       
-F00:0241               ; play 4-bit sample, first sample byte saved during Init
-F00:0242               LDA sample              ; 3- load sample byte
-               S01:0000124E:  A5 01
-F00:0243               ORA #$10                ; 2- make sure wee no ded filter settings
-               S01:00001250:  09 10
-F00:0244               AND #$1F                ; 2- git rid of any put bits
-               S01:00001252:  29 1F
-F00:0245               STA SID+$18             ; 4- save to ta regsiter
-               S01:00001254:  8D 18 B8
-F00:0246               LDA $B00D               ; 4- (19)clear gobut
-               S01:00001257:  AD 0D B0
-F00:0247       
-F00:0248               ; flag init to $AA or $55, We shift alternating pattern though flag byte
-F00:0249               ASL flag                ; 5- shift patten left thru flag byte
-               S01:0000125A:  06 02
-F00:0250               BCC loadnew             ; 2-3 
-               S01:0000125C:  90 0C
-F00:0251               INC flag                ; 5 (8-13) so skip ahead to load new byte
-               S01:0000125E:  E6 02
-F00:0252          
-F00:0253       shftupr
-F00:0254               LDA sample              ; 3- *1 shift upper nibble down
-               S01:00001260:  A5 01
-F00:0255               LSR a                   ; 2-
-               S01:00001262:  4A
-F00:0256               LSR a                   ; 2-
-               S01:00001263:  4A
-F00:0257               LSR a                   ; 2-
-               S01:00001264:  4A
-F00:0258               LSR a                   ; 2-
-               S01:00001265:  4A
-F00:0259               STA sample              ; 3- store it back to play next pass
-               S01:00001266:  85 01
+F00:0184       ;     cursor off   |                               | CR | LF | NULL
+F00:0185       msg:
+F00:0186         .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
+               S01:000010AD:  02
+               S01:000010AE:  FF
+               S01:000010AF:  50 72 65 73 73 20 52 65 63 6F 72 64 20 41 6E 64
+               S01:000010BF:  20 70 6C 61 79 20 6F 6E 20 54 61 70 65 2E
+               S01:000010CD:  0D
+               S01:000010CE:  0A
+               S01:000010CF:  00
+F00:0187       loading_msg:         ;NULL
+F00:0188         .byte "Loading...", $00
+               S01:000010D0:  4C 6F 61 64 69 6E 67 2E 2E 2E
+               S01:000010DA:  00
+F00:0189       saving_msg:
+F00:0190         .byte "Saving...", $00
+               S01:000010DB:  53 61 76 69 6E 67 2E 2E 2E
+               S01:000010E4:  00
+F00:0191       msg2:
+F00:0192       ;       |      | CR | LF |cursor on| NULL
+F00:0193         .byte "Done!", $0d, $0a, $02, $5f, $00
+               S01:000010E5:  44 6F 6E 65 21
+               S01:000010EA:  0D
+               S01:000010EB:  0A
+               S01:000010EC:  02
+               S01:000010ED:  5F
+               S01:000010EE:  00
+F00:0194       dat:
+F00:0195         .byte $00
+               S01:000010EF:  00
+F00:0196       
+F00:0197         .org $1200
+F00:0198       
+F00:0199       clear:
+F00:0200         ldx #0
+               S02:00001200:  A2 00
+F00:0201       clearlop:
+F00:0202         stz dat,x
+               S02:00001202:  9E EF 10
+F00:0203         dex
+               S02:00001205:  CA
+F00:0204         bne clearlop
+               S02:00001206:  D0 FA
+F00:0205         ldx #<clearmsg
+               S02:00001208:  A2 13
+F00:0206         ldy #>clearmsg
+               S02:0000120A:  A0 12
+F00:0207         jsr w_acia_full
+               S02:0000120C:  20 8A 10
+F00:0208         rts
+               S02:0000120F:  60
+F00:0209         rts
+               S02:00001210:  60
+F00:0210         rts
+               S02:00001211:  60
+F00:0211         rts
+               S02:00001212:  60
+F00:0212       
+F00:0213       clearmsg:
+F00:0214         .byte "Cleared!", $0d, $0a, $00
+               S02:00001213:  43 6C 65 61 72 65 64 21
+               S02:0000121B:  0D
+               S02:0000121C:  0A
+               S02:0000121D:  00
+F00:0215       
+F00:0216       RDBYTE	LDX     #$08            ; Set up bit read counter (8 bits)
+               S02:0000121E:  A2 08
+F00:0217       RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
+               S02:00001220:  48
+F00:0218               JSR     RD2BIT          ; Look for two tape state transitions
+               S02:00001221:  20 2A 12
+F00:0219               PLA
+               S02:00001224:  68
+F00:0220               ROL                     ; Roll the read bit into A (from carry)
+               S02:00001225:  2A
+F00:0221       ;	LDY     #$3A            ; Set the compensated read width
+F00:0222               DEX
+               S02:00001226:  CA
+F00:0223               BNE     RDBYT2          ; Keep going until 8 bits read.
+               S02:00001227:  D0 F7
+F00:0224               RTS
+               S02:00001229:  60
+F00:0225       
+F00:0226       RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
+               S02:0000122A:  20 2D 12
+F00:0227       RDBIT   JSR 	waitfreq
+               S02:0000122D:  20 46 12
+F00:0228       hmmm:
+F00:0229               LDA     PORTA
+               S02:00001230:  AD 01 B0
+F00:0230               EOR     tapest
+               S02:00001233:  45 04
+F00:0231               BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
+               S02:00001235:  F0 F9
+F00:0232       	lda	tapest
+               S02:00001237:  A5 04
+F00:0233               eor     tapest
+               S02:00001239:  45 04
+F00:0234               STA     tapest
+               S02:0000123B:  85 04
+F00:0235       	BIT 	$b00d		; is the counter 750 us?
+               S02:0000123D:  2C 0D B0
+F00:0236       	BVC	RDBIT0
+               S02:00001240:  50 02
+F00:0237       	SEC			; sec if 1
+               S02:00001242:  38
+F00:0238       	RTS
+               S02:00001243:  60
+F00:0239       RDBIT0	CLC			; clc if 0
+               S02:00001244:  18
+F00:0240       	RTS
+               S02:00001245:  60
+F00:0241       ;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
+F00:0242       
+F00:0243       waitfreq:
+F00:0244         stz $b00b
+               S02:00001246:  9C 0B B0
+F00:0245         lda #$ec
+               S02:00001249:  A9 EC
+F00:0246         sta $b004		; freq
+               S02:0000124B:  8D 04 B0
+F00:0247         lda #$02
+               S02:0000124E:  A9 02
+F00:0248         sta $b005
+               S02:00001250:  8D 05 B0
+F00:0249         rts
+               S02:00001253:  60
+F00:0250       
+F00:0251         .org $1300
+F00:0252       
+F00:0253       load:
+F00:0254         stz PORTA
+               S03:00001300:  9C 01 B0
+F00:0255         stz DDRA
+               S03:00001303:  9C 03 B0
+F00:0256       
+F00:0257         ldx #<loadmsg		; PRESS PLAY ON TAPE
+               S03:00001306:  A2 59
+F00:0258         ldy #>loadmsg
+               S03:00001308:  A0 13
+F00:0259         jsr w_acia_full
+               S03:0000130A:  20 8A 10
 F00:0260       
-F00:0261               PLA                     ; 3- local exit code is smaller and 
-               S01:00001268:  68
-F00:0262               RTI                     ; 6- (23) faster than jumps/branches
-               S01:00001269:  40
+F00:0261         lda #$18		; ye fumble
+               S03:0000130D:  A9 18
+F00:0262         jsr TDELAY		; 4 second delay
+               S03:0000130F:  20 08 10
 F00:0263       
-F00:0264       
-F00:0265       loadnew
-F00:0266       	; manny! read da bite.
+F00:0264         ldx #<loading_msg	; Loading...
+               S03:00001312:  A2 D0
+F00:0265         ldy #>loading_msg
+               S03:00001314:  A0 10
+F00:0266         jsr w_acia_full
+               S03:00001316:  20 8A 10
 F00:0267       
-F00:0268               inc readcounter
-               S01:0000126A:  E6 6A
-F00:0269               bne yee
-               S01:0000126C:  D0 08
-F00:0270               inc readcounter+1
-               S01:0000126E:  E6 6B
-F00:0271               lda readcounter+1
-               S01:00001270:  A5 6B
-F00:0272               cmp #$02
-               S01:00001272:  C9 02
-F00:0273               beq werwer
-               S01:00001274:  F0 07
-F00:0274       yee
-F00:0275               jsr sd_readbyte
-               S01:00001276:  20 2E 10
-F00:0276               sta sample
-               S01:00001279:  85 01
-F00:0277               pla
-               S01:0000127B:  68
-F00:0278               rti
-               S01:0000127C:  40
-F00:0279       werwer
-F00:0280        	lda #SD_MOSI
-               S01:0000127D:  A9 04
-F00:0281         	sta PORTA
-               S01:0000127F:  8D 01 B0
-F00:0282       
-F00:0283       	inc bytepointer
-               S01:00001282:  E6 66
-F00:0284       	bne newcontinue
-               S01:00001284:  D0 0A
-F00:0285       	inc bytepointer+1
-               S01:00001286:  E6 67
-F00:0286       	bne newcontinue
-               S01:00001288:  D0 06
-F00:0287       	inc bytepointer+2
-               S01:0000128A:  E6 68
-F00:0288       	bne newcontinue
-               S01:0000128C:  D0 02
-F00:0289       	inc bytepointer+3
-               S01:0000128E:  E6 69
+F00:0268         lda PORTA
+               S03:00001319:  AD 01 B0
+F00:0269         and #1
+               S03:0000131C:  29 01
+F00:0270         sta tapest
+               S03:0000131E:  85 04
+F00:0271       
+F00:0272         jsr wait1
+               S03:00001320:  20 4D 13
+F00:0273         jsr wait0		; header
+               S03:00001323:  20 53 13
+F00:0274         jsr wait1
+               S03:00001326:  20 4D 13
+F00:0275         jsr RDBYTE
+               S03:00001329:  20 1E 12
+F00:0276         sta dat
+               S03:0000132C:  8D EF 10
+F00:0277         ldx #1
+               S03:0000132F:  A2 01
+F00:0278       loadloop:
+F00:0279         jsr wait0
+               S03:00001331:  20 53 13
+F00:0280         jsr wait1
+               S03:00001334:  20 4D 13
+F00:0281         jsr RDBYTE
+               S03:00001337:  20 1E 12
+F00:0282         sta dat,x
+               S03:0000133A:  9D EF 10
+F00:0283         inx
+               S03:0000133D:  E8
+F00:0284         cpx #$ff
+               S03:0000133E:  E0 FF
+F00:0285         bne loadloop
+               S03:00001340:  D0 EF
+F00:0286       
+F00:0287         ldx #<msg2
+               S03:00001342:  A2 E5
+F00:0288         ldy #>msg2
+               S03:00001344:  A0 10
+F00:0289         jsr w_acia_full
+               S03:00001346:  20 8A 10
 F00:0290       
-F00:0291       newcontinue:
-F00:0292       
-F00:0293         	; Command 17, arg is sector number, crc not checked
-F00:0294         	lda #$51                    ; CMD17 - READ_SINGLE_BLOCK
-               S01:00001290:  A9 51
-F00:0295         	jsr sd_writebyte
-               S01:00001292:  20 49 10
-F00:0296         	lda bytepointer+3	    ; sector 24:31
-               S01:00001295:  A5 69
-F00:0297         	jsr sd_writebyte
-               S01:00001297:  20 49 10
-F00:0298         	lda bytepointer+2	    ; sector 16:23
-               S01:0000129A:  A5 68
-F00:0299         	jsr sd_writebyte
-               S01:0000129C:  20 49 10
-F00:0300         	lda bytepointer+1	    ; sector 8:15
-               S01:0000129F:  A5 67
-F00:0301        	jsr sd_writebyte
-               S01:000012A1:  20 49 10
-F00:0302        	lda bytepointer+0           ; sector 0:7
-               S01:000012A4:  A5 66
-F00:0303        	jsr sd_writebyte
-               S01:000012A6:  20 49 10
-F00:0304        	lda #$01                    ; crc (not checked)
-               S01:000012A9:  A9 01
-F00:0305        	jsr sd_writebyte
-               S01:000012AB:  20 49 10
+F00:0291         rts
+               S03:00001349:  60
+F00:0292         rts
+               S03:0000134A:  60
+F00:0293         rts
+               S03:0000134B:  60
+F00:0294         rts
+               S03:0000134C:  60
+F00:0295       ; subs
+F00:0296       
+F00:0297       wait1:
+F00:0298         jsr RD2BIT
+               S03:0000134D:  20 2A 12
+F00:0299         bcs wait1
+               S03:00001350:  B0 FB
+F00:0300         rts
+               S03:00001352:  60
+F00:0301       
+F00:0302       wait0:
+F00:0303         jsr RD2BIT
+               S03:00001353:  20 2A 12
+F00:0304         bcc wait0
+               S03:00001356:  90 FB
+F00:0305         rts
+               S03:00001358:  60
 F00:0306       
-F00:0307       	jsr sd_waitresult
-               S01:000012AE:  20 60 10
-F00:0308       	cmp #$00
-               S01:000012B1:  C9 00
-F00:0309       	bne stop
-               S01:000012B3:  D0 19
-F00:0310       
-F00:0311               ; wait for data
-F00:0312               jsr sd_waitresult
-               S01:000012B5:  20 60 10
-F00:0313               cmp #$fe
-               S01:000012B8:  C9 FE
-F00:0314               bne stop
-               S01:000012BA:  D0 12
-F00:0315       
-F00:0316               lda #0
-               S01:000012BC:  A9 00
-F00:0317               sta readcounter
-               S01:000012BE:  85 6A
-F00:0318               sta readcounter+1
-               S01:000012C0:  85 6B
-F00:0319       
-F00:0320       	jsr sd_readbyte
-               S01:000012C2:  20 2E 10
-F00:0321       
-F00:0322               STA sample              ; 3- save to temp location
-               S01:000012C5:  85 01
-F00:0323       	;STA DATASTART
-F00:0324               ;BCS stop               ; 2-3- if thats it then stop
-F00:0325       	; BUG cannot stop sample when reading sd RAW
-F00:0326               lda #SD_CS | SD_MOSI
-               S01:000012C7:  A9 14
-F00:0327               sta PORTA
-               S01:000012C9:  8D 01 B0
-F00:0328       
-F00:0329               PLA                     ; 3- local exit code is smaller and
-               S01:000012CC:  68
-F00:0330               RTI                     ; 6- (14-25)faster than jumps/branches
-               S01:000012CD:  40
-F00:0331       
-F00:0332       
-F00:0333       stop
-F00:0334               LDA #$08                ; 2- turn off IRQ
-               S01:000012CE:  A9 08
-F00:0335               STA $B00E               ; 4- timer A stop-CRA, CIA #1 DC0E
-               S01:000012D0:  8D 0E B0
-F00:0336               LDA #$4F                ; 2- disable all CIA-2 IRQs 
-               S01:000012D3:  A9 4F
-F00:0337               STA $B00D               ; 4- ICR - interrupt control / status
-               S01:000012D5:  8D 0D B0
-F00:0338               LDA $B00D               ; 4- (16) sta/lda to ack any pending int
-               S01:000012D8:  AD 0D B0
-F00:0339       
-F00:0340               INC done                ; set player done flag
-               S01:000012DB:  E6 00
-F00:0341               
-F00:0342               PLA                     ; 3- local exit code is smaller and
-               S01:000012DD:  68
-F00:0343               RTI                     ; 6- faster than jumps/branches
-               S01:000012DE:  40
-F00:0344       
-F00:0345       ;DATASTART 
-F00:0346       ;	.byte $00		; smol... ah ye its actually many MB. haha
-F00:0347       ;DATASTOP  
-F00:0348       
+F00:0307       loadmsg:
+F00:0308         .byte "Press Play On Tape.", $0d, $0a, $00
+               S03:00001359:  50 72 65 73 73 20 50 6C 61 79 20 4F 6E 20 54 61
+               S03:00001369:  70 65 2E
+               S03:0000136C:  0D
+               S03:0000136D:  0A
+               S03:0000136E:  00
+F00:0309       
 
 
 Sections:
 S01  segf00
+S02  seg1200
+S03  seg1300
 
 
 Sources:
-F00  stream.s
-F01  hwconfig.s
+F00  tap.s
+F01  hwtape.s
 F02  libacia.s
-F03  libsd.s
 
 
 Symbols:
-stop EXPR(4814=0x12ce) ABS 
-newcontinue EXPR(4752=0x1290) ABS 
-werwer EXPR(4733=0x127d) ABS 
-yee EXPR(4726=0x1276) ABS 
-shftupr EXPR(4704=0x1260) UNUSED ABS 
-loadnew EXPR(4714=0x126a) ABS 
-pause EXPR(4648=0x1228) ABS 
-wee EXPR(4654=0x122e) ABS 
-IRQ_HANDLER EXPR(4677=0x1245) ABS 
-SIDCLR EXPR(4501=0x1195) ABS 
-failed EXPR(4675=0x1243) ABS 
-jmpfailed EXPR(4464=0x1170) ABS 
-respmsg EXPR(4438=0x1156) UNUSED ABS 
-statusmsg EXPR(4414=0x113e) UNUSED ABS 
-awriteloop EXPR(4405=0x1135) ABS 
-areadloop EXPR(4394=0x112a) ABS 
-afailloop EXPR(4390=0x1126) UNUSED ABS 
-failedmsg EXPR(4428=0x114c) ABS 
-awritepage EXPR(4403=0x1133) ABS 
-sd_writesector EXPR(4324=0x10e4) UNUSED ABS 
-areadpage EXPR(4392=0x1128) ABS 
-afail EXPR(4383=0x111f) ABS 
-sd_readsector EXPR(4258=0x10a2) UNUSED ABS 
-sd_waitresult EXPR(4192=0x1060) ABS 
-asendbit EXPR(4179=0x1053) ABS 
-arloop EXPR(4171=0x104b) ABS 
-sd_writebyte EXPR(4169=0x1049) ABS 
-abitnotset EXPR(4163=0x1043) ABS 
-baloop EXPR(4144=0x1030) ABS 
-aloop EXPR(4116=0x1014) UNUSED ABS 
-initfailedmsg EXPR(4423=0x1147) ABS 
-initmsg EXPR(4449=0x1161) ABS 
-adelayloop EXPR(4091=0xffb) ABS 
-ainitialized EXPR(4100=0x1004) ABS 
-sd_cmd41_bytes EXPR(4136=0x1028) ABS 
-acmd41 EXPR(4068=0xfe4) UNUSED ABS 
-sd_cmd55_bytes EXPR(4130=0x1022) ABS 
-acmd55 EXPR(4053=0xfd5) ABS 
-sd_readbyte EXPR(4142=0x102e) ABS 
-ainitfailed EXPR(4109=0x100d) ABS 
-sd_cmd8_bytes EXPR(4124=0x101c) ABS 
-acmd8 EXPR(4026=0xfba) UNUSED ABS 
-sd_sendcommand EXPR(4200=0x1068) ABS 
-sd_cmd0_bytes EXPR(4118=0x1016) ABS 
-acmd0 EXPR(4015=0xfaf) UNUSED ABS 
-apreinitloop EXPR(4007=0xfa7) ABS 
-sd_init EXPR(4003=0xfa3) ABS 
-cmsg EXPR(3993=0xf99) UNUSED ABS 
-endwacia EXPR(3985=0xf91) ABS 
-acia_man EXPR(3971=0xf83) ABS 
-w_acia_full EXPR(3958=0xf76) ABS 
-ascii_home EXPR(3950=0xf6e) UNUSED ABS 
-print_char_acia EXPR(3947=0xf6b) UNUSED ABS 
-rxpoll EXPR(3930=0xf5a) ABS 
-txpoll EXPR(3922=0xf52) ABS 
-cleardisplay EXPR(3911=0xf47) UNUSED ABS 
-crlf EXPR(3890=0xf32) UNUSED ABS 
-print_chara EXPR(3938=0xf62) ABS 
-cskipletter EXPR(3884=0xf2c) ABS 
-print_nybble EXPR(3876=0xf24) ABS 
-print_hex_acia EXPR(3867=0xf1b) UNUSED ABS 
-acia_init EXPR(3854=0xf0e) UNUSED ABS 
-via_init EXPR(3843=0xf03) UNUSED ABS 
-PORTA_OUTPUTPINS EXPR(252=0xfc) EQU 
-SD_MISO EXPR(2=0x2) EQU 
-SD_MOSI EXPR(4=0x4) EQU 
-SD_SCK EXPR(8=0x8) EQU 
-SD_CS EXPR(16=0x10) EQU 
-LCD_RS EXPR(32=0x20) EQU 
-LCD_RW EXPR(64=0x40) EQU 
-LCD_E EXPR(128=0x80) EQU 
+loadloop EXPR(4913=0x1331) ABS 
+wait0 EXPR(4947=0x1353) ABS 
+wait1 EXPR(4941=0x134d) ABS 
+loadmsg EXPR(4953=0x1359) ABS 
+load EXPR(4864=0x1300) UNUSED ABS 
+RDBIT0 EXPR(4676=0x1244) ABS 
+hmmm EXPR(4656=0x1230) ABS 
+waitfreq EXPR(4678=0x1246) ABS 
+RDBIT EXPR(4653=0x122d) ABS 
+RD2BIT EXPR(4650=0x122a) ABS 
+RDBYT2 EXPR(4640=0x1220) ABS 
+RDBYTE EXPR(4638=0x121e) ABS 
+clearmsg EXPR(4627=0x1213) ABS 
+clearlop EXPR(4610=0x1202) ABS 
+clear EXPR(4608=0x1200) UNUSED ABS 
+loading_msg EXPR(4304=0x10d0) ABS 
+endwacia EXPR(4261=0x10a5) ABS 
+acia_man EXPR(4247=0x1097) ABS 
+ascii_home EXPR(4226=0x1082) UNUSED ABS 
+print_char_acia EXPR(4223=0x107f) UNUSED ABS 
+rxpoll EXPR(4206=0x106e) ABS 
+txpoll EXPR(4198=0x1066) ABS 
+cleardisplay EXPR(4187=0x105b) UNUSED ABS 
+crlf EXPR(4166=0x1046) UNUSED ABS 
+print_chara EXPR(4214=0x1076) ABS 
+cskipletter EXPR(4160=0x1040) ABS 
+print_nybble EXPR(4152=0x1038) ABS 
+print_hex_acia EXPR(4143=0x102f) UNUSED ABS 
+acia_init EXPR(4130=0x1022) UNUSED ABS 
+PORTA_OUTPUTPINS EXPR(2=0x2) EQU 
+TAPE_MIC EXPR(2=0x2) EQU 
+TAPE_EAR EXPR(0=0x0) EQU 
+SD_MISO EXPR(2=0x2) UNUSED EQU 
+SD_MOSI EXPR(4=0x4) UNUSED EQU 
+SD_SCK EXPR(8=0x8) UNUSED EQU 
+SD_CS EXPR(16=0x10) UNUSED EQU 
+LCD_RS EXPR(32=0x20) UNUSED EQU 
+LCD_RW EXPR(64=0x40) UNUSED EQU 
+LCD_E EXPR(128=0x80) UNUSED EQU 
 DDRA EXPR(45059=0xb003) EQU 
 DDRB EXPR(45058=0xb002) EQU 
-PORTA EXPR(45057=0xb001) EQU 
 PORTB EXPR(45056=0xb000) UNUSED EQU 
-begin EXPR(4467=0x1173) ABS 
-darn EXPR(3840=0xf00) UNUSED ABS 
-freq EXPR(128=0x80) EQU 
-flagSeed EXPR(85=0x55) EQU 
-SID EXPR(47104=0xb800) EQU 
-endbuf EXPR(1536=0x600) UNUSED EQU 
-buffer EXPR(1024=0x400) UNUSED EQU 
-readcounter EXPR(106=0x6a) EQU 
-bytepointer EXPR(102=0x66) EQU 
-zp_fat32_variables EXPR(70=0x46) UNUSED EQU 
-zp_sd_currentsector EXPR(66=0x42) EQU 
-zp_sd_address EXPR(64=0x40) EQU 
-flag EXPR(2=0x2) EQU 
-sample EXPR(1=0x1) EQU 
-done EXPR(0=0x0) EQU 
+RD3 EXPR(4112=0x1010) UNUSED ABS 
+RD2 EXPR(4108=0x100c) ABS 
+RD1 EXPR(4106=0x100a) ABS 
+intro2 EXPR(4098=0x1002) ABS 
+intro EXPR(4079=0xfef) ABS 
+zerofreq EXPR(4085=0xff5) ABS 
+onefreq EXPR(4066=0xfe2) ABS 
+togtap EXPR(4022=0xfb6) ABS 
+PORTA EXPR(45057=0xb001) EQU 
+starter EXPR(3953=0xf71) ABS 
+outer EXPR(3951=0xf6f) ABS 
+msg2 EXPR(4325=0x10e5) ABS 
+noo EXPR(3918=0xf4e) ABS 
+oner EXPR(3901=0xf3d) ABS 
+jsrone EXPR(3912=0xf48) ABS 
+wop EXPR(3891=0xf33) ABS 
+one EXPR(3966=0xf7e) ABS 
+zero EXPR(4032=0xfc0) ABS 
+inout EXPR(3946=0xf6a) ABS 
+saving_msg EXPR(4315=0x10db) ABS 
+TDELAY EXPR(4104=0x1008) ABS 
+w_acia_full EXPR(4234=0x108a) ABS 
+msg EXPR(4269=0x10ad) ABS 
+dat EXPR(4335=0x10ef) ABS 
+datlop EXPR(3850=0xf0a) ABS 
+via_init EXPR(4119=0x1017) ABS 
+start EXPR(3840=0xf00) UNUSED ABS 
+tapest EXPR(4=0x4) EQU 
+eorr EXPR(3=0x3) UNUSED EQU 
+buf EXPR(2=0x2) UNUSED EQU 
+odd EXPR(1=0x1) EQU 
+thing EXPR(0=0x0) EQU 
 __RPTCNT EXPR(-1=0xffff) INTERNAL 
 __VASM EXPR(0=0x0) INTERNAL 
 

@@ -87,9 +87,9 @@ inout:
   pha
   phx
   phy
-  ldy #16
+  ldy #32
 outer:
-  ldx #16		; 16 * 16 times make the sound
+  ldx #16		; 32 * 16 times make the sound
 starter:
   jsr one		; sound
   dex
