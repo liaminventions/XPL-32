@@ -103,8 +103,6 @@ starter:
 
 one:			; 2400hz sound 8 cyc
   pha
-  stz tapest
-  stz PORTA
   jsr togtap ; 1
   jsr onefreq
   jsr togtap
@@ -121,19 +119,19 @@ one:			; 2400hz sound 8 cyc
   jsr onefreq
   jsr togtap
   jsr onefreq
-  jsr togtap ; 1
+  jsr togtap ; 5
   jsr onefreq
   jsr togtap
   jsr onefreq
-  jsr togtap ; 2
+  jsr togtap ; 6
   jsr onefreq
   jsr togtap
   jsr onefreq
-  jsr togtap ; 3
+  jsr togtap ; 7
   jsr onefreq
   jsr togtap
   jsr onefreq
-  jsr togtap ; 4
+  jsr togtap ; 8
   jsr onefreq
   jsr togtap
   jsr onefreq
@@ -149,26 +147,22 @@ togtap:
 
 zero: 			; 1200hz sound 4 cyc
   pha 
-  lda #$55
-  sta odd
-  stz PORTA
   jsr togtap ; 1
+  jsr zerofreq
+  jsr togtap
   jsr zerofreq
   jsr togtap ; 2
   jsr zerofreq
-  jsr togtap ; 3
-  jsr zerofreq
-  jsr togtap ; 4
-  jsr zerofreq
-  jsr togtap ; 1
-  jsr zerofreq
-  jsr togtap ; 2
+  jsr togtap
   jsr zerofreq
   jsr togtap ; 3
   jsr zerofreq
+  jsr togtap
+  jsr zerofreq
   jsr togtap ; 4
   jsr zerofreq
-
+  jsr togtap
+  jsr zerofreq
   pla
   rts
 
