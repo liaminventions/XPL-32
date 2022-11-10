@@ -138,10 +138,10 @@ F00:0088         phx
                S01:00000F6B:  DA
 F00:0089         phy
                S01:00000F6C:  5A
-F00:0090         ldy #16
-               S01:00000F6D:  A0 10
+F00:0090         ldy #32
+               S01:00000F6D:  A0 20
 F00:0091       outer:
-F00:0092         ldx #16		; 16 * 16 times make the sound
+F00:0092         ldx #16		; 32 * 16 times make the sound
                S01:00000F6F:  A2 10
 F00:0093       starter:
 F00:0094         jsr one		; sound

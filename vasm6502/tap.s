@@ -18,12 +18,12 @@ start:
   jsr via_init		; init VIA
   stz $b00e
   stz tapest
-  ldx #0
-datlop:
-  txa
-  sta dat,x		; store data that counts
-  inx
-  bne datlop
+;  ldx #0
+;datlop:
+;  txa
+;  sta dat,x		; store data that counts
+;  inx
+;  bne datlop
 
   ldx #<msg
   ldy #>msg		; press rec and play
@@ -39,7 +39,6 @@ datlop:
   jsr inout		; intro sound
 
   jsr zero
-  jsr one
 
   ldx #0
   ldy #1
@@ -62,6 +61,7 @@ noo:
   lda #1		; byte done
   sta thing
   jsr zero		; end prev. byte, start new byte
+  jsr zero
   jsr one
   inx			; next byte
   bne wop
@@ -87,9 +87,9 @@ inout:
   pha
   phx
   phy
-  ldy #32
+  ldy #$20
 outer:
-  ldx #16		; 32 * 16 times make the sound
+  ldx #$10		; 32 * 16 times make the sound
 starter:
   jsr one		; sound
   dex
@@ -192,7 +192,7 @@ msg2:
 ;       |      | CR | LF |cursor on| NULL
   .byte "Done!", $0d, $0a, $02, $5f, $00
 dat:
-  .byte $00
+  .byte "Hello, world!", $0d, $0a, $0d, $0a, $00
 
   .org $1200
 
