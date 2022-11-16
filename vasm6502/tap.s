@@ -252,7 +252,7 @@ load:
   jsr w_acia_full
 
   lda #$18		; ye fumble
-  jsr tape_delay		; 4 second delay
+  jsr tape_delay	; 4 second delay
 
   ldx #<loading_msg	; Loading...
   ldy #>loading_msg
@@ -263,33 +263,31 @@ load:
   ; thanks to ben eater for this code
 
 rx_wait:
-  bit PORTA
+  bit PORTA	; wait until PORTA.6 = 0 (start bit)
   bvs rx_wait
 
   ldx #8
 read_bit:
-  jsr rx_delay
-  bit PORTA
-  bvs recv_1
-  clc
+  jsr rx_delay	; run bit delay for 300 baud serial stream
+  bit PORTA	; read in the state
+  bvs recv_1	; if it's not a one,
+  clc		; it's a zero.
   jmp rx_done
 recv_1:
-  sec
-  nop
+  sec		; it's a one.
+  nop		; nops for timing
   nop
 rx_done:
-  ror
+  ror		; rotate carry into accumulator
   inx
-  bne read_bit
+  bne read_bit	; repeat until 8 bits read
 
-  sta dat,y
-  cmp #0
-  beq load_done
-
-  jmp rx_wait
+  sta dat,y	; store data
+  cmp #0	; end of string?
+  bne rx_wait	; if not, get another byte
 
 load_done:
-  ldx #<msg2
+  ldx #<msg2	; Done!
   ldy #>msg2
   jsr w_acia_full
 
