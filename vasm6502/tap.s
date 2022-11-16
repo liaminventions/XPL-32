@@ -31,7 +31,7 @@ start:
   jsr w_acia_full
 
   lda #$18		; 4 seconds
-  jsr TDELAY		; (ye fumble)
+  jsr tape_delay		; (ye fumble)
 
   ldx #<saving_msg	; Saving...
   ldy #>saving_msg
@@ -191,15 +191,19 @@ intro2:
   bvc intro2
   rts
 
-TDELAY  LDX     #$FF            ; wait for ye fumble.
-RD1     LDA     #$7A            ; (Y times through inner loop,
-RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
-        BNE     RD2
-RD3     DEX
-        BNE     RD1
-        DEY
-        BNE     TDELAY
-        RTS
+tape_delay:
+  ldx #$ff		; wait for ye fumble.
+rd1:
+  lda #$7a		; (Y times through inner loop,
+rd2:     
+  sbc #$01		;  Y * $FF * 650uS = uS / 1e-6 = S )
+  bne rd2
+rd3:
+  dex
+  bne rd1
+  dey
+  bne tape_delay
+  rts
 
   .include "hwtape.s"
   .include "libacia.s"
@@ -248,19 +252,43 @@ load:
   jsr w_acia_full
 
   lda #$18		; ye fumble
-  jsr TDELAY		; 4 second delay
+  jsr tape_delay		; 4 second delay
 
   ldx #<loading_msg	; Loading...
   ldy #>loading_msg
   jsr w_acia_full
 
-checkstart:
-  lda PORTA
-  sta $00
-  bbc0 $00,checkstart
-  ; tape is a 0
-tapeone:
+  ldy #0
 
+  ; thanks to ben eater for this code
+
+rx_wait:
+  bit PORTA
+  bvs rx_wait
+
+  ldx #8
+read_bit:
+  jsr rx_delay
+  bit PORTA
+  bvs recv_1
+  clc
+  jmp rx_done
+recv_1:
+  sec
+  nop
+  nop
+rx_done:
+  ror
+  inx
+  bne read_bit
+
+  sta dat,y
+  cmp #0
+  beq load_done
+
+  jmp rx_wait
+
+load_done:
   ldx #<msg2
   ldy #>msg2
   jsr w_acia_full
@@ -268,6 +296,21 @@ tapeone:
   rts
   rts
   rts
+  rts
+
+rx_delay:
+  phx
+  phy
+  ldy #$02
+rx_delay_outer:
+  ldx #$8e
+rx_delay_inner:
+  dex
+  bne rx_delay_inner
+  dey
+  bne rx_delay_outer
+  ply
+  plx
   rts
 
 loadmsg:

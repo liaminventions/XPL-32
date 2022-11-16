@@ -12,6 +12,7 @@ buf    = $02
 eorr   = $03
 tapest = $04
 
+
   .org $0f00
 
 start:
@@ -30,7 +31,7 @@ start:
   jsr w_acia_full
 
   lda #$18		; 4 seconds
-  jsr TDELAY		; (ye fumble)
+  jsr tape_delay		; (ye fumble)
 
   ldx #<saving_msg	; Saving...
   ldy #>saving_msg
@@ -142,7 +143,7 @@ one:			; 2400hz sound 8 cyc
 
 togtap:
   lda tapest
-  eor #%00000010
+  eor #%10000000
   sta tapest
   sta PORTA
   rts
@@ -190,15 +191,19 @@ intro2:
   bvc intro2
   rts
 
-TDELAY  LDX     #$FF            ; wait for ye fumble.
-RD1     LDA     #$7A            ; (Y times through inner loop,
-RD2     SBC     #$01            ;  Y * $FF * 650uS = uS / 1e-6 = S )
-        BNE     RD2
-RD3     DEX
-        BNE     RD1
-        DEY
-        BNE     TDELAY
-        RTS
+tape_delay:
+  ldx #$ff		; wait for ye fumble.
+rd1:
+  lda #$7a		; (Y times through inner loop,
+rd2:     
+  sbc #$01		;  Y * $FF * 650uS = uS / 1e-6 = S )
+  bne rd2
+rd3:
+  dex
+  bne rd1
+  dey
+  bne tape_delay
+  rts
 
   .include "hwtape.s"
   .include "libacia.s"
@@ -235,77 +240,55 @@ clearlop:
 clearmsg:
   .byte "Cleared!", $0d, $0a, $00
 
-RDBYTE	LDX     #$08            ; Set up bit read counter (8 bits)
-RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
-        JSR     RD2BIT          ; Look for two tape state transitions
-        PLA
-        ROL                     ; Roll the read bit into A (from carry)
-;	LDY     #$3A            ; Set the compensated read width
-        DEX
-        BNE     RDBYT2          ; Keep going until 8 bits read.
-        RTS
-
-RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
-RDBIT   JSR 	waitfreq
-hmmm:
-        LDA     PORTA
-        EOR     tapest
-        BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
-	lda	tapest
-        eor     tapest
-        STA     tapest
-	BIT 	$b00d		; is the counter 750 us?
-	BVC	RDBIT0
-	SEC			; sec if 1
-	RTS
-RDBIT0	CLC			; clc if 0
-	RTS
-;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
-
-waitfreq:
-  stz $b00b
-  lda #$ec
-  sta $b004		; freq
-  lda #$02
-  sta $b005
-  rts
-
   .org $1300
 
 load:
   stz PORTA
   stz DDRA
+  jsr via_init
 
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
   jsr w_acia_full
 
   lda #$18		; ye fumble
-  jsr TDELAY		; 4 second delay
+  jsr tape_delay		; 4 second delay
 
   ldx #<loading_msg	; Loading...
   ldy #>loading_msg
   jsr w_acia_full
 
-  lda PORTA
-  and #1
-  sta tapest
+  ldy #0
 
-  jsr wait1
-  jsr wait0		; header
-  jsr wait1
-  jsr RDBYTE
-  sta dat
-  ldx #1
-loadloop:
-  jsr wait0
-  jsr wait1
-  jsr RDBYTE
-  sta dat,x
+  ; thanks to ben eater for this code
+
+rx_wait:
+  bit PORTA
+  bvs rx_wait
+
+  ldx #8
+read_bit:
+  jsr rx_delay
+  bit PORTA
+  bvs recv_1:
+  clc
+  jmp rx_done
+recv_1:
+  sec
+  nop
+  nop
+rx_done:
+  ror
   inx
-  cpx #$ff
-  bne loadloop
+  bne read_bit
 
+  sta dat,y
+  cmp #0
+  beq load_done
+
+  jmp rx_wait
+
+load_done:
   ldx #<msg2
   ldy #>msg2
   jsr w_acia_full
@@ -314,16 +297,20 @@ loadloop:
   rts
   rts
   rts
-; subs
 
-wait1:
-  jsr RD2BIT
-  bcs wait1
-  rts
-
-wait0:
-  jsr RD2BIT
-  bcc wait0
+rx_delay:
+  phx
+  phy
+  ldy #$02
+rx_delay_outer:
+  ldx #$8e
+rx_delay_inner:
+  dex
+  bne rx_delay_inner
+  dey
+  bne rx_delay_outer
+  ply
+  plx
   rts
 
 loadmsg:
