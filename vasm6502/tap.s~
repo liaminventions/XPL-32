@@ -222,6 +222,7 @@ clear:
 clearlop:
   stz dat,x
   dex
+  cpx #$50
   bne clearlop
   ldx #<clearmsg
   ldy #>clearmsg

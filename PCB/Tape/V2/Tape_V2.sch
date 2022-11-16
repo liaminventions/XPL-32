@@ -7214,11 +7214,6 @@ Audio_Jack
 </net>
 <net name="TAPE_EAR" class="0">
 <segment>
-<pinref part="JP1" gate="A" pin="5"/>
-<wire x1="27.94" y1="33.02" x2="12.7" y2="33.02" width="0.1524" layer="91"/>
-<label x="10.16" y="33.02" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="R20" gate="G$1" pin="2"/>
 <pinref part="T10" gate="G1" pin="C"/>
 <wire x1="228.6" y1="104.14" x2="228.6" y2="101.6" width="0.1524" layer="91"/>
@@ -7226,17 +7221,22 @@ Audio_Jack
 <junction x="228.6" y="101.6"/>
 <label x="236.22" y="101.6" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="JP1" gate="A" pin="17"/>
+<wire x1="27.94" y1="17.78" x2="10.16" y2="17.78" width="0.1524" layer="91"/>
+<label x="10.16" y="17.78" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="TAPE_MIC" class="0">
-<segment>
-<pinref part="JP1" gate="A" pin="7"/>
-<wire x1="27.94" y1="30.48" x2="12.7" y2="30.48" width="0.1524" layer="91"/>
-<label x="10.16" y="30.48" size="1.778" layer="95"/>
-</segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="TIP"/>
 <wire x1="40.64" y1="109.22" x2="58.42" y2="109.22" width="0.1524" layer="91"/>
 <label x="45.72" y="109.22" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JP1" gate="A" pin="19"/>
+<wire x1="27.94" y1="15.24" x2="10.16" y2="15.24" width="0.1524" layer="91"/>
+<label x="10.16" y="15.24" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$8" class="0">

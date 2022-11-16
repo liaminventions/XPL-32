@@ -12,6 +12,7 @@ buf    = $02
 eorr   = $03
 tapest = $04
 
+
   .org $0f00
 
 start:
@@ -142,7 +143,7 @@ one:			; 2400hz sound 8 cyc
 
 togtap:
   lda tapest
-  eor #%00000010
+  eor #%10000000
   sta tapest
   sta PORTA
   rts
@@ -235,46 +236,12 @@ clearlop:
 clearmsg:
   .byte "Cleared!", $0d, $0a, $00
 
-RDBYTE	LDX     #$08            ; Set up bit read counter (8 bits)
-RDBYT2  PHA                     ; Preserve A (RD2BIT clobbers it)
-        JSR     RD2BIT          ; Look for two tape state transitions
-        PLA
-        ROL                     ; Roll the read bit into A (from carry)
-;	LDY     #$3A            ; Set the compensated read width
-        DEX
-        BNE     RDBYT2          ; Keep going until 8 bits read.
-        RTS
-
-RD2BIT  JSR     RDBIT           ; Recursive call to self (two transitions)
-RDBIT   JSR 	waitfreq
-hmmm:
-        LDA     PORTA
-        EOR     tapest
-        BEQ     hmmm            ; Keep looping until state is XOR(tapest) (changed)
-	lda	tapest
-        eor     tapest
-        STA     tapest
-	BIT 	$b00d		; is the counter 750 us?
-	BVC	RDBIT0
-	SEC			; sec if 1
-	RTS
-RDBIT0	CLC			; clc if 0
-	RTS
-;	CPY     #$80            ; If Y went negative, set carry (this is a '1')
-
-waitfreq:
-  stz $b00b
-  lda #$ec
-  sta $b004		; freq
-  lda #$02
-  sta $b005
-  rts
-
   .org $1300
 
 load:
   stz PORTA
   stz DDRA
+  jsr via_init
 
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
@@ -287,24 +254,12 @@ load:
   ldy #>loading_msg
   jsr w_acia_full
 
+checkstart:
   lda PORTA
-  and #1
-  sta tapest
-
-  jsr wait1
-  jsr wait0		; header
-  jsr wait1
-  jsr RDBYTE
-  sta dat
-  ldx #1
-loadloop:
-  jsr wait0
-  jsr wait1
-  jsr RDBYTE
-  sta dat,x
-  inx
-  cpx #$ff
-  bne loadloop
+  sta $00
+  bbc0 $00,checkstart
+  ; tape is a 0
+tapeone:
 
   ldx #<msg2
   ldy #>msg2
@@ -313,17 +268,6 @@ loadloop:
   rts
   rts
   rts
-  rts
-; subs
-
-wait1:
-  jsr RD2BIT
-  bcs wait1
-  rts
-
-wait0:
-  jsr RD2BIT
-  bcc wait0
   rts
 
 loadmsg:

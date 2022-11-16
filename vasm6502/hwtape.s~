@@ -14,12 +14,12 @@ SD_MISO  = %00000010
 TAPE_EAR = %00000000 ; PA0 IN
 TAPE_MIC = %00000010 ; PA1 OUT
 
-PORTA_OUTPUTPINS = TAPE_EAR
+PORTA_OUTPUTPINS = TAPE_EAR | TAPE_MIC
 
 via_init:
   lda #%11111111          ; Set all pins on port B to output
   sta DDRB
-  lda #$fe   ; Set various pins on port A to output
+  lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
   sta DDRA
   rts
 
