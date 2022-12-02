@@ -1,1 +1,1 @@
-vasm6502_oldstyle -Fbin -dotdir -c02 tape.s -o D:\folder\tape.xpl
+vasm6502_oldstyle -Fbin -dotdir -c02 tap.s -o D:\folder\tape.xpl
