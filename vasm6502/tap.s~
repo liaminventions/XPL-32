@@ -282,14 +282,12 @@ rx_done:
   inx
   bne read_bit	; repeat until 8 bits read
 
-  sta dat,y
-  cmp #0
-  beq load_done
-
-  jmp rx_wait
+  sta dat,y	; store data
+  cmp #0	; end of string?
+  bne rx_wait	; if not, get another byte
 
 load_done:
-  ldx #<msg2
+  ldx #<msg2	; Done!
   ldy #>msg2
   jsr w_acia_full
 

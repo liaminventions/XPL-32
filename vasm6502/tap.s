@@ -283,8 +283,9 @@ rx_done:
   bne read_bit	; repeat until 8 bits read
 
   sta dat,y	; store data
-  cmp #0	; end of string?
-  bne rx_wait	; if not, get another byte
+  ;cmp #0	; end of string?
+  ;bne rx_wait	; if not, get another byte
+  jmp rx_wait
 
 load_done:
   ldx #<msg2	; Done!
