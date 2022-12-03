@@ -282,7 +282,7 @@ rx_done:
   inx
   bne read_bit	; repeat until 8 bits read
 
-  sta dat,y	; store data
+  sta $2000,y	; store data
   ;cmp #0	; end of string?
   ;bne rx_wait	; if not, get another byte
   jmp rx_wait
