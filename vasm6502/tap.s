@@ -16,7 +16,11 @@ tapest = $04
   .org $0f00
 
 start:
-  jsr via_init		; init VIA
+  ;jsr via_init		; init VIA
+  lda #$ff
+  sta DDRB
+  lda #%10111111
+  sta DDRA
   stz $b00e
   stz tapest
 ;  ldx #0
@@ -243,9 +247,11 @@ clearmsg:
   .org $1300
 
 load:
-  stz PORTA
-  stz DDRA
-  jsr via_init
+  ;jsr via_init
+  lda #%11111111
+  sta DDRB
+  lda #%10111111
+  sta DDRA
 
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
@@ -283,6 +289,7 @@ rx_done:
   bne read_bit	; repeat until 8 bits read
 
   sta $2000,y	; store data
+  iny
   ;cmp #0	; end of string?
   ;bne rx_wait	; if not, get another byte
   jmp rx_wait
