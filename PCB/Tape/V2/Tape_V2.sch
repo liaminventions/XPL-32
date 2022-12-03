@@ -6800,6 +6800,7 @@ Audio_Jack
 <part name="GND14" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="GND" device=""/>
 <part name="R20" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="0204/7" package3d_urn="urn:adsk.eagle:package:6240596/1" value="1k"/>
 <part name="GND15" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="GND" device=""/>
+<part name="R22" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="0204/7" package3d_urn="urn:adsk.eagle:package:6240596/1" value="3k"/>
 </parts>
 <sheets>
 <sheet>
@@ -6899,8 +6900,8 @@ Audio_Jack
 <instance part="GND5" gate="1" x="111.76" y="66.04" smashed="yes">
 <attribute name="VALUE" x="111.76" y="65.786" size="1.778" layer="96" align="top-center"/>
 </instance>
-<instance part="GND9" gate="1" x="53.34" y="53.34" smashed="yes">
-<attribute name="VALUE" x="53.34" y="53.086" size="1.778" layer="96" align="top-center"/>
+<instance part="GND9" gate="1" x="81.28" y="50.8" smashed="yes">
+<attribute name="VALUE" x="81.28" y="50.546" size="1.778" layer="96" align="top-center"/>
 </instance>
 <instance part="T4" gate="G1" x="121.92" y="86.36" smashed="yes">
 <attribute name="NAME" x="119.38" y="93.98" size="1.778" layer="95"/>
@@ -7014,6 +7015,10 @@ Audio_Jack
 <instance part="GND15" gate="1" x="180.34" y="81.28" smashed="yes">
 <attribute name="VALUE" x="180.34" y="81.026" size="1.778" layer="96" align="top-center"/>
 </instance>
+<instance part="R22" gate="G$1" x="81.28" y="58.42" smashed="yes" rot="R90">
+<attribute name="NAME" x="79.7814" y="54.61" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="84.582" y="54.61" size="1.778" layer="96" rot="R90"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -7119,6 +7124,10 @@ Audio_Jack
 <pinref part="T9" gate="G1" pin="E"/>
 <pinref part="GND15" gate="1" pin="GND"/>
 </segment>
+<segment>
+<pinref part="R22" gate="G$1" pin="1"/>
+<pinref part="GND9" gate="1" pin="GND"/>
+</segment>
 </net>
 <net name="N$1" class="0">
 <segment>
@@ -7192,6 +7201,9 @@ Audio_Jack
 <wire x1="81.28" y1="76.2" x2="81.28" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="T2" gate="G1" pin="B"/>
 <wire x1="76.2" y1="66.04" x2="81.28" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="R22" gate="G$1" pin="2"/>
+<wire x1="81.28" y1="63.5" x2="81.28" y2="66.04" width="0.1524" layer="91"/>
+<junction x="81.28" y="66.04"/>
 </segment>
 </net>
 <net name="N$5" class="0">
