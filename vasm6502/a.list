@@ -424,7 +424,7 @@ Source: "tap.s"
 01:1200 A200            	   233:   ldx #0
                         	   234: clearlop:
 01:1202 9E3B11          	   235:   stz dat,x
-01:1205 CA              	   236:   dex
+01:1205 E8              	   236:   inx
 01:1206 E064            	   237:   cpx #100 ; our message is 100 bytes long
 01:1208 D0F8            	   238:   bne clearlop
 01:120A A215            	   239:   ldx #<clearmsg

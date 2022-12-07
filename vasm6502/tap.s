@@ -233,7 +233,7 @@ clear:
   ldx #0
 clearlop:
   stz dat,x
-  dex
+  inx
   cpx #100 ; our message is 100 bytes long
   bne clearlop
   ldx #<clearmsg
