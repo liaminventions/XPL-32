@@ -1,0 +1,715 @@
+Sections:
+00: "segf00" (F00-11A2)
+01: "seg1200" (1200-1220)
+02: "seg1300" (1300-13A6)
+
+
+Source: "tap.s"
+                        	     1: ; The Kansas City Standard for the XPL-32
+                        	     2: ; 2400hz = 1
+                        	     3: ; 1200hz = 0
+                        	     4: ; data is encoded with 2400hz starting sound (for alignment)
+                        	     5: ; start bit is a 0
+                        	     6: ; end bit is =>2 1s
+                        	     7: ; a byte is LEAST SIGNIFICANT TO MOST SIGNIFICANT as in 0111 -> 1110
+                        	     8: 
+                        	     9: thing  = $00 ; 1byt
+                        	    10: tapest = $01 ; 1byt
+                        	    11: cnt    = $02 ; 2byt
+                        	    12: len    = $04 ; 2byt
+                        	    13: 
+                        	    14:   .org $0f00
+                        	    15: 
+                        	    16: start:
+00:0F00 A9BF            	    17:   lda #%10111111
+00:0F02 8D03B0          	    18:   sta DDRA
+00:0F05 9C0EB0          	    19:   stz $b00e
+00:0F08 6401            	    20:   stz tapest
+                        	    21: 
+00:0F0A A208            	    22:   ldx #<msg
+00:0F0C A011            	    23:   ldy #>msg		; press rec and play
+00:0F0E 20E510          	    24:   jsr w_acia_full
+                        	    25: 
+00:0F11 A918            	    26:   lda #$18		; 4 seconds
+00:0F13 206310          	    27:   jsr tape_delay		; (ye fumble)
+                        	    28: 
+00:0F16 A29C            	    29:   ldx #<saving_msg	; Saving...
+00:0F18 A013            	    30:   ldy #>saving_msg
+00:0F1A 20E510          	    31:   jsr w_acia_full
+                        	    32: 
+00:0F1D A040            	    33:   ldy #$40
+00:0F1F 20910F          	    34:   jsr inout		; intro sound
+                        	    35: 
+00:0F22 200A10          	    36:   jsr zero
+                        	    37: 
+00:0F25 A901            	    38:   lda #1
+00:0F27 8500            	    39:   sta thing
+                        	    40: begin:
+00:0F29 A964            	    41:   lda #100		; our data is 100 bytes long
+00:0F2B 2500            	    42:   and thing
+00:0F2D D00E            	    43:   bne head1
+00:0F2F 200A10          	    44:   jsr zero
+                        	    45: head:
+00:0F32 A500            	    46:   lda thing
+00:0F34 C980            	    47:   cmp #$80
+00:0F36 F00B            	    48:   beq header_done
+00:0F38 0600            	    49:   asl thing
+00:0F3A 4C290F          	    50:   jmp begin
+                        	    51: head1:
+00:0F3D 209D0F          	    52:   jsr one
+00:0F40 4C320F          	    53:   jmp head
+                        	    54: header_done:
+00:0F43 A020            	    55:   ldy #$20
+00:0F45 20910F          	    56:   jsr inout
+                        	    57:   ; now to send the actual data
+00:0F48 A200            	    58:   ldx #0
+00:0F4A A901            	    59:   lda #1
+00:0F4C 8500            	    60:   sta thing		; first bit
+                        	    61: wop:
+00:0F4E BD4011          	    62:   lda dat,x		; load data
+00:0F51 2500            	    63:   and thing		; mask it
+00:0F53 D00E            	    64:   bne jsrone		; one
+00:0F55 200A10          	    65:   jsr zero		; or zero
+                        	    66: oner:
+00:0F58 A500            	    67:   lda thing		; load the bitmask
+00:0F5A C980            	    68:   cmp #$80		; end of byte?
+00:0F5C F00B            	    69:   beq noo
+00:0F5E 0600            	    70:   asl thing
+00:0F60 4C4E0F          	    71:   jmp wop		; next bit
+                        	    72: jsrone:
+00:0F63 209D0F          	    73:   jsr one		; a one
+00:0F66 4C580F          	    74:   jmp oner
+                        	    75: noo:
+00:0F69 A901            	    76:   lda #1		; byte done
+00:0F6B 8500            	    77:   sta thing
+00:0F6D 209D0F          	    78:   jsr one
+00:0F70 209D0F          	    79:   jsr one
+00:0F73 BD4011          	    80:   lda dat,x
+00:0F76 F008            	    81:   beq savedone
+00:0F78 200A10          	    82:   jsr zero
+00:0F7B E8              	    83:   inx			; next byte
+00:0F7C E064            	    84:   cpx #100 		; are we done reading the data?
+00:0F7E D0CE            	    85:   bne wop
+                        	    86: savedone
+00:0F80 A040            	    87:   ldy #$40
+00:0F82 20910F          	    88:   jsr inout		; we are done, ending sound  
+                        	    89: 
+                        	    90:   ; done
+00:0F85 A236            	    91:   ldx #<msg2
+00:0F87 A011            	    92:   ldy #>msg2		; "Done!"
+00:0F89 20E510          	    93:   jsr w_acia_full
+                        	    94: 
+00:0F8C 60              	    95:   rts
+00:0F8D 60              	    96:   rts
+00:0F8E 60              	    97:   rts			; return
+00:0F8F 60              	    98:   rts
+00:0F90 60              	    99:   rts
+                        	   100: 
+                        	   101: 
+                        	   102: 
+                        	   103: ; subs
+                        	   104: 
+                        	   105: inout:
+                        	   106: outer:
+00:0F91 A210            	   107:   ldx #$10		; $40 * $10 times make the sound
+                        	   108: starter:
+00:0F93 209D0F          	   109:   jsr one		; sound
+00:0F96 CA              	   110:   dex
+00:0F97 D0FA            	   111:   bne starter
+00:0F99 88              	   112:   dey
+00:0F9A D0F5            	   113:   bne outer
+00:0F9C 60              	   114:   rts
+                        	   115: 
+                        	   116: one:			; 2400hz sound 8 cyc
+00:0F9D 48              	   117:   pha
+00:0F9E 200010          	   118:   jsr togtap ; 1
+00:0FA1 203D10          	   119:   jsr onefreq
+00:0FA4 200010          	   120:   jsr togtap
+00:0FA7 203D10          	   121:   jsr onefreq
+00:0FAA 200010          	   122:   jsr togtap ; 2
+00:0FAD 203D10          	   123:   jsr onefreq
+00:0FB0 200010          	   124:   jsr togtap
+00:0FB3 203D10          	   125:   jsr onefreq
+00:0FB6 200010          	   126:   jsr togtap ; 3
+00:0FB9 203D10          	   127:   jsr onefreq
+00:0FBC 200010          	   128:   jsr togtap
+00:0FBF 203D10          	   129:   jsr onefreq
+00:0FC2 200010          	   130:   jsr togtap ; 4
+00:0FC5 203D10          	   131:   jsr onefreq
+00:0FC8 200010          	   132:   jsr togtap
+00:0FCB 203D10          	   133:   jsr onefreq
+00:0FCE 200010          	   134:   jsr togtap ; 5
+00:0FD1 203D10          	   135:   jsr onefreq
+00:0FD4 200010          	   136:   jsr togtap
+00:0FD7 203D10          	   137:   jsr onefreq
+00:0FDA 200010          	   138:   jsr togtap ; 6
+00:0FDD 203D10          	   139:   jsr onefreq
+00:0FE0 200010          	   140:   jsr togtap
+00:0FE3 203D10          	   141:   jsr onefreq
+00:0FE6 200010          	   142:   jsr togtap ; 7
+00:0FE9 203D10          	   143:   jsr onefreq
+00:0FEC 200010          	   144:   jsr togtap
+00:0FEF 203D10          	   145:   jsr onefreq
+00:0FF2 200010          	   146:   jsr togtap ; 8
+00:0FF5 203D10          	   147:   jsr onefreq
+00:0FF8 200010          	   148:   jsr togtap
+00:0FFB 203D10          	   149:   jsr onefreq
+00:0FFE 68              	   150:   pla
+00:0FFF 60              	   151:   rts
+                        	   152: 
+                        	   153: togtap:
+00:1000 A501            	   154:   lda tapest
+00:1002 4980            	   155:   eor #%10000000 	; data out on PA7
+00:1004 8501            	   156:   sta tapest
+00:1006 8D01B0          	   157:   sta PORTA
+00:1009 60              	   158:   rts
+                        	   159: 
+                        	   160: zero: 			; 1200hz sound 4 cyc
+00:100A 48              	   161:   pha 
+00:100B 200010          	   162:   jsr togtap ; 1
+00:100E 205010          	   163:   jsr zerofreq
+00:1011 200010          	   164:   jsr togtap
+00:1014 205010          	   165:   jsr zerofreq
+00:1017 200010          	   166:   jsr togtap ; 2
+00:101A 205010          	   167:   jsr zerofreq
+00:101D 200010          	   168:   jsr togtap
+00:1020 205010          	   169:   jsr zerofreq
+00:1023 200010          	   170:   jsr togtap ; 3
+00:1026 205010          	   171:   jsr zerofreq
+00:1029 200010          	   172:   jsr togtap
+00:102C 205010          	   173:   jsr zerofreq
+00:102F 200010          	   174:   jsr togtap ; 4
+00:1032 205010          	   175:   jsr zerofreq
+00:1035 200010          	   176:   jsr togtap
+00:1038 205010          	   177:   jsr zerofreq
+00:103B 68              	   178:   pla
+00:103C 60              	   179:   rts
+                        	   180: 
+                        	   181: onefreq:
+00:103D 9C0BB0          	   182:   stz $b00b
+00:1040 A9AE            	   183:   lda #$ae
+00:1042 8D04B0          	   184:   sta $b004		; freq
+00:1045 A900            	   185:   lda #$00
+00:1047 8D05B0          	   186:   sta $b005
+                        	   187: intro:
+00:104A 2C0DB0          	   188:   bit $b00d		; delay complete?
+00:104D 50FB            	   189:   bvc intro
+00:104F 60              	   190:   rts
+                        	   191: 
+                        	   192: zerofreq:
+00:1050 9C0BB0          	   193:   stz $b00b
+00:1053 A93F            	   194:   lda #$3f
+00:1055 8D04B0          	   195:   sta $b004
+00:1058 A901            	   196:   lda #$01
+00:105A 8D05B0          	   197:   sta $b005
+                        	   198: intro2:
+00:105D 2C0DB0          	   199:   bit $b00d
+00:1060 50FB            	   200:   bvc intro2
+00:1062 60              	   201:   rts
+                        	   202: 
+                        	   203: tape_delay:
+00:1063 A2FF            	   204:   ldx #$ff		; wait for ye fumble.
+                        	   205: rd1:
+00:1065 A97A            	   206:   lda #$7a		; (Y times through inner loop,
+                        	   207: rd2:     
+00:1067 E901            	   208:   sbc #$01		;  Y * $FF * 650uS = uS / 1e-6 = S )
+00:1069 D0FC            	   209:   bne rd2
+                        	   210: rd3:
+00:106B CA              	   211:   dex
+00:106C D0F7            	   212:   bne rd1
+00:106E 88              	   213:   dey
+00:106F D0F2            	   214:   bne tape_delay
+00:1071 60              	   215:   rts
+                        	   216: 
+                        	   217:   .include "hwtape.s"
+
+Source: "hwtape.s"
+                        	     1: PORTB = $b000
+                        	     2: PORTA = $b001
+                        	     3: DDRB = $b002
+                        	     4: DDRA = $b003
+                        	     5: 
+                        	     6: ;LCD_E  = %10000000
+                        	     7: ;LCD_RW = %01000000
+                        	     8: ;LCD_RS = %00100000
+                        	     9: 
+                        	    10: SD_CS    = %00010000
+                        	    11: SD_SCK   = %00001000
+                        	    12: SD_MOSI  = %00000100
+                        	    13: SD_MISO  = %00000010
+                        	    14: TAPE_EAR = %00000000 ; PA6 IN
+                        	    15: TAPE_MIC = %10000000 ; PA7 OUT
+                        	    16: 
+                        	    17: PORTA_OUTPUTPINS = TAPE_EAR | TAPE_MIC
+                        	    18: 
+                        	    19: via_init:
+00:1072 A9FF            	    20:   lda #%11111111          ; Set all pins on port B to output
+00:1074 8D02B0          	    21:   sta DDRB
+00:1077 A980            	    22:   lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+00:1079 8D03B0          	    23:   sta DDRA
+00:107C 60              	    24:   rts
+                        	    25: 
+                        	    26: 
+
+Source: "tap.s"
+                        	   218:   .include "libacia.s"
+
+Source: "libacia.s"
+                        	     1: ;       ------------------ 6551 ACIA Subroutine Library -------------------
+                        	     2: ; Includes:
+                        	     3: ; acia_init       - Initializes the ACIA
+                        	     4: ; print_hex_acia  - Prints a hex value in A
+                        	     5: ; crlf		  - Prints <CR> followed by <LF>
+                        	     6: ; clear_display   - Sends a <CLS> command
+                        	     7: ; txpoll          - Polls the TX bit to see if the ACIA is ready
+                        	     8: ; print_chara     - Prints a Character that is stored in A
+                        	     9: ; print_char_acia - Same as print_chara
+                        	    10: ; ascii_home      - Home the cursor
+                        	    11: ; w_acia_full     - Print a NULL-Termintated String with >HIGH in Y and <LOW in X
+                        	    12: 
+                        	    13: acia_init:
+00:107D 48              	    14:   pha
+00:107E A90B            	    15:   lda #%00001011          ; No parity, no echo, no interrupt
+00:1080 8D0280          	    16:   sta $8002
+00:1083 A91F            	    17:   lda #%00011111          ; 1 stop bit, 8 data bits, 19200 baud
+00:1085 8D0380          	    18:   sta $8003
+00:1088 68              	    19:   pla
+00:1089 60              	    20:   rts
+                        	    21: 
+                        	    22: print_hex_acia:
+00:108A 48              	    23:   pha
+00:108B 6A              	    24:   ror
+00:108C 6A              	    25:   ror
+00:108D 6A              	    26:   ror
+00:108E 6A              	    27:   ror
+00:108F 209310          	    28:   jsr print_nybble   ; This is just som usful hex cod
+00:1092 68              	    29:   pla
+                        	    30: print_nybble:
+00:1093 290F            	    31:   and #15
+00:1095 C90A            	    32:   cmp #10
+00:1097 3002            	    33:   bmi cskipletter
+00:1099 6906            	    34:   adc #6
+                        	    35: cskipletter:
+00:109B 6930            	    36:   adc #48
+                        	    37:  ; jsr print_char
+00:109D 20D110          	    38:   jsr print_chara
+00:10A0 60              	    39:   rts
+                        	    40: 
+                        	    41: crlf:
+00:10A1 48              	    42:   pha
+00:10A2 8A              	    43:   txa
+00:10A3 48              	    44:   pha
+00:10A4 98              	    45:   tya
+00:10A5 48              	    46:   pha
+00:10A6 A90D            	    47:   lda #$0d
+00:10A8 20D110          	    48:   jsr print_chara
+00:10AB A90A            	    49:   lda #$0a
+00:10AD 20D110          	    50:   jsr print_chara
+00:10B0 68              	    51:   pla
+00:10B1 A8              	    52:   tay
+00:10B2 68              	    53:   pla
+00:10B3 AA              	    54:   tax
+00:10B4 68              	    55:   pla
+00:10B5 60              	    56:   rts
+                        	    57: 
+                        	    58: cleardisplay:
+00:10B6 48              	    59:   pha
+00:10B7 20C110          	    60:   jsr txpoll  ; Poll the TX bit
+00:10BA A90C            	    61:   lda #12     ; Print decimal 12 (CLS)
+00:10BC 8D0080          	    62:   sta $8000
+00:10BF 68              	    63:   pla
+00:10C0 60              	    64:   rts
+                        	    65: 
+                        	    66: txpoll:
+00:10C1 AD0180          	    67:   lda $8001
+00:10C4 2910            	    68:   and #$10    ; Poll the TX bit
+00:10C6 F0F9            	    69:   beq txpoll
+00:10C8 60              	    70:   rts
+                        	    71: 
+                        	    72: rxpoll:
+00:10C9 AD0180          	    73:   lda $8001
+00:10CC 2908            	    74:   and #$08    ; Poll the RX bit
+00:10CE F0F9            	    75:   beq rxpoll
+00:10D0 60              	    76:   rts
+                        	    77: 
+                        	    78: 
+                        	    79: print_chara:
+00:10D1 48              	    80:   pha
+00:10D2 20C110          	    81:   jsr txpoll  ; Poll the TX bit
+00:10D5 68              	    82:   pla
+00:10D6 8D0080          	    83:   sta $8000   ; Print character from A
+00:10D9 60              	    84:   rts
+                        	    85: 
+                        	    86: print_char_acia:
+00:10DA 4CD110          	    87:   jmp print_chara  ; Same as "print_chara"
+                        	    88: 
+                        	    89: ascii_home:
+00:10DD 48              	    90:   pha
+00:10DE A901            	    91:   lda #1
+00:10E0 20D110          	    92:   jsr print_chara  ; Print 1 (HOME)
+00:10E3 68              	    93:   pla
+00:10E4 60              	    94:   rts
+                        	    95: 
+                        	    96: w_acia_full:
+00:10E5 48              	    97:   pha
+00:10E6 A5FF            	    98:   lda $ff
+00:10E8 48              	    99:   pha        ; Push Previous States onto the stack
+00:10E9 A5FE            	   100:   lda $fe
+00:10EB 48              	   101:   pha
+00:10EC 84FF            	   102:   sty $ff    ; Set Y as the Upper Address (8-15)
+00:10EE 86FE            	   103:   stx $fe    ; Set X as the Lower Adderss (0-7)
+00:10F0 A000            	   104:   ldy #0
+                        	   105: acia_man:
+00:10F2 20C110          	   106:   jsr txpoll   ; Poll TX
+00:10F5 B1FE            	   107:   lda ($fe),y  ; Load the Address
+00:10F7 8D0080          	   108:   sta $8000    ; Print what is at the address
+00:10FA F004            	   109:   beq endwacia ; If Done, End
+00:10FC C8              	   110:   iny          ; Next Character
+00:10FD 4CF210          	   111:   jmp acia_man ; Back to the top
+                        	   112: endwacia:
+00:1100 68              	   113:   pla
+00:1101 85FE            	   114:   sta $fe
+00:1103 68              	   115:   pla          ; Restore Variables
+00:1104 85FF            	   116:   sta $ff
+00:1106 68              	   117:   pla
+00:1107 60              	   118:   rts
+                        	   119: 
+
+Source: "tap.s"
+                        	   219: ;     cursor off   |                               | CR | LF | NULL
+                        	   220: msg:
+00:1108 02              	   221:   .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
+00:1109 FF
+00:110A 5072657373205265
+00:1112 636F726420416E64
+00:111A 20706C6179206F6E
+00:1122 20546170652E
+00:1128 0D
+00:1129 0A
+00:112A 00
+                        	   222: loading_msg:         ;NULL
+00:112B 4C6F6164696E672E	   223:   .byte "Loading...", $00
+00:1133 2E2E
+00:1135 00
+                        	   224: msg2:
+                        	   225: ;       |      | CR | LF |cursor on| NULL
+00:1136 446F6E6521      	   226:   .byte "Done!", $0d, $0a, $02, $5f, $00
+00:113B 0D
+00:113C 0A
+00:113D 02
+00:113E 5F
+00:113F 00
+                        	   227: dat:
+00:1140 48656C6C6F2C2057	   228:   .byte "Hello, World! This is a test of the Kansas City tape protocol. If your are reading this, yay!", $0d, $0a, $0d,
+00:1148 6F726C6421205468
+00:1150 6973206973206120
+00:1158 74657374206F6620
+00:1160 746865204B616E73
+00:1168 6173204369747920
+00:1170 746170652070726F
+00:1178 746F636F6C2E2049
+00:1180 6620796F75722061
+00:1188 7265207265616469
+00:1190 6E6720746869732C
+00:1198 2079617921
+00:119D 0D
+00:119E 0A
+00:119F 0D
+00:11A0 0A
+00:11A1 00
+                        	   229: 
+                        	   230:   .org $1200
+                        	   231: 
+                        	   232: clear:
+01:1200 A200            	   233:   ldx #0
+                        	   234: clearlop:
+01:1202 9E4011          	   235:   stz dat,x
+01:1205 CA              	   236:   dex
+01:1206 E064            	   237:   cpx #100 ; our message is 100 bytes long
+01:1208 D0F8            	   238:   bne clearlop
+01:120A A215            	   239:   ldx #<clearmsg
+01:120C A012            	   240:   ldy #>clearmsg
+01:120E 20E510          	   241:   jsr w_acia_full
+01:1211 60              	   242:   rts
+01:1212 60              	   243:   rts
+01:1213 60              	   244:   rts
+01:1214 60              	   245:   rts
+                        	   246: 
+                        	   247: clearmsg:
+01:1215 436C656172656421	   248:   .byte "Cleared!", $0d, $0a, $00
+01:121D 0D
+01:121E 0A
+01:121F 00
+                        	   249: 
+                        	   250:   .org $1300
+                        	   251: 
+                        	   252: load:
+                        	   253:   ;jsr via_init
+                        	   254:   ;lda #%11111111
+                        	   255:   ;sta DDRB
+02:1300 A9BF            	   256:   lda #%10111111
+02:1302 8D03B0          	   257:   sta DDRA
+                        	   258: 
+02:1305 A286            	   259:   ldx #<loadmsg		; PRESS PLAY ON TAPE
+02:1307 A013            	   260:   ldy #>loadmsg
+02:1309 20E510          	   261:   jsr w_acia_full
+                        	   262: 
+02:130C A918            	   263:   lda #$18		; ye fumble
+02:130E 206310          	   264:   jsr tape_delay	; 4 second delay
+                        	   265: 
+02:1311 A22B            	   266:   ldx #<loading_msg	; Loading...
+02:1313 A011            	   267:   ldy #>loading_msg
+02:1315 20E510          	   268:   jsr w_acia_full
+                        	   269: 
+02:1318 A000            	   270:   ldy #0
+                        	   271: 
+                        	   272:   ; thanks to ben eater for this code
+                        	   273: 
+                        	   274: rx_wait_start:
+02:131A 2C01B0          	   275:   bit PORTA	; wait until PORTA.6 = 0 (start bit)
+02:131D 70FB            	   276:   bvs rx_wait_start
+                        	   277: 
+02:131F A208            	   278:   ldx #8
+                        	   279: read_bita:
+02:1321 207713          	   280:   jsr rx_delay	; run bit delay for 300 baud serial stream
+02:1324 2C01B0          	   281:   bit PORTA	; read in the state
+02:1327 7004            	   282:   bvs recv_1a	; if it's not a one,
+02:1329 18              	   283:   clc		; it's a zero.
+02:132A 4C3013          	   284:   jmp rx_donea
+                        	   285: recv_1a:
+02:132D 38              	   286:   sec		; it's a one.
+02:132E EA              	   287:   nop		; nops for timing
+02:132F EA              	   288:   nop
+                        	   289: rx_donea:
+02:1330 6A              	   290:   ror		; rotate carry into accumulator
+02:1331 E8              	   291:   inx
+02:1332 D0ED            	   292:   bne read_bita	; repeat until 8 bits read
+02:1334 88              	   293:   dey
+02:1335 F005            	   294:   beq got_len
+02:1337 8504            	   295:   sta len
+02:1339 4C1A13          	   296:   jmp rx_wait_start
+                        	   297: got_len:
+02:133C 8505            	   298:   sta len+1
+                        	   299: 
+                        	   300: rx_wait:
+02:133E 2C01B0          	   301:   bit PORTA	; wait until PORTA.6 = 0 (start bit)
+02:1341 70FB            	   302:   bvs rx_wait
+                        	   303: 
+02:1343 A208            	   304:   ldx #8
+                        	   305: read_bit:
+02:1345 207713          	   306:   jsr rx_delay	; run bit delay for 300 baud serial stream
+02:1348 2C01B0          	   307:   bit PORTA	; read in the state
+02:134B 7004            	   308:   bvs recv_1	; if it's not a one,
+02:134D 18              	   309:   clc		; it's a zero.
+02:134E 4C5413          	   310:   jmp rx_done
+                        	   311: recv_1:
+02:1351 38              	   312:   sec		; it's a one.
+02:1352 EA              	   313:   nop		; nops for timing
+02:1353 EA              	   314:   nop
+                        	   315: rx_done:
+02:1354 6A              	   316:   ror		; rotate carry into accumulator
+02:1355 E8              	   317:   inx
+02:1356 D0ED            	   318:   bne read_bit	; repeat until 8 bits read
+                        	   319: 
+02:1358 9202            	   320:   sta (cnt)	; store data
+02:135A E602            	   321:   inc cnt
+02:135C D002            	   322:   bne declen
+02:135E E603            	   323:   inc cnt+1
+                        	   324: declen:
+02:1360 A502            	   325:   lda cnt	; are we done?
+02:1362 C504            	   326:   cmp len
+02:1364 D0D8            	   327:   bne rx_wait
+02:1366 A503            	   328:   lda cnt+1
+02:1368 C505            	   329:   cmp len+1
+02:136A D0D2            	   330:   bne rx_wait	; if not, get another byte
+                        	   331:   ;jmp rx_wait
+                        	   332: 
+                        	   333: load_done:
+02:136C A236            	   334:   ldx #<msg2	; Done!
+02:136E A011            	   335:   ldy #>msg2
+02:1370 20E510          	   336:   jsr w_acia_full
+                        	   337: 
+02:1373 60              	   338:   rts
+02:1374 60              	   339:   rts
+02:1375 60              	   340:   rts
+02:1376 60              	   341:   rts
+                        	   342: 
+                        	   343: rx_delay:
+02:1377 DA              	   344:   phx
+02:1378 5A              	   345:   phy
+02:1379 A002            	   346:   ldy #$02
+                        	   347: rx_delay_outer:
+02:137B A28E            	   348:   ldx #$8e
+                        	   349: rx_delay_inner:
+02:137D CA              	   350:   dex
+02:137E D0FD            	   351:   bne rx_delay_inner
+02:1380 88              	   352:   dey
+02:1381 D0F8            	   353:   bne rx_delay_outer
+02:1383 7A              	   354:   ply
+02:1384 FA              	   355:   plx
+02:1385 60              	   356:   rts
+                        	   357: 
+                        	   358: loadmsg:
+02:1386 507265737320506C	   359:   .byte "Press Play On Tape.", $0d, $0a, $00
+02:138E 6179204F6E205461
+02:1396 70652E
+02:1399 0D
+02:139A 0A
+02:139B 00
+                        	   360: saving_msg:
+02:139C 536176696E672E2E	   361:   .byte "Saving...", $00
+02:13A4 2E
+02:13A5 00
+                        	   362: 
+                        	   363: 
+
+
+Symbols by name:
+DDRA                             E:B003
+DDRB                             E:B002
+PORTA                            E:B001
+PORTA_OUTPUTPINS                 E:0080
+TAPE_EAR                         E:0000
+TAPE_MIC                         E:0080
+acia_init                        A:107D
+acia_man                         A:10F2
+ascii_home                       A:10DD
+begin                            A:0F29
+clear                            A:1200
+cleardisplay                     A:10B6
+clearlop                         A:1202
+clearmsg                         A:1215
+cnt                              E:0002
+crlf                             A:10A1
+cskipletter                      A:109B
+dat                              A:1140
+declen                           A:1360
+endwacia                         A:1100
+got_len                          A:133C
+head                             A:0F32
+head1                            A:0F3D
+header_done                      A:0F43
+inout                            A:0F91
+intro                            A:104A
+intro2                           A:105D
+jsrone                           A:0F63
+len                              E:0004
+load                             A:1300
+load_done                        A:136C
+loading_msg                      A:112B
+loadmsg                          A:1386
+msg                              A:1108
+msg2                             A:1136
+noo                              A:0F69
+one                              A:0F9D
+onefreq                          A:103D
+oner                             A:0F58
+outer                            A:0F91
+print_char_acia                  A:10DA
+print_chara                      A:10D1
+print_hex_acia                   A:108A
+print_nybble                     A:1093
+rd1                              A:1065
+rd2                              A:1067
+rd3                              A:106B
+read_bit                         A:1345
+read_bita                        A:1321
+recv_1                           A:1351
+recv_1a                          A:132D
+rx_delay                         A:1377
+rx_delay_inner                   A:137D
+rx_delay_outer                   A:137B
+rx_done                          A:1354
+rx_donea                         A:1330
+rx_wait                          A:133E
+rx_wait_start                    A:131A
+rxpoll                           A:10C9
+savedone                         A:0F80
+saving_msg                       A:139C
+start                            A:0F00
+starter                          A:0F93
+tape_delay                       A:1063
+tapest                           E:0001
+thing                            E:0000
+togtap                           A:1000
+txpoll                           A:10C1
+via_init                         A:1072
+w_acia_full                      A:10E5
+wop                              A:0F4E
+zero                             A:100A
+zerofreq                         A:1050
+
+Symbols by value:
+0000 TAPE_EAR
+0000 thing
+0001 tapest
+0002 cnt
+0004 len
+0080 PORTA_OUTPUTPINS
+0080 TAPE_MIC
+0F00 start
+0F29 begin
+0F32 head
+0F3D head1
+0F43 header_done
+0F4E wop
+0F58 oner
+0F63 jsrone
+0F69 noo
+0F80 savedone
+0F91 inout
+0F91 outer
+0F93 starter
+0F9D one
+1000 togtap
+100A zero
+103D onefreq
+104A intro
+1050 zerofreq
+105D intro2
+1063 tape_delay
+1065 rd1
+1067 rd2
+106B rd3
+1072 via_init
+107D acia_init
+108A print_hex_acia
+1093 print_nybble
+109B cskipletter
+10A1 crlf
+10B6 cleardisplay
+10C1 txpoll
+10C9 rxpoll
+10D1 print_chara
+10DA print_char_acia
+10DD ascii_home
+10E5 w_acia_full
+10F2 acia_man
+1100 endwacia
+1108 msg
+112B loading_msg
+1136 msg2
+1140 dat
+1200 clear
+1202 clearlop
+1215 clearmsg
+1300 load
+131A rx_wait_start
+1321 read_bita
+132D recv_1a
+1330 rx_donea
+133C got_len
+133E rx_wait
+1345 read_bit
+1351 recv_1
+1354 rx_done
+1360 declen
+136C load_done
+1377 rx_delay
+137B rx_delay_outer
+137D rx_delay_inner
+1386 loadmsg
+139C saving_msg
+B001 PORTA
+B002 DDRB
+B003 DDRA
