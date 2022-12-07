@@ -2472,12 +2472,14 @@ initialized
 ;  ldy #>initmsg
 ;  ldx #<initmsg
 ;  jsr w_acia_full
+  clc
   rts
 
 initfailed
   ldy #>initfailedmsg
   ldx #<initfailedmsg
   jsr w_acia_full
+  sec
   rts
 
 sd_cmd0_bytes
@@ -2649,8 +2651,7 @@ faill
   ldy #>failedmsg  ; Failed!
   jsr w_acia_full
 failloop
-  jmp $c000
-
+  jmp ($fffc)
 
 readpage
   ; Read 256 bytes to the address at zp_sd_address
@@ -3465,6 +3466,11 @@ loadcmd
   jsr via_init
  ; jsr lcd_init
   jsr sd_init
+  bcc load1
+  rts
+  rts
+  rts
+load1:
   jsr fat32_init
   bcc initsuccess
  
@@ -3751,7 +3757,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 8680,$00
+  .dsb 8673,$00
 
 ; ----KERNAL----
 
@@ -3821,8 +3827,8 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadcmd
 
-* = $FFFA
-	.word interrupt
-	.word reset
-	.word interrupt
+   * = $FFFA
+  .word interrupt
+  .word reset
+  .word interrupt
 
