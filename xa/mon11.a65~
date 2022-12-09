@@ -24,13 +24,14 @@
 ;;; v8 added input command
 ;;; v9 added disassembler
 ;;; v10 software interrupt handling
-;;; v11 xpl-32 support and data transfer routines
+;;; v11 xpl-32 support and sd and serial loading routines
 ;;;
 ;;; Paul Dourish, March-October 2017
 ;;; Waverider, 2020-2022
 
 ;;; My ROM is actually 32K, but half of the ROM is only visible at once.
 ;;; So, everything starts at $C000.
+;;;
 
 * = $C000
 
@@ -65,7 +66,7 @@ PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
 ;;
 SCRATCH    = $0010  ; through to $001F
 
-ARGINDEX   = $0020  ; and on to $002F for up to 16 argument
+ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
 ;; block $0030-003F for xmodem variables
 ;; $0040 is free
 ;; $0041 is free
@@ -161,6 +162,8 @@ table14
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
+; i would like to add a full-fleged DOS/Linux sort of thing here too-will do that at some point.
+; eg. ls, cd, open(or ./), mkdir, maybe a text editor?
 
 ;; More utility routines
 ;;
@@ -456,9 +459,9 @@ printerror
 ;;;;;;;;;;;;;
 
 aboutcmd
-  lda #<greeting
+  lda #<aboutstring
   sta PRINTVEC
-  lda #>greeting
+  lda #>aboutstring
   sta PRINTVEC+1
   jsr printvecstr
   ldy #0
@@ -2471,12 +2474,15 @@ initialized
 ;  ldy #>initmsg
 ;  ldx #<initmsg
 ;  jsr w_acia_full
+  clc
   rts
 
 initfailed
   ldy #>initfailedmsg
   ldx #<initfailedmsg
   jsr w_acia_full
+  sec
+  rts
 
 sd_cmd0_bytes
   .byte $40, $00, $00, $00, $00, $95
@@ -2647,8 +2653,7 @@ faill
   ldy #>failedmsg  ; Failed!
   jsr w_acia_full
 failloop
-  jmp $c000
-
+  jmp ($fffc)
 
 readpage
   ; Read 256 bytes to the address at zp_sd_address
@@ -3463,6 +3468,11 @@ loadcmd
   jsr via_init
  ; jsr lcd_init
   jsr sd_init
+  bcc load1
+  rts
+  rts
+  rts
+load1:
   jsr fat32_init
   bcc initsuccess
  
@@ -3715,7 +3725,24 @@ endstr
 hextable:	 .byte "0123456789ABCDEF"
 greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
 prompt:		 .byte ">"
-helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, receive, load, rti", $0d, $0a, $00
+aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0a 
+		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a, $0d, $0a
+                 .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $00
+helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
+		 .byte "echo	 - Echos a string to the screen.", $0d, $0a
+		 .byte "help	 - displays this screen", $0d, $0a
+		 .byte "about	 - displays information about this software", $0d, $0a
+		 .byte "dump	 - dumps memory contents at a specific address", $0d, $0a
+		 .byte "poke	 - puts a value at an address", $0d, $0a
+		 .byte "zero	 - fills a memory range with zeros", $0d, $0a
+		 .byte "go	 - jumps to an address", $0d, $0a
+		 .byte "xreceive - receive from the serial port with xmodem to a specified address", $0d, $0a
+		 .byte "dis	 - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a
+		 .byte "input	 - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
+		 .byte "memtest	 - tests memory integrity", $0d, $0a
+		 .byte "receive	 - like xreceive, but no protocol is used", $0d, $0a
+		 .byte "load	 - load a memory card's automatic loading system", $0d, $0a
+		 .byte "rti	 - return from any pending interuppts. warning-might crash", $0d, $0a, $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
 implementstring: .byte "Not yet implemented", $0d, $0a, $00
 dumperrstring:   .byte "Usage: dump hexaddress [count:10]", $00
@@ -3727,7 +3754,7 @@ inputhelpstring: .byte "Enter two-digit hex bytes. Blank line to end.", $00
 inputerrstring:  .byte "Usage: input hexaddress", $00
 memerrstr:	 .byte "Memory test failed", $00
 diserrorstring:  .byte "Usage: dis hexaddress [count: 10]",$00
-transferstring:   .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
+transferstring:  .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
 serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
@@ -3738,18 +3765,11 @@ rxpoll:
   beq rxpoll
   rts
 
-;;; Handle interrupts. Since the Mite doens't have interrupt lines
-;;; connected, we don't even bother decoding the interrupt; instead,
-;;; we just presume that it's a software interrupt (ie, a BRK),
-;;; print the registers, and jump back into the command loop for the
-;;; monitor.
-
-;;; NOPE!!!
 interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 8681,$00
+  .dsb 7810,$00
 
 ; ----KERNAL----
 
@@ -3819,8 +3839,8 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadcmd
 
-* = $FFFA
-	.word interrupt
-	.word reset
-	.word interrupt
+   * = $FFFA
+  .word interrupt
+  .word reset
+  .word interrupt
 

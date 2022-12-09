@@ -161,6 +161,8 @@ table14
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
+; i would like to add a full-fleged DOS/Linux sort of thing here too-will do that at some point.
+; eg. ls, cd, open(or ./), mkdir, maybe a text editor?
 
 ;; More utility routines
 ;;
@@ -3728,8 +3730,29 @@ endstr
 hextable:	 .byte "0123456789ABCDEF"
 greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
 prompt:		 .byte ">"
+<<<<<<< HEAD
 aboutstr:	 .byte "XPL-32 monitor", $0d, $0a, "This program was originally Mitemon by Paul Dourish,"
 helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, receive, load, rti", $0d, $0a, $00
+=======
+aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0a 
+		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a, $0d, $0a
+                 .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $00
+helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
+		 .byte "echo", $09, " - Echos a string to the screen.", $0d, $0a
+		 .byte "help", $09, " - displays this screen", $0d, $0a
+		 .byte "about", $09, " - displays information about this software", $0d, $0a
+		 .byte "dump", $09, " - dumps memory contents at a specific address", $0d, $0a
+		 .byte "poke", $09, " - puts a value at an address", $0d, $0a
+		 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
+		 .byte "go", $09, " - jumps to an address", $0d, $0a
+		 .byte "xreceive - receive from the serial port with xmodem to a specified address", $0d, $0a
+		 .byte "dis", $09, " - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a
+		 .byte "input", $09, " - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
+		 .byte "memtest  - tests memory integrity", $0d, $0a
+		 .byte "receive  - like xreceive, but no protocol is used", $0d, $0a
+		 .byte "load", $09, " - load a memory card's automatic loading system", $0d, $0a
+		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a, $00
+>>>>>>> 7b7e82d40ae751e7cdc8961cf3bfdaff1aa6311d
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
 implementstring: .byte "Not yet implemented", $0d, $0a, $00
 dumperrstring:   .byte "Usage: dump hexaddress [count:10]", $00
@@ -3741,7 +3764,7 @@ inputhelpstring: .byte "Enter two-digit hex bytes. Blank line to end.", $00
 inputerrstring:  .byte "Usage: input hexaddress", $00
 memerrstr:	 .byte "Memory test failed", $00
 diserrorstring:  .byte "Usage: dis hexaddress [count: 10]",$00
-transferstring:   .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
+transferstring:  .byte "Serial [S] or Memory Card [M] Transfer?", $0d, $0a, $00
 serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
@@ -3752,18 +3775,11 @@ rxpoll:
   beq rxpoll
   rts
 
-;;; Handle interrupts. Since the Mite doens't have interrupt lines
-;;; connected, we don't even bother decoding the interrupt; instead,
-;;; we just presume that it's a software interrupt (ie, a BRK),
-;;; print the registers, and jump back into the command loop for the
-;;; monitor.
-
-;;; NOPE!!!
 interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 8673,$00
+  .dsb 7810,$00
 
 ; ----KERNAL----
 
