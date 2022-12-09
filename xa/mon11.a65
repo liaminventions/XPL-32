@@ -3730,10 +3730,6 @@ endstr
 hextable:	 .byte "0123456789ABCDEF"
 greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
 prompt:		 .byte ">"
-<<<<<<< HEAD
-aboutstr:	 .byte "XPL-32 monitor", $0d, $0a, "This program was originally Mitemon by Paul Dourish,"
-helpstring:	 .byte "Commands available: echo, help, about, dump, poke, zero, go, xreceive, dis(assemble), input, memtest, receive, load, rti", $0d, $0a, $00
-=======
 aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0a 
 		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a, $0d, $0a
                  .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $00
