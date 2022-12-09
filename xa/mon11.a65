@@ -478,6 +478,11 @@ helpcmd
   lda #>helpstring
   sta PRINTVEC+1
   jsr printvecstr
+  lda #<helpstring2
+  sta PRINTVEC
+  lda #>helpstring2
+  sta PRINTVEC+1
+  jsr printvecstr
   rts
 
 notimplcmd
@@ -3739,7 +3744,7 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "about", $09, " - displays information about this software", $0d, $0a
 		 .byte "dump", $09, " - dumps memory contents at a specific address", $0d, $0a
 		 .byte "poke", $09, " - puts a value at an address", $0d, $0a
-		 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
+helpstring2:	 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
 		 .byte "go", $09, " - jumps to an address", $0d, $0a
 		 .byte "xreceive - receive from the serial port with xmodem to a specified address", $0d, $0a
 		 .byte "dis", $09, " - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a
@@ -3774,7 +3779,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7810,$00
+  .dsb 7799,$00
 
 ; ----KERNAL----
 
