@@ -3752,7 +3752,6 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "receive  - like xreceive, but no protocol is used", $0d, $0a
 		 .byte "load", $09, " - load a memory card's automatic loading system", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a, $00
->>>>>>> 7b7e82d40ae751e7cdc8961cf3bfdaff1aa6311d
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
 implementstring: .byte "Not yet implemented", $0d, $0a, $00
 dumperrstring:   .byte "Usage: dump hexaddress [count:10]", $00
