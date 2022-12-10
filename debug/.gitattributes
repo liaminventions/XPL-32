@@ -1,2 +1,1 @@
-tape.bin filter=lfs diff=lfs merge=lfs -text
 tape.txt filter=lfs diff=lfs merge=lfs -text
