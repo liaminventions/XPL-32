@@ -3,32 +3,21 @@
 ; 1200hz = 0
 ; data is encoded with 2400hz starting sound (for alignment)
 ; start bit is a 0
-; end bit is a >2 1s
-; a byte is LEAST SIGNIFICANT TO MOST SIGNIFICANT as in 011 -> 110
+; end bit is =>2 1s
+; a byte is LEAST SIGNIFICANT TO MOST SIGNIFICANT as in 0111 -> 1110
 
-thing  = $00
-odd    = $01
-buf    = $02
-eorr   = $03
-tapest = $04
-
+thing  = $00 ; 1byt
+tapest = $01 ; 1byt
+cnt    = $02 ; 2byt
+len    = $04 ; 2byt
 
   .org $0f00
 
 start:
-  ;jsr via_init		; init VIA
-  lda #$ff
-  sta DDRB
   lda #%10111111
-  sta DDRA
+  sta DDRB
   stz $b00e
   stz tapest
-;  ldx #0
-;datlop:
-;  txa
-;  sta dat,x		; store data that counts
-;  inx
-;  bne datlop
 
   ldx #<msg
   ldy #>msg		; press rec and play
@@ -41,13 +30,34 @@ start:
   ldy #>saving_msg
   jsr w_acia_full
 
+  ldy #$40
   jsr inout		; intro sound
 
   jsr zero
 
+  lda #1
+  sta thing
+begin:
+  lda #100		; our data is 100 bytes long
+  and thing
+  bne head1
+  jsr zero
+head:
+  lda thing
+  cmp #$80
+  beq header_done
+  asl thing
+  jmp begin
+head1:
+  jsr one
+  jmp head
+header_done:
+  ldy #$20
+  jsr inout
+  ; now to send the actual data
   ldx #0
-  ldy #1
-  sty thing		; first bit
+  lda #1
+  sta thing		; first bit
 wop:
   lda dat,x		; load data
   and thing		; mask it
@@ -71,8 +81,10 @@ noo:
   beq savedone
   jsr zero
   inx			; next byte
+  cpx #100 		; are we done reading the data?
   bne wop
 savedone
+  ldy #$40
   jsr inout		; we are done, ending sound  
 
   ; done
@@ -91,10 +103,6 @@ savedone
 ; subs
 
 inout:
-  pha
-  phx
-  phy
-  ldy #$40
 outer:
   ldx #$10		; $40 * $10 times make the sound
 starter:
@@ -103,9 +111,6 @@ starter:
   bne starter
   dey
   bne outer
-  ply
-  plx
-  pla
   rts
 
 one:			; 2400hz sound 8 cyc
@@ -147,9 +152,9 @@ one:			; 2400hz sound 8 cyc
 
 togtap:
   lda tapest
-  eor #%10000000
+  eor #%10000000 	; data out on PA7
   sta tapest
-  sta PORTA
+  sta PORTB
   rts
 
 zero: 			; 1200hz sound 4 cyc
@@ -216,8 +221,6 @@ msg:
   .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
 loading_msg:         ;NULL
   .byte "Loading...", $00
-saving_msg:
-  .byte "Saving...", $00
 msg2:
 ;       |      | CR | LF |cursor on| NULL
   .byte "Done!", $0d, $0a, $02, $5f, $00
@@ -230,8 +233,8 @@ clear:
   ldx #0
 clearlop:
   stz dat,x
-  dex
-  cpx #$50
+  inx
+  cpx #100 ; our message is 100 bytes long
   bne clearlop
   ldx #<clearmsg
   ldy #>clearmsg
@@ -247,11 +250,8 @@ clearmsg:
   .org $1300
 
 load:
-  ;jsr via_init
-  lda #%11111111
-  sta DDRB
   lda #%10111111
-  sta DDRA
+  sta DDRB
 
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
@@ -268,14 +268,40 @@ load:
 
   ; thanks to ben eater for this code
 
+rx_wait_start:
+  bit PORTB	; wait until PORTB.6 = 0 (start bit)
+  bvs rx_wait_start
+
+  ldx #8
+read_bita:
+  jsr rx_delay	; run bit delay for 300 baud serial stream
+  bit PORTB	; read in the state
+  bvs recv_1a	; if it's not a one,
+  clc		; it's a zero.
+  jmp rx_donea
+recv_1a:
+  sec		; it's a one.
+  nop		; nops for timing
+  nop
+rx_donea:
+  ror		; rotate carry into accumulator
+  inx
+  bne read_bita	; repeat until 8 bits read
+  dey
+  beq got_len
+  sta len
+  jmp rx_wait_start
+got_len:
+  sta len+1
+
 rx_wait:
-  bit PORTA	; wait until PORTA.6 = 0 (start bit)
+  bit PORTB	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
 
   ldx #8
 read_bit:
   jsr rx_delay	; run bit delay for 300 baud serial stream
-  bit PORTA	; read in the state
+  bit PORTB	; read in the state
   bvs recv_1	; if it's not a one,
   clc		; it's a zero.
   jmp rx_done
@@ -288,10 +314,18 @@ rx_done:
   inx
   bne read_bit	; repeat until 8 bits read
 
-  sta $2000,y	; store data
-  ;cmp #0	; end of string?
-  ;bne rx_wait	; if not, get another byte
-  jmp rx_wait
+  sta (cnt)	; store data
+  inc cnt
+  bne declen
+  inc cnt+1
+declen:
+  lda cnt	; are we done?
+  cmp len
+  bne rx_wait
+  lda cnt+1
+  cmp len+1
+  bne rx_wait	; if not, get another byte
+  ;jmp rx_wait
 
 load_done:
   ldx #<msg2	; Done!
@@ -320,3 +354,6 @@ rx_delay_inner:
 
 loadmsg:
   .byte "Press Play On Tape.", $0d, $0a, $00
+saving_msg:
+  .byte "Saving...", $00
+
