@@ -340,9 +340,9 @@ load_done:
 rx_delay:
   phx
   phy
-  ldy #$02
+  ldy #$05
 rx_delay_outer:
-  ldx #$8e
+  ldx #$1c
 rx_delay_inner:
   dex
   bne rx_delay_inner
