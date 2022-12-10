@@ -9,7 +9,7 @@
 ;;; 
 ;;; Very simple ROM monitor for the 6502 Mite single-board computer..
 ;;; But this version is for the XPL-32.
-;;; Just basically enough to poke around and make sure that things
+;;; Originally enough to poke around and make sure that things
 ;;; are working.
 ;;;
 ;;; There are also some loading and saving stuff as well.
@@ -44,7 +44,7 @@ SD_SCK  = %00001000
 SD_MOSI = %00000100
 SD_MISO = %00000010
 
-PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
+PORTA_OUTPUTPINS = SD_CS | SD_SCK | SD_MOSI
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -90,8 +90,7 @@ SEN		= $7ffd
 ;;; Include standard startup code
 ;;;
 ;;;;;;;;;;;;;;;;;
-;;; Er, you forgot a start address...
-;;; Better add it in the good ol' hex editor!
+
 reset
 #include "decl.a65"
 jmp startup
@@ -196,12 +195,18 @@ startup
 
 #include "init.a65"
 
+;; Startup sound
+;;
+
 #include "startupsound.s"
 
+;; Initialize the ACIA
+;;
+
 init_acia
-  lda #%00001011		;No parity, no echo, no interrupt
+  lda #%00001011		; No parity, no echo, no interrupt
   sta ACIA_COMMAND
-  lda #%00011111		;1 stop bit, 8 data bits, 19200 baud
+  lda #%00011111		; 1 stop bit, 8 data bits, 19200 baud
   sta ACIA_CONTROL
 
   ldx #$FF
@@ -471,6 +476,16 @@ helpcmd
   lda #<helpstring
   sta PRINTVEC
   lda #>helpstring
+  sta PRINTVEC+1
+  jsr printvecstr
+  lda #<helpstring2
+  sta PRINTVEC
+  lda #>helpstring2
+  sta PRINTVEC+1
+  jsr printvecstr
+  lda #<helpstring3
+  sta PRINTVEC
+  lda #>helpstring3
   sta PRINTVEC+1
   jsr printvecstr
   rts
@@ -3733,13 +3748,13 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "help", $09, " - displays this screen", $0d, $0a
 		 .byte "about", $09, " - displays information about this software", $0d, $0a
 		 .byte "dump", $09, " - dumps memory contents at a specific address", $0d, $0a
-		 .byte "poke", $09, " - puts a value at an address", $0d, $0a
-		 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
+		 .byte "poke", $09, " - puts a value at an address", $0d, $0a, $00
+helpstring2:	 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
 		 .byte "go", $09, " - jumps to an address", $0d, $0a
 		 .byte "xreceive - receive from the serial port with xmodem to a specified address", $0d, $0a
-		 .byte "dis", $09, " - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a
+		 .byte "dis", $09, " - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a, $00
 		 .byte "input", $09, " - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
-		 .byte "memtest  - tests memory integrity", $0d, $0a
+helpstring3:	 .byte "memtest  - tests memory integrity", $0d, $0a
 		 .byte "receive  - like xreceive, but no protocol is used", $0d, $0a
 		 .byte "load", $09, " - load a memory card's automatic loading system", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a, $00
@@ -3769,7 +3784,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7810,$00
+  .dsb 7786,$00
 
 ; ----KERNAL----
 
