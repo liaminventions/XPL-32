@@ -311,7 +311,7 @@ recv_1:
   nop
 rx_done:
   ror		; rotate carry into accumulator
-  inx
+  dex
   bne read_bit	; repeat until 8 bits read
 
   sta (cnt)	; store data
