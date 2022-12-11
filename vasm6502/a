@@ -696,8 +696,8 @@ F00:0264         ldy #>loading_msg
 F00:0265         jsr w_acia_full
                S03:00001315:  20 E0 10
 F00:0266       
-F00:0267         ldy #0
-               S03:00001318:  A0 00
+F00:0267         ldy #2
+               S03:00001318:  A0 02
 F00:0268       
 F00:0269         ; thanks to ben eater for this code
 F00:0270       
@@ -730,8 +730,8 @@ F00:0285         nop
 F00:0286       rx_donea:
 F00:0287         ror		; rotate carry into accumulator
                S03:00001330:  6A
-F00:0288         inx
-               S03:00001331:  E8
+F00:0288         dex
+               S03:00001331:  CA
 F00:0289         bne read_bita	; repeat until 8 bits read
                S03:00001332:  D0 ED
 F00:0290         dey
@@ -825,11 +825,11 @@ F00:0341         phx
                S03:00001377:  DA
 F00:0342         phy
                S03:00001378:  5A
-F00:0343         ldy #$05
-               S03:00001379:  A0 05
+F00:0343         ldy #$02
+               S03:00001379:  A0 02
 F00:0344       rx_delay_outer:
-F00:0345         ldx #$1c
-               S03:0000137B:  A2 1C
+F00:0345         ldx #$92
+               S03:0000137B:  A2 92
 F00:0346       rx_delay_inner:
 F00:0347         dex
                S03:0000137D:  CA

@@ -264,7 +264,7 @@ load:
   ldy #>loading_msg
   jsr w_acia_full
 
-  ldy #0
+  ldy #2
 
   ; thanks to ben eater for this code
 
@@ -285,7 +285,8 @@ recv_1a:
   nop
 rx_donea:
   ror		; rotate carry into accumulator
-  inx
+  stz PORTB
+  dex
   bne read_bita	; repeat until 8 bits read
   dey
   beq got_len
@@ -311,6 +312,7 @@ recv_1:
   nop
 rx_done:
   ror		; rotate carry into accumulator
+  stz PORTB
   dex
   bne read_bit	; repeat until 8 bits read
 
@@ -340,9 +342,9 @@ load_done:
 rx_delay:
   phx
   phy
-  ldy #$05
+  ldy #$02
 rx_delay_outer:
-  ldx #$1c
+  ldx #$92
 rx_delay_inner:
   dex
   bne rx_delay_inner
@@ -350,6 +352,8 @@ rx_delay_inner:
   bne rx_delay_outer
   ply
   plx
+  lda #$01
+  sta PORTB
   rts
 
 loadmsg:
