@@ -37,6 +37,7 @@ start:
 
   lda #1
   sta thing
+  ldy #2
 begin:
   lda #100		; our data is 100 bytes long
   and thing
@@ -52,6 +53,12 @@ head1:
   jsr one
   jmp head
 header_done:
+  dey
+  beq afterhead
+  lda #0
+  sta begin+1
+  jmp begin
+afterhead:
   ldy #$20
   jsr inout
   ; now to send the actual data
@@ -252,6 +259,10 @@ clearmsg:
 load:
   lda #%10111111
   sta DDRB
+
+  lda #$20
+  sta cnt+1
+  stz cnt
 
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg

@@ -37,6 +37,7 @@ start:
 
   lda #1
   sta thing
+  ldy #2
 begin:
   lda #100		; our data is 100 bytes long
   and thing
@@ -52,6 +53,12 @@ head1:
   jsr one
   jmp head
 header_done:
+  dey
+  beq afterhead:
+  lda #0
+  sta begin+1
+  jmp begin
+afterhead:
   ldy #$20
   jsr inout
   ; now to send the actual data
@@ -253,6 +260,10 @@ load:
   lda #%10111111
   sta DDRB
 
+  lda #$20
+  sta cnt+1
+  stz cnt
+
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
   jsr w_acia_full
@@ -285,6 +296,7 @@ recv_1a:
   nop
 rx_donea:
   ror		; rotate carry into accumulator
+  stz PORTB
   dex
   bne read_bita	; repeat until 8 bits read
   dey
@@ -311,6 +323,7 @@ recv_1:
   nop
 rx_done:
   ror		; rotate carry into accumulator
+  stz PORTB
   dex
   bne read_bit	; repeat until 8 bits read
 
@@ -350,6 +363,8 @@ rx_delay_inner:
   bne rx_delay_outer
   ply
   plx
+  lda #$01
+  sta PORTB
   rts
 
 loadmsg:
