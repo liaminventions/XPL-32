@@ -918,6 +918,18 @@ processparam           ; process the (first) address parameter
   stz $b00e
   stz tapest
 
+  ldx #0
+lp1:
+  lda reg,x
+  sta $b802,x
+  inx
+  cpx #5
+  bne lp1
+  lda #$4c
+  sta $b800
+  lda #$9d
+  sta $b801
+
   ldx #<tsavemsg
   ldy #>tsavemsg	; press rec and play
   jsr w_acia_full
@@ -1026,66 +1038,81 @@ starter:
 
 one:			; 2400hz sound 8 cyc
   pha
-  jsr togtap ; 1
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 2
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 3
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 4
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 5
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 6
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 7
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
-  jsr togtap ; 8
-  jsr onefreq
-  jsr togtap
-  jsr onefreq
+  ;jsr togtap ; 1
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 2
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 3
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 4
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 5
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 6
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 7
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  ;jsr togtap ; 8
+  ;jsr onefreq
+  ;jsr togtap
+  ;jsr onefreq
+  lda #$4c
+  sta $b800
+  lda #$9d
+  sta $b801
+  jsr rx_delay
+  jsr rx_delay
   pla
   rts
 
-togtap:
-  lda tapest
-  eor #%10000000 	; data out on PA7
-  sta tapest
-  sta PORTA
-  rts
+reg:
+  .byte $00, $08, $81, $00, $f0
+
+;togtap:
+;  lda tapest
+;  eor #%10000000 	; data out on PA7
+;  sta tapest
+;  sta PORTA
+;  rts
 
 zero: 			; 1200hz sound 4 cyc
   pha 
-  jsr togtap ; 1
-  jsr zerofreq
-  jsr togtap
-  jsr zerofreq
-  jsr togtap ; 2
-  jsr zerofreq
-  jsr togtap
-  jsr zerofreq
-  jsr togtap ; 3
-  jsr zerofreq
-  jsr togtap
-  jsr zerofreq
-  jsr togtap ; 4
-  jsr zerofreq
-  jsr togtap
-  jsr zerofreq
+  ;jsr togtap ; 1
+  ;jsr zerofreq
+  ;jsr togtap
+  ;jsr zerofreq
+  ;jsr togtap ; 2
+  ;jsr zerofreq
+  ;jsr togtap
+  ;jsr zerofreq
+  ;jsr togtap ; 3
+  ;jsr zerofreq
+  ;jsr togtap
+  ;jsr zerofreq
+  ;jsr togtap ; 4
+  ;jsr zerofreq
+  ;jsr togtap
+  ;jsr zerofreq
+  lda #$a6
+  sta $b800
+  lda #$4e
+  sta $b800
+  jsr rx_delay
+  jsr rx_delay
   pla
   rts
 
@@ -1269,6 +1296,7 @@ rx_wait_delay:
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait
+.)
 
 rx_delay:
   phx
@@ -1284,7 +1312,7 @@ rx_delay_inner:
   ply
   plx
   rts
-.)
+
 
 testcmd
   ;jsr xmodemtest
