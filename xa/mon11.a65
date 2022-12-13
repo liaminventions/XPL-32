@@ -924,14 +924,14 @@ processparam           ; process the (first) address parameter
   ldx #0
 lp1:
   lda reg,x
-  sta $b802,x
+  sta $b810,x
   inx
   cpx #5
   bne lp1
   lda #$4c
-  sta $b800
+  sta $b80e
   lda #$9d
-  sta $b801
+  sta $b80f
 
   ldx #<tsavemsg
   ldy #>tsavemsg	; press rec and play
@@ -1073,12 +1073,10 @@ one:			; 2400hz sound 8 cyc
   ;jsr onefreq
   ;jsr togtap
   ;jsr onefreq
-  lda #%00000000
-  sta $d404
   lda #$4c
-  sta $b800
+  sta $b80e
   lda #$9d
-  sta $b801
+  sta $b80f
   jsr tx_delay
   jsr tx_delay
   pla
@@ -1112,38 +1110,36 @@ zero: 			; 1200hz sound 4 cyc
   ;jsr zerofreq
   ;jsr togtap
   ;jsr zerofreq
-  lda #%00000000
-  sta $d404
   lda #$a6
-  sta $b800
+  sta $b80e
   lda #$4e
-  sta $b801
+  sta $b80f
   jsr tx_delay
   jsr tx_delay
   pla
   rts
 
-onefreq:
-  stz $b00b
-  lda #$ae
-  sta $b004		; freq
-  lda #$00
-  sta $b005
-intro:
-  bit $b00d		; delay complete?
-  bvc intro
-  rts
+;onefreq:
+;  stz $b00b
+;  lda #$ae
+;  sta $b004		; freq
+;  lda #$00
+;  sta $b005
+;intro:
+;  bit $b00d		; delay complete?
+;  bvc intro
+;  rts
 
-zerofreq:
-  stz $b00b
-  lda #$3f
-  sta $b004
-  lda #$01
-  sta $b005
-intro2:
-  bit $b00d
-  bvc intro2
-  rts
+;zerofreq:
+;  stz $b00b
+;  lda #$3f
+;  sta $b004
+;  lda #$01
+;  sta $b005
+;intro2:
+;  bit $b00d
+;  bvc intro2
+;  rts
 
 error
   lda #<tsaveerrstring
@@ -1162,7 +1158,7 @@ tx_delay:
   phy
   ldx #$7e
 tx_delay_inner:
-  lda $b81c
+  lda $b81b
   sta PORTA
   dex
   bne rx_delay_inner

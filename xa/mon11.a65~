@@ -918,7 +918,7 @@ processparam           ; process the (first) address parameter
   stz $b00e
   stz tapest
 
-  lda #$0f
+  lda #$8f
   sta $b818
 
   ldx #0
@@ -1073,7 +1073,7 @@ one:			; 2400hz sound 8 cyc
   ;jsr onefreq
   ;jsr togtap
   ;jsr onefreq
-  lda #%10000000
+  lda #%00000000
   sta $d404
   lda #$4c
   sta $b800
@@ -1112,7 +1112,7 @@ zero: 			; 1200hz sound 4 cyc
   ;jsr zerofreq
   ;jsr togtap
   ;jsr zerofreq
-  lda #%10000000
+  lda #%00000000
   sta $d404
   lda #$a6
   sta $b800
@@ -1162,7 +1162,7 @@ tx_delay:
   phy
   ldx #$7e
 tx_delay_inner:
-  lda $b81c
+  lda $b81b
   sta PORTA
   dex
   bne rx_delay_inner
@@ -4261,7 +4261,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7011,$00
+  .dsb 7027,$00
 
 ; ----KERNAL----
 
