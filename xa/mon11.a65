@@ -918,6 +918,9 @@ processparam           ; process the (first) address parameter
   stz $b00e
   stz tapest
 
+  lda #$8f
+  sta $b818
+
   ldx #0
 lp1:
   lda reg,x
@@ -1076,8 +1079,8 @@ one:			; 2400hz sound 8 cyc
   sta $b800
   lda #$9d
   sta $b801
-  jsr rx_delay
-  jsr rx_delay
+  jsr tx_delay
+  jsr tx_delay
   pla
   rts
 
@@ -1115,8 +1118,8 @@ zero: 			; 1200hz sound 4 cyc
   sta $b800
   lda #$4e
   sta $b801
-  jsr rx_delay
-  jsr rx_delay
+  jsr tx_delay
+  jsr tx_delay
   pla
   rts
 
@@ -1153,6 +1156,19 @@ error
   rts
 
 .)
+
+tx_delay:
+  phx
+  phy
+  ldx #$7e
+tx_delay_inner:
+  lda $b81c
+  sta PORTA
+  dex
+  bne rx_delay_inner
+  ply
+  plx
+  rts
 
 tape_delay:
   ldx #$ff		; wait for ye fumble.
