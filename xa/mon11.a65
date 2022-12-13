@@ -1161,7 +1161,7 @@ tx_delay_inner:
   lda $b81b
   sta PORTA
   dex
-  bne rx_delay_inner
+  bne tx_delay_inner
   ply
   plx
   rts
@@ -4257,7 +4257,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7027,$00
+  .dsb 7006,$00
 
 ; ----KERNAL----
 
