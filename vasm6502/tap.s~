@@ -54,7 +54,7 @@ head1:
   jmp head
 header_done:
   iny
-  cmp #$04
+  cpy #$04
   bne begin
   ldy #$20
   jsr inout

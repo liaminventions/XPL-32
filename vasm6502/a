@@ -36,7 +36,7 @@ F00:0027         jsr tape_delay		; (ye fumble)
                S01:00000F13:  20 6F 10
 F00:0028       
 F00:0029         ldx #<saving_msg	; Saving...
-               S01:00000F16:  A2 CB
+               S01:00000F16:  A2 D4
 F00:0030         ldy #>saving_msg
                S01:00000F18:  A0 13
 F00:0031         jsr w_acia_full
@@ -84,8 +84,8 @@ F00:0054         jmp head
 F00:0055       header_done:
 F00:0056         iny
                S01:00000F46:  C8
-F00:0057         cmp #$04
-               S01:00000F47:  C9 04
+F00:0057         cpy #$04
+               S01:00000F47:  C0 04
 F00:0058         bne begin
                S01:00000F49:  D0 E0
 F00:0059         ldy #$20
@@ -695,7 +695,7 @@ F00:0261         sta DDRB
                S03:00001307:  8D 02 B0
 F00:0262       
 F00:0263         ldx #<loadmsg		; PRESS PLAY ON TAPE
-               S03:0000130A:  A2 B5
+               S03:0000130A:  A2 BE
 F00:0264         ldy #>loadmsg
                S03:0000130C:  A0 13
 F00:0265         jsr w_acia_full
@@ -725,14 +725,14 @@ F00:0280         bvs rx_wait_start
                S03:00001322:  70 FB
 F00:0281       
 F00:0282         jsr rx_delay  ; half-bit delay
-               S03:00001324:  20 A1 13
+               S03:00001324:  20 AA 13
 F00:0283         ldx #8
                S03:00001327:  A2 08
 F00:0284       read_bita:
 F00:0285         jsr rx_delay	; run full-bit delay for 300 baud serial stream
-               S03:00001329:  20 A1 13
+               S03:00001329:  20 AA 13
 F00:0286         jsr rx_delay
-               S03:0000132C:  20 A1 13
+               S03:0000132C:  20 AA 13
 F00:0287         bit PORTA	; read in the state
                S03:0000132F:  2C 01 B0
 F00:0288         bvs recv_1a	; if it's not a one,
@@ -761,21 +761,21 @@ F00:0300         sta cnt,y
                S03:00001342:  99 02 00
 F00:0301         iny
                S03:00001345:  C8
-F00:0302         cmp #$04
-               S03:00001346:  C9 04
+F00:0302         cpy #$04
+               S03:00001346:  C0 04
 F00:0303         beq got_len
                S03:00001348:  F0 09
 F00:0304         jsr rx_delay
-               S03:0000134A:  20 A1 13
+               S03:0000134A:  20 AA 13
 F00:0305         jsr rx_delay
-               S03:0000134D:  20 A1 13
+               S03:0000134D:  20 AA 13
 F00:0306         jmp rx_wait_start
                S03:00001350:  4C 1F 13
 F00:0307       got_len:
 F00:0308         jsr rx_delay
-               S03:00001353:  20 A1 13
+               S03:00001353:  20 AA 13
 F00:0309         jsr rx_delay
-               S03:00001356:  20 A1 13
+               S03:00001356:  20 AA 13
 F00:0310       rx_wait:
 F00:0311         bit PORTA	; wait until PORTB.6 = 0 (start bit)
                S03:00001359:  2C 01 B0
@@ -783,14 +783,14 @@ F00:0312         bvs rx_wait
                S03:0000135C:  70 FB
 F00:0313       
 F00:0314         jsr rx_delay
-               S03:0000135E:  20 A1 13
+               S03:0000135E:  20 AA 13
 F00:0315         ldx #8
                S03:00001361:  A2 08
 F00:0316       read_bit:
 F00:0317         jsr rx_delay	; run bit delay for 300 baud serial stream
-               S03:00001363:  20 A1 13
+               S03:00001363:  20 AA 13
 F00:0318         jsr rx_delay
-               S03:00001366:  20 A1 13
+               S03:00001366:  20 AA 13
 F00:0319         bit PORTA	; read in the state
                S03:00001369:  2C 01 B0
 F00:0320         bvs recv_1	; if it's not a one,
@@ -818,9 +818,9 @@ F00:0331         bne read_bit	; repeat until 8 bits read
 F00:0332         sta (cnt)	; store data
                S03:0000137C:  92 02
 F00:0333         jsr rx_delay
-               S03:0000137E:  20 A1 13
+               S03:0000137E:  20 AA 13
 F00:0334         jsr rx_delay
-               S03:00001381:  20 A1 13
+               S03:00001381:  20 AA 13
 F00:0335         inc cnt
                S03:00001384:  E6 02
 F00:0336         bne declen
@@ -828,80 +828,85 @@ F00:0336         bne declen
 F00:0337         inc cnt+1
                S03:00001388:  E6 03
 F00:0338       declen:
-F00:0339         lda cnt	; are we done?
+F00:0339         lda cnt		; are we done?
                S03:0000138A:  A5 02
 F00:0340         cmp len
                S03:0000138C:  C5 04
-F00:0341         bne rx_wait
-               S03:0000138E:  D0 C9
+F00:0341         bne rx_wait_delay
+               S03:0000138E:  D0 11
 F00:0342         lda cnt+1
                S03:00001390:  A5 03
 F00:0343         cmp len+1
                S03:00001392:  C5 05
-F00:0344         bne rx_wait	; if not, get another byte
-               S03:00001394:  D0 C3
-F00:0345         ;jmp rx_wait
-F00:0346       
-F00:0347       load_done:
-F00:0348         ldx #<msg2	; Done!
+F00:0344         bne rx_wait_delay	; if not, get another byte
+               S03:00001394:  D0 0B
+F00:0345       load_done:
+F00:0346         ldx #<msg2	; Done!
                S03:00001396:  A2 3D
-F00:0349         ldy #>msg2
+F00:0347         ldy #>msg2
                S03:00001398:  A0 11
-F00:0350         jsr w_acia_full
+F00:0348         jsr w_acia_full
                S03:0000139A:  20 EC 10
-F00:0351       
-F00:0352         rts
+F00:0349       
+F00:0350         rts
                S03:0000139D:  60
-F00:0353         rts
+F00:0351         rts
                S03:0000139E:  60
-F00:0354         rts
+F00:0352         rts
                S03:0000139F:  60
-F00:0355         rts
+F00:0353         rts
                S03:000013A0:  60
-F00:0356       
-F00:0357       rx_delay:
-F00:0358         phx
-               S03:000013A1:  DA
-F00:0359         phy
-               S03:000013A2:  5A
-F00:0360         ldy #$02
-               S03:000013A3:  A0 02
-F00:0361       rx_delay_outer:
-F00:0362         ldx #$A4
-               S03:000013A5:  A2 A4
-F00:0363       rx_delay_inner:
-F00:0364         dex
-               S03:000013A7:  CA
-F00:0365         bne rx_delay_inner
-               S03:000013A8:  D0 FD
-F00:0366         dey
-               S03:000013AA:  88
-F00:0367         bne rx_delay_outer
-               S03:000013AB:  D0 F8
-F00:0368         ply
-               S03:000013AD:  7A
-F00:0369         plx
-               S03:000013AE:  FA
-F00:0370         lda #$01
-               S03:000013AF:  A9 01
-F00:0371         sta PORTB
-               S03:000013B1:  8D 00 B0
-F00:0372         rts
-               S03:000013B4:  60
-F00:0373       
-F00:0374       loadmsg:
-F00:0375         .byte "Press Play On Tape.", $0d, $0a, $00
-               S03:000013B5:  50 72 65 73 73 20 50 6C 61 79 20 4F 6E 20 54 61
-               S03:000013C5:  70 65 2E
-               S03:000013C8:  0D
-               S03:000013C9:  0A
-               S03:000013CA:  00
-F00:0376       saving_msg:
-F00:0377         .byte "Saving...", $00
-               S03:000013CB:  53 61 76 69 6E 67 2E 2E 2E
-               S03:000013D4:  00
-F00:0378       
-F00:0379       
+F00:0354       rx_wait_delay:
+F00:0355         jsr rx_delay
+               S03:000013A1:  20 AA 13
+F00:0356         jsr rx_delay
+               S03:000013A4:  20 AA 13
+F00:0357         jmp rx_wait
+               S03:000013A7:  4C 59 13
+F00:0358       
+F00:0359       rx_delay:
+F00:0360         phx
+               S03:000013AA:  DA
+F00:0361         phy
+               S03:000013AB:  5A
+F00:0362         ldy #$02
+               S03:000013AC:  A0 02
+F00:0363       rx_delay_outer:
+F00:0364         ldx #$A4
+               S03:000013AE:  A2 A4
+F00:0365       rx_delay_inner:
+F00:0366         dex
+               S03:000013B0:  CA
+F00:0367         bne rx_delay_inner
+               S03:000013B1:  D0 FD
+F00:0368         dey
+               S03:000013B3:  88
+F00:0369         bne rx_delay_outer
+               S03:000013B4:  D0 F8
+F00:0370         ply
+               S03:000013B6:  7A
+F00:0371         plx
+               S03:000013B7:  FA
+F00:0372         lda #$01
+               S03:000013B8:  A9 01
+F00:0373         sta PORTB
+               S03:000013BA:  8D 00 B0
+F00:0374         rts
+               S03:000013BD:  60
+F00:0375       
+F00:0376       loadmsg:
+F00:0377         .byte "Press Play On Tape.", $0d, $0a, $00
+               S03:000013BE:  50 72 65 73 73 20 50 6C 61 79 20 4F 6E 20 54 61
+               S03:000013CE:  70 65 2E
+               S03:000013D1:  0D
+               S03:000013D2:  0A
+               S03:000013D3:  00
+F00:0378       saving_msg:
+F00:0379         .byte "Saving...", $00
+               S03:000013D4:  53 61 76 69 6E 67 2E 2E 2E
+               S03:000013DD:  00
+F00:0380       
+F00:0381       
 
 
 Sections:
@@ -917,9 +922,10 @@ F02  libacia.s
 
 
 Symbols:
-rx_delay_inner EXPR(5031=0x13a7) ABS 
-rx_delay_outer EXPR(5029=0x13a5) ABS 
+rx_delay_inner EXPR(5040=0x13b0) ABS 
+rx_delay_outer EXPR(5038=0x13ae) ABS 
 load_done EXPR(5014=0x1396) UNUSED ABS 
+rx_wait_delay EXPR(5025=0x13a1) ABS 
 declen EXPR(5002=0x138a) ABS 
 rx_done EXPR(4981=0x1375) ABS 
 recv_1 EXPR(4978=0x1372) ABS 
@@ -929,9 +935,9 @@ got_len EXPR(4947=0x1353) ABS
 rx_donea EXPR(4923=0x133b) ABS 
 recv_1a EXPR(4920=0x1338) ABS 
 read_bita EXPR(4905=0x1329) ABS 
-rx_delay EXPR(5025=0x13a1) ABS 
+rx_delay EXPR(5034=0x13aa) ABS 
 rx_wait_start EXPR(4895=0x131f) ABS 
-loadmsg EXPR(5045=0x13b5) ABS 
+loadmsg EXPR(5054=0x13be) ABS 
 load EXPR(4864=0x1300) UNUSED ABS 
 clearmsg EXPR(4629=0x1215) ABS 
 clearlop EXPR(4610=0x1202) ABS 
@@ -986,7 +992,7 @@ headertable EXPR(3993=0xf99) ABS
 begin EXPR(3883=0xf2b) ABS 
 zero EXPR(4118=0x1016) ABS 
 inout EXPR(3997=0xf9d) ABS 
-saving_msg EXPR(5067=0x13cb) ABS 
+saving_msg EXPR(5076=0x13d4) ABS 
 tape_delay EXPR(4207=0x106f) ABS 
 w_acia_full EXPR(4332=0x10ec) ABS 
 msg EXPR(4367=0x110f) ABS 
