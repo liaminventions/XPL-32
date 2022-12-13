@@ -9,7 +9,7 @@
 ;;; 
 ;;; Very simple ROM monitor for the 6502 Mite single-board computer..
 ;;; But this version is for the XPL-32.
-;;; Just basically enough to poke around and make sure that things
+;;; Originally enough to poke around and make sure that things
 ;;; are working.
 ;;;
 ;;; There are also some loading and saving stuff as well.
@@ -44,7 +44,7 @@ SD_SCK  = %00001000
 SD_MOSI = %00000100
 SD_MISO = %00000010
 
-PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
+PORTA_OUTPUTPINS = SD_CS | SD_SCK | SD_MOSI
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -82,6 +82,11 @@ XYLODSAV2	= $00  ; temporary address for save command
 STARTADDR	= $02  ; for start addr for receive
 ENDADDR		= $04
 serialvar	= $06
+; only used in tape:
+thing  		= $00 ; 1byt
+tapest 		= $01 ; 1byt
+cnt    		= $02 ; 2byt
+len    		= $04 ; 2byt
 
 SEN		= $7ffd
 
@@ -90,8 +95,7 @@ SEN		= $7ffd
 ;;; Include standard startup code
 ;;;
 ;;;;;;;;;;;;;;;;;
-;;; Er, you forgot a start address...
-;;; Better add it in the good ol' hex editor!
+
 reset
 #include "decl.a65"
 jmp startup
@@ -159,6 +163,14 @@ table13
   .byte "load", $00
   .word loadcmd
 table14
+  .word table15
+  .byte "tsave", $00
+  .word tsavecmd
+table15
+  .word table16
+  .byte "tload", $00
+  .word tloadcmd
+table16
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
@@ -196,12 +208,18 @@ startup
 
 #include "init.a65"
 
+;; Startup sound
+;;
+
 #include "startupsound.s"
 
+;; Initialize the ACIA
+;;
+
 init_acia
-  lda #%00001011		;No parity, no echo, no interrupt
+  lda #%00001011		; No parity, no echo, no interrupt
   sta ACIA_COMMAND
-  lda #%00011111		;1 stop bit, 8 data bits, 19200 baud
+  lda #%00011111		; 1 stop bit, 8 data bits, 19200 baud
   sta ACIA_CONTROL
 
   ldx #$FF
@@ -471,6 +489,16 @@ helpcmd
   lda #<helpstring
   sta PRINTVEC
   lda #>helpstring
+  sta PRINTVEC+1
+  jsr printvecstr
+  lda #<helpstring2
+  sta PRINTVEC
+  lda #>helpstring2
+  sta PRINTVEC+1
+  jsr printvecstr
+  lda #<helpstring3
+  sta PRINTVEC
+  lda #>helpstring3
   sta PRINTVEC+1
   jsr printvecstr
   rts
@@ -840,6 +868,400 @@ error
   jsr printvecstr
 
   jsr crlf
+  rts
+.)
+
+; Save to cassette tape
+;
+; Argumented with a start and end address
+;
+
+tsavecmd:
+.(
+  ;; check arguments
+  lda ARGINDEX
+  cmp #3
+  beq processparam
+  jmp error
+processparam           ; process the (first) address parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+  clc			; process the (second) address parameter
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+
+  ; stash the paramaters
+  lda stackbase+1
+  sta cnt
+  lda stackbase+2
+  sta cnt+1
+  lda stackbase+1
+  sta len
+  lda stackbase+2
+  sta len+1
+
+
+  lda #%10111111
+  sta DDRA
+  stz $b00e
+  stz tapest
+
+  ldx #<tsavemsg
+  ldy #>tsavemsg	; press rec and play
+  jsr w_acia_full
+
+  lda #$18		; 4 seconds
+  jsr tape_delay	; (ye fumble)
+
+  ldx #<saving_msg	; Saving...
+  ldy #>saving_msg
+  jsr w_acia_full
+
+  ldy #$40
+  jsr inout		; intro sound
+
+  jsr zero
+
+  lda #1
+  sta thing
+  ldy #0
+begin:
+  lda stackbase+1,y	; read in the address param
+  and thing
+  bne head1
+  jsr zero
+head:
+  lda thing
+  cmp #$80
+  beq header_done
+  asl thing
+  jmp begin
+head1:
+  jsr one
+  jmp head
+header_done:
+  iny
+  cpy #$04
+  bne begin
+  ldy #$20
+  jsr inout
+  ; now to send the actual data
+  ldx #0
+  lda #1
+  sta thing		; first bit
+wop:
+  lda (cnt)		; load data
+  and thing		; mask it
+  bne jsrone		; one
+  jsr zero		; or zero
+oner:
+  lda thing		; load the bitmask
+  cmp #$80		; end of byte?
+  beq noo
+  asl thing
+  jmp wop		; next bit
+jsrone:
+  jsr one		; a one
+  jmp oner
+noo:
+  lda #1		; byte done
+  sta thing
+  jsr one
+  jsr one
+  inc cnt		; inc pointer
+  bne notcnt
+  inc cnt+1
+notcnt:
+  lda cnt		; are we done?
+  cmp len
+  beq nearly
+  jsr zero
+  jmp wop		; if not, go again for another byte
+nearly:
+  lda cnt+1
+  cmp len+1
+  beq savedone
+  jsr zero
+  jmp wop
+savedone
+  ldy #$40
+  jsr inout		; we are done, ending sound  
+
+  ; done
+  ldx #<msg2
+  ldy #>msg2		; "Done!"
+  jsr w_acia_full
+
+  rts
+  rts
+  rts			; return
+  rts
+  rts
+
+; subs
+
+inout:
+outer:
+  ldx #$10		; $40 * $10 times make the sound
+starter:
+  jsr one		; sound
+  dex
+  bne starter
+  dey
+  bne outer
+  rts
+
+one:			; 2400hz sound 8 cyc
+  pha
+  jsr togtap ; 1
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 2
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 3
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 4
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 5
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 6
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 7
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  jsr togtap ; 8
+  jsr onefreq
+  jsr togtap
+  jsr onefreq
+  pla
+  rts
+
+togtap:
+  lda tapest
+  eor #%10000000 	; data out on PA7
+  sta tapest
+  sta PORTA
+  rts
+
+zero: 			; 1200hz sound 4 cyc
+  pha 
+  jsr togtap ; 1
+  jsr zerofreq
+  jsr togtap
+  jsr zerofreq
+  jsr togtap ; 2
+  jsr zerofreq
+  jsr togtap
+  jsr zerofreq
+  jsr togtap ; 3
+  jsr zerofreq
+  jsr togtap
+  jsr zerofreq
+  jsr togtap ; 4
+  jsr zerofreq
+  jsr togtap
+  jsr zerofreq
+  pla
+  rts
+
+onefreq:
+  stz $b00b
+  lda #$ae
+  sta $b004		; freq
+  lda #$00
+  sta $b005
+intro:
+  bit $b00d		; delay complete?
+  bvc intro
+  rts
+
+zerofreq:
+  stz $b00b
+  lda #$3f
+  sta $b004
+  lda #$01
+  sta $b005
+intro2:
+  bit $b00d
+  bvc intro2
+  rts
+
+error
+  lda #<tsaveerrstring
+  sta PRINTVEC
+  lda #>tsaveerrstring
+  sta PRINTVEC+1
+  jsr printvecstr
+
+  jsr crlf
+  rts
+
+.)
+
+tape_delay:
+  ldx #$ff		; wait for ye fumble.
+rd1:
+  lda #$7a		; (Y times through inner loop,
+rd2:     
+  sbc #$01		;  Y * $FF * 650uS = uS / 1e-6 = S )
+  bne rd2
+rd3:
+  dex
+  bne rd1
+  dey
+  bne tape_delay
+  rts
+
+tsavemsg:
+  .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
+tloadmsg:
+  .byte $02, $ff, "Press Play On Tape.", $0d, $0a, $00
+loading_msg:
+  .byte "Loading...", $00
+saving_msg:
+  .byte "Saving...", $00
+msg2:
+  .byte "Done!", $0d, $0a, $02, $5f, $00
+
+; Load from a cassette tape.
+;
+; Needs no arguments because start and end addresses are encoded in tape.
+;
+
+tloadcmd:
+.(
+  lda #%10111111
+  sta DDRA
+  lda #%11111111
+  sta DDRB
+
+  ldx #<tloadmsg	; PRESS PLAY ON TAPE
+  ldy #>tloadmsg
+  jsr w_acia_full
+
+  lda #$18		; ye fumble
+  jsr tape_delay	; 4 second delay
+
+  ldx #<loading_msg	; Loading...
+  ldy #>loading_msg
+  jsr w_acia_full
+
+  ldy #0
+
+  ; thanks to ben eater for help with this code
+
+rx_wait_start:
+  bit PORTA	; wait until PORTB.6 = 0 (start bit)
+  bvs rx_wait_start
+
+  jsr rx_delay  ; half-bit delay
+  ldx #8
+read_bita:
+  jsr rx_delay	; run full-bit delay for 300 baud serial stream
+  jsr rx_delay
+  bit PORTA	; read in the state
+  bvs recv_1a	; if it's not a one,
+  clc		; it's a zero.
+  jmp rx_donea
+recv_1a:	; otherwise,
+  sec		; it's a one.
+  nop		; nops for timing
+  nop
+rx_donea:
+  ror		; rotate carry into accumulator
+  dex
+  bne read_bita	; repeat until 8 bits read
+  sta cnt,y
+  iny
+  cpy #$04
+  beq got_len
+  jsr rx_delay
+  jsr rx_delay
+  jmp rx_wait_start
+got_len:
+  jsr rx_delay
+  jsr rx_delay
+rx_wait:
+  bit PORTA	; wait until PORTB.6 = 0 (start bit)
+  bvs rx_wait
+  jsr rx_delay
+  ldx #8
+read_bit:
+  jsr rx_delay	; run bit delay for 300 baud serial stream
+  jsr rx_delay
+  bit PORTA	; read in the state
+  bvs recv_1	; if it's not a one,
+  clc		; it's a zero.
+  jmp rx_done
+recv_1:
+  sec		; it's a one.
+  nop		; nops for timing
+  nop
+rx_done:
+  ror		; rotate carry into accumulator
+  dex
+  bne read_bit	; repeat until 8 bits read
+  sta (cnt)	; store data
+  jsr rx_delay
+  jsr rx_delay
+  inc cnt
+  bne declen
+  inc cnt+1
+declen:
+  lda cnt		; are we done?
+  cmp len
+  bne rx_wait_delay
+  lda cnt+1
+  cmp len+1
+  bne rx_wait_delay	; if not, get another byte
+load_done:
+  ldx #<msg2	; Done!
+  ldy #>msg2
+  jsr w_acia_full
+
+  rts
+
+rx_wait_delay:
+  jsr rx_delay
+  jsr rx_delay
+  jmp rx_wait
+
+rx_delay:
+  phx
+  phy
+  ldy #$02
+rx_delay_outer:
+  ldx #$A4
+rx_delay_inner:
+  dex
+  bne rx_delay_inner
+  dey
+  bne rx_delay_outer
+  ply
+  plx
   rts
 .)
 
@@ -3729,20 +4151,20 @@ aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0
 		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a, $0d, $0a
                  .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $00
 helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
-		 .byte "echo	 - Echos a string to the screen.", $0d, $0a
-		 .byte "help	 - displays this screen", $0d, $0a
-		 .byte "about	 - displays information about this software", $0d, $0a
-		 .byte "dump	 - dumps memory contents at a specific address", $0d, $0a
-		 .byte "poke	 - puts a value at an address", $0d, $0a
-		 .byte "zero	 - fills a memory range with zeros", $0d, $0a
-		 .byte "go	 - jumps to an address", $0d, $0a
+		 .byte "echo", $09, " - Echos a string to the screen.", $0d, $0a
+		 .byte "help", $09, " - displays this screen", $0d, $0a
+		 .byte "about", $09, " - displays information about this software", $0d, $0a
+		 .byte "dump", $09, " - dumps memory contents at a specific address", $0d, $0a
+		 .byte "poke", $09, " - puts a value at an address", $0d, $0a, $00
+helpstring2:	 .byte "zero", $09, " - fills a memory range with zeros", $0d, $0a
+		 .byte "go", $09, " - jumps to an address", $0d, $0a
 		 .byte "xreceive - receive from the serial port with xmodem to a specified address", $0d, $0a
-		 .byte "dis	 - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a
-		 .byte "input	 - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
-		 .byte "memtest	 - tests memory integrity", $0d, $0a
-		 .byte "receive	 - like xreceive, but no protocol is used", $0d, $0a
-		 .byte "load	 - load a memory card's automatic loading system", $0d, $0a
-		 .byte "rti	 - return from any pending interuppts. warning-might crash", $0d, $0a, $00
+		 .byte "dis", $09, " - disassembles machine code a memory range into assembly, and prints that onto the screen", $0d, $0a, $00
+		 .byte "input", $09, " - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
+helpstring3:	 .byte "memtest  - tests memory integrity", $0d, $0a
+		 .byte "receive  - like xreceive, but no protocol is used", $0d, $0a
+		 .byte "load", $09, " - load a memory card's automatic loading system", $0d, $0a
+		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a, $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
 implementstring: .byte "Not yet implemented", $0d, $0a, $00
 dumperrstring:   .byte "Usage: dump hexaddress [count:10]", $00
@@ -3769,7 +4191,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7810,$00
+  .dsb 7786,$00
 
 ; ----KERNAL----
 

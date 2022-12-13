@@ -294,7 +294,6 @@ recv_1a:	; otherwise,
   nop
 rx_donea:
   ror		; rotate carry into accumulator
-  stz PORTB	; DEBUG
   dex
   bne read_bita	; repeat until 8 bits read
   sta cnt,y
@@ -310,7 +309,6 @@ got_len:
 rx_wait:
   bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
-
   jsr rx_delay
   ldx #8
 read_bit:
@@ -326,7 +324,6 @@ recv_1:
   nop
 rx_done:
   ror		; rotate carry into accumulator
-  stz PORTB
   dex
   bne read_bit	; repeat until 8 bits read
   sta (cnt)	; store data
@@ -369,8 +366,6 @@ rx_delay_inner:
   bne rx_delay_outer
   ply
   plx
-  lda #$01
-  sta PORTB
   rts
 
 loadmsg:
