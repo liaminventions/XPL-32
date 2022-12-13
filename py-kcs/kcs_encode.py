@@ -64,9 +64,9 @@ def kcs_write_wav(filename,data,leader,trailer):
     # Encode the actual data
     for byteval in data:
         w.writeframes(kcs_encode_byte(byteval))
-        if byteval == 0x0d:
+        # if byteval == 0x0d:
             # If CR, emit a short pause (10 NULL bytes)
-            w.writeframes(null_pulse)
+        #    w.writeframes(null_pulse)
     
     # Write the trailer
     w.writeframes(one_pulse*(int(FRAMERATE/len(one_pulse))*trailer))
@@ -80,10 +80,10 @@ if __name__ == '__main__':
 
     in_filename = sys.argv[1]
     out_filename = sys.argv[2]
-    data = open(in_filename,"r").read()
-    data = data.replace('\n','\r\n')         # Fix line endings
-    rawdata = bytearray(data.encode('latin-1'))
-    kcs_write_wav(out_filename,rawdata,5,5)
+    data = open(in_filename,"rb").read()
+    # data = data.replace('\n','\r\n')         # Fix line endings
+    #rawdata = bytearray(data.encode('latin-1'))
+    kcs_write_wav(out_filename,data,5,5) #rawdata,5,5)
 
     
 
