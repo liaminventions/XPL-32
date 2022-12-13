@@ -87,6 +87,7 @@ thing  		= $00 ; 1byt
 tapest 		= $01 ; 1byt
 cnt    		= $02 ; 2byt
 len    		= $04 ; 2byt
+cnt2		= $05 ; 2byt
 
 SEN		= $7ffd
 
@@ -1145,6 +1146,10 @@ saving_msg:
   .byte "Saving...", $00
 msg2:
   .byte "Done!", $0d, $0a, $02, $5f, $00
+loadedmsg:
+  .byte "Loaded from ", $00
+tomsg:
+  .byte " to ", $00
 
 ; Load from a cassette tape.
 ;
@@ -1198,6 +1203,10 @@ rx_donea:
   iny
   cpy #$04
   beq got_len
+  lda cnt
+  sta cnt2
+  lda cnt+1
+  sta cnt2+1
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait_start
@@ -1238,9 +1247,10 @@ declen:
   cmp len+1
   bne rx_wait_delay	; if not, get another byte
 load_done:
-  ldx #<msg2	; Done!
-  ldy #>msg2
+  ldx #<loadedmsg	; Done!
+  ldy #>loadedmsg
   jsr w_acia_full
+  lda 
 
   rts
 
@@ -4172,6 +4182,7 @@ pokeerrstring:   .byte "Usage: poke hexaddress hexvalue", $00
 goerrstring:	 .byte "Usage: go hexaddress", $00
 zeroerrstring:	 .byte "Usage: zero hexaddress [count:10]", $00
 xrecverrstring:  .byte "Usage: xreceive hexaddress", $00
+tsaveerrstring:	 .byte "Usage: tsave startaddr endaddr", $00
 inputhelpstring: .byte "Enter two-digit hex bytes. Blank line to end.", $00
 inputerrstring:  .byte "Usage: input hexaddress", $00
 memerrstr:	 .byte "Memory test failed", $00
@@ -4191,7 +4202,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7786,$00
+  .dsb 7001,$00
 
 ; ----KERNAL----
 

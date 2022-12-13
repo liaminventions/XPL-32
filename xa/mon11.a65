@@ -87,6 +87,7 @@ thing  		= $00 ; 1byt
 tapest 		= $01 ; 1byt
 cnt    		= $02 ; 2byt
 len    		= $04 ; 2byt
+cnt2		= $05 ; 2byt
 
 SEN		= $7ffd
 
@@ -1145,6 +1146,10 @@ saving_msg:
   .byte "Saving...", $00
 msg2:
   .byte "Done!", $0d, $0a, $02, $5f, $00
+loadedmsg:
+  .byte "Loaded from ", $00
+tomsg:
+  .byte " to ", $00
 
 ; Load from a cassette tape.
 ;
@@ -1198,6 +1203,10 @@ rx_donea:
   iny
   cpy #$04
   beq got_len
+  lda cnt
+  sta cnt2
+  lda cnt+1
+  sta cnt2+1
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait_start
@@ -1238,10 +1247,21 @@ declen:
   cmp len+1
   bne rx_wait_delay	; if not, get another byte
 load_done:
-  ldx #<msg2	; Done!
-  ldy #>msg2
+  ldx #<loadedmsg	; Done!
+  ldy #>loadedmsg
   jsr w_acia_full
-
+  lda cnt2+1
+  jsr print_hex_acia
+  lda cnt2
+  jsr print_hex_acia
+  ldx #<tomsg
+  ldy #>tomsg
+  jsr w_acia_full
+  lda len+1
+  jsr print_hex_acia
+  lda len
+  jsr print_hex_acia
+  jsr crlf
   rts
 
 rx_wait_delay:
