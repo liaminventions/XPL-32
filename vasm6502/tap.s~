@@ -54,7 +54,7 @@ head1:
   jmp head
 header_done:
   dey
-  beq afterhead:
+  beq afterhead
   lda #0
   sta begin+1
   jmp begin

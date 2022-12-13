@@ -283,9 +283,13 @@ rx_wait_start:
   bit PORTB	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait_start
 
+  jsr rx_delay
   ldx #8
+  jmp rba
 read_bita:
   jsr rx_delay	; run bit delay for 300 baud serial stream
+  jsr rx_delay
+rba:
   bit PORTB	; read in the state
   bvs recv_1a	; if it's not a one,
   clc		; it's a zero.
@@ -310,9 +314,13 @@ rx_wait:
   bit PORTB	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
 
+  jsr rx_delay
   ldx #8
+  jmp rbb
 read_bit:
   jsr rx_delay	; run bit delay for 300 baud serial stream
+  jsr rx_delay
+rbb:
   bit PORTB	; read in the state
   bvs recv_1	; if it's not a one,
   clc		; it's a zero.
