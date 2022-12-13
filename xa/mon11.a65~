@@ -1074,13 +1074,21 @@ one:			; 2400hz sound 8 cyc
   sta $b800
   lda #$9d
   sta $b801
+  ldx #0
+lp2:
+  lda reg,x
+  sta $b802,x
+  inx
+  cpx #5
+  bne lp2
+
   jsr rx_delay
   jsr rx_delay
   pla
   rts
 
 reg:
-  .byte $00, $08, $81, $00, $f0
+  .byte $00, $08, $41, $00, $f0
 
 ;togtap:
 ;  lda tapest
@@ -1111,6 +1119,14 @@ zero: 			; 1200hz sound 4 cyc
   sta $b800
   lda #$4e
   sta $b800
+  ldx #0
+lp3:
+  lda reg,x
+  sta $b802,x
+  inx
+  cpx #5
+  bne lp3
+
   jsr rx_delay
   jsr rx_delay
   pla
@@ -4241,7 +4257,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6943,$00
+  .dsb 7011,$00
 
 ; ----KERNAL----
 
