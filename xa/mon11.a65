@@ -1080,7 +1080,7 @@ one:			; 2400hz sound 8 cyc
   rts
 
 reg:
-  .byte $00, $08, $81, $00, $f0
+  .byte $00, $08, $41, $00, $f0
 
 ;togtap:
 ;  lda tapest
