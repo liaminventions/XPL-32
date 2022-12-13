@@ -15,7 +15,7 @@ len    = $04 ; 2byt
 
 start:
   lda #%10111111
-  sta DDRB
+  sta DDRA
   stz $b00e
   stz tapest
 
@@ -161,7 +161,7 @@ togtap:
   lda tapest
   eor #%10000000 	; data out on PA7
   sta tapest
-  sta PORTB
+  sta PORTA
   rts
 
 zero: 			; 1200hz sound 4 cyc
@@ -258,6 +258,8 @@ clearmsg:
 
 load:
   lda #%10111111
+  sta DDRA
+  lda #%11111111
   sta DDRB
 
   lda #$20
@@ -280,17 +282,15 @@ load:
   ; thanks to ben eater for this code
 
 rx_wait_start:
-  bit PORTB	; wait until PORTB.6 = 0 (start bit)
+  bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait_start
 
   jsr rx_delay
   ldx #8
-  jmp rba
 read_bita:
   jsr rx_delay	; run bit delay for 300 baud serial stream
   jsr rx_delay
-rba:
-  bit PORTB	; read in the state
+  bit PORTA	; read in the state
   bvs recv_1a	; if it's not a one,
   clc		; it's a zero.
   jmp rx_donea
@@ -311,17 +311,15 @@ got_len:
   sta len+1
 
 rx_wait:
-  bit PORTB	; wait until PORTB.6 = 0 (start bit)
+  bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
 
   jsr rx_delay
   ldx #8
-  jmp rbb
 read_bit:
   jsr rx_delay	; run bit delay for 300 baud serial stream
   jsr rx_delay
-rbb:
-  bit PORTB	; read in the state
+  bit PORTA	; read in the state
   bvs recv_1	; if it's not a one,
   clc		; it's a zero.
   jmp rx_done
