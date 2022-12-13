@@ -1250,8 +1250,18 @@ load_done:
   ldx #<loadedmsg	; Done!
   ldy #>loadedmsg
   jsr w_acia_full
-  lda 
-
+  lda cnt2+1
+  jsr print_hex_acia
+  lda cnt2
+  jsr print_hex_acia
+  ldx #<tomsg
+  ldy #>tomsg
+  jsr w_acia_full
+  lda len+1
+  jsr print_hex_acia
+  lda len
+  jsr print_hex_acia
+  jsr crlf
   rts
 
 rx_wait_delay:
@@ -4202,7 +4212,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7001,$00
+  .dsb 6945,$00
 
 ; ----KERNAL----
 
