@@ -37,9 +37,9 @@ start:
 
   lda #1
   sta thing
-  ldy #2
+  ldy #0
 begin:
-  lda #100		; our data is 100 bytes long
+  lda headertable,y	; our data is 100 bytes long
   and thing
   bne head1
   jsr zero
@@ -53,12 +53,9 @@ head1:
   jsr one
   jmp head
 header_done:
-  dey
-  beq afterhead
-  lda #0
-  sta begin+1
-  jmp begin
-afterhead:
+  iny
+  cpy #$04
+  bne begin
   ldy #$20
   jsr inout
   ; now to send the actual data
@@ -105,7 +102,8 @@ savedone
   rts
   rts
 
-
+headertable:
+  .byte $00, $20, $64, $20
 
 ; subs
 
@@ -262,10 +260,6 @@ load:
   lda #%11111111
   sta DDRB
 
-  lda #$20
-  sta cnt+1
-  stz cnt
-
   ldx #<loadmsg		; PRESS PLAY ON TAPE
   ldy #>loadmsg
   jsr w_acia_full
@@ -277,40 +271,40 @@ load:
   ldy #>loading_msg
   jsr w_acia_full
 
-  ldy #2
+  ldy #0
 
-  ; thanks to ben eater for this code
+  ; thanks to ben eater for help with this code
 
 rx_wait_start:
   bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait_start
 
-  jsr rx_delay
+  jsr rx_delay  ; half-bit delay
   ldx #8
 read_bita:
-  jsr rx_delay	; run bit delay for 300 baud serial stream
+  jsr rx_delay	; run full-bit delay for 300 baud serial stream
   jsr rx_delay
   bit PORTA	; read in the state
   bvs recv_1a	; if it's not a one,
   clc		; it's a zero.
   jmp rx_donea
-recv_1a:
+recv_1a:	; otherwise,
   sec		; it's a one.
   nop		; nops for timing
   nop
 rx_donea:
   ror		; rotate carry into accumulator
-  stz PORTB
+  stz PORTB	; DEBUG
   dex
   bne read_bita	; repeat until 8 bits read
-  dey
+  sta cnt,y
+  iny
+  cpy #$04
   beq got_len
-  sta len
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait_start
 got_len:
-  sta len+1
   jsr rx_delay
   jsr rx_delay
 rx_wait:
@@ -335,9 +329,9 @@ rx_done:
   stz PORTB
   dex
   bne read_bit	; repeat until 8 bits read
-  jsr rx_delay
-  jsr rx_delay
   sta (cnt)	; store data
+  jsr rx_delay
+  jsr rx_delay
   inc cnt
   bne declen
   inc cnt+1
