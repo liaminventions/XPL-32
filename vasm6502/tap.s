@@ -306,10 +306,13 @@ rx_donea:
   dey
   beq got_len
   sta len
+  jsr rx_delay
+  jsr rx_delay
   jmp rx_wait_start
 got_len:
   sta len+1
-
+  jsr rx_delay
+  jsr rx_delay
 rx_wait:
   bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
@@ -332,7 +335,8 @@ rx_done:
   stz PORTB
   dex
   bne read_bit	; repeat until 8 bits read
-
+  jsr rx_delay
+  jsr rx_delay
   sta (cnt)	; store data
   inc cnt
   bne declen
@@ -361,7 +365,7 @@ rx_delay:
   phy
   ldy #$02
 rx_delay_outer:
-  ldx #$92
+  ldx #$A4
 rx_delay_inner:
   dex
   bne rx_delay_inner
