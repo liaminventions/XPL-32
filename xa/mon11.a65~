@@ -78,16 +78,16 @@ MEMTESTBASE= $0046  ; and $0047
 INPUT      = $0200  ; block out this page for monitor command input
 ;; $0300-03FF is blocked for xmodem buffer
 ;; $0400-04FF is blocked for xmodem testing (temporary)
-XYLODSAV2	= $00  ; temporary address for save command
-STARTADDR	= $02  ; for start addr for receive
-ENDADDR		= $04
-serialvar	= $06
+XYLODSAV2	= $10  ; temporary address for save command
+STARTADDR	= $12  ; for start addr for receive
+ENDADDR		= $14
+serialvar	= $16
 ; only used in tape:
-thing  		= $00 ; 1byt
-tapest 		= $01 ; 1byt
-cnt    		= $02 ; 2byt
-len    		= $04 ; 2byt
-cnt2		= $05 ; 2byt
+thing  		= $10 ; 1byt
+tapest 		= $11 ; 1byt
+cnt    		= $12 ; 2byt
+len    		= $14 ; 2byt
+cnt2		= $15 ; 2byt
 
 SEN		= $7ffd
 
@@ -911,7 +911,7 @@ processparam           ; process the (first) address parameter
   sta len
   lda stackbase+2
   sta len+1
-
+  phx
 
   lda #%10111111
   sta DDRA
@@ -1004,6 +1004,7 @@ savedone
   ldy #>msg2		; "Done!"
   jsr w_acia_full
 
+  plx
   inx
   inx
   inx
@@ -4212,7 +4213,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6945,$00
+  .dsb 6943,$00
 
 ; ----KERNAL----
 

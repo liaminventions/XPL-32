@@ -78,16 +78,16 @@ MEMTESTBASE= $0046  ; and $0047
 INPUT      = $0200  ; block out this page for monitor command input
 ;; $0300-03FF is blocked for xmodem buffer
 ;; $0400-04FF is blocked for xmodem testing (temporary)
-XYLODSAV2	= $00  ; temporary address for save command
-STARTADDR	= $02  ; for start addr for receive
-ENDADDR		= $04
-serialvar	= $06
+XYLODSAV2	= $10  ; temporary address for save command
+STARTADDR	= $12  ; for start addr for receive
+ENDADDR		= $14
+serialvar	= $16
 ; only used in tape:
-thing  		= $00 ; 1byt
-tapest 		= $01 ; 1byt
-cnt    		= $02 ; 2byt
-len    		= $04 ; 2byt
-cnt2		= $05 ; 2byt
+thing  		= $10 ; 1byt
+tapest 		= $11 ; 1byt
+cnt    		= $12 ; 2byt
+len    		= $14 ; 2byt
+cnt2		= $15 ; 2byt
 
 SEN		= $7ffd
 
@@ -903,13 +903,13 @@ processparam           ; process the (first) address parameter
   jsr read16hex
 
   ; stash the paramaters
-  lda stackbase+1
+  lda stackbase+1,x
   sta cnt
-  lda stackbase+2
+  lda stackbase+2,x
   sta cnt+1
-  lda stackbase+1
+  lda stackbase+3,x
   sta len
-  lda stackbase+2
+  lda stackbase+4,x
   sta len+1
   phx
 
@@ -938,7 +938,7 @@ processparam           ; process the (first) address parameter
   sta thing
   ldy #0
 begin:
-  lda stackbase+1,y	; read in the address param
+  lda cnt,y		; read in the address param
   and thing
   bne head1
   jsr zero
