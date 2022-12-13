@@ -911,7 +911,7 @@ processparam           ; process the (first) address parameter
   sta len
   lda stackbase+2
   sta len+1
-
+  phx
 
   lda #%10111111
   sta DDRA
@@ -1004,11 +1004,12 @@ savedone
   ldy #>msg2		; "Done!"
   jsr w_acia_full
 
-  rts
-  rts
+  plx
+  inx
+  inx
+  inx
+  inx
   rts			; return
-  rts
-  rts
 
 ; subs
 
@@ -4212,7 +4213,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6945,$00
+  .dsb 6943,$00
 
 ; ----KERNAL----
 
