@@ -1203,14 +1203,14 @@ rx_donea:
   iny
   cpy #$04
   beq got_len
-  jsr rx_delay
-  jsr rx_delay
-  jmp rx_wait_start
-got_len:
   lda cnt
   sta cnt2
   lda cnt+1
   sta cnt2+1
+  jsr rx_delay
+  jsr rx_delay
+  jmp rx_wait_start
+got_len:
   jsr rx_delay
   jsr rx_delay
 rx_wait:
