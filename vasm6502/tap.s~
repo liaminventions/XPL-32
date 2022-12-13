@@ -336,14 +336,12 @@ rx_done:
   bne declen
   inc cnt+1
 declen:
-  lda cnt	; are we done?
+  lda cnt		; are we done?
   cmp len
-  bne rx_wait
+  bne rx_wait_delay
   lda cnt+1
   cmp len+1
-  bne rx_wait	; if not, get another byte
-  ;jmp rx_wait
-
+  bne rx_wait_delay	; if not, get another byte
 load_done:
   ldx #<msg2	; Done!
   ldy #>msg2
@@ -353,6 +351,10 @@ load_done:
   rts
   rts
   rts
+rx_wait_delay:
+  jsr rx_delay
+  jsr rx_delay
+  jmp rx_wait
 
 rx_delay:
   phx

@@ -165,14 +165,14 @@ channel1\initial_pin_state=2
 decode_signals=1
 generated_signals=0
 views=1
-meta_objs=0
+meta_objs=1
 
 [view0]
-scale=6.872111090155515e-5
-v_offset=59
+scale=0.030917080340481653
+v_offset=25
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0W\0\0\x2\x14\x1\0\0\0\x1\x1\0\0\0\x1\0)
-segment_display_mode=1
-offset=22 serialization::archive 14 0 0 0 0 7 47760228 22926549 37352637 84641498 22015546 0 0 0 6
+segment_display_mode=3
+offset=22 serialization::archive 14 0 0 0 0 7 90766123 5954949 7154308 8407404 58257649 0 1 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -190,3 +190,9 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 13\trace_height=32
 14\trace_height=32
 15\trace_height=32
+
+[meta_obj0]
+type=selection
+assoc_view=0
+start_time=22 serialization::archive 14 0 0 0 0 22476676 59858045 19052682 7113408 60612844 0 -8 1 0 6
+end_time=22 serialization::archive 14 0 0 0 0 12 84505599 99999995 85270415 99154472 35107421 0 0 0 6
