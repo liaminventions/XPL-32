@@ -903,13 +903,15 @@ processparam           ; process the (second) address parameter
   jsr read16hex
 
   ; stash the paramaters
-  lda stackbase+1,x
+  jsr pop16 
+  lda stackaccess
   sta cnt
-  lda stackbase+2,x
+  lda stackaccess+1
   sta cnt+1
-  lda stackbase+3,x
+  jsr pop16
+  lda stackaccess
   sta len
-  lda stackbase+4,x
+  lda stackaccess+1
   sta len+1
   phx ; stash stack pointer
 
