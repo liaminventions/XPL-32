@@ -950,8 +950,9 @@ lp1:
   lda #1
   sta thing
   ldy #0
-begin:
+beginn:
   jsr zero
+begin: 
   lda cnt,y		; read in the address param
   and thing
   bne head1
@@ -972,7 +973,7 @@ header_done:
   jsr one
   iny
   cpy #$04
-  bne begin
+  bne beginn
   ldy #$20
   jsr inout
   ; now to send the actual data
