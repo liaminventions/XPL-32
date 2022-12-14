@@ -1208,6 +1208,7 @@ tomsg:
 
 tloadcmd:
 .(
+  phx
   lda #%10111111
   sta DDRA
   lda #%11111111
@@ -1312,6 +1313,7 @@ load_done:
   lda len
   jsr print_hex_acia
   jsr crlf
+  plx
   rts
 
 rx_wait_delay:
@@ -4263,7 +4265,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7042,$00
+  .dsb 7040,$00
 
 ; ----KERNAL----
 
