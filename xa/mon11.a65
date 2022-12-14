@@ -971,6 +971,7 @@ header_done:
   sta thing
   jsr one
   jsr one
+  jsr zero
   iny
   cpy #$04
   bne begin
