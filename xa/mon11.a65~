@@ -971,6 +971,7 @@ header_done:
   sta thing
   jsr one
   jsr one
+  jsr zero
   iny
   cpy #$04
   bne begin
@@ -4261,7 +4262,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7054,$00
+  .dsb 7044,$00
 
 ; ----KERNAL----
 

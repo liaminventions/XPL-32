@@ -947,12 +947,11 @@ lp1:
   ldy #$40
   jsr inout		; intro sound
 
-  jsr zero
-
   lda #1
   sta thing
   ldy #0
 begin:
+  jsr zero
   lda cnt,y		; read in the address param
   and thing
   bne head1
@@ -971,7 +970,6 @@ header_done:
   sta thing
   jsr one
   jsr one
-  jsr zero
   iny
   cpy #$04
   bne begin
