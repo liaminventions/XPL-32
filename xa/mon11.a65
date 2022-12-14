@@ -884,7 +884,7 @@ tsavecmd:
   cmp #3
   beq processparam
   jmp error
-processparam           ; process the (first) address parameter
+processparam           ; process the (second) address parameter
   clc
   lda #<INPUT
   adc ARGINDEX+4
@@ -893,7 +893,7 @@ processparam           ; process the (first) address parameter
   sta stackaccess+1
   jsr push16
   jsr read16hex
-  clc			; process the (second) address parameter
+  clc			; process the (first) address parameter
   lda #<INPUT
   adc ARGINDEX+2
   sta stackaccess
@@ -911,7 +911,7 @@ processparam           ; process the (first) address parameter
   sta len
   lda stackbase+4,x
   sta len+1
-  phx
+  phx ; stash stack pointer
 
   lda #%10111111
   sta DDRA
