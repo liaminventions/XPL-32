@@ -911,7 +911,7 @@ processparam           ; process the (second) address parameter
   sta len
   lda stackbase+4,x
   sta len+1
-  phx
+  phx ; stash stack pointer
 
   lda #%10111111
   sta DDRA
@@ -967,6 +967,8 @@ head1:
   jsr one
   jmp head
 header_done:
+  lda #1
+  sta thing
   iny
   cpy #$04
   bne begin
@@ -4257,7 +4259,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7006,$00
+  .dsb 7054,$00
 
 ; ----KERNAL----
 
