@@ -887,7 +887,7 @@ tsavecmd:
 processparam           ; process the (second) address parameter
   clc
   lda #<INPUT
-  adc ARGINDEX+4
+  adc ARGINDEX+3
   sta stackaccess
   lda #>INPUT
   sta stackaccess+1
