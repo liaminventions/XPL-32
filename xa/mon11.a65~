@@ -903,13 +903,15 @@ processparam           ; process the (second) address parameter
   jsr read16hex
 
   ; stash the paramaters
-  lda stackbase+1,x
+  jsr pop16 
+  lda stackaccess
   sta cnt
-  lda stackbase+2,x
+  lda stackaccess+1
   sta cnt+1
-  lda stackbase+3,x
+  jsr pop16
+  lda stackaccess
   sta len
-  lda stackbase+4,x
+  lda stackaccess+1
   sta len+1
   phx ; stash stack pointer
 
@@ -1252,9 +1254,9 @@ rx_donea:
   cpy #$04
   beq got_len
   lda cnt
-  sta cnt2
+  pha
   lda cnt+1
-  sta cnt2+1
+  pha
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait_start
@@ -1295,12 +1297,12 @@ declen:
   cmp len+1
   bne rx_wait_delay	; if not, get another byte
 load_done:
-  ldx #<loadedmsg	; Done!
+  ldx #<loadedmsg	; Loaded from X to Y
   ldy #>loadedmsg
   jsr w_acia_full
-  lda cnt2+1
+  pla
   jsr print_hex_acia
-  lda cnt2
+  pla
   jsr print_hex_acia
   ldx #<tomsg
   ldy #>tomsg
@@ -4261,7 +4263,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7044,$00
+  .dsb 7034,$00
 
 ; ----KERNAL----
 

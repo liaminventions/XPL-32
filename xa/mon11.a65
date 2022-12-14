@@ -887,7 +887,7 @@ tsavecmd:
 processparam           ; process the (second) address parameter
   clc
   lda #<INPUT
-  adc ARGINDEX+4
+  adc ARGINDEX+3
   sta stackaccess
   lda #>INPUT
   sta stackaccess+1
@@ -1254,9 +1254,9 @@ rx_donea:
   cpy #$04
   beq got_len
   lda cnt
-  sta cnt2
+  pha
   lda cnt+1
-  sta cnt2+1
+  pha
   jsr rx_delay
   jsr rx_delay
   jmp rx_wait_start
@@ -1297,12 +1297,12 @@ declen:
   cmp len+1
   bne rx_wait_delay	; if not, get another byte
 load_done:
-  ldx #<loadedmsg	; Done!
+  ldx #<loadedmsg	; Loaded from X to Y
   ldy #>loadedmsg
   jsr w_acia_full
-  lda cnt2+1
+  pla
   jsr print_hex_acia
-  lda cnt2
+  pla
   jsr print_hex_acia
   ldx #<tomsg
   ldy #>tomsg
@@ -4263,7 +4263,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7044,$00
+  .dsb 7034,$00
 
 ; ----KERNAL----
 
