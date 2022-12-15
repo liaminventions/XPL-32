@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.6.0">
+<eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="25" unitdist="mil" unit="mil" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
@@ -3136,6 +3136,8 @@ design rules under a new name.</description>
 </signal>
 <signal name="RAS">
 <contactref element="VDP" pad="1"/>
+<contactref element="IC2" pad="5"/>
+<wire x1="13.97" y1="20.32" x2="6.35" y2="43.18" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="CAS">
 <contactref element="VDP" pad="2"/>
@@ -3150,9 +3152,6 @@ design rules under a new name.</description>
 <wire x1="8.89" y1="29.21" x2="10.795" y2="29.21" width="0.1524" layer="1"/>
 <via x="41.275" y="29.21" extent="1-16" drill="0.35"/>
 <via x="10.795" y="29.21" extent="1-16" drill="0.35"/>
-</signal>
-<signal name="RAS\">
-<contactref element="IC2" pad="5"/>
 </signal>
 <signal name="ROW">
 <contactref element="IC2" pad="6"/>
