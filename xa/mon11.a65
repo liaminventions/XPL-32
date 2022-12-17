@@ -979,6 +979,7 @@ header_done:
   ldy #$20
   jsr inout
   ; now to send the actual data
+  jsr zero
   ldx #0
   lda #1
   sta thing		; first bit
@@ -1046,6 +1047,7 @@ starter:
   rts
 
 one:			; 2400hz sound 8 cyc
+  php
   pha
   ;jsr togtap ; 1
   ;jsr onefreq
@@ -1086,6 +1088,7 @@ one:			; 2400hz sound 8 cyc
   jsr tx_delay
   jsr tx_delay
   pla
+  plp
   rts
 
 reg:
@@ -1099,6 +1102,7 @@ reg:
 ;  rts
 
 zero: 			; 1200hz sound 4 cyc
+  php
   pha 
   ;jsr togtap ; 1
   ;jsr zerofreq
@@ -1123,6 +1127,7 @@ zero: 			; 1200hz sound 4 cyc
   jsr tx_delay
   jsr tx_delay
   pla
+  plp
   rts
 
 ;onefreq:
@@ -4265,7 +4270,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7040,$00
+  .dsb 7033,$00
 
 ; ----KERNAL----
 
