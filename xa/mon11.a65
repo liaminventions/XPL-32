@@ -1320,6 +1320,10 @@ load_done:
   jsr crlf
   plx
   rts
+  rts
+  rts
+  rts
+  rts
 
 rx_wait_delay:
   jsr rx_delay
@@ -4270,7 +4274,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7033,$00
+  .dsb 7029,$00
 
 ; ----KERNAL----
 
