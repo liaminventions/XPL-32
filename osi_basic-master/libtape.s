@@ -27,7 +27,7 @@ tsave:
   sta DDRA
   lda #0
   sta $b00e
-  sta tapest
+  ;sta tapest
 
   lda #$8f
   sta $b818
@@ -406,7 +406,7 @@ rx_done:
   pha
   sta (cnt),y	; store data
   pla
-  tayø
+  tay
   jsr rx_delay
   jsr rx_delay
   inc cnt

@@ -509,6 +509,7 @@ QT_BREAK:
  	.include "libsd.s"
   	.include "libfat32.s"
   	.include "libacia.s"
+	.include "libtape.s"
 	.include "errors.s"
 dirname:
 	.asciiz "FOLDER     "
@@ -5898,7 +5899,7 @@ LOAD:
 	pha
 	jsr 	WRITE_TRANSFER_MSG
 	jsr	SMCHECK
-	beq	JMP_TLOAD
+	bne	JMP_TLOAD
 	bcs	SERIAL_LOAD
 	jmp 	MEMORY_LOAD
 SERIAL_LOAD:
@@ -6116,6 +6117,7 @@ TAPE_SAVE:
 	lda #$01
 	sta len
 	sta cnt
+	ldy #0
 tslp:	jsr inctapeindex
 	bne tslp
 	jsr inctapeindex
@@ -6132,7 +6134,7 @@ inctapeindex:
 	bne tnotinc
 	inc len+1
 tnotinc:
-	lda (len)
+	lda (len),y
 	rts
 
 SAVE:				; BUG serial save dont work
@@ -6143,7 +6145,7 @@ SAVE:				; BUG serial save dont work
 	PHA
 	JSR	WRITE_TRANSFER_MSG
 	JSR	SMCHECK
-	beq	TAPPE_SAVE
+	bne	TAPE_SAVE
 	bcs	SERIAL_SAVE
 	jmp	MEMORY_SAVE
 SERIAL_SAVE:
