@@ -91,11 +91,9 @@ theader_done:
   jsr zero
   ldx #0
   lda #1
-  sta thing		; first bit
-twop:
-  tya
-  pha
   ldy #0
+  sta thing		; first bit
+twop: 
   lda (cnt),y		; load data
   and thing		; mask it
   bne tjsrone		; one
@@ -382,6 +380,7 @@ rx_donea:
 got_len:
   jsr rx_delay
   jsr rx_delay
+  ldy #0
 rx_wait:
   bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
@@ -402,11 +401,7 @@ rx_done:
   ror		; rotate carry into accumulator
   dex
   bne read_bit	; repeat until 8 bits read
-  tya
-  pha
   sta (cnt),y	; store data
-  pla
-  tay
   jsr rx_delay
   jsr rx_delay
   inc cnt

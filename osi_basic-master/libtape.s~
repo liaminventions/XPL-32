@@ -27,7 +27,7 @@ tsave:
   sta DDRA
   lda #0
   sta $b00e
-  sta tapest
+  ;sta tapest
 
   lda #$8f
   sta $b818
@@ -91,11 +91,9 @@ theader_done:
   jsr zero
   ldx #0
   lda #1
-  sta thing		; first bit
-twop:
-  tya
-  pha
   ldy #0
+  sta thing		; first bit
+twop: 
   lda (cnt),y		; load data
   and thing		; mask it
   bne tjsrone		; one
