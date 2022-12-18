@@ -913,6 +913,7 @@ processparam           ; process the (second) address parameter
   sta len
   lda stackaccess+1
   sta len+1
+tsavekernal
   phx ; stash stack pointer
 
   lda #%10111111
@@ -4274,11 +4275,15 @@ interrupt
   jmp ($7ffe)  
   rti
 
+<<<<<<< Updated upstream
   .dsb 7029,$00
+=======
+  .dsb 7020,$00
+>>>>>>> Stashed changes
 
 ; ----KERNAL----
 
-* = $FFB2
+* = $FFA9
 
 ; inits
 
@@ -4343,6 +4348,10 @@ KERNAL_sd_readsector:
 
 KERNAL_loadcmd:
   jmp loadcmd
+KERNAL_tsave:
+  jmp tsavekernal
+KERNAL_tload:
+  jmp tloadcmd
 
    * = $FFFA
   .word interrupt
