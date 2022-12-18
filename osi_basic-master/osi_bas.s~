@@ -5857,7 +5857,7 @@ XPL:
 	.byte	$00
 
 ; XPL-32 LOAD/SAVE ROUTINES =================================================================
-; BY L. OPPENHEIMER 2021/2022 ===============================================================
+; BY Waverider 2021/2022 ===============================================================
 
 SMCHECK:
 	JSR	rxpoll
@@ -5868,12 +5868,26 @@ SMCHECK:
 	LDA	XYLODSAV2	; load tmp var
 	cmp	#'M'		; If "m" is pressed
 	BEQ	MDET		; then use a memory card
+	LDA	XYLODSAV2	; load tmp var
+	cmp	#'T'		; If "t" is pressed
+	BEQ	TDET		; then use tape
 	JMP	SMCHECK
 SDET:
 	sec
+	lda #0
 	rts
 MDET:
 	clc
+	lda #0
+	rts
+TDET:
+	lda #$ff
+	rts	
+
+	.include "libtape.s"
+
+JMP_TLOAD:
+	jmp tload
 	rts
 
 LOAD:
@@ -5884,6 +5898,7 @@ LOAD:
 	pha
 	jsr 	WRITE_TRANSFER_MSG
 	jsr	SMCHECK
+	beq	JMP_TLOAD
 	bcs	SERIAL_LOAD
 	jmp 	MEMORY_LOAD
 SERIAL_LOAD:
@@ -6093,6 +6108,32 @@ WRITE_TRANSFER_MSG:
 	LDY	#>TRANSFER_MSG
 	JSR	w_acia_full
   	RTS
+TAPE_SAVE:
+	; lets loop through the BASIC code to see how long it is.
+	lda #$06
+	sta len+1
+	sta cnt+1
+	lda #$01
+	sta len
+	sta cnt
+tslp:	jsr inctapeindex
+	bne tslp
+	jsr inctapeindex
+	bne tslp
+	jsr inctapeindex
+	bne tslp
+	; ok, start address in cnt and end address in len
+	; time to save.
+	jsr tsave
+	jmp END_SERIAL_SAVE
+
+inctapeindex:
+	inc len
+	bne tnotinc
+	inc len+1
+tnotinc:
+	lda (len)
+	rts
 
 SAVE:				; BUG serial save dont work
 	PHA
@@ -6102,6 +6143,7 @@ SAVE:				; BUG serial save dont work
 	PHA
 	JSR	WRITE_TRANSFER_MSG
 	JSR	SMCHECK
+	beq	TAPPE_SAVE
 	bcs	SERIAL_SAVE
 	jmp	MEMORY_SAVE
 SERIAL_SAVE:
@@ -6153,12 +6195,22 @@ END_SERIAL_SAVE:
 	TAX			; pull registers off stack
 	PLA
 	RTS
-	
+msincremaining:
+        inc fat32_bytesremaining
+        bne msinca
+        inc fat32_bytesremaining
+msinca:
+        inc XYLODSAV2
+        bne msincb
+        inc XYLODSAV2+1
+msincb:
+        rts
 MEMORY_SAVE:
-	; working on the BUG...
+        ; BUG this doesent work
 	jsr rootsetup
 	jsr list
 	jsr type
+        jsr fat32_findnextfreecluster
 	ldy #>sdbuffer
 	ldx #<sdbuffer
 	jsr fat32_finddirent
@@ -6166,6 +6218,29 @@ MEMORY_SAVE:
 	jsr file_exists
 	bcs stopmemsave
 saveok:
+        ; Now calculate file size and store it in fat32_bytesremaining.
+        lda #$01
+        sta XYLODSAV2
+        lda #$06
+        sta XYLODSAV2+1
+        lda #0
+        sta fat32_bytesremaining
+        sta fat32_bytesremaining
+        ldy #0
+savecalclp:
+        lda (XYLODSAV2),y
+        beq mszero
+        jsr msincremaining
+        jmp savecalclp
+mszero:
+        jsr msincremaining
+        lda (XYLODSAV2),y
+        bne savecalclp
+        jsr msincremaining
+        lda (XYLODSAV2),y
+        bne savecalclp
+        ; done
+	jsr fat32_writedirent
 	ldx #<savmsg
  	ldy #>savmsg
   	jsr w_acia_full
@@ -6285,6 +6360,7 @@ Reset:
 
  	jsr via_init
 	jsr sd_init
+        bcs dispstart
 	jsr fat32_init
 	bcc dispstart
  

@@ -1,50 +1,54 @@
 ; kernal def
 
-acia_init = $ffb2
+acia_init = $ffb9
 
-stock_via = $ffb5
+stock_via = $ffac
 
-sd_init = $ffb8
+sd_init = $ffaf
 
-fat32_init = $ffbb
+fat32_init = $ffb2
 
-print_hex_acia = $ffbe
+print_hex_acia = $ffb5
 
-crlf = $ffc1
+crlf = $ffb8
 
-cleardisplay = $ffc4
+cleardisplay = $ffbb
 
-rxpoll = $ffc7
+rxpoll = $ffbe
 
-txpoll = $ffca
+txpoll = $ffc1
 
-print_chara = $ffcd
-print_char_acia = $ffcd
+print_chara = $ffc4
+print_char_acia = $ffc4
 
-ascii_home = $ffd0
+ascii_home = $ffc7
 
-w_acia_full = $ffd3
+w_acia_full = $ffca
 
-fat32_seekcluster = $ffd6
+fat32_seekcluster = $ffcd
 
-fat32_readnextcluster = $ffd9
+fat32_readnextcluster = $ffd0
 
-fat32_openroot = $ffdc
+fat32_openroot = $ffd3
 
-fat32_opendirent = $ffdf
+fat32_opendirent = $ffd6
 
-fat32_readdirent = $ffe2
+fat32_readdirent = $ffd9
 
-fat32_finddirent = $ffe5
+fat32_finddirent = $ffdc
 
-fat32_readbyte = $ffe8
+fat32_file_readbyte = $ffdf
 
-fat32_file_read = $ffeb
+fat32_file_read = $ffe2
 
-sd_readbyte = $ffee
+sd_readbyte = $ffe5
 
-sd_sendcommand = $fff1
+sd_sendcommand = $ffe8
 
-sd_readsector = $fff4
+sd_readsector = $ffeb
 
-loadcmd = $fff7
+loadcmd = $ffee
+
+tsave = $fff1
+
+tload = $fff7

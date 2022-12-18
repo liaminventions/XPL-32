@@ -5857,7 +5857,7 @@ XPL:
 	.byte	$00
 
 ; XPL-32 LOAD/SAVE ROUTINES =================================================================
-; BY L. OPPENHEIMER 2021/2022 ===============================================================
+; BY Waverider 2021/2022 ===============================================================
 
 SMCHECK:
 	JSR	rxpoll
@@ -5868,12 +5868,26 @@ SMCHECK:
 	LDA	XYLODSAV2	; load tmp var
 	cmp	#'M'		; If "m" is pressed
 	BEQ	MDET		; then use a memory card
+	LDA	XYLODSAV2	; load tmp var
+	cmp	#'T'		; If "t" is pressed
+	BEQ	TDET		; then use tape
 	JMP	SMCHECK
 SDET:
 	sec
+	lda #0
 	rts
 MDET:
 	clc
+	lda #0
+	rts
+TDET:
+	lda #$ff
+	rts	
+
+	.include "libtape.s"
+
+JMP_TLOAD:
+	jmp tload
 	rts
 
 LOAD:
@@ -5884,6 +5898,7 @@ LOAD:
 	pha
 	jsr 	WRITE_TRANSFER_MSG
 	jsr	SMCHECK
+	beq	JMP_TLOAD
 	bcs	SERIAL_LOAD
 	jmp 	MEMORY_LOAD
 SERIAL_LOAD:
@@ -6093,6 +6108,33 @@ WRITE_TRANSFER_MSG:
 	LDY	#>TRANSFER_MSG
 	JSR	w_acia_full
   	RTS
+TAPE_SAVE:
+	; lets loop through the BASIC code to see how long it is.
+	lda #$06
+	sta len+1
+	sta cnt+1
+	lda #$01
+	sta len
+	sta cnt
+	ldy #0
+tslp:	jsr inctapeindex
+	bne tslp
+	jsr inctapeindex
+	bne tslp
+	jsr inctapeindex
+	bne tslp
+	; ok, start address in cnt and end address in len
+	; time to save.
+	jsr tsave
+	jmp END_SERIAL_SAVE
+
+inctapeindex:
+	inc len
+	bne tnotinc
+	inc len+1
+tnotinc:
+	lda (len),y
+	rts
 
 SAVE:				; BUG serial save dont work
 	PHA
@@ -6102,6 +6144,7 @@ SAVE:				; BUG serial save dont work
 	PHA
 	JSR	WRITE_TRANSFER_MSG
 	JSR	SMCHECK
+	beq	TAPPE_SAVE
 	bcs	SERIAL_SAVE
 	jmp	MEMORY_SAVE
 SERIAL_SAVE:
