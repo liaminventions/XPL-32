@@ -4275,11 +4275,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-<<<<<<< Updated upstream
-  .dsb 7029,$00
-=======
   .dsb 7020,$00
->>>>>>> Stashed changes
 
 ; ----KERNAL----
 
@@ -4349,7 +4345,7 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadcmd
 KERNAL_tsave:
-  jmp tsavekernal
+  jmp tsavecmd+81
 KERNAL_tload:
   jmp tloadcmd
 
