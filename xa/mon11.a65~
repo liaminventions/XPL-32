@@ -3985,11 +3985,11 @@ load1:
   lda #'!'
   jsr print_chara
 
- ; rts
- ; rts
- ; rts
+  rts
+  rts
+  rts
 
-  jmp looopp
+ ; jmp looopp
 
 initsuccess
 
@@ -4081,8 +4081,25 @@ foundcode
   lda buffer+1
   sta fat32_address+1
 
+  sei
+  lda #<loadirq
+  sta $7ffe
+  lda #>loadirq
+  sta $7fff
+  lda #$c0
+  sta $b00e
+  lda #$40
+  sta $b00b
+  lda #$ff
+  sta $b004
+  sta $b005
+  lda #0
+  sta lix
+  cli
 
   jsr fat32_file_read
+
+  sei
 
   ldy #>ends
   ldx #<ends
@@ -4092,6 +4109,26 @@ foundcode
 
 looopp
   rts
+  rts
+  rts
+
+loadirq:
+  phx
+  jsr txpoll
+  ldx lix
+  lda loadtable,x
+  sta ACIAData
+  inx
+  lda loadtable,x
+  sta ACIAData
+  inx
+  cpx #8
+  bne lirq
+  ldx #0
+lirq:
+  stx lix
+  plx
+  rti
 
 submsg
   .byte "'folder' Not Found!", $00
@@ -4269,7 +4306,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7025,$00
+  .dsb 7029,$00
 
 ; ----KERNAL----
 
