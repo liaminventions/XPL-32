@@ -4119,10 +4119,10 @@ loadirq:
   jsr txpoll
   ldx lix
   lda loadtable,x
-  sta ACIAData
+  sta $8000
   inx
   lda loadtable,x
-  sta ACIAData
+  sta $8000
   inx
   cpx #8
   bne lirq
@@ -4308,7 +4308,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7029,$00
+  .dsb 6962,$00
 
 ; ----KERNAL----
 
