@@ -1,16 +1,12 @@
-CREDITS:
+****Credits:****
 
-Inspiration from Ben Eater
+*Inspiration from Ben Eater*
 
-XPL-32 Computer: Waverider
-
-	With help from the people of r/beneaeter
+XPL-32 Computer: Waverider (With help from the people of r/beneaeter)
 
 Keyboard and Video system: Grant Serale
 
-XPL-32 Monitor: Paul Dorish and Wavrider
-
-	The original program was "mitemon" for Paul's 6502 mite SBC
+XPL-32 Monitor: Paul Dorish and Wavrider (The original program was "mitemon" for Paul's 6502 mite SBC)
 
 OSI-BASIC: Micheal Steil, Grant Searle, Bob Sander-Cederlof, Joe Zbicak, Tom Greene, and Waverider
 
