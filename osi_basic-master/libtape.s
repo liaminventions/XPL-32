@@ -131,6 +131,9 @@ tsavedone:
   ldy #$40
   jsr inout		; we are done, ending sound  
 
+  lda #0
+  sta PORTA
+
   ; done
   ldx #<msg2
   ldy #>msg2		; "Done!"
@@ -428,6 +431,9 @@ declen:
   pla
   tax
   pla
+  rts
+  rts
+  rts
   rts
 
 rx_wait_delay:
