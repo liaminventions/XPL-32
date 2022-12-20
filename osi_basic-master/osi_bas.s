@@ -6122,6 +6122,15 @@ tslp:	jsr inctapeindex
 	bne tslp
 	jsr inctapeindex
 	bne tslp
+	; now to add 1. THIS IS VERY IMPORTANT!
+	; if you dont have this, the EOF will be missing!
+	clc
+	lda len
+	adc #1
+	sta len
+	lda len+1
+	adc #0
+	sta len
 	; ok, start address in cnt and end address in len
 	; time to save.
 	jsr tsave
