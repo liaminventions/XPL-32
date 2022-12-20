@@ -99,8 +99,6 @@ twop:
   bne tjsrone		; one
   jsr zero		; or zero
 toner:
-  pla
-  tay
   lda thing		; load the bitmask
   cmp #$80		; end of byte?
   beq tnoo
@@ -270,16 +268,12 @@ zero: 			; 1200hz sound 4 cyc
 tx_delay:
   txa
   pha
-  tya
-  pha
   ldx #$7e
 tx_delay_inner:
   lda $b81b
   sta PORTA
   dex
   bne tx_delay_inner
-  pla
-  tay
   pla
   tax
   rts
@@ -434,9 +428,6 @@ declen:
   pla
   tax
   pla
-  rts
-  rts
-  rts
   rts
 
 rx_wait_delay:

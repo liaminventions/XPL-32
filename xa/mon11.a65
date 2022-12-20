@@ -1028,10 +1028,6 @@ savedone
   jsr w_acia_full
 
   plx
-  inx
-  inx
-  inx
-  inx
   rts			; return
 
 ; subs
@@ -1167,14 +1163,12 @@ error
 
 tx_delay:
   phx
-  phy
   ldx #$7e
 tx_delay_inner:
   lda $b81b
   sta PORTA
   dex
   bne tx_delay_inner
-  ply
   plx
   rts
 
@@ -4275,7 +4269,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7023,$00
+  .dsb 7017,$00
 
 ; ----KERNAL----
 

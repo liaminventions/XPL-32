@@ -1028,10 +1028,6 @@ savedone
   jsr w_acia_full
 
   plx
-  inx
-  inx
-  inx
-  inx
   rts			; return
 
 ; subs
@@ -4275,7 +4271,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7020,$00
+  .dsb 7019,$00
 
 ; ----KERNAL----
 

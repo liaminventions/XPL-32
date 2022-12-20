@@ -99,8 +99,6 @@ twop:
   bne tjsrone		; one
   jsr zero		; or zero
 toner:
-  pla
-  tay
   lda thing		; load the bitmask
   cmp #$80		; end of byte?
   beq tnoo
@@ -270,16 +268,12 @@ zero: 			; 1200hz sound 4 cyc
 tx_delay:
   txa
   pha
-  tya
-  pha
   ldx #$7e
 tx_delay_inner:
   lda $b81b
   sta PORTA
   dex
   bne tx_delay_inner
-  pla
-  tay
   pla
   tax
   rts
@@ -380,6 +374,7 @@ rx_donea:
 got_len:
   jsr rx_delay
   jsr rx_delay
+  ldy #0
 rx_wait:
   bit PORTA	; wait until PORTB.6 = 0 (start bit)
   bvs rx_wait
@@ -400,11 +395,7 @@ rx_done:
   ror		; rotate carry into accumulator
   dex
   bne read_bit	; repeat until 8 bits read
-  tya
-  pha
   sta (cnt),y	; store data
-  pla
-  tay
   jsr rx_delay
   jsr rx_delay
   inc cnt
