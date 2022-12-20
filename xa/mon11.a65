@@ -4083,27 +4083,27 @@ foundcode
   lda buffer+1
   sta fat32_address+1
 
-  sei
-  lda #<loadirq
-  sta $7ffe
-  lda #>loadirq
-  sta $7fff
-  lda #$c0
-  sta $b00e
-  lda #$40
-  sta $b00b
-  lda #$ff
-  sta $b004
-  sta $b005
-  lda #0
-  sta lix
-  lda #$04
-  jsr w_acia_full
-  cli
+  ;sei
+  ;lda #<loadirq
+  ;sta $7ffe
+  ;lda #>loadirq
+  ;sta $7fff
+  ;lda #$c0
+ ; sta $b00e
+ ; lda #$40
+  ;sta $b00b
+  ;lda #$ff
+  ;sta $b004
+  ;sta $b005
+  ;lda #0
+  ;sta lix
+  ;lda #$04
+  ;jsr w_acia_full
+  ;cli
 
   jsr fat32_file_read
 
-  sei
+ ; sei
 
   ldy #>ends
   ldx #<ends
@@ -4116,24 +4116,24 @@ looopp
   rts
   rts
 
-loadirq:
-  pha
-  phx
-  ldx lix
-  lda loadtable,x
-  jsr w_acia_full
-  inx
-  lda loadtable,x
-  jsr w_acia_full
-  inx
-  cpx #7
-  bne lirq
-  ldx #0
-lirq:
-  stx lix
-  plx
-  pla
-  rti
+;loadirq:
+;  pha
+;  phx
+;  ldx lix
+;  lda loadtable,x
+;  jsr w_acia_full
+;  inx
+;  lda loadtable,x
+;  jsr w_acia_full
+;  inx
+;  cpx #7
+;  bne lirq
+;  ldx #0
+;lirq:
+;  stx lix
+;  plx
+;  pla
+;  rti
 
 submsg
   .byte "'folder' Not Found!", $00
@@ -4311,7 +4311,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6958,$00
+  .dsb 7027,$00
 
 ; ----KERNAL----
 
