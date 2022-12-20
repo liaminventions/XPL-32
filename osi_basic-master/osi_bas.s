@@ -6112,7 +6112,7 @@ TAPE_SAVE:
 	lda #$06
 	sta len+1
 	sta cnt+1
-	lda #$01
+	lda #$00
 	sta len
 	sta cnt
 	ldy #0

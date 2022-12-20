@@ -8441,7 +8441,7 @@ Current file: osi_bas.s
 00EBB3  1  A9 06        	lda #$06
 00EBB5  1  85 03        	sta len+1
 00EBB7  1  85 01        	sta cnt+1
-00EBB9  1  A9 01        	lda #$01
+00EBB9  1  A9 00        	lda #$00
 00EBBB  1  85 02        	sta len
 00EBBD  1  85 00        	sta cnt
 00EBBF  1  A0 00        	ldy #0
