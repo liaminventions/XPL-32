@@ -3062,7 +3062,7 @@ sd_waitresult
   rts
 
 loadtable:
-	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
+	.byte $02,"-",$02,"\",$02,"|",$02,"/", $00
 
 sd_sendcommand 
 
@@ -4097,6 +4097,8 @@ foundcode
   sta $b005
   lda #0
   sta lix
+  lda #$04
+  jsr w_acia_full
   cli
 
   jsr fat32_file_read
@@ -4115,21 +4117,22 @@ looopp
   rts
 
 loadirq:
+  pha
   phx
-  jsr txpoll
   ldx lix
   lda loadtable,x
-  sta $8000
+  jsr w_acia_full
   inx
   lda loadtable,x
-  sta $8000
+  jsr w_acia_full
   inx
-  cpx #8
+  cpx #7
   bne lirq
   ldx #0
 lirq:
   stx lix
   plx
+  pla
   rti
 
 submsg
@@ -4308,7 +4311,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6962,$00
+  .dsb 6958,$00
 
 ; ----KERNAL----
 
