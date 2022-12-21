@@ -16,8 +16,11 @@ and then i'm making a part of a demo for atlantis (yay)
 
 i also am part of an FTC team, so thats lotsa work...
 
-
-
 also, on 12/13/22, i coded for 12 HOURS STRAIGHT!!!!! efhwilufrbhewbgiurhewhj
+
+
+OK, so, I finished the KCS system. (just not in BASIC yet.)
+Now, I need to start finishing the SD saving.
+also, somehow the error sound dissapeared? so ill fix that too
 
 so there

@@ -4315,7 +4315,7 @@ interrupt
 
 ; ----KERNAL----
 
-* = $FFA9
+* = $FFAC
 
 ; inits
 
