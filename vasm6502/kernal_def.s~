@@ -1,6 +1,6 @@
 ; kernal def
 
-acia_init = $ffb9
+acia_init = $ffa9
 
 stock_via = $ffac
 
@@ -51,4 +51,4 @@ loadcmd = $ffee
 
 tsave = $fff1
 
-tload = $fff7
+tload = $fff4
