@@ -1,6 +1,6 @@
 ; kernal def
 
-acia_init = $ffb9
+acia_init = $ffa9
 
 stock_via = $ffac
 

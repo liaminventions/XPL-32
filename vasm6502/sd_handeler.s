@@ -15,6 +15,7 @@ fat32_workspace = $200      ; two pages
 buffer = $400               ; 512 bytes
 endbuf = $600
 
+fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 
   .org $0600
 jumptoit:
@@ -237,12 +238,12 @@ end:
   rts
   rts
 
-clear_sid
-  ldx #$18
-csid
-  stz $b800,x
-  dex
-  bne csid
-  rts
+;clear_sid
+;  ldx #$18
+;csid
+;  stz $b800,x
+;  dex
+;  bne csid
+;  rts
 
   .include "errors.s"
