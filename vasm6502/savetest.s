@@ -7,7 +7,8 @@
 
 ; currently the responce is:
 ; c6900Y>
-;
+; or nothing? idk
+
 ACIA = $8000
 ACIAControl = ACIA+3
 ACIACommand = ACIA+2

@@ -7,7 +7,7 @@
 
 ; currently the responce is:
 ; c6900Y>
-;
+; or nothing? idk
 ACIA = $8000
 ACIAControl = ACIA+3
 ACIACommand = ACIA+2
@@ -34,17 +34,17 @@ LF=10
   .org $0f00
 
 reset:
-  jsr sd_init
-  bcs sd_fail
+;  jsr sd_init
+;  bcs sd_fail
   ; sd init done
-  lda #'S'
-  sta ACIAData
-  jsr fat32_init
-  bcs faterror
+;  lda #'S'
+;  sta ACIAData
+;  jsr fat32_init
+;  bcs faterror
   ; fat32 init done
-  jsr txpoll
-  lda #'F'
-  sta ACIAData
+;  jsr txpoll
+;  lda #'F'
+;  sta ACIAData
   ; init done
 initdone:
   ; now make a dummy file.
