@@ -24,18 +24,9 @@ XYLODSAV2 = $64 ; 2
 CR=13
 LF=10
 
-;  .org $c000
+  .org $0f00
+
 reset:
-;  ldx #$ff
-;  txs
-;  jsr acia_init
-  ; acia init done
-;  lda #'A'
-;  jsr w_acia_full
-;  jsr via_init
-  ; via init done
-;  lda #'V'
-;  jsr w_acia _full
   jsr sd_init
   bcs sd_fail
   ; sd init done
@@ -73,17 +64,11 @@ sd_fail:
   jsr w_acia_full
   jmp doneloop
 
-dirname:
-  .asciiz "FOLDER     "
-errormsg:
-  .byte CR,LF,"ERROR!",CR,LF
-  .byte 0
-
+  .include "errors.s"
   .include "hwconfig.s"
   .include "libacia.s"
   .include "libsd.s"
   .include "libfat32.s"
-  .include "errors.s"
 
 rootsetup:		; setup <ROOT>
 
@@ -198,6 +183,11 @@ exn:
   sec
   rts
 
+dirname:
+  .asciiz "FOLDER     "
+errormsg:
+  .byte CR,LF,"ERROR!",CR,LF
+  .byte 0
 sdbuffer:
   .byte "SAVE    BAS" ; save.bas
 EXIST_MSG:
@@ -206,13 +196,5 @@ SAVE_DONE:
   .byte	CR,LF,"Save Complete.",CR,LF,$00
 savmsg:
   .byte $0d, $0a, "Saving...", $0d, $0a, $00
-
-nmi:
-  rti 
-irq:
-  rti
-
-  .org $fffa
-  .word nmi
-  .word reset
-  .word irq
+failedmsg:
+  .byte "Failed!",CR,LF,$00

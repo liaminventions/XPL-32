@@ -15,6 +15,9 @@ fat32_workspace = $200      ; two pages
 buffer = $400               ; 512 bytes
 endbuf = $600
 
+irqcount = $00
+donefact = $01
+
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
 zp_fat32_variables = $46 ; 32
@@ -23,6 +26,8 @@ XYLODSAV2 = $64 ; 2
 
 CR=13
 LF=10
+
+  .org $0f00
 
 reset:
   jsr sd_init
@@ -61,12 +66,6 @@ sd_fail:
   lda #'s'
   jsr w_acia_full
   jmp doneloop
-
-dirname:
-  .asciiz "FOLDER     "
-errormsg:
-  .byte CR,LF,"ERROR!",CR,LF
-  .byte 0
 
   .include "errors.s"
   .include "hwconfig.s"
@@ -187,6 +186,11 @@ exn:
   sec
   rts
 
+dirname:
+  .asciiz "FOLDER     "
+errormsg:
+  .byte CR,LF,"ERROR!",CR,LF
+  .byte 0
 sdbuffer:
   .byte "SAVE    BAS" ; save.bas
 EXIST_MSG:
@@ -195,13 +199,5 @@ SAVE_DONE:
   .byte	CR,LF,"Save Complete.",CR,LF,$00
 savmsg:
   .byte $0d, $0a, "Saving...", $0d, $0a, $00
-
-nmi:
-  rti 
-irq:
-  rti
-
-  .org $fffa
-  .word nmi
-  .word reset
-  .word irq
+failedmsg:
+  .byte "Failed!",CR,LF,$00

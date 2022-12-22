@@ -637,8 +637,8 @@ fat32_writedirent:
   sec
   rts
 
-jmpsskipdiv:
-  jmp .skipdiv
+jmpskipdiv:
+  jmp skipdiv
 
 fat32_findnextfreecluster:
 ; Find next free cluster
@@ -661,7 +661,7 @@ fat32_findnextfreecluster:
   adc fat32_lastfoundfreecluster+1
   adc fat32_lastfoundfreecluster+2
   adc fat32_lastfoundfreecluster+3
-  beq .jmp.skipdiv				; then skip the division
+  beq jmpskipdiv				; then skip the division
   lda fat32_lastfoundfreecluster
   pha
   lda fat32_lastfoundfreecluster+1
@@ -754,7 +754,7 @@ fat32_findnextfreecluster:
   lda	fat32_lba+3
   adc	#0
   sta	fat32_lba+3
-.skipdiv:
+skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
   ; LBA - FATSTART = RESULT
   sec

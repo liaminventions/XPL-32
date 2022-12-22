@@ -284,6 +284,16 @@ sd_readsector:
 .failloop
   jmp .failloop
 
+.readpage
+  ; Read 256 bytes to the address at zp_sd_address
+  ldy #0
+.readloop
+  jsr sd_readbyte
+  sta (zp_sd_address),y
+  iny
+  bne .readloop
+  rts
+
 
 sd_writesector:
   ; Write a sector to the SD card.  A sector is 512 bytes.
@@ -338,17 +348,6 @@ sd_writesector:
   jsr w_acia_full
 .failloop:
   clc
-  rts
-
-
-.readpage
-  ; Read 256 bytes to the address at zp_sd_address
-  ldy #0
-.readloop
-  jsr sd_readbyte
-  sta (zp_sd_address),y
-  iny
-  bne .readloop
   rts
 
 .writepage:

@@ -95,12 +95,12 @@ sd_init:
 
 .initialized
   lda #'Y'
-  jsr print_char
+  jsr print_chara
   rts
 
 .initfailed
   lda #'X'
-  jsr print_char
+  jsr print_chara
 .loop
   jmp .loop
 
@@ -184,13 +184,13 @@ sd_waitresult:
 
 sd_sendcommand:
   ; Debug print which command is being executed
-  jsr lcd_cleardisplay
+  jsr cleardisplay
 
   lda #'c'
-  jsr print_char
+  jsr print_chara
   ldx #0
   lda (zp_sd_address,x)
-  jsr print_hex
+  jsr print_hex_acia
 
   lda #SD_MOSI           ; pull CS low to begin command
   sta PORTA
@@ -218,7 +218,7 @@ sd_sendcommand:
   pha
 
   ; Debug print the result code
-  jsr print_hex
+  jsr print_hex_acia
 
   ; End command
   lda #SD_CS | SD_MOSI   ; set CS high again
@@ -276,13 +276,23 @@ sd_readsector:
 
 .fail
   lda #'s'
-  jsr print_char
+  jsr print_chara
   lda #':'
-  jsr print_char
+  jsr print_chara
   lda #'f'
-  jsr print_char
+  jsr print_chara
 .failloop
   jmp .failloop
+
+.readpage
+  ; Read 256 bytes to the address at zp_sd_address
+  ldy #0
+.readloop
+  jsr sd_readbyte
+  sta (zp_sd_address),y
+  iny
+  bne .readloop
+  rts
 
 
 sd_writesector:
@@ -338,17 +348,6 @@ sd_writesector:
   jsr w_acia_full
 .failloop:
   clc
-  rts
-
-
-.readpage
-  ; Read 256 bytes to the address at zp_sd_address
-  ldy #0
-.readloop
-  jsr sd_readbyte
-  sta (zp_sd_address),y
-  iny
-  bne .readloop
   rts
 
 .writepage:
