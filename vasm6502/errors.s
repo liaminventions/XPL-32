@@ -32,15 +32,16 @@ continue24542:
   rti			; exit
 
 putbut:
-		ldx #$9e
-		stx $b004
-		stx $b006
-		ldx #$0f  ; 250Hz IRQ
-		stx $b005
-		stx $b007
-		rts
-InitSid		jsr putbut
-		jmp $1103
+  ldx #$9e
+  stx $b004
+  stx $b006
+  ldx #$0f  ; 250Hz IRQ
+  stx $b005
+  stx $b007
+  rts
+InitSid:
+  jsr putbut
+  jmp $1103
 
   .org $1006
 
@@ -68,5 +69,4 @@ csid
   dex
   bne csid
   rts
-
 

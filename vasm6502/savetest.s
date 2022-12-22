@@ -24,18 +24,7 @@ XYLODSAV2 = $64 ; 2
 CR=13
 LF=10
 
-  .org $c000
 reset:
-  ldx #$ff
-  txs
-  jsr acia_init
-  ; acia init done
-  lda #'A'
-  jsr w_acia_full
-  jsr via_init
-  ; via init done
-  lda #'V'
-  jsr w_acia _full
   jsr sd_init
   bcs sd_fail
   ; sd init done
@@ -53,14 +42,14 @@ initdone:
   ldx #0
 dummyloop:
   txa
-  sta $0601,x
+  sta $0600,x
   inx
   bne dummyloop
   ; add an EOF
   lda #0
+  sta $0700
   sta $0701
   sta $0702
-  sta $0703
 
   jmp MEMORY_SAVE ; OK, here we go.
 
@@ -74,16 +63,16 @@ sd_fail:
   jmp doneloop
 
 dirname:
-	.asciiz "FOLDER     "
+  .asciiz "FOLDER     "
 errormsg:
-	.byte CR,LF,"ERROR!",CR,LF
-	.byte 0
+  .byte CR,LF,"ERROR!",CR,LF
+  .byte 0
 
+  .include "errors.s"
   .include "hwconfig.s"
   .include "libacia.s"
   .include "libsd.s"
   .include "libfat32.s"
-  .include "errors.s"
 
 rootsetup:		; setup <ROOT>
 
@@ -124,17 +113,17 @@ msinca:
 msincb:
   rts
 MEMORY_SAVE:
-    ; finally. this is what we need to debug.
-	jsr rootsetup
+; finally. this is what we need to debug.
+  jsr rootsetup
   jsr fat32_findnextfreecluster
-	ldy #>sdbuffer
-	ldx #<sdbuffer
-	jsr fat32_finddirent
-	bcs saveok
-	jsr file_exists
-	bcs doneloop
+  ldy #>sdbuffer
+  ldx #<sdbuffer
+  jsr fat32_finddirent
+  bcs saveok
+  jsr file_exists
+  bcs doneloop
 saveok:
-    ; Now calculate file size and store it in fat32_bytesremaining.
+; Now calculate file size and store it in fat32_bytesremaining.
   lda #$01
   sta XYLODSAV2
   lda #$06
@@ -156,9 +145,9 @@ mszero:
   lda (XYLODSAV2),y
   bne savecalclp
 ; done
-	jsr fat32_writedirent
-	ldx #<savmsg
- 	ldy #>savmsg
+  jsr fat32_writedirent
+  ldx #<savmsg
+  ldy #>savmsg
   jsr w_acia_full
   lda #$01
   sta fat32_address
@@ -169,31 +158,34 @@ mszero:
   ldy #>SAVE_DONE
   jsr w_acia_full
 doneloop:
-	jmp doneloop
+  ;jmp doneloop
+  rts
+  rts
+  rts
 file_exists:
-	; clc if 'y'
-	; sec if 'n'
-	ldx #<EXIST_MSG
-	ldy #>EXIST_MSG
-	jsr w_acia_full
+  ; clc if 'y'
+  ; sec if 'n'
+  ldx #<EXIST_MSG
+  ldy #>EXIST_MSG
+  jsr w_acia_full
 fexlp:
-	jsr rxpoll
-	lda ACIAData
-	pha
-	cmp #'y'
-	beq exy
-	cmp #'n'
-	beq exn
-	pla
-	jmp fexlp
+  jsr rxpoll
+  lda ACIAData
+  pha
+  cmp #'y'
+  beq exy
+  cmp #'n'
+  beq exn
+  pla
+  jmp fexlp
 exy:
-	jsr crlf
-	clc
-	rts
+  jsr crlf
+  clc
+  rts
 exn:
-	jsr crlf
-	sec
-	rts
+  jsr crlf
+  sec
+  rts
 
 sdbuffer:
   .byte "SAVE    BAS" ; save.bas

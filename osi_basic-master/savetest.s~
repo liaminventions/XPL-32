@@ -30,15 +30,18 @@ reset:
   txs
   jsr acia_init
   ; acia init done
+  jsr txpoll
   lda #'A'
-  jsr w_acia_full
+  sta ACIAData
   jsr via_init
   ; via init done
+  jsr txpoll
   lda #'V'
-  jsr w_acia _full
+  sta ACIAData
   jsr sd_init
-  bcs sd_fail
+  bcs initdone
   ; sd init done
+  jsr txpoll
   lda #'S'
   sta ACIAData
   jsr fat32_init
@@ -65,12 +68,9 @@ dummyloop:
   jmp MEMORY_SAVE ; OK, here we go.
 
 faterror:
+  jsr txpoll
   lda #'f'
-  jsr w_acia_full
-  jmp doneloop
-sd_fail:
-  lda #'s'
-  jsr w_acia_full
+  sta ACIAData
   jmp doneloop
 
 dirname:
