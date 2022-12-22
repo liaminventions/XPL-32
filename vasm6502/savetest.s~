@@ -4,6 +4,10 @@
 ; i will use ben eater's debugger for this.
 ; BUG not sure if the SD card or the ACIA can run at a low clock rate
 ; 
+
+; currently the responce is:
+; c6900Y>
+;
 ACIA = $8000
 ACIAControl = ACIA+3
 ACIACommand = ACIA+2
@@ -14,6 +18,9 @@ fat32_workspace = $200      ; two pages
 
 buffer = $400               ; 512 bytes
 endbuf = $600
+
+irqcount = $00
+donefact = $01
 
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
