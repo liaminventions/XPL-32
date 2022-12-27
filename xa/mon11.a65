@@ -565,7 +565,7 @@ helplp:
   inc PRINTVEC+1
 help2:
   lda PRINTVEC
-  cmp #<helpstingend
+  cmp #<helpstringend
   bne helplp
   lda PRINTVEC+1
   cmp #>helpstringend
@@ -1438,10 +1438,15 @@ cdsub:
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
-  bcs error
+  bcs cderror
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
+  rts
+cderror
+  ldx #<errormsg
+  ldy #>errormsg
+  jsr w_acia_full
   rts
 .)
 
@@ -3442,7 +3447,7 @@ FSTYPE_FAT32 = 12
   beq foundpart
 
 fail32
-  jmp error
+  jmp ferror
 
 foundpart
 
@@ -3546,7 +3551,7 @@ skipfatsloop
   clc
   rts
 
-error
+ferror
   sec
   rts
 

@@ -109,7 +109,7 @@ folderpointer   = $11 ; 2byt
 ;; startup enable
 SEN		= $7ffd
 ;; after startup enable, there is a irq address.
-;; BUG NO NMI! this is due to there being no NMI on the XPL-32 PCB. (not yet implemented)
+;; BUG THERE IS NO NMI! this is due to there being no NMI on the XPL-32 PCB. (not yet implemented)
 
 fat32_readbuffer = fat32_workspace
 
@@ -565,7 +565,7 @@ helplp:
   inc PRINTVEC+1
 help2:
   lda PRINTVEC
-  cmp #<helpstingend
+  cmp #<helpstringend
   bne helplp
   lda PRINTVEC+1
   cmp #>helpstringend
