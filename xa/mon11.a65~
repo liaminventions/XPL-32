@@ -1527,7 +1527,7 @@ xreceivecmd
   lda ARGINDEX
   cmp #2
   beq processparam
-  jmp error
+  jmp xerror
 
 processparam           ; process the address parameter
   clc
@@ -1552,7 +1552,7 @@ processparam           ; process the address parameter
   jsr xmodemrecv    ; call the receive command
   jmp xmreturn
 
-error
+xerror
   lda #<xrecverrstring
   sta PRINTVEC
   lda #>xrecverrstring+1
@@ -1580,7 +1580,7 @@ inputcmd
   lda ARGINDEX
   cmp #2
   beq printhelp
-  jmp error
+  jmp inputerror
 
 printhelp
   ;; print a help message
@@ -1665,7 +1665,7 @@ donebytes
 endinput
   jmp inputreturn
 
-error
+inputerror
   lda #<inputerrstring
   sta PRINTVEC
   lda #>inputerrstring+1
@@ -1699,7 +1699,7 @@ discmd
   beq twoparam        ; two parameters (ie instruction plus address)
   cmp #3
   beq threeparam      ; three parameters (instruction, address, count)
-  jmp error           ; neither 2 nor 3, so there's an error
+  jmp diserror        ; neither 2 nor 3, so there's an error
 twoparam              ; only two parameters specified, so fill in third
   lda #$10            ; default number of instructions to decode
   sta stackaccess
@@ -1740,7 +1740,7 @@ COUNT=SCRATCH+$0C
   sta COUNT
   jmp begindis
 
-error
+diserror
   lda #<diserrorstring
   sta PRINTVEC
   lda #>diserrorstring
@@ -3430,8 +3430,6 @@ FSTYPE_FAT32 = 12
   cmp #FSTYPE_FAT32
   beq foundpart
 
-.(
-
 fail32
   jmp error
 
@@ -3540,7 +3538,6 @@ skipfatsloop
 error
   sec
   rts
-.)
 
 
 fat32_seekcluster
@@ -4150,7 +4147,7 @@ loadcmd
   stz folderpointer+1
   jmp loadone
 jmperror:
-  jmp error
+  jmp lderror
 processparam           ; process the filename parameter
   clc
   lda #<INPUT
@@ -4172,7 +4169,7 @@ processparam           ; process the filename parameter
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
   bcc foundcode
-error
+lderror
   ldx #<errormsg
   ldy #>errormsg
   jsr w_acia_full
