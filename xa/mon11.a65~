@@ -4179,7 +4179,9 @@ error
   rts
   rts
   rts
+.)
 loadone:
+.(
   ; Open root directory
   jsr fat32_openroot
 
