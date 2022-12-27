@@ -1428,6 +1428,15 @@ processparam           ; process the filename parameter
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  ; convert lowercase to uppercase
+  ldy #0
+cdlp:
+  lda (folderpointer),y
+  and #$6f  ; to uppercase
+  sta (folderpointer),y
+  iny
+  cpy #8
+  bne cdlp
 .)
 cdsub:
 .(
@@ -1438,17 +1447,17 @@ cdsub:
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
-  bcs cderror
+  bcs error
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
   rts
-cderror
+.)
+error
   ldx #<errormsg
   ldy #>errormsg
   jsr w_acia_full
   rts
-.)
 
 shortconvert:
   ldy #0
@@ -1469,9 +1478,10 @@ filllp:
 .)
 
 other:
-  jsr txpoll		; Write a letter of the filename currently being read
+  ; Write a letter of the filename currently being read
   lda (zp_sd_address),y
-  sta $8000
+  ora #$20		; convert uppercase to lowercase
+  jsr w_acia_full
   iny
   rts
 
@@ -1572,7 +1582,7 @@ processparam           ; process the address parameter
   sta stackaccess+1
 
   jsr push16        ; put the string address on the stack
-  jsr read16hex     ; convert string to a number value
+  jsr	 read16hex     ; convert string to a number value
   jsr pop16         ; pop number, leave in stackaccess
 
   lda stackaccess   ; copy 16 bit address into XDESTADDR

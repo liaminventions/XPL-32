@@ -1428,6 +1428,15 @@ processparam           ; process the filename parameter
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  ; convert lowercase to uppercase
+  ldy #0
+cdlp:
+  lda (folderpointer),y
+  and #$6f  ; to uppercase
+  sta (folderpointer),y
+  iny
+  cpy #8
+  bne cdlp
 .)
 cdsub:
 .(
@@ -1469,9 +1478,10 @@ filllp:
 .)
 
 other:
-  jsr txpoll		; Write a letter of the filename currently being read
+  ; Write a letter of the filename currently being read
   lda (zp_sd_address),y
-  sta $8000
+  ora #$20		; convert uppercase to lowercase
+  jsr w_acia_full
   iny
   rts
 
@@ -1510,10 +1520,10 @@ list:			; list file dir
 dir:
   lda #$ff
   sta filetype		; directorys show up as 
-  jmp ebut		; YOURFILENAME     TEST		    FOLDER  ...Etc
+  jmp ebut		; yourfilename     test		    folder  ...Etc
 arc:
   stz filetype 		; files show up as
-ebut:			; TEST.XPL         MUSIC.XPL        FILE.BIN  ...Etc
+ebut:			; test.xpl         music.xpl        file.bin  ...Etc
   jsr print_chara	; f or d
   lda #$20		; space
   jsr print_chara
