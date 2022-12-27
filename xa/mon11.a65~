@@ -1401,25 +1401,13 @@ processparam           ; process the filename parameter
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
-  pha folderpointer+1
+  sta folderpointer+1
 .)
 cdsub:
 .(
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
-  ldx #0
-shortlp:
-  lda (folderpointer),x
-  beq fill
-  inx
-  jmp shortlp
-fill:
-  lda #$20
-filllp:
-  sta (folderpointer),x
-  inx
-  cpx #11 ; stop if index over 10
-  bne filllp
+  jsr shortconvert
   ; ok, that should do it. now we need to check if it exists
   ldx folderpointer
   ldy folderpointer+1
@@ -1428,6 +1416,24 @@ filllp:
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
+  rts
+.)
+
+shortconvert:
+  ldy #0
+.(
+shortlp:
+  lda (folderpointer),y
+  beq fill
+  iny
+  jmp shortlp
+fill:
+  lda #$20
+filllp:
+  sta (folderpointer),x
+  inx
+  cpx #11 ; stop if index over 10
+  bne filllp
   rts
 .)
 
@@ -1472,13 +1478,11 @@ list:			; list file dir
   beq arc
 dir:
   lda #$ff
-  sta filetype
-  lda #'D'		; directorys show up as 
-  jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+  sta filetype		; directorys show up as 
+  jmp ebut		; YOURFILENAME     TEST		    FOLDER  ...Etc
 arc:
-  stz filetype
-  lda #'F'		; files show up as
-ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+  stz filetype 		; files show up as
+ebut:			; TEST.XPL         MUSIC.XPL        FILE.BIN  ...Etc
   jsr print_chara	; f or d
   lda #$20		; space
   jsr print_chara
@@ -4153,19 +4157,7 @@ processparam           ; process the filename parameter
   pha folderpointer+1
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
-  ldx #0
-shortlp:
-  lda (folderpointer),x
-  beq fill
-  inx
-  jmp shortlp
-fill:
-  lda #$20
-filllp:
-  sta (folderpointer),x
-  inx
-  cpx #11 ; stop if index over 10
-  bne filllp
+  jsr shortconvert
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file being loaded needs to go to $0F00.
   stz buffer
