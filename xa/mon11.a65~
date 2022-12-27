@@ -1412,7 +1412,7 @@ cdsub:
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
-  bcs jmperror
+  bcs error
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
@@ -1430,7 +1430,7 @@ shortlp:
 fill:
   lda #$20
 filllp:
-  sta (folderpointer),x
+  sta (folderpointer),y
   inx
   cpx #11 ; stop if index over 10
   bne filllp
@@ -1465,7 +1465,7 @@ processparam           ; process the filename parameter
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
-  pha folderpointer+1
+  sta folderpointer+1
   ; now cd
   jsr cdsub
   ; BUG after this is done, the current directory is NOT restored!
@@ -3430,6 +3430,8 @@ FSTYPE_FAT32 = 12
   cmp #FSTYPE_FAT32
   beq foundpart
 
+.(
+
 fail32
   jmp error
 
@@ -3538,6 +3540,7 @@ skipfatsloop
 error
   sec
   rts
+.)
 
 
 fat32_seekcluster
@@ -4154,7 +4157,7 @@ processparam           ; process the filename parameter
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
-  pha folderpointer+1
+  sta folderpointer+1
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
   jsr shortconvert
@@ -4169,6 +4172,7 @@ processparam           ; process the filename parameter
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
   bcc foundcode
+error
   ldx #<errormsg
   ldy #>errormsg
   jsr w_acia_full
@@ -4469,7 +4473,7 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "tload", $09, " - loads a file from the tape system", $0d, $0a
 		 .byte "tsave", $09, " - saves a file to the tape system", $0d, $0a
 		 .byte "ls", $09, " - list the current directory", $0d, $0a
-		 .byte "cd", $09. " - change to the specified directory", $0d, $0a
+		 .byte "cd", $09, " - change to the specified directory", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a
 helpstringend:   .byte $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
@@ -4489,6 +4493,7 @@ serialstring:    .byte "Start Serial Load.", $0d, $0a, $00
 loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 sderror:	 .byte "SD Card failed to initialize", $0d, $0a, $00
+errormsg:	 .byte "Error!", $0d, $0a, $00
 
 rxpoll:
   lda ACIA_STATUS
