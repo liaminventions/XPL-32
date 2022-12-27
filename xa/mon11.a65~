@@ -94,6 +94,7 @@ cnt2		= $15 ; 2byt
 lix		= $10
 ;; LS command:
 filetype	= $10 ; 1byt
+;; LS and CD commands:
 folderpointer   = $11 ; 2byt
 
 ;; startup enable
@@ -180,6 +181,14 @@ table15
   .byte "tload", $00
   .word tloadcmd
 table16
+  .word table17
+  .byte "ls", $00
+  .word lscmd
+table17
+  .word table18
+  .byte "cd", $00
+  .word cdcmd
+table18
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
