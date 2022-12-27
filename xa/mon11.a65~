@@ -78,6 +78,8 @@ MEMTESTBASE= $0046  ; and $0047
 INPUT      = $0200  ; block out this page for monitor command input
 ;; $0300-03FF is blocked for xmodem buffer
 ;; $0400-04FF is blocked for xmodem testing (temporary)
+;;
+;; names of variables used in the scratchpad
 XYLODSAV2	= $10  ; temporary address for save command
 STARTADDR	= $12  ; for start addr for receive
 ENDADDR		= $14
@@ -88,7 +90,13 @@ tapest 		= $11 ; 1byt
 cnt    		= $12 ; 2byt
 len    		= $14 ; 2byt
 cnt2		= $15 ; 2byt
+;; SD loader:
+lix		= $10
+;; LS command:
+filetype	= $10 ; 1byt
+folderpointer   = $11 ; 2byt
 
+;; startup enable
 SEN		= $7ffd
 
 ;;;;;;;;;;;;;;;;;
@@ -1341,6 +1349,127 @@ rx_delay_inner:
   plx
   rts
 
+cdcmd:
+.(
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, change to the specified directory
+  beq processparam
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  pha folderpointer+1
+.)
+cdsub:
+.(
+  ; we need to loop through the null-terminated string
+  ; and convert it to SHORT format
+  ldx #0
+shortlp:
+  lda (folderpointer),x
+  beq fill
+  inx
+  jmp shortlp
+fill:
+  lda #$20
+filllp:
+  sta (folderpointer),x
+  inx
+  cpx #11 ; stop if index over 10
+  bne filllp
+  ; ok, that should do it. now we need to check if it exists
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs jmperror
+  ; ok, it exists, now cd
+  jsr fat32_opendirent
+  ; all done.
+  rts
+.)
+
+other:
+  jsr txpoll		; Write a letter of the filename currently being read
+  lda (zp_sd_address),y
+  sta $8000
+  iny
+  rts
+lscmd:
+.(		
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, list the specified directory
+  beq processparam
+  lda ARGINDEX
+  cmp #1	       ; if there's only one argument (ls) then list current directory 
+  bne jmperror
+  stz folderpointer+1
+  jmp list
+jmperror:
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  pha folderpointer+1
+  ; now cd
+  jsr cdsub
+  ; BUG after this is done, the current directory is NOT restored!
+.)
+list:			; list file dir
+.(
+  jsr fat32_readdirent	; files?
+  bcs nofiles
+  and #$40
+  beq arc
+dir:
+  lda #$ff
+  sta filetype
+  lda #'D'		; directorys show up as 
+  jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+arc:
+  stz filetype
+  lda #'F'		; files show up as
+ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+  jsr print_chara	; f or d
+  lda #$20		; space
+  jsr print_chara
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda filetype
+  bne endthat		; if it's a file,
+  lda #'.'		; shows its file extention
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat		; print 3-letter file extention
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara	; tab
+  jmp list ; go again	; next file if there are any left
+nofiles:		; if not,
+endlist:		; exit listing code
+  jsr crlf
+  rts
+jumptolist:
+  jsr crlf
+  jmp list
+.)
 
 testcmd
   ;jsr xmodemtest
@@ -3060,7 +3189,7 @@ sd_waitresult
   rts
 
 loadtable:
-	.byte $08,"-",$08,"\",$08,"|",$08,"/", $00
+	.byte $02,"-",$02,"\",$02,"|",$02,"/", $00
 
 sd_sendcommand 
 
@@ -4081,25 +4210,27 @@ foundcode
   lda buffer+1
   sta fat32_address+1
 
-  sei
-  lda #<loadirq
-  sta $7ffe
-  lda #>loadirq
-  sta $7fff
-  lda #$c0
-  sta $b00e
-  lda #$40
-  sta $b00b
-  lda #$ff
-  sta $b004
-  sta $b005
-  lda #0
-  sta lix
-  cli
+  ;sei
+  ;lda #<loadirq
+  ;sta $7ffe
+  ;lda #>loadirq
+  ;sta $7fff
+  ;lda #$c0
+ ; sta $b00e
+ ; lda #$40
+  ;sta $b00b
+  ;lda #$ff
+  ;sta $b004
+  ;sta $b005
+  ;lda #0
+  ;sta lix
+  ;lda #$04
+  ;jsr w_acia_full
+  ;cli
 
   jsr fat32_file_read
 
-  sei
+ ; sei
 
   ldy #>ends
   ldx #<ends
@@ -4112,23 +4243,24 @@ looopp
   rts
   rts
 
-loadirq:
-  phx
-  jsr txpoll
-  ldx lix
-  lda loadtable,x
-  sta ACIAData
-  inx
-  lda loadtable,x
-  sta ACIAData
-  inx
-  cpx #8
-  bne lirq
-  ldx #0
-lirq:
-  stx lix
-  plx
-  rti
+;loadirq:
+;  pha
+;  phx
+;  ldx lix
+;  lda loadtable,x
+;  jsr w_acia_full
+;  inx
+;  lda loadtable,x
+;  jsr w_acia_full
+;  inx
+;  cpx #7
+;  bne lirq
+;  ldx #0
+;lirq:
+;  stx lix
+;  plx
+;  pla
+;  rti
 
 submsg
   .byte "'folder' Not Found!", $00
@@ -4306,11 +4438,11 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7029,$00
+  .dsb 7027,$00
 
 ; ----KERNAL----
 
-* = $FFA9
+* = $FFAC
 
 ; inits
 
