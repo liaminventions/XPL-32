@@ -4152,39 +4152,43 @@ loadname
 fat_error
   .byte "FAT32 Error At Stage ", $00
 
+;; load
+;; Here we load a file from the SD card.
+;; If no file is specified, it loads A:/folder/code.xpl,
+;; with the load and start addresses from A:/folder/loadaddr.sar
+;; .SAR stands for Start AdRess.
 loadcmd
 .(
   ;; check arguments
   lda ARGINDEX
-  cmp #2	       ; if there's two arguments, list the specified directory
+  cmp #2	       ; if there's two arguments, load the specified file
   beq processparam
   lda ARGINDEX
-  cmp #1	       ; if there's only one argument (ls) then list current directory 
-  bne jmperror
-  stz folderpointer+1
-  jmp loadone
+  cmp #1	       ; if there's only one argument, do a handeler load.
+  beq loadone
 jmperror:
   jmp lderror
-processparam           ; process the filename parameter
+processparam           ; the user specified a file, process the filename parameter.
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
-  lda #>INPUT
+  lda #>INPUT		; argument buffer under 256 bytes, so no adc #0.
   sta folderpointer+1
-  ; we need to loop through the null-terminated string
-  ; and convert it to SHORT format
+  ; loop through the null-terminated string
+  ; and convert it to SHORT format.
+  ; ex. "file.xpl",0 --> "FILE    XPL"
   lda #8
   sta fileext
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp '.'		; ex. "file.xpl" --> "FILE    XPL"
+  cmp '.'		; find the dot	
   beq extst
   iny
   jmp shortlp
 extst:
-  phy
+  phy			; now move the file extension
 ext:
   iny
   lda (folderpointer),y
@@ -4194,17 +4198,17 @@ ext:
   ply
   inc fileext
   lda fileext
-  cmp #10
+  cmp #10 
   bne ext
   ply
 fill:
-  lda #$20
-filllp:
+  lda #$20		; the file extention is moved, now pad spaces from the end of the name
+filllp:			; to the start of the extension.
   sta (folderpointer),y
   inx
-  cpx #8 		; stop if index over 7
+  cpx #8 		; stop if index over 7, we don't want to overwrite the file extension
   bne filllp
-  ; convert lowercase to uppercase
+  ; now we need to convert lowercase to uppercase
   ldy #0
 ldlp:
   lda (folderpointer),y
@@ -4213,6 +4217,8 @@ ldlp:
   iny
   cpy #11
   bne ldlp
+  ; ok! now we have a SHORT formated filename at (folderpointer).
+
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4225,13 +4231,15 @@ ldlp:
   jsr fat32_finddirent
   bcc foundcode
 lderror
-  ldx #<errormsg
+  ldx #<errormsg	; if it was not found, error and return.
   ldy #>errormsg
   jsr w_acia_full
   rts
   rts
   rts
 loadone:
+  ; the user has not specified a filename, so load the SD card handeler program.
+  
   ; Open root directory
   jsr fat32_openroot
 
@@ -4254,10 +4262,10 @@ foundsubdir
 
   ; Find file by name
   ldx #<loadname
-  ldy #>loadname
-  jsr fat32_finddirent
-  bcc foundfile
-
+  ldy #>loadname		; this is LOADADDR.SAR, which is what I plan 
+  jsr fat32_finddirent		; to add as a header of a .XPL file.
+  bcc foundfile			; it holds the load address and jump address
+				; of CODE.XPL.
   ; File not found
   ldy #>filmsg
   ldx #<filmsg
@@ -4274,10 +4282,11 @@ foundfile
   sta fat32_address
   lda #>buffer
   sta fat32_address+1
-
-  jsr fat32_file_read
+				
+  jsr fat32_file_read		
 
   ; Open root directory
+  ; BUG do we really need to reload the entire directory path?
   jsr fat32_openroot
 
   ; Find subdirectory by name
@@ -4301,7 +4310,7 @@ startload
   ldx #<lds
   jsr w_acia_full
 
-  ldx #<filename
+  ldx #<filename	; CODE.XPL is the sd card's loader
   ldy #>filename
   jsr fat32_finddirent
   bcc foundcode
@@ -4313,40 +4322,21 @@ startload
 
 foundcode
 
-  jsr fat32_opendirent
+  jsr fat32_opendirent	; open the file
 
-  lda buffer
-  sta fat32_address
+  lda buffer		; and load it to the address
+  sta fat32_address	; from LOADADDR.SAR
   lda buffer+1
   sta fat32_address+1
 
-  ;sei
-  ;lda #<loadirq
-  ;sta $7ffe
-  ;lda #>loadirq
-  ;sta $7fff
-  ;lda #$c0
- ; sta $b00e
- ; lda #$40
-  ;sta $b00b
-  ;lda #$ff
-  ;sta $b004
-  ;sta $b005
-  ;lda #0
-  ;sta lix
-  ;lda #$04
-  ;jsr w_acia_full
-  ;cli
-
   jsr fat32_file_read
 
- ; sei
+  ; All done.
+  ;ldy #>ends
+  ;ldx #<ends
+  ;jsr w_acia_full	; BUG done message or not?
 
-  ldy #>ends
-  ldx #<ends
-  jsr w_acia_full
-
-  jmp (buffer+2)
+  jmp (buffer+2)	; jump to start address from LOADADDR.SAR
 
 looopp
   rts
@@ -4354,25 +4344,6 @@ looopp
   rts
 
 .)
-
-;loadirq:
-;  pha
-;  phx
-;  ldx lix
-;  lda loadtable,x
-;  jsr w_acia_full
-;  inx
-;  lda loadtable,x
-;  jsr w_acia_full
-;  inx
-;  cpx #7
-;  bne lirq
-;  ldx #0
-;lirq:
-;  stx lix
-;  plx
-;  pla
-;  rti
 
 submsg
   .byte "'folder' Not Found!", $00
