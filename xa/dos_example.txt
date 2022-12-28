@@ -1,0 +1,8 @@
+XPL-32 Monitor
+>ls
+yourfilename	test		folder
+>cd folder
+>ls
+test.bin		thingy.xpl
+>load thingy.xpl
+Loading...
