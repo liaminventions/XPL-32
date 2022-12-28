@@ -4179,7 +4179,7 @@ processparam           ; process the filename parameter
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp '.'		; ex. "file.xpl" > "FILE    XPL"
+  cmp '.'		; ex. "file.xpl" --> "FILE    XPL"
   beq extst
   iny
   jmp shortlp
@@ -4202,7 +4202,7 @@ fill:
 filllp:
   sta (folderpointer),y
   inx
-  cpx #8 ; stop if index over 7
+  cpx #8 		; stop if index over 7
   bne filllp
   ; convert lowercase to uppercase
   ldy #0
@@ -4214,10 +4214,10 @@ ldlp:
   cpy #11
   bne ldlp
   ; BUG i need to add a start address header to the .XPL file format...
-  ; at the moment it is assumed that the file being loaded needs to go to $0F00.
+  ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
   stz buffer+2
-  lda #$0f ; $0F00
+  lda #$0f 		; $0F00
   sta buffer+1
   sta buffer+3
   ldx folderpointer
