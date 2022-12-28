@@ -1410,6 +1410,14 @@ rx_delay_inner:
   plx
   rts
 
+;; xplDOS commands
+;;
+;; BUG no directory paths are supported yet.
+;; commands:
+;; CD
+;; LS
+;; LOAD can also load a specified file
+
 ;; CD
 ;; Change the directory
 ;; if you use cdsub, folderpointer holds the address of the folder name
