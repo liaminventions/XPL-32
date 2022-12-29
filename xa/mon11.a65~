@@ -101,6 +101,7 @@ len    		= $14 ; 2byt
 cnt2		= $15 ; 2byt
 ;; SD loader:
 lix		= $10
+fileext		= $11
 ;; LS command:
 filetype	= $10 ; 1byt
 ;; LS and CD commands:
@@ -1409,154 +1410,6 @@ rx_delay_inner:
   ply
   plx
   rts
-
-;; CD
-;; Change the directory
-;; if you use cdsub, folderpointer holds the address of the folder name
-
-cdcmd:
-.(
-  ;; check arguments
-  lda ARGINDEX
-  cmp #2	       ; if there's two arguments, change to the specified directory
-  beq processparam
-  jmp error
-processparam           ; process the filename parameter
-  clc
-  lda #<INPUT
-  adc ARGINDEX+2
-  sta folderpointer
-  lda #>INPUT
-  sta folderpointer+1
-  ; convert lowercase to uppercase
-  ldy #0
-cdlp:
-  lda (folderpointer),y
-  and #$6f  ; to uppercase
-  sta (folderpointer),y
-  iny
-  cpy #8
-  bne cdlp
-.)
-cdsub:
-.(
-  ; we need to loop through the null-terminated string
-  ; and convert it to SHORT format
-  jsr shortconvert
-  ; ok, that should do it. now we need to check if it exists
-  ldx folderpointer
-  ldy folderpointer+1
-  jsr fat32_finddirent
-  bcs error
-  ; ok, it exists, now cd
-  jsr fat32_opendirent
-  ; all done.
-  rts
-.)
-error
-  ldx #<errormsg
-  ldy #>errormsg
-  jsr w_acia_full
-  rts
-
-shortconvert:
-  ldy #0
-.(
-shortlp:
-  lda (folderpointer),y
-  beq fill
-  iny
-  jmp shortlp
-fill:
-  lda #$20
-filllp:
-  sta (folderpointer),y
-  inx
-  cpx #11 ; stop if index over 10
-  bne filllp
-  rts
-.)
-
-other:
-  ; Write a letter of the filename currently being read
-  lda (zp_sd_address),y
-  ora #$20		; convert uppercase to lowercase
-  jsr w_acia_full
-  iny
-  rts
-
-;; LS
-
-lscmd:
-.(		
-  ;; check arguments
-  lda ARGINDEX
-  cmp #2	       ; if there's two arguments, list the specified directory
-  beq processparam
-  lda ARGINDEX
-  cmp #1	       ; if there's only one argument (ls) then list current directory 
-  bne jmperror
-  stz folderpointer+1
-  jmp list
-jmperror:
-  jmp error
-processparam           ; process the filename parameter
-  clc
-  lda #<INPUT
-  adc ARGINDEX+2
-  sta folderpointer
-  lda #>INPUT
-  sta folderpointer+1
-  ; now cd
-  jsr cdsub
-  ; BUG after this is done, the current directory is NOT restored!
-.)
-list:			; list file dir
-.(
-  jsr fat32_readdirent	; files?
-  bcs nofiles
-  and #$40
-  beq arc
-dir:
-  lda #$ff
-  sta filetype		; directorys show up as 
-  jmp ebut		; yourfilename     test		    folder  ...Etc
-arc:
-  stz filetype 		; files show up as
-ebut:			; test.xpl         music.xpl        file.bin  ...Etc
-  jsr print_chara	; f or d
-  lda #$20		; space
-  jsr print_chara
-  ; At this point, we know that there are no files, files, or a suddir
-  ; Now for the name
-  ldy #0
-nameloop:
-  cpy #8
-  beq dot
-  jsr other
-  jmp nameloop
-dot:
-  lda filetype
-  bne endthat		; if it's a file,
-  lda #'.'		; shows its file extention
-  jsr print_chara
-lopii:
-  cpy #11
-  beq endthat		; print 3-letter file extention
-  jsr other
-  jmp lopii
-endthat:
-  lda #$09 ; Tab
-  jsr print_chara	; tab
-  jmp list ; go again	; next file if there are any left
-nofiles:		; if not,
-endlist:		; exit listing code
-  jsr crlf
-  rts
-jumptolist:
-  jsr crlf
-  jmp list
-.)
 
 testcmd
   ;jsr xmodemtest
@@ -4152,11 +4005,172 @@ loadname
 fat_error
   .byte "FAT32 Error At Stage ", $00
 
+;; xplDOS
+;; SD Card Navigation.
+;;
+;; BUG no directory paths are supported yet.
+;; Commands:
+;; CD
+;; LS
+;; LOAD - can load a specified file
+;; upcoming commands (TODO):
+;; MKDIR
+;; CAT - probably can make this soon
+;; SAVE
+;; EDIT
+;; etc...
+
+;; CD
+;; Change the directory
+;; if you use cdsub, folderpointer holds the address of the folder name
+
+cdcmd:
+.(
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, change to the specified directory
+  beq processparam
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert lowercase to uppercase
+  ldy #0
+cdlp:
+  lda (folderpointer),y
+  and #$6f  ; to uppercase
+  sta (folderpointer),y
+  iny
+  cpy #8
+  bne cdlp
+.)
+cdsub:
+.(
+  ; we need to loop through the null-terminated string
+  ; and convert it to SHORT format
+  jsr shortconvert
+  ; ok, that should do it. now we need to check if it exists
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs error
+  ; ok, it exists, now cd
+  jsr fat32_opendirent
+  ; all done.
+  rts
+.)
+error
+  ldx #<errormsg
+  ldy #>errormsg
+  jsr w_acia_full
+  rts
+
+shortconvert:
+  ldy #0
+.(
+shortlp:
+  lda (folderpointer),y
+  beq fill
+  iny
+  jmp shortlp
+fill:
+  lda #$20
+filllp:
+  sta (folderpointer),y
+  inx
+  cpx #11 ; stop if index over 10
+  bne filllp
+  rts
+.)
+
+other:
+  ; Write a letter of the filename currently being read
+  lda (zp_sd_address),y
+  ora #$20		; convert uppercase to lowercase
+  jsr w_acia_full
+  iny
+  rts
+
+;; LS
+
+lscmd:
+.(		
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, list the specified directory
+  beq processparam
+  lda ARGINDEX
+  cmp #1	       ; if there's only one argument (ls) then list current directory 
+  bne jmperror
+  stz folderpointer+1
+  jmp list
+jmperror:
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; now cd
+  jsr cdsub
+  ; BUG after this is done, the current directory is NOT restored!
+.)
+list:			; list file dir
+.(
+  jsr fat32_readdirent	; files?
+  bcs nofiles
+  and #$40
+  beq arc
+dir:
+  lda #$ff
+  sta filetype		; directorys show up as 
+  jmp ebut		; yourfilename     test		    folder  ...Etc
+arc:
+  stz filetype 		; files show up as
+ebut:			; test.xpl         music.xpl        file.bin  ...Etc
+  jsr print_chara	; f or d
+  lda #$20		; space
+  jsr print_chara
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda filetype
+  bne endthat		; if it's a file,
+  lda #'.'		; shows its file extention
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat		; print 3-letter file extention
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara	; tab
+  jmp list ; go again	; next file if there are any left
+nofiles:		; if not,
+endlist:		; exit listing code
+  jsr crlf
+  rts
+jumptolist:
+  jsr crlf
+  jmp list
+.)
+
 ;; load
 ;; Here we load a file from the SD card.
-;; If no file is specified, it loads A:/folder/code.xpl,
-;; with the load and start addresses from A:/folder/loadaddr.sar
-;; .SAR stands for Start AdRess.
+;; .SAR stands for Start AddRess.
 loadcmd
 .(
   ;; check arguments
@@ -4201,12 +4215,14 @@ ext:
   cmp #10 
   bne ext
   ply
+; the file extention is moved, now pad spaces from the end of the name
+; to the start of the extension.
 fill:
-  lda #$20		; the file extention is moved, now pad spaces from the end of the name
-filllp:			; to the start of the extension.
+  lda #$20		
+filllp:			
   sta (folderpointer),y
-  inx
-  cpx #8 		; stop if index over 7, we don't want to overwrite the file extension
+  iny
+  cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
   bne filllp
   ; now we need to convert lowercase to uppercase
   ldy #0
@@ -4217,7 +4233,7 @@ ldlp:
   iny
   cpy #11
   bne ldlp
-  ; ok! now we have a SHORT formated filename at (folderpointer).
+  ; ok! now we have a SHORT formatted filename at (folderpointer).
 
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
@@ -4263,7 +4279,7 @@ foundsubdir
   ; Find file by name
   ldx #<loadname
   ldy #>loadname		; this is LOADADDR.SAR, which is what I plan 
-  jsr fat32_finddirent		; to add as a header of a .XPL file.
+  jsr fat32_finddirent		; to merge into a header of .XPL files.
   bcc foundfile			; it holds the load address and jump address
 				; of CODE.XPL.
   ; File not found
@@ -4529,7 +4545,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 7027,$00
+  .dsb 6683,$00
 
 ; ----KERNAL----
 
