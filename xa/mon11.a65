@@ -4095,7 +4095,7 @@ other:
   ; Write a letter of the filename currently being read
   lda (zp_sd_address),y
   ora #$20		; convert uppercase to lowercase
-  jsr print_chara
+  jsr w_acia_full ; BUG not sure why this is blocking everything
   iny
   rts
 

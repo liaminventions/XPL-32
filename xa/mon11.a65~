@@ -4102,15 +4102,17 @@ other:
 ;; LS
 
 lscmd:
-.(		
+.(	
+; Open root directory
+  jsr fat32_openroot	
   ; Find the subdirectory by name
   ldx #<dirname
   ldy #>dirname
   jsr fat32_finddirent
   bcc foundsubdir
   ; Subdirectory not found
-  ldy #>errormsg
-  ldx #<errormsg
+  ldy #>sd_error
+  ldx #<sd_error
   jsr w_acia_full
   jsr error_sound
   rts
@@ -4565,7 +4567,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6657,$00 ;6684,$00
+  .dsb 6654,$00 ;6684,$00
 
 ; ----KERNAL----
 
