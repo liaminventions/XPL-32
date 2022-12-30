@@ -1,3 +1,9 @@
+[General]
+decode_signals=0
+generated_signals=0
+views=1
+meta_objs=1
+
 [0]
 name=0
 enabled=true
@@ -110,18 +116,12 @@ color=4285780502
 conversion_type=0
 conv_options=0
 
-[General]
-decode_signals=0
-generated_signals=0
-views=1
-meta_objs=1
-
 [view0]
-scale=1.1216452522572137e-5
+scale=1.888358178166087e-6
 v_offset=-46
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x41\0\0\a8\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 26170661 99414294 26735220 2843640 9778470 96928026 -8 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 89704835 96541425 82968132 79998691 65493764 87024239 -8 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -143,5 +143,5 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 [meta_obj0]
 type=selection
 assoc_view=0
-start_time=22 serialization::archive 14 0 0 0 0 26780799 99999999 90503596 33656626 10158324 10580038 -8 0 0 6
-end_time=22 serialization::archive 14 0 0 0 0 27728000 0 26449953 33866972 94190525 5370855 -8 0 0 6
+start_time=22 serialization::archive 14 0 0 0 0 89803920 0 37427128 6342751 71905755 39180304 -8 0 0 6
+end_time=22 serialization::archive 14 0 0 0 0 89935920 0 25276847 28192980 40121793 26523480 -8 0 0 6
