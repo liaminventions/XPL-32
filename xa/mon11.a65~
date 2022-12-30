@@ -278,6 +278,26 @@ load1
   bcs initerror
   ; Open root directory
   jsr fat32_openroot
+  ; Find the subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+  ; Subdirectory not found
+  ldy #>sd_error
+  ldx #<sd_error
+  jsr w_acia_full
+  jsr error_sound
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent	; open folder
+
   jmp initdone 
 
 initerror
@@ -4013,8 +4033,10 @@ fat_error
 ;; SD Card Navigation.
 ;;
 ;; BUG no directory paths are supported yet.
+;; BUG it is assumed that <FOLDER> is the root
+;; ls does not seem to like reading the SD root.
 ;; Commands:
-;; CD
+;; CD - TODO fix
 ;; LS
 ;; LOAD - can load a specified file
 ;; upcoming commands (TODO):
@@ -4103,27 +4125,6 @@ other:
 
 lscmd:
 .(	
-; Open root directory
-  jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-  ; Subdirectory not found
-  ldy #>sd_error
-  ldx #<sd_error
-  jsr w_acia_full
-  jsr error_sound
-  rts
-  rts
-  rts
-  rts
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent	; open folder
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory

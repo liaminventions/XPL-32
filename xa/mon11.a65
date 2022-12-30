@@ -278,6 +278,26 @@ load1
   bcs initerror
   ; Open root directory
   jsr fat32_openroot
+  ; Find the subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+  ; Subdirectory not found
+  ldy #>sd_error
+  ldx #<sd_error
+  jsr w_acia_full
+  jsr error_sound
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent	; open folder
+
   jmp initdone 
 
 initerror
@@ -4105,27 +4125,6 @@ other:
 
 lscmd:
 .(	
-; Open root directory
-  jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-  ; Subdirectory not found
-  ldy #>sd_error
-  ldx #<sd_error
-  jsr w_acia_full
-  jsr error_sound
-  rts
-  rts
-  rts
-  rts
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent	; open folder
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
@@ -4152,7 +4151,7 @@ list:			; list file dir
 .(
   jsr fat32_readdirent	; files?
   bcs nofiles
-  and #$40
+  and #$40		; BUG folders have a file extension??
   beq arc
 dir:
   lda #$ff
