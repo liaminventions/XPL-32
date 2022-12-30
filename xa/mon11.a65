@@ -4095,7 +4095,7 @@ other:
   ; Write a letter of the filename currently being read
   lda (zp_sd_address),y
   ora #$20		; convert uppercase to lowercase
-  jsr w_acia_full ; BUG not sure why this is blocking everything
+  jsr print_chara
   iny
   rts
 
@@ -4106,8 +4106,8 @@ lscmd:
 ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
-  ldx #<dirname
-  ldy #>dirname
+  ldx #<subdirname
+  ldy #>subdirname
   jsr fat32_finddirent
   bcc foundsubdir
   ; Subdirectory not found
