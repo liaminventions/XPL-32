@@ -4150,7 +4150,7 @@ list:			; list file dir
 .(
   jsr fat32_readdirent	; files?
   bcs nofiles
-  and #$40		; BUG folders have a file extension??
+  and #$20		; BUG folders have a file extension??
   beq arc
 dir:
   lda #$ff
