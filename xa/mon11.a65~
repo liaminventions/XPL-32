@@ -4192,7 +4192,7 @@ dir:
   jmp ebut		; yourfilename     test		    folder  ...Etc
 arc:
   stz filetype 		; files show up as
-ebut:			; test.xpl         music.xpl        file.bin  ...Etc
+			; test.xpl         music.xpl        file.bin  ...Etc
   ; At this point, we know that there are no files, files, or a suddir
   ; Now for the name
   ldy #0
