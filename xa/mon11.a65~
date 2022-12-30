@@ -4150,15 +4150,29 @@ list:			; list file dir
 .(
   jsr fat32_readdirent	; files?
   bcs nofiles
-  and #$40		; BUG folders have a file extension??
-  beq arc
+  ;and #$40
+  ;beq arc
+ebut:
+  ldx #0
+  ldy #8
+chklp:
+  cpy #11
+  beq no
+  lda (zp_sd_address),y
+  cmp #$20
+  bne chklp
+  inx
+no:
+  cpx #3
+  bne arc
 dir:
   lda #$ff
   sta filetype		; directorys show up as 
-  jmp ebut		; yourfilename     test		    folder  ...Etc
+  jmp name		; yourfilename     test		    folder  ...Etc
 arc:
   stz filetype 		; files show up as
-ebut:			; test.xpl         music.xpl        file.bin  ...Etc
+			; test.xpl         music.xpl        file.bin  ...Etc
+name:
   ; At this point, we know that there are no files, files, or a suddir
   ; Now for the name
   ldy #0
