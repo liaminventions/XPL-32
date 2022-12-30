@@ -276,22 +276,21 @@ init_acia
 load1
   jsr fat32_init
   bcs initerror
-  ; Open root directory
+
+ ; Open root directory
   jsr fat32_openroot
-  ; Find the subdirectory by name
+
+  ; Find subdirectory by name
   ldx #<subdirname
   ldy #>subdirname
   jsr fat32_finddirent
   bcc foundsubdir
+
   ; Subdirectory not found
-  ldy #>sd_error
-  ldx #<sd_error
+  ldy #>submsg
+  ldx #<submsg
   jsr w_acia_full
-  jsr error_sound
-  rts
-  rts
-  rts
-  rts
+  jmp initdone
 
 foundsubdir
 
@@ -4278,27 +4277,7 @@ lderror
   rts
 loadone:
   ; the user has not specified a filename, so load the SD card handeler program.
-  
-  ; Open root directory
-  jsr fat32_openroot
-
-  ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-
-  ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp looopp
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent
-
+ 
   ; Find file by name
   ldx #<loadname
   ldy #>loadname		; this is LOADADDR.SAR, which is what I plan 
@@ -4568,7 +4547,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6655,$00 ;6684,$00
+  .dsb 6687,$00
 
 ; ----KERNAL----
 
