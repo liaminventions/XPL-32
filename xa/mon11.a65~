@@ -4088,10 +4088,11 @@ filllp:
   iny
   cpy #11 ; stop if index over 10
   bne filllp
+  ; ok, that should do it.
 .)
 cdsub:
 .(
-  ; ok, that should do it. now we need to check if it exists
+  ; check if the folder exists
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
@@ -4102,6 +4103,7 @@ cdsub:
   rts
 .)
 fileerror
+  ; no such folder
   ldx #<foldermsg
   ldy #>foldermsg
   jsr w_acia_full
