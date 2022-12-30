@@ -4107,6 +4107,14 @@ fileerror
   ldx #<foldermsg
   ldy #>foldermsg
   jsr w_acia_full
+  ; DEBUG print folder inputted
+  ldy #0
+fe:
+  lda (folderpointer),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne fe
   rts
 
 error
@@ -4625,7 +4633,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6607,$00
+  .dsb 6595,$00
 
 ; ----KERNAL----
 
