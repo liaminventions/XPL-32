@@ -4189,10 +4189,10 @@ no:
 dir:
   lda #$ff
   sta filetype		; directorys show up as 
-  jmp ebut		; yourfilename     test		    folder  ...Etc
+  jmp name		; yourfilename     test		    folder  ...Etc
 arc:
   stz filetype 		; files show up as
-			; test.xpl         music.xpl        file.bin  ...Etc
+name:			; test.xpl         music.xpl        file.bin  ...Etc
   ; At this point, we know that there are no files, files, or a suddir
   ; Now for the name
   ldy #0
