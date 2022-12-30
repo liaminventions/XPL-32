@@ -4073,7 +4073,7 @@ cdlp:
   bcc dont
   cmp #$5f  ; if _ skip
   beq dont
-  and #$6f  ; otherwise convert to uppercase
+  and #$df  ; otherwise convert to uppercase
   sta (folderpointer),y
 dont:
   iny
