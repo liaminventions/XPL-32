@@ -4052,7 +4052,7 @@ fat_error
 
 cdcmd:
 .(
-  jsr sdsetup
+  ;jsr sdsetup
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, change to the specified directory
@@ -4090,6 +4090,7 @@ filllp:
   cpy #11 ; stop if index over 10
   bne filllp
   ; ok, that should do it.
+  ; jsr sdsetup
 .)
 cdsub:
 .(
@@ -4142,8 +4143,18 @@ error
 ;  rts
 ;.)
 
-sdsetup:
-.(
+other:
+  ; Write a letter of the filename currently being read
+  lda (zp_sd_address),y
+  ora #$20		; convert uppercase to lowercase
+  jsr print_chara
+  iny
+  rts
+
+;; LS
+
+lscmd:
+.(	
   ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
@@ -4164,22 +4175,7 @@ sdsetup:
 foundsubdir
 
   ; Open subdirectory
-  jmp fat32_opendirent	; open folder + rts
-.)
-
-other:
-  ; Write a letter of the filename currently being read
-  lda (zp_sd_address),y
-  ora #$20		; convert uppercase to lowercase
-  jsr print_chara
-  iny
-  rts
-
-;; LS
-
-lscmd:
-.(	
-  jsr sdsetup
+  jsr fat32_opendirent	; open folder
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
