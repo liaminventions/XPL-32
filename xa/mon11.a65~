@@ -4181,11 +4181,10 @@ chklp:
   beq no
   lda (zp_sd_address),y
   cmp #$20
-  beq chkx
-  iny
-  jmp chklp
-chkx:
+  bne chky
   inx
+chky:
+  iny
   jmp chklp
 no:
   cpx #3
