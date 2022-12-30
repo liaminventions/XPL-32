@@ -4068,50 +4068,70 @@ processparam           ; process the filename parameter
   ldy #0
 cdlp:
   lda (folderpointer),y
-  and #$6f  ; to uppercase
+  beq cdd   ; if null, stop.
+  cmp #$40  ; if numbers/symbols, skip.
+  bcc dont
+  cmp #$5f  ; if _ skip
+  beq dont
+  and #$6f  ; otherwise convert to uppercase
+  sta (folderpointer),y
+dont:
+  iny
+  jmp cdlp
+cdd:
+  ; we need to loop through the null-terminated string
+  ; and convert it to SHORT format
+fill:
+  lda #$20
+filllp:
   sta (folderpointer),y
   iny
-  cpy #8
-  bne cdlp
+  cpy #11 ; stop if index over 10
+  bne filllp
+  ; ok, that should do it.
 .)
 cdsub:
 .(
-  ; we need to loop through the null-terminated string
-  ; and convert it to SHORT format
-  jsr shortconvert
-  ; ok, that should do it. now we need to check if it exists
+  ; check if the folder exists
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
-  bcs error
+  bcs fileerror
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
   rts
 .)
+fileerror
+  ; no such folder
+  ldx #<foldermsg
+  ldy #>foldermsg
+  jsr w_acia_full
+  rts
+
 error
   ldx #<errormsg
   ldy #>errormsg
   jsr w_acia_full
   rts
 
-shortconvert:
-  ldy #0
-.(
-shortlp:
-  lda (folderpointer),y
-  beq fill
-  iny
-  jmp shortlp
-fill:
-  lda #$20
-filllp:
-  sta (folderpointer),y
-  inx
-  cpx #11 ; stop if index over 10
-  bne filllp
-  rts
-.)
+;shortconvert:
+;  ldy #0
+;.(
+;shortlp:
+;  lda (folderpointer),y
+;  beq fill
+;  iny
+;  jmp shortlp
+;fill:
+;  lda #$20
+;filllp:
+;  sta (folderpointer),y
+;  iny
+;  cpy #11 ; stop if index over 10
+;  bne filllp
+;  rts
+;.)
 
 other:
   ; Write a letter of the filename currently being read
@@ -4593,6 +4613,7 @@ loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 sd_error:	 .byte "SD Card failed to initialize", $0d, $0a, $00
 errormsg:	 .byte "Error!", $0d, $0a, $00
+foldermsg:	 .byte "No such file or directory.", $0d, $0a, $00
 
 rxpoll:
   lda ACIA_STATUS
