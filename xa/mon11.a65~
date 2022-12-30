@@ -4103,6 +4103,25 @@ other:
 
 lscmd:
 .(		
+  ; Find the subdirectory by name
+  ldx #<dirname
+  ldy #>dirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+  ; Subdirectory not found
+  ldy #>errormsg
+  ldx #<errormsg
+  jsr w_acia_full
+  jsr error_sound
+  rts
+  rts
+  rts
+  rts
+
+foundsubdir
+
+  ; Open subdirectory
+  jsr fat32_opendirent	; open folder
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
@@ -4546,7 +4565,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6684,$00
+  .dsb 6657,$00 ;6684,$00
 
 ; ----KERNAL----
 
