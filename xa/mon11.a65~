@@ -4095,7 +4095,7 @@ other:
   ; Write a letter of the filename currently being read
   lda (zp_sd_address),y
   ora #$20		; convert uppercase to lowercase
-  jsr w_acia_full
+  jsr print_chara
   iny
   rts
 
@@ -4138,9 +4138,6 @@ dir:
 arc:
   stz filetype 		; files show up as
 ebut:			; test.xpl         music.xpl        file.bin  ...Etc
-  jsr print_chara	; f or d
-  lda #$20		; space
-  jsr print_chara
   ; At this point, we know that there are no files, files, or a suddir
   ; Now for the name
   ldy #0
@@ -4549,7 +4546,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6676,$00
+  .dsb 6684,$00
 
 ; ----KERNAL----
 
