@@ -4095,8 +4095,8 @@ filllp:
 cdsub:
 .(
   ; check if the folder exists
-  ldx folderpointer
-  ldy folderpointer+1
+  ldy folderpointer
+  ldx folderpointer+1
   jsr fat32_finddirent
   bcs fileerror
   ; ok, it exists, now cd
@@ -4302,7 +4302,7 @@ ext:
   ply
   inc fileext
   lda fileext
-  cmp #10 
+  cmp #11
   bne ext
   ply
 ; the file extention is moved, now pad spaces from the end of the name
@@ -4318,11 +4318,17 @@ filllp:
   ldy #0
 ldlp:
   lda (folderpointer),y
-  and #$6f  ; to uppercase
+  beq ldd   ; if null, stop.
+  cmp #$40  ; if numbers/symbols, skip.
+  bcc dontl
+  cmp #$5f  ; if _ skip
+  beq dontl
+  and #$df  ; otherwise convert to uppercase
   sta (folderpointer),y
+dontl:
   iny
-  cpy #11
-  bne ldlp
+  jmp ldlp
+ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
 
   ; BUG i need to add a start address header to the .XPL file format...
