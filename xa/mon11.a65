@@ -4052,7 +4052,7 @@ fat_error
 
 cdcmd:
 .(
-  jsr sdsetup
+  ;jsr sdsetup
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, change to the specified directory
@@ -4090,6 +4090,7 @@ filllp:
   cpy #11 ; stop if index over 10
   bne filllp
   ; ok, that should do it.
+  jsr sdsetup
 .)
 cdsub:
 .(
