@@ -4106,8 +4106,8 @@ lscmd:
 ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
-  ldx #<dirname
-  ldy #>dirname
+  ldx #<subdirname
+  ldy #>subdirname
   jsr fat32_finddirent
   bcc foundsubdir
   ; Subdirectory not found
