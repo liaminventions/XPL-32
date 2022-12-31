@@ -4030,7 +4030,6 @@ fat_error
 ;; SD Card Navigation.
 ;;
 ;; TODO make a path system
-;; TODO reload that path at the end of every command (current path buffer)
 ;; BUG it is assumed that <FOLDER> is the root
 ;; BUG load specific file errors out. TODO fix
 ;; ls does not seem to like reading the SD root.
