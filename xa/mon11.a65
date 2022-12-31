@@ -4095,8 +4095,8 @@ filllp:
 cdsub:
 .(
   ; check if the folder exists
-  ldy folderpointer
-  ldx folderpointer+1
+  ldx folderpointer
+  ldy folderpointer+1
   jsr fat32_finddirent
   bcs fileerror
   ; ok, it exists, now cd
