@@ -4091,6 +4091,16 @@ filllp:
   bne filllp
   ; ok, that should do it.
   ; jsr sdsetup
+  ; Open root directory
+  jsr fat32_openroot	
+  ; Find the subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcs fileerror
+  ; Open subdirectory
+  jsr fat32_opendirent	; open folder
+
 .)
 cdsub:
 .(
@@ -4641,7 +4651,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6576,$00
+  .dsb 6561,$00
 
 ; ----KERNAL----
 
