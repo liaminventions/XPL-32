@@ -2,7 +2,7 @@
 decode_signals=0
 generated_signals=0
 views=1
-meta_objs=1
+meta_objs=0
 
 [0]
 name=0
@@ -117,11 +117,11 @@ conversion_type=0
 conv_options=0
 
 [view0]
-scale=2.5750516792479923e-5
+scale=0.0016326550629447182
 v_offset=-46
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x41\0\0\a8\x1\0\0\0\x1\x1\0\0\0\x1\0)
-segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 3392772 1002609 57219836 22306109 49082300 43337857 -8 0 0 6
+segment_display_mode=1
+offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32

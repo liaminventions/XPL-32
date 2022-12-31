@@ -99,12 +99,10 @@ tapest 		= $11 ; 1byt
 cnt    		= $12 ; 2byt
 len    		= $14 ; 2byt
 cnt2		= $15 ; 2byt
-;; SD loader:
-lix		= $10
-fileext		= $11
-;; LS command:
-filetype	= $10 ; 1byt
-;; LS and CD commands:
+;; xplDOS:
+lix		= $13
+fileext		= $14
+filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 
 ;; startup enable
@@ -4031,17 +4029,18 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
-;; BUG no directory paths are supported yet.
+;; TODO make a path system
+;; TODO reload that path at the end of every command (current path buffer)
 ;; BUG it is assumed that <FOLDER> is the root
 ;; BUG load specific file errors out. TODO fix
 ;; ls does not seem to like reading the SD root.
 ;; Commands:
 ;; CD - TODO fix
-;; LS
-;; LOAD - can load a specified file
+;; LS - TODO fix folder specifications
+;; LOAD - TODO fix load a specified file
+;; CAT
 ;; upcoming commands (TODO):
 ;; MKDIR
-;; CAT - probably can make this soon
 ;; SAVE
 ;; EDIT
 ;; etc...
@@ -4092,14 +4091,14 @@ filllp:
   ; ok, that should do it.
   ; jsr sdsetup
   ; Open root directory
-  jsr fat32_openroot	
+  ;jsr fat32_openroot	
   ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcs fileerror
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
   ; Open subdirectory
-  jsr fat32_opendirent	; open folder
+  ;jsr fat32_opendirent	; open folder
 
 .)
 cdsub:
@@ -4135,23 +4134,95 @@ error
   jsr w_acia_full
   rts
 
-;shortconvert:
-;  ldy #0
-;.(
-;shortlp:
-;  lda (folderpointer),y
-;  beq fill
-;  iny
-;  jmp shortlp
-;fill:
-;  lda #$20
-;filllp:
-;  sta (folderpointer),y
-;  iny
-;  cpy #11 ; stop if index over 10
-;  bne filllp
-;  rts
-;.)
+catcmd:
+.(
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, list the specified directory
+  bne error
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; Convert to SHORT
+  jsr shortconvert
+  ; Find the file
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs error
+  ; Open the file
+  jsr fat32_opendirent
+  ; Read file contents into buffer
+  lda #<buffer
+  sta fat32_address
+  lda #>buffer
+  sta fat32_address+1
+  jsr fat32_file_read
+  ; Dump to screen
+  ldx #<buffer
+  ldy #>buffer
+  jsr w_acia_full
+  rts
+.)
+
+shortconvert:
+.(
+  ; loop through the null-terminated string at (folderpointer)
+  ; and convert it to SHORT format.
+  ; ex. "file.xpl",0 --> "FILE    XPL"
+  lda #8
+  sta fileext
+  ldy #0
+shortlp:
+  lda (folderpointer),y
+  cmp '.'		; find the dot	
+  beq extst
+  iny
+  jmp shortlp
+extst:
+  phy			; now move the file extension
+ext:
+  iny
+  lda (folderpointer),y
+  phy
+  ldy fileext
+  sta (folderpointer),y
+  ply
+  inc fileext
+  lda fileext
+  cmp #11
+  bne ext
+  ply
+; the file extention is moved, now pad spaces from the end of the name
+; to the start of the extension.
+fill:
+  lda #$20		
+filllp:			
+  sta (folderpointer),y
+  iny
+  cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
+  bne filllp
+  ; now we need to convert lowercase to uppercase
+  ldy #0
+ldlp:
+  lda (folderpointer),y
+  beq ldd   ; if null, stop.
+  cmp #$40  ; if numbers/symbols, skip.
+  bcc dontl
+  cmp #$5f  ; if _ skip
+  beq dontl
+  and #$df  ; otherwise convert to uppercase
+  sta (folderpointer),y
+dontl:
+  iny
+  jmp ldlp
+ldd:
+  ; ok! now we have a SHORT formatted filename at (folderpointer).
+  rts
+.)
 
 other:
   ; Write a letter of the filename currently being read
@@ -4289,58 +4360,8 @@ processparam           ; the user specified a file, process the filename paramet
   sta folderpointer
   lda #>INPUT		; argument buffer under 256 bytes, so no adc #0.
   sta folderpointer+1
-  ; loop through the null-terminated string
-  ; and convert it to SHORT format.
-  ; ex. "file.xpl",0 --> "FILE    XPL"
-  lda #8
-  sta fileext
-  ldy #0
-shortlp:
-  lda (folderpointer),y
-  cmp '.'		; find the dot	
-  beq extst
-  iny
-  jmp shortlp
-extst:
-  phy			; now move the file extension
-ext:
-  iny
-  lda (folderpointer),y
-  phy
-  ldy fileext
-  sta (folderpointer),y
-  ply
-  inc fileext
-  lda fileext
-  cmp #11
-  bne ext
-  ply
-; the file extention is moved, now pad spaces from the end of the name
-; to the start of the extension.
-fill:
-  lda #$20		
-filllp:			
-  sta (folderpointer),y
-  iny
-  cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
-  bne filllp
-  ; now we need to convert lowercase to uppercase
-  ldy #0
-ldlp:
-  lda (folderpointer),y
-  beq ldd   ; if null, stop.
-  cmp #$40  ; if numbers/symbols, skip.
-  bcc dontl
-  cmp #$5f  ; if _ skip
-  beq dontl
-  and #$df  ; otherwise convert to uppercase
-  sta (folderpointer),y
-dontl:
-  iny
-  jmp ldlp
-ldd:
-  ; ok! now we have a SHORT formatted filename at (folderpointer).
-
+  ; convert string
+  jsr shortconvert
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4651,7 +4672,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6571,$00
+  .dsb 6531,$00
 
 ; ----KERNAL----
 
