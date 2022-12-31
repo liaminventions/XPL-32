@@ -78,9 +78,9 @@ zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 24 bytes
 ; only used during fat32 processing
-fat32_workspace = $200      ; two pages
-buffer = $400		    ; two pages
-; now, addresses $0600-$7ffc are free.
+fat32_workspace = $400      ; two pages
+buffer = $600		    ; two pages
+; now, addresses $0800-$7ffc are free.
 
 ;; $0080-00FF is my operand stack
 ;; $0100-01FF is 6502 stack
@@ -123,6 +123,8 @@ fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes
 
 fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
+
+; 
 
 ;;;;;;;;;;;;;;;;;
 ;;;
@@ -220,8 +222,6 @@ table19
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
-; i would like to add a full-fleged DOS/Linux sort of thing here too-will do that at some point.
-; eg. ls, cd, open(or ./), mkdir, maybe a text editor?
 
 ;; More utility routines
 ;;
@@ -4042,11 +4042,12 @@ fat_error
 ;; CD - TODO fix
 ;; LS - TODO fix folder specifications
 ;; LOAD - TODO fix load a specified file
-;; CAT
+;; CAT - TODO fix
 ;; upcoming commands (TODO):
 ;; MKDIR
 ;; SAVE
 ;; EDIT
+;; RM
 ;; etc...
 
 ;; CD
@@ -4093,16 +4094,16 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   ; ok, that should do it.
-  ; jsr sdsetup
+  ;jsr sdsetup
   ; Open root directory
-  ;jsr fat32_openroot	
+  jsr fat32_openroot	
   ; Find the subdirectory by name
-  ;ldx #<subdirname
-  ;ldy #>subdirname
-  ;jsr fat32_finddirent
-  ;bcs error
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcs error
   ; Open subdirectory
-  ;jsr fat32_opendirent	; open folder
+  jsr fat32_opendirent	; open folder
 
 .)
 cdsub:
@@ -4677,7 +4678,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6444,$00
+  .dsb 6429,$00
 
 ; ----KERNAL----
 
