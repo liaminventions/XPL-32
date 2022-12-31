@@ -1,5 +1,5 @@
 ; XPL-32 <FOLDER> type loading code
-; (c) 2022 Liam Oppenheimer
+; (c) 2022 Waverider
 
 charbuffer = $601            ; 1 byte
 seed = $01
@@ -29,7 +29,7 @@ fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 
-  .org $0600
+  .org $0800
 jumptoit:
   jmp sdstart
 

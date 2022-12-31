@@ -1,11 +1,11 @@
 Sections:
-00: "seg600" (600-854)
+00: "seg800" (800-A54)
 01: "seg1006" (1006-1252)
 
 
 Source: "sd_handeler.s"
                         	     1: ; XPL-32 <FOLDER> type loading code
-                        	     2: ; (c) 2022 Liam Oppenheimer
+                        	     2: ; (c) 2022 Waverider
                         	     3: 
                         	     4: charbuffer = $601            ; 1 byte
                         	     5: seed = $01
@@ -35,9 +35,9 @@ Source: "sd_handeler.s"
                         	    29: fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
                         	    30: fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
                         	    31: 
-                        	    32:   .org $0600
+                        	    32:   .org $0800
                         	    33: jumptoit:
-00:0600 4C2506          	    34:   jmp sdstart
+00:0800 4C2508          	    34:   jmp sdstart
                         	    35: 
                         	    36:   .include "hwconfig.s"
 
@@ -59,11 +59,11 @@ Source: "hwconfig.s"
                         	    15: PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
                         	    16: 
                         	    17: via_init:
-00:0603 A9FF            	    18:   lda #%11111111          ; Set all pins on port B to output
-00:0605 8D02B0          	    19:   sta DDRB
-00:0608 A9FC            	    20:   lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
-00:060A 8D03B0          	    21:   sta DDRA
-00:060D 60              	    22:   rts
+00:0803 A9FF            	    18:   lda #%11111111          ; Set all pins on port B to output
+00:0805 8D02B0          	    19:   sta DDRB
+00:0808 A9FC            	    20:   lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+00:080A 8D03B0          	    21:   sta DDRA
+00:080D 60              	    22:   rts
                         	    23: 
                         	    24: 
 
@@ -73,331 +73,331 @@ Source: "sd_handeler.s"
 Source: "kernal_def.s"
                         	     1: ; kernal def
                         	     2: 
-                        	     3: acia_init = $ffa9
+                        	     3: acia_init = $ffac
                         	     4: 
-                        	     5: stock_via = $ffac
+                        	     5: stock_via = $ffaf
                         	     6: 
-                        	     7: sd_init = $ffaf
+                        	     7: sd_init = $ffb2
                         	     8: 
-                        	     9: fat32_init = $ffb2
+                        	     9: fat32_init = $ffb5
                         	    10: 
-                        	    11: print_hex_acia = $ffb5
+                        	    11: print_hex_acia = $ffb8
                         	    12: 
-                        	    13: crlf = $ffb8
+                        	    13: crlf = $ffbb
                         	    14: 
-                        	    15: cleardisplay = $ffbb
+                        	    15: cleardisplay = $ffbe
                         	    16: 
-                        	    17: rxpoll = $ffbe
+                        	    17: rxpoll = $ffc1
                         	    18: 
-                        	    19: txpoll = $ffc1
+                        	    19: txpoll = $ffc4
                         	    20: 
-                        	    21: print_chara = $ffc4
-                        	    22: print_char_acia = $ffc4
+                        	    21: print_chara = $ffc7
+                        	    22: print_char_acia = $ffc7
                         	    23: 
-                        	    24: ascii_home = $ffc7
+                        	    24: ascii_home = $ffca
                         	    25: 
-                        	    26: w_acia_full = $ffca
+                        	    26: w_acia_full = $ffcd
                         	    27: 
-                        	    28: fat32_seekcluster = $ffcd
+                        	    28: fat32_seekcluster = $ffd0
                         	    29: 
-                        	    30: fat32_readnextcluster = $ffd0
+                        	    30: fat32_readnextcluster = $ffd3
                         	    31: 
-                        	    32: fat32_openroot = $ffd3
+                        	    32: fat32_openroot = $ffd6
                         	    33: 
-                        	    34: fat32_opendirent = $ffd6
+                        	    34: fat32_opendirent = $ffd9
                         	    35: 
-                        	    36: fat32_readdirent = $ffd9
+                        	    36: fat32_readdirent = $ffdc
                         	    37: 
-                        	    38: fat32_finddirent = $ffdc
+                        	    38: fat32_finddirent = $ffdf
                         	    39: 
-                        	    40: fat32_file_readbyte = $ffdf
+                        	    40: fat32_file_readbyte = $ffe2
                         	    41: 
-                        	    42: fat32_file_read = $ffe2
+                        	    42: fat32_file_read = $ffe5
                         	    43: 
-                        	    44: sd_readbyte = $ffe5
+                        	    44: sd_readbyte = $ffe8
                         	    45: 
-                        	    46: sd_sendcommand = $ffe8
+                        	    46: sd_sendcommand = $ffeb
                         	    47: 
-                        	    48: sd_readsector = $ffeb
+                        	    48: sd_readsector = $ffee
                         	    49: 
-                        	    50: loadcmd = $ffee
+                        	    50: loadcmd = $fff1
                         	    51: 
-                        	    52: tsave = $fff1
+                        	    52: tsave = $fff4
                         	    53: 
-                        	    54: tload = $fff4
+                        	    54: tload = $fff7
                         	    55: 
 
 Source: "sd_handeler.s"
                         	    38: 
                         	    39: dirname:
-00:060E 464F4C4445522020	    40:   .asciiz "FOLDER     "	     ; standard directory name, SHORT format
-00:0616 202020
-00:0619 00
+00:080E 464F4C4445522020	    40:   .asciiz "FOLDER     "	     ; standard directory name, SHORT format
+00:0816 202020
+00:0819 00
                         	    41: 
                         	    42: errormsg:
-00:061A 0D              	    43:   .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
-00:061B 0A
-00:061C 4552524F5221
-00:0622 0D
-00:0623 0A
-00:0624 00
+00:081A 0D              	    43:   .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
+00:081B 0A
+00:081C 4552524F5221
+00:0822 0D
+00:0823 0A
+00:0824 00
                         	    44: 
                         	    45: sdstart:
-00:0625 6400            	    46:   stz $00		; 0
+00:0825 6400            	    46:   stz $00		; 0
                         	    47: 
-00:0627 A955            	    48:   lda #$55		; shftable value
-00:0629 8501            	    49:   sta seed
+00:0827 A955            	    48:   lda #$55		; shftable value
+00:0829 8501            	    49:   sta seed
                         	    50: 	
-00:062B 20BBFF          	    51:   jsr cleardisplay	; clear display
+00:082B 20BEFF          	    51:   jsr cleardisplay	; clear display
                         	    52: 
-00:062E A29A            	    53:   ldx  #<loadmsg	; title screen
-00:0630 A006            	    54:   ldy  #>loadmsg
-00:0632 20CAFF          	    55:   jsr  w_acia_full
+00:082E A29A            	    53:   ldx  #<loadmsg	; title screen
+00:0830 A008            	    54:   ldy  #>loadmsg
+00:0832 20CDFF          	    55:   jsr  w_acia_full
                         	    56: 
-00:0635 A2C7            	    57:   ldx  #<lodmm
-00:0637 A006            	    58:   ldy  #>lodmm
-00:0639 20CAFF          	    59:   jsr  w_acia_full
+00:0835 A2C7            	    57:   ldx  #<lodmm
+00:0837 A008            	    58:   ldy  #>lodmm
+00:0839 20CDFF          	    59:   jsr  w_acia_full
                         	    60: 
-00:063C 204206          	    61:   jsr rootsetup		; setup sd card
+00:083C 204208          	    61:   jsr rootsetup		; setup sd card
                         	    62: 
                         	    63: findrau:
-00:063F 4C6606          	    64:   jmp type		; start "type" program
+00:083F 4C6608          	    64:   jmp type		; start "type" program
                         	    65: 
                         	    66: rootsetup:		; setup <ROOT>
-00:0642 48              	    67:   pha
-00:0643 DA              	    68:   phx
-00:0644 5A              	    69:   phy
+00:0842 48              	    67:   pha
+00:0843 DA              	    68:   phx
+00:0844 5A              	    69:   phy
                         	    70: 
                         	    71:   ; Open root directory
-00:0645 20D3FF          	    72:   jsr fat32_openroot
+00:0845 20D6FF          	    72:   jsr fat32_openroot
                         	    73: 
                         	    74:   ; Find the subdirectory by name
-00:0648 A20E            	    75:   ldx #<dirname
-00:064A A006            	    76:   ldy #>dirname
-00:064C 20DCFF          	    77:   jsr fat32_finddirent
-00:064F 900E            	    78:   bcc foundsubdir
+00:0848 A20E            	    75:   ldx #<dirname
+00:084A A008            	    76:   ldy #>dirname
+00:084C 20DFFF          	    77:   jsr fat32_finddirent
+00:084F 900E            	    78:   bcc foundsubdir
                         	    79: 
                         	    80: error:
                         	    81: 
                         	    82:   ; Subdirectory not found
-00:0651 A006            	    83:   ldy #>errormsg
-00:0653 A21A            	    84:   ldx #<errormsg
-00:0655 20CAFF          	    85:   jsr w_acia_full
-00:0658 200308          	    86:   jsr error_sound
-00:065B 60              	    87:   rts
-00:065C 60              	    88:   rts
-00:065D 60              	    89:   rts
-00:065E 60              	    90:   rts
+00:0851 A008            	    83:   ldy #>errormsg
+00:0853 A21A            	    84:   ldx #<errormsg
+00:0855 20CDFF          	    85:   jsr w_acia_full
+00:0858 20030A          	    86:   jsr error_sound
+00:085B 60              	    87:   rts
+00:085C 60              	    88:   rts
+00:085D 60              	    89:   rts
+00:085E 60              	    90:   rts
                         	    91: 
                         	    92: foundsubdir
                         	    93: 
                         	    94:   ; Open subdirectory
-00:065F 20D6FF          	    95:   jsr fat32_opendirent	; open folder
+00:085F 20D9FF          	    95:   jsr fat32_opendirent	; open folder
                         	    96: 
-00:0662 7A              	    97:   ply
-00:0663 FA              	    98:   plx 
-00:0664 68              	    99:   pla
-00:0665 60              	   100:   rts
+00:0862 7A              	    97:   ply
+00:0863 FA              	    98:   plx 
+00:0864 68              	    99:   pla
+00:0865 60              	   100:   rts
                         	   101: 
                         	   102: 
                         	   103: type:			; typing a filename
-00:0666 A2F6            	   104:   ldx #<typemsg		; Filename:_
-00:0668 A006            	   105:   ldy #>typemsg
-00:066A 20CAFF          	   106:   jsr w_acia_full
-00:066D A200            	   107:   ldx #0
-00:066F A920            	   108:   lda #' '
-00:0671 8504            	   109:   sta $04		; I frogor
-00:0673 4CAA07          	   110:   jmp typeloop		; start loop
+00:0866 A2F6            	   104:   ldx #<typemsg		; Filename:_
+00:0868 A008            	   105:   ldy #>typemsg
+00:086A 20CDFF          	   106:   jsr w_acia_full
+00:086D A200            	   107:   ldx #0
+00:086F A920            	   108:   lda #' '
+00:0871 8504            	   109:   sta $04		; I frogor
+00:0873 4CAA09          	   110:   jmp typeloop		; start loop
                         	   111: 
                         	   112: rxpol:
-00:0676 AD0180          	   113:   lda $8001
-00:0679 2908            	   114:   and #$08		; non-irq rx polling code
-00:067B F0F9            	   115:   beq rxpol
-00:067D 60              	   116:   rts
+00:0876 AD0180          	   113:   lda $8001
+00:0879 2908            	   114:   and #$08		; non-irq rx polling code
+00:087B F0F9            	   115:   beq rxpol
+00:087D 60              	   116:   rts
                         	   117: 
                         	   118: rxput:
-00:067E AD0180          	   119:   lda $8001
-00:0681 2908            	   120:   and #$08		; it loops
-00:0683 F001            	   121:   beq typelop
-00:0685 60              	   122:   rts
+00:087E AD0180          	   119:   lda $8001
+00:0881 2908            	   120:   and #$08		; it loops
+00:0883 F001            	   121:   beq typelop
+00:0885 60              	   122:   rts
                         	   123: typelop:
-00:0686 4CAA07          	   124:   jmp typeloop
+00:0886 4CAA09          	   124:   jmp typeloop
                         	   125: 
                         	   126: lodmsg:
-00:0689 0D              	   127:   .byte $0d, $0a, "Loading...", $0d, $0a, $00
-00:068A 0A
-00:068B 4C6F6164696E672E
-00:0693 2E2E
-00:0695 0D
-00:0696 0A
-00:0697 00
+00:0889 0D              	   127:   .byte $0d, $0a, "Loading...", $0d, $0a, $00
+00:088A 0A
+00:088B 4C6F6164696E672E
+00:0893 2E2E
+00:0895 0D
+00:0896 0A
+00:0897 00
                         	   128: donemsg:
-00:0698 0C              	   129:   .byte $0c, $00
-00:0699 00
+00:0898 0C              	   129:   .byte $0c, $00
+00:0899 00
                         	   130: 
                         	   131: loadmsg:
-00:069A 2020202020202020	   132:   .byte "          -------- SD Loader --------     ", $0d, $0a, $00
-00:06A2 20202D2D2D2D2D2D
-00:06AA 2D2D205344204C6F
-00:06B2 61646572202D2D2D
-00:06BA 2D2D2D2D2D202020
-00:06C2 2020
-00:06C4 0D
-00:06C5 0A
-00:06C6 00
+00:089A 2020202020202020	   132:   .byte "          -------- SD Loader --------     ", $0d, $0a, $00
+00:08A2 20202D2D2D2D2D2D
+00:08AA 2D2D205344204C6F
+00:08B2 61646572202D2D2D
+00:08BA 2D2D2D2D2D202020
+00:08C2 2020
+00:08C4 0D
+00:08C5 0A
+00:08C6 00
                         	   133: lodmm:
-00:06C7 2020202020202020	   134:   .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
-00:06CF 2020507265737320
-00:06D7 286C2920746F206C
-00:06DF 697374203C464F4C
-00:06E7 4445523E20202020
-00:06EF 2020
-00:06F1 0D
-00:06F2 0A
-00:06F3 0D
-00:06F4 0A
-00:06F5 00
+00:08C7 2020202020202020	   134:   .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
+00:08CF 2020507265737320
+00:08D7 286C2920746F206C
+00:08DF 697374203C464F4C
+00:08E7 4445523E20202020
+00:08EF 2020
+00:08F1 0D
+00:08F2 0A
+00:08F3 0D
+00:08F4 0A
+00:08F5 00
                         	   135: 
                         	   136: typemsg:
-00:06F6 5479706520746865	   137:   .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: "
-00:06FE 2066696C656E616D
-00:0706 6520696E20616C6C
-00:070E 20636170732E
-00:0714 0D
-00:0715 0A
-00:0716 5468652066696C65
-00:071E 6E616D6520697320
-00:0726 757020746F203820
-00:072E 6368617261637465
-00:0736 7273206C6F6E672E
-00:073E 0D
-00:073F 0A
-00:0740 2046696C656E616D
-00:0748 653A20
-00:074B 02
-00:074C 5F
-00:074D 00
+00:08F6 5479706520746865	   137:   .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: "
+00:08FE 2066696C656E616D
+00:0906 6520696E20616C6C
+00:090E 20636170732E
+00:0914 0D
+00:0915 0A
+00:0916 5468652066696C65
+00:091E 6E616D6520697320
+00:0926 757020746F203820
+00:092E 6368617261637465
+00:0936 7273206C6F6E672E
+00:093E 0D
+00:093F 0A
+00:0940 2046696C656E616D
+00:0948 653A20
+00:094B 02
+00:094C 5F
+00:094D 00
                         	   138: 
                         	   139: loadbuf:
-00:074E 20              	   140:   .byte $20, $20, $20, $20, $20, $20, $20, $20
-00:074F 20
-00:0750 20
-00:0751 20
-00:0752 20
-00:0753 20
-00:0754 20
-00:0755 20
-00:0756 58504C          	   141:   .byte "XPL"
+00:094E 20              	   140:   .byte $20, $20, $20, $20, $20, $20, $20, $20
+00:094F 20
+00:0950 20
+00:0951 20
+00:0952 20
+00:0953 20
+00:0954 20
+00:0955 20
+00:0956 58504C          	   141:   .byte "XPL"
                         	   142: 
                         	   143: other:
-00:0759 20C1FF          	   144:   jsr txpoll		; Write a letter of the filename currently being read
-00:075C B140            	   145:   lda (zp_sd_address),y
-00:075E 8D0080          	   146:   sta $8000
-00:0761 C8              	   147:   iny
-00:0762 60              	   148:   rts
+00:0959 20C4FF          	   144:   jsr txpoll		; Write a letter of the filename currently being read
+00:095C B140            	   145:   lda (zp_sd_address),y
+00:095E 8D0080          	   146:   sta $8000
+00:0961 C8              	   147:   iny
+00:0962 60              	   148:   rts
                         	   149: 
                         	   150: list:			; list file dir
-00:0763 20D9FF          	   151:   jsr fat32_readdirent	; files?
-00:0766 B036            	   152:   bcs nofiles
-00:0768 2940            	   153:   and #$40
-00:076A F005            	   154:   beq arc
+00:0963 20DCFF          	   151:   jsr fat32_readdirent	; files?
+00:0966 B036            	   152:   bcs nofiles
+00:0968 2940            	   153:   and #$40
+00:096A F005            	   154:   beq arc
                         	   155: dir:
-00:076C A944            	   156:   lda #'D'		; directorys show up as 
-00:076E 4C7307          	   157:   jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+00:096C A944            	   156:   lda #'D'		; directorys show up as 
+00:096E 4C7309          	   157:   jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
                         	   158: arc:
-00:0771 A946            	   159:   lda #'F'		; files show up as
+00:0971 A946            	   159:   lda #'F'		; files show up as
                         	   160: ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
-00:0773 20C4FF          	   161:   jsr print_chara	; f or d
-00:0776 A920            	   162:   lda #$20		; space
-00:0778 20C4FF          	   163:   jsr print_chara
+00:0973 20C7FF          	   161:   jsr print_chara	; f or d
+00:0976 A920            	   162:   lda #$20		; space
+00:0978 20C7FF          	   163:   jsr print_chara
                         	   164:   ; At this point, we know that there are no files, files, or a suddir
                         	   165:   ; Now for the name
-00:077B A000            	   166:   ldy #0
+00:097B A000            	   166:   ldy #0
                         	   167: nameloop:
-00:077D C008            	   168:   cpy #8
-00:077F F006            	   169:   beq dot
-00:0781 205907          	   170:   jsr other
-00:0784 4C7D07          	   171:   jmp nameloop
+00:097D C008            	   168:   cpy #8
+00:097F F006            	   169:   beq dot
+00:0981 205909          	   170:   jsr other
+00:0984 4C7D09          	   171:   jmp nameloop
                         	   172: dot:
-00:0787 A92E            	   173:   lda #'.'		; shows a file extention
-00:0789 20C4FF          	   174:   jsr print_chara
+00:0987 A92E            	   173:   lda #'.'		; shows a file extention
+00:0989 20C7FF          	   174:   jsr print_chara
                         	   175: lopii:
-00:078C C00B            	   176:   cpy #11
-00:078E F006            	   177:   beq endthat		; print 3-letter file extention
-00:0790 205907          	   178:   jsr other
-00:0793 4C8C07          	   179:   jmp lopii
+00:098C C00B            	   176:   cpy #11
+00:098E F006            	   177:   beq endthat		; print 3-letter file extention
+00:0990 205909          	   178:   jsr other
+00:0993 4C8C09          	   179:   jmp lopii
                         	   180: endthat:
-00:0796 A909            	   181:   lda #$09 ; Tab
-00:0798 20C4FF          	   182:   jsr print_chara	; tab
-00:079B 4C6307          	   183:   jmp list ; go again	; next file if there are any left
+00:0996 A909            	   181:   lda #$09 ; Tab
+00:0998 20C7FF          	   182:   jsr print_chara	; tab
+00:099B 4C6309          	   183:   jmp list ; go again	; next file if there are any left
                         	   184: nofiles:		; if not,
                         	   185: endlist:		; exit listing code
-00:079E 20B8FF          	   186:   jsr crlf
-00:07A1 4C6606          	   187:   jmp type
+00:099E 20BBFF          	   186:   jsr crlf
+00:09A1 4C6608          	   187:   jmp type
                         	   188: 
                         	   189: jumptolist:
-00:07A4 20B8FF          	   190:   jsr crlf
-00:07A7 4C6307          	   191:   jmp list
+00:09A4 20BBFF          	   190:   jsr crlf
+00:09A7 4C6309          	   191:   jmp list
                         	   192: 
                         	   193: typeloop:		; loop to type filenames
                         	   194: 
-00:07AA 207606          	   195:   jsr rxpol		; read a charactor
-00:07AD AD0080          	   196:   lda $8000
-00:07B0 8D0106          	   197:   sta charbuffer
+00:09AA 207608          	   195:   jsr rxpol		; read a charactor
+00:09AD AD0080          	   196:   lda $8000
+00:09B0 8D0106          	   197:   sta charbuffer
                         	   198: 
-00:07B3 C90D            	   199:   cmp #$0d		; enter?
-00:07B5 F017            	   200:   beq exitloop		; if so, load
+00:09B3 C90D            	   199:   cmp #$0d		; enter?
+00:09B5 F017            	   200:   beq exitloop		; if so, load
                         	   201: 			; if not...
-00:07B7 AD0106          	   202:   lda charbuffer	
-00:07BA C96C            	   203:   cmp #'l'		; check if it's "l"
-00:07BC F0E6            	   204:   beq jumptolist	; if so, list files
+00:09B7 AD0106          	   202:   lda charbuffer	
+00:09BA C96C            	   203:   cmp #'l'		; check if it's "l"
+00:09BC F0E6            	   204:   beq jumptolist	; if so, list files
                         	   205: 			; if not,
-00:07BE AD0106          	   206:   lda charbuffer	; echo back
-00:07C1 8D0080          	   207:   sta $8000
+00:09BE AD0106          	   206:   lda charbuffer	; echo back
+00:09C1 8D0080          	   207:   sta $8000
                         	   208: 
-00:07C4 AD0106          	   209:   lda charbuffer	; and store it in the filename buffer
-00:07C7 9D4E07          	   210:   sta loadbuf,x
-00:07CA E8              	   211:   inx
-00:07CB 4CAA07          	   212:   jmp typeloop
+00:09C4 AD0106          	   209:   lda charbuffer	; and store it in the filename buffer
+00:09C7 9D4E09          	   210:   sta loadbuf,x
+00:09CA E8              	   211:   inx
+00:09CB 4CAA09          	   212:   jmp typeloop
                         	   213: 
                         	   214: exitloop:
                         	   215: 
-00:07CE 20B8FF          	   216:   jsr crlf
-00:07D1 204206          	   217:   jsr rootsetup
+00:09CE 20BBFF          	   216:   jsr crlf
+00:09D1 204208          	   217:   jsr rootsetup
                         	   218:   
-00:07D4 A007            	   219:   ldy #>loadbuf
-00:07D6 A24E            	   220:   ldx #<loadbuf
-00:07D8 20DCFF          	   221:   jsr fat32_finddirent
-00:07DB 9003            	   222:   bcc foundfile
+00:09D4 A009            	   219:   ldy #>loadbuf
+00:09D6 A24E            	   220:   ldx #<loadbuf
+00:09D8 20DFFF          	   221:   jsr fat32_finddirent
+00:09DB 9003            	   222:   bcc foundfile
                         	   223:   
                         	   224:   ; File not found
-00:07DD 4C5106          	   225:   jmp error
+00:09DD 4C5108          	   225:   jmp error
                         	   226: 
                         	   227: foundfile
                         	   228:  
                         	   229:   ; Open file
-00:07E0 20D6FF          	   230:   jsr fat32_opendirent
+00:09E0 20D9FF          	   230:   jsr fat32_opendirent
                         	   231: 
-00:07E3 A289            	   232:   ldx #<lodmsg
-00:07E5 A006            	   233:   ldy #>lodmsg
-00:07E7 20CAFF          	   234:   jsr w_acia_full
+00:09E3 A289            	   232:   ldx #<lodmsg
+00:09E5 A008            	   233:   ldy #>lodmsg
+00:09E7 20CDFF          	   234:   jsr w_acia_full
                         	   235: 
-00:07EA A900            	   236:   lda #$00
-00:07EC 8554            	   237:   sta fat32_address
-00:07EE A90F            	   238:   lda #$0f
-00:07F0 8555            	   239:   sta fat32_address+1
+00:09EA A900            	   236:   lda #$00
+00:09EC 8554            	   237:   sta fat32_address
+00:09EE A90F            	   238:   lda #$0f
+00:09F0 8555            	   239:   sta fat32_address+1
                         	   240: 
-00:07F2 20E2FF          	   241:   jsr fat32_file_read  ; Yes. It is finally time to read the file.
+00:09F2 20E5FF          	   241:   jsr fat32_file_read  ; Yes. It is finally time to read the file.
                         	   242: 
                         	   243: end:
-00:07F5 A298            	   244:   ldx #<donemsg
-00:07F7 A006            	   245:   ldy #>donemsg
-00:07F9 20CAFF          	   246:   jsr w_acia_full
-00:07FC 20000F          	   247:   jsr $0f00
-00:07FF 60              	   248:   rts
-00:0800 60              	   249:   rts
-00:0801 60              	   250:   rts
-00:0802 60              	   251:   rts
+00:09F5 A298            	   244:   ldx #<donemsg
+00:09F7 A008            	   245:   ldy #>donemsg
+00:09F9 20CDFF          	   246:   jsr w_acia_full
+00:09FC 20000F          	   247:   jsr $0f00
+00:09FF 60              	   248:   rts
+00:0A00 60              	   249:   rts
+00:0A01 60              	   250:   rts
+00:0A02 60              	   251:   rts
                         	   252: 
                         	   253: ;clear_sid
                         	   254: ;  ldx #$18
@@ -411,52 +411,53 @@ Source: "sd_handeler.s"
 
 Source: "errors.s"
                         	     1: error_sound:
-00:0803 A955            	     2:   lda #$55
-00:0805 8502            	     3:   sta donefact
-00:0807 6403            	     4:   stz irqcount	; reset irq count
+00:0A03 A955            	     2:   lda #$55
+00:0A05 8502            	     3:   sta donefact
+00:0A07 6403            	     4:   stz irqcount	; reset irq count
                         	     5: 
                         	     6: runthesound:
-00:0809 78              	     7:   sei		; turn off irqs
-00:080A A927            	     8:   lda #<irq
-00:080C 8DFE7F          	     9:   sta $7ffe
-00:080F A908            	    10:   lda #>irq
-00:0811 8DFF7F          	    11:   sta $7fff	; store vectors
-00:0814 A9C0            	    12:   lda #$c0
-00:0816 8D0EB0          	    13:   sta $b00e	
-00:0819 A900            	    14:   lda #0 ; Song Number
-00:081B 204E08          	    15:   jsr InitSid
-00:081E A940            	    16:   lda #$40
-00:0820 8D0DB0          	    17:   sta $b00d
-00:0823 58              	    18:   cli
-00:0824 4C2F12          	    19:   jmp startupsoundloop
+00:0A09 78              	     7:   sei		; turn off irqs
+00:0A0A A927            	     8:   lda #<irq
+00:0A0C 8DFE7F          	     9:   sta $7ffe
+00:0A0F A90A            	    10:   lda #>irq
+00:0A11 8DFF7F          	    11:   sta $7fff	; store vectors
+00:0A14 A9C0            	    12:   lda #$c0
+00:0A16 8D0EB0          	    13:   sta $b00e	
+00:0A19 A900            	    14:   lda #0 ; Song Number
+00:0A1B 204E0A          	    15:   jsr InitSid
+00:0A1E A940            	    16:   lda #$40
+00:0A20 8D0DB0          	    17:   sta $b00d
+00:0A23 58              	    18:   cli
+00:0A24 4C2F12          	    19:   jmp startupsoundloop
                         	    20: 
                         	    21: irq:
-00:0827 A940            	    22:   lda #$40
-00:0829 8D0DB0          	    23:   sta $b00d
-00:082C 203D08          	    24:   jsr putbut		; refresh timers
-00:082F E603            	    25:   inc irqcount		; a irq has occurred
-00:0831 A503            	    26:   lda irqcount
-00:0833 C940            	    27:   cmp #$40		; if $32 irqs (end of the error sound)
-00:0835 D002            	    28:   bne continue24542 	; end the stream
-00:0837 6402            	    29:   stz donefact		; its done, tell the loop
+00:0A27 A940            	    22:   lda #$40
+00:0A29 8D0DB0          	    23:   sta $b00d
+00:0A2C 203D0A          	    24:   jsr putbut		; refresh timers
+00:0A2F E603            	    25:   inc irqcount		; a irq has occurred
+00:0A31 A503            	    26:   lda irqcount
+00:0A33 C940            	    27:   cmp #$40		; if $32 irqs (end of the error sound)
+00:0A35 D002            	    28:   bne continue24542 	; end the stream
+00:0A37 6402            	    29:   stz donefact		; its done, tell the loop
                         	    30: continue24542:
-00:0839 200610          	    31:   jsr $1006
-00:083C 40              	    32:   rti			; exit
+00:0A39 200610          	    31:   jsr $1006
+00:0A3C 40              	    32:   rti			; exit
                         	    33: 
                         	    34: putbut:
-00:083D A29E            	    35: 		ldx #$9e
-00:083F 8E04B0          	    36: 		stx $b004
-00:0842 8E06B0          	    37: 		stx $b006
-00:0845 A20F            	    38: 		ldx #$0f  ; 250Hz IRQ
-00:0847 8E05B0          	    39: 		stx $b005
-00:084A 8E07B0          	    40: 		stx $b007
-00:084D 60              	    41: 		rts
-00:084E 203D08          	    42: InitSid		jsr putbut
-00:0851 4C0311          	    43: 		jmp $1103
-                        	    44: 
-                        	    45:   .org $1006
-                        	    46: 
-                        	    47:   .include "errorsound.s"
+00:0A3D A29E            	    35:   ldx #$9e
+00:0A3F 8E04B0          	    36:   stx $b004
+00:0A42 8E06B0          	    37:   stx $b006
+00:0A45 A20F            	    38:   ldx #$0f  ; 250Hz IRQ
+00:0A47 8E05B0          	    39:   stx $b005
+00:0A4A 8E07B0          	    40:   stx $b007
+00:0A4D 60              	    41:   rts
+                        	    42: InitSid:
+00:0A4E 203D0A          	    43:   jsr putbut
+00:0A51 4C0311          	    44:   jmp $1103
+                        	    45: 
+                        	    46:   .org $1006
+                        	    47: 
+                        	    48:   .include "errorsound.s"
 
 Source: "errorsound.s"
                         	     1: d400_sVoc1FreqLo = $b800
@@ -649,30 +650,29 @@ Source: "errorsound.s"
                         	   151: 
 
 Source: "errors.s"
-                        	    48: 
-                        	    49: startupsoundloop:	
-01:122F A502            	    50:   lda donefact		; loop only if the sound is not done
-01:1231 D0FC            	    51:   bne startupsoundloop
-01:1233 9C0EB0          	    52:   stz $b00e		; if done disable irqs
-01:1236 9C0DB0          	    53:   stz $b00d
-01:1239 78              	    54:   sei
-01:123A A5C0            	    55:   lda $c0		; clear irq vectors
-01:123C 8DFF7F          	    56:   sta $7fff
-01:123F 9CFE7F          	    57:   stz $7ffe
-01:1242 204912          	    58:   jsr clear_sid
-01:1245 60              	    59:   rts
-01:1246 60              	    60:   rts
-01:1247 60              	    61:   rts
-01:1248 60              	    62:   rts
-                        	    63: 
-                        	    64: clear_sid
-01:1249 A217            	    65:   ldx #$17 ; 17 cuz no pop
-                        	    66: csid
-01:124B 9E00B8          	    67:   stz $b800,x
-01:124E CA              	    68:   dex
-01:124F D0FA            	    69:   bne csid
-01:1251 60              	    70:   rts
-                        	    71: 
+                        	    49: 
+                        	    50: startupsoundloop:	
+01:122F A502            	    51:   lda donefact		; loop only if the sound is not done
+01:1231 D0FC            	    52:   bne startupsoundloop
+01:1233 9C0EB0          	    53:   stz $b00e		; if done disable irqs
+01:1236 9C0DB0          	    54:   stz $b00d
+01:1239 78              	    55:   sei
+01:123A A5C0            	    56:   lda $c0		; clear irq vectors
+01:123C 8DFF7F          	    57:   sta $7fff
+01:123F 9CFE7F          	    58:   stz $7ffe
+01:1242 204912          	    59:   jsr clear_sid
+01:1245 60              	    60:   rts
+01:1246 60              	    61:   rts
+01:1247 60              	    62:   rts
+01:1248 60              	    63:   rts
+                        	    64: 
+                        	    65: clear_sid
+01:1249 A217            	    66:   ldx #$17 ; 17 cuz no pop
+                        	    67: csid
+01:124B 9E00B8          	    68:   stz $b800,x
+01:124E CA              	    69:   dex
+01:124F D0FA            	    70:   bne csid
+01:1251 60              	    71:   rts
                         	    72: 
                         	    73: 
 
@@ -683,7 +683,7 @@ Source: "sd_handeler.s"
 Symbols by name:
 DDRA                             E:B003
 DDRB                             E:B002
-InitSid                          A:084E
+InitSid                          A:0A4E
 InitSid2                         A:1103
 L1008                            A:1008
 L1015                            A:1015
@@ -712,70 +712,70 @@ S10a1                            A:10A1
 SD_CS                            E:0010
 SD_MOSI                          E:0004
 SD_SCK                           E:0008
-arc                              A:0771
+arc                              A:0971
 charbuffer                       E:0601
 clear_sid                        A:1249
-cleardisplay                     E:FFBB
-continue24542                    A:0839
-crlf                             E:FFB8
+cleardisplay                     E:FFBE
+continue24542                    A:0A39
+crlf                             E:FFBB
 csid                             A:124B
 d400_sVoc1FreqLo                 E:B800
 d404_sVoc1Control                E:B804
 d40b_sVoc2Control                E:B80B
 d412_sVoc3Control                E:B812
-dir                              A:076C
-dirname                          A:060E
+dir                              A:096C
+dirname                          A:080E
 donefact                         E:0002
-donemsg                          A:0698
-dot                              A:0787
-ebut                             A:0773
-end                              A:07F5
-endlist                          A:079E
-endthat                          A:0796
-error                            A:0651
-error_sound                      A:0803
-errormsg                         A:061A
-exitloop                         A:07CE
+donemsg                          A:0898
+dot                              A:0987
+ebut                             A:0973
+end                              A:09F5
+endlist                          A:099E
+endthat                          A:0996
+error                            A:0851
+error_sound                      A:0A03
+errormsg                         A:081A
+exitloop                         A:09CE
 fat32_address                    E:0054
 fat32_bytesremaining             E:005A
-fat32_file_read                  E:FFE2
-fat32_finddirent                 E:FFDC
-fat32_opendirent                 E:FFD6
-fat32_openroot                   E:FFD3
-fat32_readdirent                 E:FFD9
+fat32_file_read                  E:FFE5
+fat32_finddirent                 E:FFDF
+fat32_opendirent                 E:FFD9
+fat32_openroot                   E:FFD6
+fat32_readdirent                 E:FFDC
 fat32_workspace                  E:0200
-findrau                          A:063F
-foundfile                        A:07E0
-foundsubdir                      A:065F
-irq                              A:0827
+findrau                          A:083F
+foundfile                        A:09E0
+foundsubdir                      A:085F
+irq                              A:0A27
 irqcount                         E:0003
-jumptoit                         A:0600
-jumptolist                       A:07A4
-list                             A:0763
-loadbuf                          A:074E
-loadmsg                          A:069A
-lodmm                            A:06C7
-lodmsg                           A:0689
-lopii                            A:078C
-nameloop                         A:077D
-nofiles                          A:079E
-other                            A:0759
-print_chara                      E:FFC4
-putbut                           A:083D
-rootsetup                        A:0642
-runthesound                      A:0809
-rxpol                            A:0676
-rxput                            A:067E
-sdstart                          A:0625
+jumptoit                         A:0800
+jumptolist                       A:09A4
+list                             A:0963
+loadbuf                          A:094E
+loadmsg                          A:089A
+lodmm                            A:08C7
+lodmsg                           A:0889
+lopii                            A:098C
+nameloop                         A:097D
+nofiles                          A:099E
+other                            A:0959
+print_chara                      E:FFC7
+putbut                           A:0A3D
+rootsetup                        A:0842
+runthesound                      A:0A09
+rxpol                            A:0876
+rxput                            A:087E
+sdstart                          A:0825
 seed                             E:0001
 startupsoundloop                 A:122F
-txpoll                           E:FFC1
-type                             A:0666
-typeloop                         A:07AA
-typelop                          A:0686
-typemsg                          A:06F6
-via_init                         A:0603
-w_acia_full                      E:FFCA
+txpoll                           E:FFC4
+type                             A:0866
+typeloop                         A:09AA
+typelop                          A:0886
+typemsg                          A:08F6
+via_init                         A:0803
+w_acia_full                      E:FFCD
 zp_fat32_variables               E:0046
 zp_sd_address                    E:0040
 
@@ -795,48 +795,48 @@ Symbols by value:
 0080 LCD_E
 00FC PORTA_OUTPUTPINS
 0200 fat32_workspace
-0600 jumptoit
 0601 charbuffer
-0603 via_init
-060E dirname
-061A errormsg
-0625 sdstart
-063F findrau
-0642 rootsetup
-0651 error
-065F foundsubdir
-0666 type
-0676 rxpol
-067E rxput
-0686 typelop
-0689 lodmsg
-0698 donemsg
-069A loadmsg
-06C7 lodmm
-06F6 typemsg
-074E loadbuf
-0759 other
-0763 list
-076C dir
-0771 arc
-0773 ebut
-077D nameloop
-0787 dot
-078C lopii
-0796 endthat
-079E endlist
-079E nofiles
-07A4 jumptolist
-07AA typeloop
-07CE exitloop
-07E0 foundfile
-07F5 end
-0803 error_sound
-0809 runthesound
-0827 irq
-0839 continue24542
-083D putbut
-084E InitSid
+0800 jumptoit
+0803 via_init
+080E dirname
+081A errormsg
+0825 sdstart
+083F findrau
+0842 rootsetup
+0851 error
+085F foundsubdir
+0866 type
+0876 rxpol
+087E rxput
+0886 typelop
+0889 lodmsg
+0898 donemsg
+089A loadmsg
+08C7 lodmm
+08F6 typemsg
+094E loadbuf
+0959 other
+0963 list
+096C dir
+0971 arc
+0973 ebut
+097D nameloop
+0987 dot
+098C lopii
+0996 endthat
+099E endlist
+099E nofiles
+09A4 jumptolist
+09AA typeloop
+09CE exitloop
+09E0 foundfile
+09F5 end
+0A03 error_sound
+0A09 runthesound
+0A27 irq
+0A39 continue24542
+0A3D putbut
+0A4E InitSid
 1006 PlaySid
 1008 L1008
 1015 L1015
@@ -867,13 +867,13 @@ B800 d400_sVoc1FreqLo
 B804 d404_sVoc1Control
 B80B d40b_sVoc2Control
 B812 d412_sVoc3Control
-FFB8 crlf
-FFBB cleardisplay
-FFC1 txpoll
-FFC4 print_chara
-FFCA w_acia_full
-FFD3 fat32_openroot
-FFD6 fat32_opendirent
-FFD9 fat32_readdirent
-FFDC fat32_finddirent
-FFE2 fat32_file_read
+FFBB crlf
+FFBE cleardisplay
+FFC4 txpoll
+FFC7 print_chara
+FFCD w_acia_full
+FFD6 fat32_openroot
+FFD9 fat32_opendirent
+FFDC fat32_readdirent
+FFDF fat32_finddirent
+FFE5 fat32_file_read
