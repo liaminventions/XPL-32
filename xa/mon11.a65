@@ -4087,8 +4087,14 @@ fill:
 filllp:
   sta (folderpointer),y
   iny
-  cpy #11 ; stop if index over 10
+  cpy #8 ; stop if index over 10
   bne filllp
+  lda #0
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
   ; ok, that should do it.
   ; jsr sdsetup
 .)
@@ -4641,7 +4647,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6586,$00
+  .dsb 6576,$00
 
 ; ----KERNAL----
 
