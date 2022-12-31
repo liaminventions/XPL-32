@@ -4087,20 +4087,14 @@ fill:
 filllp:
   sta (folderpointer),y
   iny
-  cpy #8 ; stop if index over 10
+  cpy #12 ; stop if index over 11
   bne filllp
-  lda #0
-  sta (folderpointer),y
-  iny
-  sta (folderpointer),y
-  iny
-  sta (folderpointer),y
   ; ok, that should do it.
   ; jsr sdsetup
 .)
 cdsub:
 .(
-  ; check if the folder exists
+  ; check if the folder exists + get info
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
@@ -4647,7 +4641,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6577,$00
+  .dsb 6576,$00
 
 ; ----KERNAL----
 

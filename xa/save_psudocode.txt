@@ -1,0 +1,13 @@
+goto folder begin sector
+scan through for a free one ($0000) - if $fff7 then skip
+mark index & save there
+save sector count, for the dirent
+1:
+scan through for a free one ($0000) - if $fff7 then skip
+mark index & save there
+goto 1 if file not saved
+scan through for a free one ($0000) - if $fff7 then skip
+add eof ($fff8 - $ffff)
+find a empty dirent slot
+save dirent with name and start address.
+END

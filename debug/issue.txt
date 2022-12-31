@@ -1,153 +1,171 @@
-???? : 29 08    : AND #08        : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-???? : F0 F9    : BEQ pc-7       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=?
-???? : AD 01 80 : LDA 8001       : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=?
+???? : F0 E1    : BEQ pc-31      : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=?
+???? : AD 01 80 : LDA 8001       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
 ???? : 29 08    : AND #08        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-???? : F0 F9    : BEQ pc-7       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-???? : AD 01 80 : LDA 8001       : A=18 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=?
-???? : 29 08    : AND #08        : A=08 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=?
-???? : F0 F9    : BEQ pc-7       : A=08 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=?
-???? : AD 00 80 : LDA 8000       : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=?
-???? : C9 08    : CMP #08        : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-???? : F0 0E    : BEQ pc+14      : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-???? : C9 0D    : CMP #0D        : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=1
-???? : F0 15    : BEQ pc+21      : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=1
-???? : 60       : RTS            : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=1
-C68C : 20 A9 D5 : JSR D5A9       : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=1
-D5A9 : 48       : PHA            : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=1
-D5AA : AD 01 80 : LDA 8001       : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5AD : 29 10    : AND #10        : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5AF : F0 F9    : BEQ D5AA       : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5B1 : A9 0D    : LDA #0D        : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5B3 : 8D 00 80 : STA 8000       : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5B6 : AD 01 80 : LDA 8001       : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5B9 : 29 10    : AND #10        : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5BB : F0 F9    : BEQ D5B6       : A=10 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5BD : A9 0A    : LDA #0A        : A=0A X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5BF : 8D 00 80 : STA 8000       : A=0A X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5C2 : 68       : PLA            : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-D5C3 : 60       : RTS            : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=1
-C68F : C0 00    : CPY #00        : A=0D X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
 opcode f0: cycle prediction fail: expected 3 actual 2
-C691 : F0 E9    : BEQ C67C       : A=0D X=?? Y=?? SP=?? N=? V=? D=? I=? Z=0 C=?
-C693 : A9 00    : LDA #00        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-C695 : 99 00 02 : STA 0200,Y     : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+???? : F0 C1    : BEQ pc-63      : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=? prediction failed
+???? : AD 00 80 : LDA 8000       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+???? : C9 08    : CMP #08        : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0
+???? : F0 0E    : BEQ pc+14      : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0
+???? : C9 0D    : CMP #0D        : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode f0: cycle prediction fail: expected 2 actual 3
+???? : F0 15    : BEQ pc+21      : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+???? : 60       : RTS            : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0
+pc: prediction failed at C68C old pc was 8684
+C68C : 20 A9 D5 : JSR D5A9       : A=00 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0
+D5A9 : 48       : PHA            : A=0D X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+D5AA : AD 01 80 : LDA 8001       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0
+D5AD : 29 10    : AND #10        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode f0: cycle prediction fail: expected 3 actual 2
+D5AF : F0 C1    : BEQ D572       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0 prediction failed
+D5B1 : A9 0D    : LDA #0D        : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+D5B3 : 8D 00 80 : STA 8000       : A=0D X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+D5B6 : AD 01 80 : LDA 8001       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0
+D5B9 : 29 10    : AND #10        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode f0: cycle prediction fail: expected 3 actual 2
+D5BB : F0 E1    : BEQ D59E       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=0 prediction failed
+D5BD : A9 0A    : LDA #0A        : A=0A X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+D5BF : 8D 00 80 : STA 8000       : A=0A X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+D5C2 : 68       : PLA            : A=05 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+D5C3 : 60       : RTS            : A=05 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=0 C=0
+0683 : C0 00    : CPY #00        : A=05 X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
+opcode f0: cycle prediction fail: expected 3 actual 2
+0685 : F0 E9    : BEQ 0670       : A=05 X=?? Y=?? SP=?? N=? V=? D=? I=? Z=0 C=?
+0687 : A9 00    : LDA #00        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+0689 : 99 00 02 : STA 0200,Y     : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+pc: prediction failed at C698 old pc was 068C
 C698 : 20 A1 C6 : JSR C6A1       : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-C6A1 : DA       : PHX            : A=00 X=FF Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-C6A2 : A2 00    : LDX #00        : A=00 X=00 Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
-C6A4 : A0 00    : LDY #00        : A=00 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=?
-C6A6 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=?
+opcode c2: cycle prediction fail: expected 2 actual 3
+C6A1 : C2 A2    : NOP #A2        : A=00 X=?? Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+C6A3 : A2 00    : LDX #00        : A=00 X=00 Y=?? SP=?? N=0 V=? D=? I=? Z=1 C=?
+C6A5 : A0 00    : LDY #00        : A=00 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=?
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6A7 : A5 00    : LDA 00         : A=63 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=?
 C6A9 : C9 20    : CMP #20        : A=63 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6AB : D0 04    : BNE C6B1       : A=63 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6B1 : C8       : INY            : A=63 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6B2 : 96 20    : STX 20,Y       : A=63 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6B4 : E8       : INX            : A=63 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BA : C9 20    : CMP #20        : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BC : F0 03    : BEQ C6C1       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BE : 4C B4 C6 : JMP C6B4       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B5 : A5 00    : LDA 00         : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B7 : F0 10    : BEQ C6C9       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B9 : C9 20    : CMP #20        : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6BB : F0 03    : BEQ C6C0       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6BD : 4C B4 C6 : JMP C6B4       : A=64 X=01 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6B4 : E8       : INX            : A=64 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BA : C9 20    : CMP #20        : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6BC : F0 03    : BEQ C6C1       : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6C1 : A9 00    : LDA #00        : A=00 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6C3 : 9D 00 02 : STA 0200,X     : A=00 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6C6 : E8       : INX            : A=00 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6C7 : 4C A6 C6 : JMP C6A6       : A=00 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6A6 : BD 00 02 : LDA 0200,X     : A=74 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6A9 : C9 20    : CMP #20        : A=74 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6AB : D0 04    : BNE C6B1       : A=74 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B1 : C8       : INY            : A=74 X=03 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B2 : 96 20    : STX 20,Y       : A=74 X=03 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B4 : E8       : INX            : A=74 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BA : C9 20    : CMP #20        : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BC : F0 03    : BEQ C6C1       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BE : 4C B4 C6 : JMP C6B4       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B5 : A5 00    : LDA 00         : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B7 : F0 10    : BEQ C6C9       : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B9 : C9 20    : CMP #20        : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C6BB : F0 03    : BEQ C6C0       : A=20 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C6C0 : A9 00    : LDA #00        : A=00 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
+opcode 95: cycle prediction fail: expected 4 actual 5
+C6C2 : 95 00    : STA 00,X       : A=00 X=02 Y=01 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C6C4 : E8       : INX            : A=00 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6C5 : 4C A6 C6 : JMP C6A6       : A=00 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6A6 : A5 00    : LDA 00         : A=04 X=03 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6A8 : C9 20    : CMP #20        : A=04 X=03 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6AA : D0 04    : BNE C6B0       : A=04 X=03 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6B0 : C8       : INY            : A=04 X=03 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B1 : 96 20    : STX 20,Y       : A=04 X=03 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B3 : E8       : INX            : A=04 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B4 : A5 00    : LDA 00         : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B6 : F0 10    : BEQ C6C8       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B8 : C9 20    : CMP #20        : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6BA : F0 03    : BEQ C6BF       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6BC : 4C B4 C6 : JMP C6B4       : A=65 X=04 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
 C6B4 : E8       : INX            : A=65 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=73 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=73 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BA : C9 20    : CMP #20        : A=73 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BC : F0 03    : BEQ C6C1       : A=73 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BE : 4C B4 C6 : JMP C6B4       : A=73 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B4 : E8       : INX            : A=73 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=74 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=74 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BA : C9 20    : CMP #20        : A=74 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BC : F0 03    : BEQ C6C1       : A=74 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6BE : 4C B4 C6 : JMP C6B4       : A=74 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B4 : E8       : INX            : A=74 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6B5 : BD 00 02 : LDA 0200,X     : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6B8 : F0 10    : BEQ C6CA       : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6CA : 84 20    : STY 20         : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C6CC : FA       : PLX            : A=00 X=87 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C6CD : 60       : RTS            : A=00 X=87 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C69B : 20 FB C6 : JSR C6FB       : A=00 X=87 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C6FB : A9 03    : LDA #03        : A=03 X=87 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6FD : 85 44    : STA 44         : A=03 X=87 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C6FF : A9 C0    : LDA #C0        : A=C0 X=87 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C701 : 85 45    : STA 45         : A=C0 X=87 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C703 : DA       : PHX            : A=C0 X=FF Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1 prediction failed
-C704 : A0 00    : LDY #00        : A=C0 X=FF Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C706 : B1 44    : LDA (44),Y     : A=0D X=FF Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C708 : 85 10    : STA 10         : A=0D X=FF Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C70A : C8       : INY            : A=0D X=FF Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C70B : B1 44    : LDA (44),Y     : A=C0 X=FF Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C70D : 85 11    : STA 11         : A=C0 X=FF Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C70F : C8       : INY            : A=C0 X=FF Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C736 : A5 10    : LDA 10         : A=0D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C738 : 85 44    : STA 44         : A=0D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C73E : 05 10    : ORA 10         : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C740 : F0 03    : BEQ C745       : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C742 : 4C 04 C7 : JMP C704       : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C704 : A0 00    : LDY #00        : A=CD X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C706 : B1 44    : LDA (44),Y     : A=16 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C708 : 85 10    : STA 10         : A=16 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C70A : C8       : INY            : A=16 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=16 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=16 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B5 : A5 00    : LDA 00         : A=03 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B7 : F0 10    : BEQ C6C9       : A=03 X=05 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C6B9 : C9 20    : CMP #20        : A=03 X=05 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6BB : F0 03    : BEQ C6C0       : A=03 X=05 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6BD : 4C B4 C6 : JMP C6B4       : A=03 X=05 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6B4 : E8       : INX            : A=03 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B5 : A5 00    : LDA 00         : A=04 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B7 : F0 10    : BEQ C6C9       : A=04 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6B9 : C9 20    : CMP #20        : A=04 X=06 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6BB : F0 03    : BEQ C6C0       : A=04 X=06 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6BD : 4C B4 C6 : JMP C6B4       : A=04 X=06 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6B4 : E8       : INX            : A=04 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6B5 : A5 00    : LDA 00         : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C6B7 : F0 10    : BEQ C6C9       : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C6C9 : 84 20    : STY 20         : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode c2: cycle prediction fail: expected 2 actual 4
+C6CB : C2 60    : NOP #60        : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C6CD : 60       : RTS            : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+pc: prediction failed at C69B old pc was 0683
+C69B : 20 C3 C6 : JSR C6C3       : A=00 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C6C3 : A9 03    : LDA #03        : A=03 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6C5 : 85 44    : STA 44         : A=03 X=07 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6C7 : A9 C0    : LDA #C0        : A=C0 X=07 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6C9 : 85 45    : STA 45         : A=C0 X=07 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode ca: cycle prediction fail: expected 2 actual 3
+C6CB : CA       : DEX            : A=C0 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6CC : A0 00    : LDY #00        : A=C0 X=06 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C6CE : B1 44    : LDA (44),Y     : A=0D X=06 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6D0 : 85 10    : STA 10         : A=0D X=06 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6D2 : C8       : INY            : A=0D X=06 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6D3 : B1 44    : LDA (44),Y     : A=C0 X=06 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6D5 : 85 11    : STA 11         : A=C0 X=06 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6D7 : C8       : INY            : A=C0 X=06 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6D8 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C6DA : A5 00    : LDA 00         : A=23 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6DC : F0 09    : BEQ C6E7       : A=23 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6DE : D1 44    : CMP (44),Y     : A=23 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6E0 : D0 1B    : BNE C6FD       : A=23 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C6FD : A5 10    : LDA 10         : A=05 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C6FF : 85 44    : STA 44         : A=0D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C701 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C703 : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C705 : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C707 : F0 03    : BEQ C70C       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C709 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=C1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C706 : B1 44    : LDA (44),Y     : A=16 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C708 : 85 10    : STA 10         : A=16 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C70A : C8       : INY            : A=16 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=16 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=16 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=D6 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=D6 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C706 : B1 44    : LDA (44),Y     : A=1F X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C708 : 85 10    : STA 10         : A=1F X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C706 : B1 44    : LDA (44),Y     : A=17 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C708 : 85 10    : STA 10         : A=1F X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
 C70A : C8       : INY            : A=1F X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=17 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=1F X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=C7 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=C7 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=C7 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=C7 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=01 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=1F X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=C1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=28 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=28 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70A : C8       : INY            : A=28 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -155,17 +173,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=28 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=28 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=28 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=28 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=E8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=E8 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=31 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=31 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -174,37 +193,39 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=31 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=31 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=F1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=F1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=F1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=F1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C706 : B1 44    : LDA (44),Y     : A=38 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C708 : 85 10    : STA 10         : A=38 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=21 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=31 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73D : 05 10    : ORA 10         : A=E1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=E1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=E1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=E1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+C706 : B1 44    : LDA (44),Y     : A=28 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C708 : 85 10    : STA 10         : A=38 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
 C70A : C8       : INY            : A=38 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=38 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=38 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=F8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=F8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=F8 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=F8 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=20 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=38 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=E0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=E0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=E0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=E0 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=41 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=41 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70A : C8       : INY            : A=41 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -212,17 +233,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=41 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=41 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=41 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=41 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=C1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=4D X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=4D X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -231,18 +253,19 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=4D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=4D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=CD X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=CD X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=45 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=4D X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73D : 05 10    : ORA 10         : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=C5 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=55 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=55 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70A : C8       : INY            : A=55 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -250,17 +273,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=55 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=55 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=45 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=55 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=D5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=D5 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=62 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=62 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -269,17 +293,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=62 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=62 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=23 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=23 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=23 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=23 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=22 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=62 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=E2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=E2 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=6B X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=6B X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -288,37 +313,39 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=6B X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=6B X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=EB X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=EB X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=EB X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=EB X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C706 : B1 44    : LDA (44),Y     : A=75 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C708 : 85 10    : STA 10         : A=75 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C70A : C8       : INY            : A=75 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=75 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=75 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=F5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=F5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=F5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=F5 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C735 : A5 10    : LDA 10         : A=03 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C737 : 85 44    : STA 44         : A=6B X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1 prediction failed
+C73D : 05 10    : ORA 10         : A=C3 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C73F : F0 03    : BEQ C744       : A=C3 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C741 : 4C 04 C7 : JMP C704       : A=C3 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C704 : A0 00    : LDY #00        : A=C3 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C706 : B1 44    : LDA (44),Y     : A=75 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C708 : 85 10    : STA 10         : A=75 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C70A : C8       : INY            : A=75 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=05 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=75 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=C5 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=81 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=81 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70A : C8       : INY            : A=81 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -326,17 +353,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=81 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=81 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=81 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=81 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C1 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=C1 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=8A X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=8A X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
@@ -345,17 +373,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=8A X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=8A X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=8A X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=8A X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=CA X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=CA X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=94 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=94 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
@@ -364,37 +393,39 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=94 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=94 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=94 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=94 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C739 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C73D : 05 10    : ORA 10         : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=D4 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=D4 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C706 : B1 44    : LDA (44),Y     : A=9E X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C708 : 85 10    : STA 10         : A=9E X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C706 : B1 44    : LDA (44),Y     : A=96 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C708 : 85 10    : STA 10         : A=9E X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
 C70A : C8       : INY            : A=9E X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=9E X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=9E X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=DE X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=DE X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=DE X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C704 : A0 00    : LDY #00        : A=DE X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C735 : A5 10    : LDA 10         : A=82 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C737 : 85 44    : STA 44         : A=9E X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C739 : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73B : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73D : 05 10    : ORA 10         : A=C2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C73F : F0 03    : BEQ C744       : A=C2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C741 : 4C 04 C7 : JMP C704       : A=C2 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C704 : A0 00    : LDY #00        : A=C2 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=A5 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=A5 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70A : C8       : INY            : A=A5 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=0
@@ -402,17 +433,18 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C736 : A5 10    : LDA 10         : A=A5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C738 : 85 44    : STA 44         : A=A5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73A : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73C : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C73E : 05 10    : ORA 10         : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C740 : F0 03    : BEQ C745       : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
-C742 : 4C 04 C7 : JMP C704       : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C718 : D0 13    : BNE C72D       : A=63 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C72D : A5 10    : LDA 10         : A=A5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C72F : 85 44    : STA 44         : A=A5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C731 : A5 11    : LDA 11         : A=80 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C733 : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0 prediction failed
+C735 : 05 10    : ORA 10         : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C737 : F0 03    : BEQ C73C       : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
+C739 : 4C 04 C7 : JMP C704       : A=E5 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C704 : A0 00    : LDY #00        : A=E5 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=0
 C706 : B1 44    : LDA (44),Y     : A=AC X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C708 : 85 10    : STA 10         : A=AC X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=0
@@ -421,336 +453,334 @@ C70B : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70D : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=0
 C70F : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
 C710 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=0
-C712 : BD 00 02 : LDA 0200,X     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C715 : F0 09    : BEQ C720       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
-C717 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C719 : D0 1B    : BNE C736       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C71B : E8       : INX            : A=63 X=01 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C71C : C8       : INY            : A=63 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C71D : 4C 12 C7 : JMP C712       : A=63 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C712 : BD 00 02 : LDA 0200,X     : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C715 : F0 09    : BEQ C720       : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C717 : D1 44    : CMP (44),Y     : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C719 : D0 1B    : BNE C736       : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C71B : E8       : INX            : A=64 X=02 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C71C : C8       : INY            : A=64 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C71D : 4C 12 C7 : JMP C712       : A=64 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C712 : BD 00 02 : LDA 0200,X     : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C715 : F0 09    : BEQ C720       : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C720 : B1 44    : LDA (44),Y     : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C722 : F0 03    : BEQ C727       : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
-C727 : C8       : INY            : A=00 X=02 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C728 : B1 44    : LDA (44),Y     : A=81 X=02 Y=05 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C72A : 85 12    : STA 12         : A=81 X=02 Y=05 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C72C : C8       : INY            : A=81 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
-C72D : B1 44    : LDA (44),Y     : A=DC X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C72F : 85 13    : STA 13         : A=DC X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C731 : FA       : PLX            : A=DC X=87 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
-C732 : 6C 12 00 : JMP (0012)     : A=DC X=87 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
-DC81 : A5 20    : LDA 20         : A=02 X=87 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
-DC83 : C9 02    : CMP #02        : A=02 X=87 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
-DC85 : F0 03    : BEQ DC8A       : A=02 X=87 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
-DC8A : 18       : CLC            : A=02 X=87 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=0
-DC8B : A9 00    : LDA #00        : A=00 X=87 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=0
-DC8D : 65 22    : ADC 22         : A=03 X=87 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC8F : 85 11    : STA 11         : A=03 X=87 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC91 : A9 02    : LDA #02        : A=02 X=87 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC93 : 85 12    : STA 12         : A=02 X=87 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC95 : A0 00    : LDY #00        : A=02 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DC97 : B1 11    : LDA (11),Y     : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC99 : F0 10    : BEQ DCAB       : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DC9B : C9 40    : CMP #40        : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9D : 90 08    : BCC DCA7       : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9F : C9 5F    : CMP #5F        : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA1 : F0 04    : BEQ DCA7       : A=74 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA3 : 29 DF    : AND #DF        : A=54 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA5 : 91 11    : STA (11),Y     : A=54 X=87 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA7 : C8       : INY            : A=54 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA8 : 4C 97 DC : JMP DC97       : A=54 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC97 : B1 11    : LDA (11),Y     : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC99 : F0 10    : BEQ DCAB       : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9B : C9 40    : CMP #40        : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9D : 90 08    : BCC DCA7       : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9F : C9 5F    : CMP #5F        : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA1 : F0 04    : BEQ DCA7       : A=65 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA3 : 29 DF    : AND #DF        : A=45 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA5 : 91 11    : STA (11),Y     : A=45 X=87 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA7 : C8       : INY            : A=45 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA8 : 4C 97 DC : JMP DC97       : A=45 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC97 : B1 11    : LDA (11),Y     : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC99 : F0 10    : BEQ DCAB       : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9B : C9 40    : CMP #40        : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9D : 90 08    : BCC DCA7       : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9F : C9 5F    : CMP #5F        : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA1 : F0 04    : BEQ DCA7       : A=73 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA3 : 29 DF    : AND #DF        : A=53 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA5 : 91 11    : STA (11),Y     : A=53 X=87 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA7 : C8       : INY            : A=53 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA8 : 4C 97 DC : JMP DC97       : A=53 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC97 : B1 11    : LDA (11),Y     : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC99 : F0 10    : BEQ DCAB       : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9B : C9 40    : CMP #40        : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9D : 90 08    : BCC DCA7       : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC9F : C9 5F    : CMP #5F        : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA1 : F0 04    : BEQ DCA7       : A=74 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA3 : 29 DF    : AND #DF        : A=54 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA5 : 91 11    : STA (11),Y     : A=54 X=87 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA7 : C8       : INY            : A=54 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCA8 : 4C 97 DC : JMP DC97       : A=54 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DC97 : B1 11    : LDA (11),Y     : A=00 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DC99 : F0 10    : BEQ DCAB       : A=00 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DCAB : A9 20    : LDA #20        : A=20 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCAF : C8       : INY            : A=20 X=87 Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=08 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=08 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=08 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=09 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=09 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=09 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAD : 91 11    : STA (11),Y     : A=20 X=87 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DCAF : C8       : INY            : A=20 X=87 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DCB0 : C0 0B    : CPY #0B        : A=20 X=87 Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DCB2 : D0 F9    : BNE DCAD       : A=20 X=87 Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DCB4 : A6 11    : LDX 11         : A=20 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1 ; BUG begin
-DCB6 : A4 12    : LDY 12         : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DCB8 : 20 16 DB : JSR DB16       : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB16 : 86 5A    : STX 5A         : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB18 : 84 5B    : STY 5B         : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB1A : 20 E0 DA : JSR DAE0       : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DAE0 : 18       : CLC            : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DAE3 : 69 20    : ADC #20        : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=20 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB06 : C9 E5    : CMP #E5        : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB08 : F0 D6    : BEQ DAE0       : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB0A : A0 0B    : LDY #0B        : A=82 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0C : B1 40    : LDA (40),Y     : A=00 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB0E : 29 3F    : AND #3F        : A=00 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB10 : C9 0F    : CMP #0F        : A=00 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB12 : F0 CC    : BEQ DAE0       : A=00 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB14 : 18       : CLC            : A=00 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB15 : 60       : RTS            : A=00 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-8B1D : A0 0A    : LDY #0A        : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B1F : 90 01    : BCC 8B22       : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B22 : B1 40    : LDA (40),Y     : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=1 C=0 ; 0 != ' '
-8B24 : D1 5A    : CMP (5A),Y     : A=00 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-8B26 : D0 F2    : BNE 8B1A       : A=00 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-pc: prediction failed at DB1A old pc was 8B1A
-DB1A : 20 E0 DA : JSR DAE0       : A=00 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE0 : 18       : CLC            : A=00 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=20 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE3 : 69 20    : ADC #20        : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=80 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=80 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB06 : C9 E5    : CMP #E5        : A=80 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB08 : F0 D6    : BEQ DAE0       : A=80 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB0A : A0 0B    : LDY #0B        : A=80 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0C : B1 40    : LDA (40),Y     : A=41 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0E : 29 3F    : AND #3F        : A=01 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB10 : C9 0F    : CMP #0F        : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB12 : F0 CC    : BEQ DAE0       : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB14 : 18       : CLC            : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB15 : 60       : RTS            : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB1D : A0 0A    : LDY #0A        : A=01 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB1F : 90 01    : BCC DB22       : A=01 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB22 : B1 40    : LDA (40),Y     : A=4E X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0 ; 'N' != ' '
-DB24 : D1 5A    : CMP (5A),Y     : A=4E X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB26 : D0 F2    : BNE DB1A       : A=4E X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB1A : 20 E0 DA : JSR DAE0       : A=4E X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DAE0 : 18       : CLC            : A=4E X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE3 : 69 20    : ADC #20        : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=6B X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=6B X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB06 : C9 E5    : CMP #E5        : A=6B X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB08 : F0 D6    : BEQ DAE0       : A=6B X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB0A : A0 0B    : LDY #0B        : A=6B X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0C : B1 40    : LDA (40),Y     : A=88 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB0E : 29 3F    : AND #3F        : A=08 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB10 : C9 0F    : CMP #0F        : A=08 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB12 : F0 CC    : BEQ DAE0       : A=08 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB14 : 18       : CLC            : A=08 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB15 : 60       : RTS            : A=08 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-0B1D : A0 0A    : LDY #0A        : A=08 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-0B1F : 90 01    : BCC 0B22       : A=08 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-0B22 : B1 40    : LDA (40),Y     : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0 ; 40???
-0B24 : D1 5A    : CMP (5A),Y     : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-0B26 : D0 F2    : BNE 0B1A       : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-pc: prediction failed at DB1A old pc was 0B1A
-DB1A : 20 E0 DA : JSR DAE0       : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DAE0 : 18       : CLC            : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE3 : 69 20    : ADC #20        : A=80 X=03 Y=0A SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=80 X=03 Y=0A SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=F6 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=F6 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB06 : C9 E5    : CMP #E5        : A=F6 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB08 : F0 D6    : BEQ DAE0       : A=F6 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB0A : A0 0B    : LDY #0B        : A=F6 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB0C : B1 40    : LDA (40),Y     : A=56 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB0E : 29 3F    : AND #3F        : A=16 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB10 : C9 0F    : CMP #0F        : A=16 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB12 : F0 CC    : BEQ DAE0       : A=16 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DB14 : 18       : CLC            : A=16 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB15 : 60       : RTS            : A=16 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B1D : A0 0A    : LDY #0A        : A=16 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B1F : 90 01    : BCC 8B22       : A=16 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B22 : B1 40    : LDA (40),Y     : A=8A X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-8B24 : D1 5A    : CMP (5A),Y     : A=8A X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-8B26 : D0 F2    : BNE 8B1A       : A=8A X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-pc: prediction failed at DB1A old pc was 8B1A
-DB1A : 20 E0 DA : JSR DAE0       : A=8A X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DAE0 : 18       : CLC            : A=8A X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=80 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE3 : 69 20    : ADC #20        : A=A0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=A0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=D1 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=D1 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB06 : C9 E5    : CMP #E5        : A=D1 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB08 : F0 D6    : BEQ DAE0       : A=D1 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB0A : A0 0B    : LDY #0B        : A=D1 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0C : B1 40    : LDA (40),Y     : A=41 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB0E : 29 3F    : AND #3F        : A=01 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DB10 : C9 0F    : CMP #0F        : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB12 : F0 CC    : BEQ DAE0       : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB14 : 18       : CLC            : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB15 : 60       : RTS            : A=01 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
-8B1D : A0 0A    : LDY #0A        : A=01 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B1F : 90 01    : BCC 8B22       : A=01 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B22 : B1 40    : LDA (40),Y     : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-8B24 : D1 5A    : CMP (5A),Y     : A=06 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-8B26 : D0 F2    : BNE 8B1A       : A=06 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-pc: prediction failed at DB1A old pc was 8B1A
-DB1A : 20 E0 DA : JSR DAE0       : A=06 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE0 : 18       : CLC            : A=06 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE1 : A5 40    : LDA 40         : A=A0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE3 : 69 20    : ADC #20        : A=C0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE5 : 85 40    : STA 40         : A=C0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAE7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAE9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAEB : 85 41    : STA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DAED : C9 04    : CMP #04        : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DAEF : 90 0F    : BCC DB00       : A=02 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DB00 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB02 : B1 40    : LDA (40),Y     : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DB04 : F0 F8    : BEQ DAFE       : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DAFE : 38       : SEC            : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1 ; SAY WHAT??
-DAFF : 60       : RTS            : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1 ; BUG!
-8B1D : A0 0A    : LDY #0A        : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-8B1F : 90 01    : BCC 8B22       : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-8B21 : 60       : RTS            : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CCAB : B0 04    : BCS CCB1       : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CCB1 : A2 C3    : LDX #C3        : A=00 X=C3 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=1
-CCB3 : A0 E5    : LDY #E5        : A=00 X=C3 Y=E5 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-pc: prediction failed at DCC5 old pc was CCB5
-DCC5 : 20 E1 DB : JSR DBE1       : A=00 X=C3 Y=E5 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-DBE1 : 48       : PHA            : A=00 X=C3 Y=E5 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-DBE2 : A5 FF    : LDA FF         : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBE4 : 48       : PHA            : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBE5 : A5 FE    : LDA FE         : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBE7 : 48       : PHA            : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBE8 : 84 FF    : STY FF         : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBEA : 86 FE    : STX FE         : A=00 X=C3 Y=E5 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBEC : A0 00    : LDY #00        : A=00 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBEE : 20 C5 DB : JSR DBC5       : A=00 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=10 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBC8 : 29 10    : AND #10        : A=10 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=10 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBCC : 60       : RTS            : A=10 X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBF1 : B1 FE    : LDA (FE),Y     : A=4E X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBF3 : 8D 00 80 : STA 8000       : A=4E X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBF6 : F0 04    : BEQ DBFC       : A=4E X=C3 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBF8 : C8       : INY            : A=4E X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBF9 : 4C EE DB : JMP DBEE       : A=4E X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBEE : 20 C5 DB : JSR DBC5       : A=4E X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=10 X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBC8 : 29 10    : AND #10        : A=10 X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=10 X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBCC : 60       : RTS            : A=10 X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CBB1 : B1 FE    : LDA (FE),Y     : A=6F X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CBB3 : 8D 00 80 : STA 8000       : A=6F X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CBB6 : F0 04    : BEQ CBBC       : A=6F X=C3 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CBB8 : C8       : INY            : A=6F X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-CBB9 : 4C EE DB : JMP DBEE       : A=6F X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBEE : 20 C5 DB : JSR DBC5       : A=6F X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC5 : AD 01 80 : LDA 8001       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBC8 : 29 10    : AND #10        : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DBCA : F0 F9    : BEQ DBC5       : A=00 X=C3 Y=02 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C714 : F0 09    : BEQ C71F       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=0
+C716 : D1 44    : CMP (44),Y     : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C718 : D0 1B    : BNE C735       : A=63 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C71A : E8       : INX            : A=63 X=01 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C71B : C8       : INY            : A=63 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C71C : 4C 12 C7 : JMP C712       : A=63 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C714 : F0 09    : BEQ C71F       : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C716 : D1 44    : CMP (44),Y     : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C718 : D0 1B    : BNE C735       : A=64 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C71A : E8       : INX            : A=64 X=02 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C71B : C8       : INY            : A=64 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C71C : 4C 12 C7 : JMP C712       : A=64 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+opcode a5: cycle prediction fail: expected 3 actual 4
+C712 : A5 00    : LDA 00         : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C714 : F0 09    : BEQ C71F       : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C71F : B1 44    : LDA (44),Y     : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C721 : F0 03    : BEQ C726       : A=00 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C726 : C8       : INY            : A=00 X=02 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C727 : B1 44    : LDA (44),Y     : A=81 X=02 Y=05 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C729 : 85 12    : STA 12         : A=81 X=02 Y=05 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C72B : C8       : INY            : A=81 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C72C : B1 44    : LDA (44),Y     : A=C4 X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C72E : 85 13    : STA 13         : A=DC X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1 prediction failed
+opcode e2: cycle prediction fail: expected 2 actual 4
+C730 : E2 6C    : NOP #6C        : A=DC X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C732 : 6C 12 00 : JMP (0012)     : A=DC X=02 Y=06 SP=?? N=1 V=? D=? I=? Z=0 C=1
+8481 : A5 20    : LDA 20         : A=02 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
+8483 : C9 02    : CMP #02        : A=02 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+8485 : F0 03    : BEQ 848A       : A=02 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+848A : 18       : CLC            : A=02 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=0
+848B : A9 00    : LDA #00        : A=00 X=02 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=0
+848D : 65 22    : ADC 22         : A=03 X=02 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+848F : 85 11    : STA 11         : A=03 X=02 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+8491 : A9 02    : LDA #02        : A=02 X=02 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+8493 : 85 12    : STA 12         : A=02 X=02 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+8495 : A0 00    : LDY #00        : A=02 X=02 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+8497 : B1 11    : LDA (11),Y     : A=04 X=02 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+8499 : F0 10    : BEQ 84AB       : A=04 X=02 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+849B : C9 40    : CMP #40        : A=04 X=02 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+opcode 90: cycle prediction fail: expected 3 actual 2
+849D : 90 08    : BCC 84A7       : A=04 X=02 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0 prediction failed
+849F : C9 47    : CMP #47        : A=04 X=02 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+84A1 : F0 04    : BEQ 84A7       : A=04 X=02 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+84A3 : 29 C3    : AND #C3        : A=00 X=02 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+84A5 : 91 11    : STA (11),Y     : A=54 X=02 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0 prediction failed
+84A7 : C8       : INY            : A=54 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+84A8 : 4C 97 C4 : JMP C497       : A=54 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C497 : B1 11    : LDA (11),Y     : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C499 : F0 10    : BEQ C4AB       : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C49B : C9 40    : CMP #40        : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C49D : 90 08    : BCC C4A7       : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C49F : C9 47    : CMP #47        : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C4A1 : F0 04    : BEQ C4A7       : A=65 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C4A3 : 29 C7    : AND #C7        : A=45 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C4A5 : 91 11    : STA (11),Y     : A=45 X=02 Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C4A7 : C8       : INY            : A=45 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C4A8 : 4C 97 C4 : JMP C497       : A=45 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C497 : B1 11    : LDA (11),Y     : A=03 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C499 : F0 10    : BEQ C4AB       : A=03 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C49B : C9 40    : CMP #40        : A=03 X=02 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+opcode 90: cycle prediction fail: expected 3 actual 2
+C49D : 90 08    : BCC C4A7       : A=03 X=02 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0 prediction failed
+C49F : C9 47    : CMP #47        : A=03 X=02 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C4A1 : F0 04    : BEQ C4A7       : A=03 X=02 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C4A3 : 29 C3    : AND #C3        : A=03 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4A5 : 91 11    : STA (11),Y     : A=53 X=02 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0 prediction failed
+C4A7 : C8       : INY            : A=53 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4A8 : 4C 97 C4 : JMP C497       : A=53 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C497 : B1 11    : LDA (11),Y     : A=44 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C499 : F0 10    : BEQ C4AB       : A=44 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C49B : C9 40    : CMP #40        : A=44 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C49D : 90 08    : BCC C4A7       : A=44 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C49F : C9 47    : CMP #47        : A=44 X=02 Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C4A1 : F0 04    : BEQ C4A7       : A=44 X=02 Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C4A3 : 29 C3    : AND #C3        : A=40 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4A5 : 91 11    : STA (11),Y     : A=54 X=02 Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0 prediction failed
+C4A7 : C8       : INY            : A=54 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4A8 : 4C 97 C4 : JMP C497       : A=54 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C497 : B1 11    : LDA (11),Y     : A=00 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C499 : F0 10    : BEQ C4AB       : A=00 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C4AB : A9 20    : LDA #20        : A=20 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4AD : 91 11    : STA (11),Y     : A=20 X=02 Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4AF : C8       : INY            : A=20 X=02 Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C4B0 : C0 08    : CPY #08        : A=20 X=02 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C4B2 : D0 E1    : BNE C495       : A=20 X=02 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C495 : 91 11    : STA (11),Y     : A=20 X=02 Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C497 : C8       : INY            : A=20 X=02 Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C498 : C0 08    : CPY #08        : A=20 X=02 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C49A : D0 E1    : BNE C47D       : A=20 X=02 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C47D : 91 11    : STA (11),Y     : A=20 X=02 Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C47F : C8       : INY            : A=20 X=02 Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C480 : C0 08    : CPY #08        : A=20 X=02 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C482 : D0 E1    : BNE C465       : A=20 X=02 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C465 : 91 11    : STA (11),Y     : A=20 X=02 Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C467 : C8       : INY            : A=20 X=02 Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C468 : C0 08    : CPY #08        : A=20 X=02 Y=08 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C46A : D0 E1    : BNE C44D       : A=20 X=02 Y=08 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C46C : A9 00    : LDA #00        : A=00 X=02 Y=08 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C46E : 91 11    : STA (11),Y     : A=00 X=02 Y=08 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C470 : C8       : INY            : A=00 X=02 Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C471 : 91 11    : STA (11),Y     : A=00 X=02 Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C473 : C8       : INY            : A=00 X=02 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C474 : 91 11    : STA (11),Y     : A=00 X=02 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C476 : A6 11    : LDX 11         : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C478 : A4 12    : LDY 12         : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DCC2 old pc was C47A
+DCC2 : 20 16 C3 : JSR C316       : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C316 : 86 5A    : STX 5A         : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C318 : 84 4B    : STY 4B         : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was C31A
+DB1A : 20 E0 C2 : JSR C2E0       : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2E0 : 18       : CLC            : A=00 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E1 : A5 40    : LDA 40         : A=C0 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E3 : 69 20    : ADC #20        : A=E0 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E5 : 85 40    : STA 40         : A=E0 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E7 : A5 41    : LDA 41         : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E9 : 69 00    : ADC #00        : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2EB : 85 41    : STA 41         : A=02 X=03 Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2ED : C9 04    : CMP #04        : A=02 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 90 0F    : BCC C300       : A=02 X=03 Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C300 : A0 00    : LDY #00        : A=02 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C302 : B1 40    : LDA (40),Y     : A=84 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C304 : F0 E0    : BEQ C2E6       : A=84 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C306 : C9 E5    : CMP #E5        : A=84 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C308 : F0 D6    : BEQ C2E0       : A=84 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C30A : A0 0B    : LDY #0B        : A=84 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30C : B1 40    : LDA (40),Y     : A=07 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30E : 29 27    : AND #27        : A=07 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C310 : C9 0F    : CMP #0F        : A=07 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C312 : F0 CC    : BEQ C2E0       : A=07 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C314 : 18       : CLC            : A=07 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C315 : 60       : RTS            : A=07 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=07 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+0307 : 90 01    : BCC 030A       : A=07 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030A : B1 40    : LDA (40),Y     : A=81 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+030C : D1 5A    : CMP (5A),Y     : A=81 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=1
+030E : D0 F2    : BNE 0302       : A=81 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was 0302
+DB1A : 20 E0 C2 : JSR C2E0       : A=81 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=1
+C2E0 : 18       : CLC            : A=81 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E1 : A5 40    : LDA 40         : A=A0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E3 : 69 20    : ADC #20        : A=C0 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E5 : 85 40    : STA 40         : A=00 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0 prediction failed
+C2E7 : A5 41    : LDA 41         : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E9 : 69 00    : ADC #00        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2EB : 85 41    : STA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0 prediction failed
+C2ED : C9 04    : CMP #04        : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 90 0F    : BCC C300       : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C300 : A0 00    : LDY #00        : A=03 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C302 : B1 40    : LDA (40),Y     : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C304 : F0 E0    : BEQ C2E6       : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C306 : C9 E5    : CMP #E5        : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C308 : F0 D6    : BEQ C2E0       : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30A : A0 0B    : LDY #0B        : A=26 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30C : B1 40    : LDA (40),Y     : A=02 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30E : 29 27    : AND #27        : A=02 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C310 : C9 0F    : CMP #0F        : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C312 : F0 CC    : BEQ C2E0       : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C314 : 18       : CLC            : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C315 : 60       : RTS            : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+0307 : 90 01    : BCC 030A       : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030A : B1 40    : LDA (40),Y     : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030C : D1 5A    : CMP (5A),Y     : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+030E : D0 F2    : BNE 0302       : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was 0302
+DB1A : 20 E0 C2 : JSR C2E0       : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2E0 : 18       : CLC            : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E1 : A5 40    : LDA 40         : A=00 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2E3 : 69 20    : ADC #20        : A=20 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E5 : 85 40    : STA 40         : A=20 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E7 : A5 41    : LDA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E9 : 69 00    : ADC #00        : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2EB : 85 41    : STA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2ED : C9 04    : CMP #04        : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 90 0F    : BCC C300       : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C300 : A0 00    : LDY #00        : A=03 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C302 : B1 40    : LDA (40),Y     : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C304 : F0 E0    : BEQ C2E6       : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C306 : C9 E5    : CMP #E5        : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C308 : F0 D6    : BEQ C2E0       : A=26 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30A : A0 0B    : LDY #0B        : A=26 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30C : B1 40    : LDA (40),Y     : A=03 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30E : 29 27    : AND #27        : A=03 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C310 : C9 0F    : CMP #0F        : A=03 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C312 : F0 CC    : BEQ C2E0       : A=03 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C314 : 18       : CLC            : A=03 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C315 : 60       : RTS            : A=03 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+0307 : 90 01    : BCC 030A       : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030A : B1 40    : LDA (40),Y     : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030C : D1 5A    : CMP (5A),Y     : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+030E : D0 F2    : BNE 0302       : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was 0302
+DB1A : 20 E0 C2 : JSR C2E0       : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2E0 : 18       : CLC            : A=26 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E1 : A5 40    : LDA 40         : A=20 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E3 : 69 20    : ADC #20        : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E5 : 85 40    : STA 40         : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E7 : A5 41    : LDA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E9 : 69 00    : ADC #00        : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2EB : 85 41    : STA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2ED : C9 04    : CMP #04        : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 90 0F    : BCC C300       : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C300 : A0 00    : LDY #00        : A=03 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C302 : B1 40    : LDA (40),Y     : A=8A X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C304 : F0 E0    : BEQ C2E6       : A=8A X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C306 : C9 E5    : CMP #E5        : A=8A X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C308 : F0 D6    : BEQ C2E0       : A=8A X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C30A : A0 0B    : LDY #0B        : A=8A X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30C : B1 40    : LDA (40),Y     : A=02 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C30E : 29 27    : AND #27        : A=02 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C310 : C9 0F    : CMP #0F        : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C312 : F0 CC    : BEQ C2E0       : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C314 : 18       : CLC            : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C315 : 60       : RTS            : A=02 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+0307 : 90 01    : BCC 030A       : A=02 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030A : B1 40    : LDA (40),Y     : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030C : D1 5A    : CMP (5A),Y     : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+030E : D0 F2    : BNE 0302       : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was 0302
+DB1A : 20 E0 CA : JSR CAE0       : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+CAE0 : 18       : CLC            : A=06 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAE1 : A5 40    : LDA 40         : A=40 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAE3 : 69 20    : ADC #20        : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAE5 : 85 40    : STA 40         : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAE7 : A5 41    : LDA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAE9 : 69 00    : ADC #00        : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAEB : 85 41    : STA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CAED : C9 04    : CMP #04        : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CAEF : 90 0F    : BCC CB00       : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB00 : A0 00    : LDY #00        : A=03 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+CB02 : B1 40    : LDA (40),Y     : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB04 : F0 E0    : BEQ CAE6       : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB06 : C9 E5    : CMP #E5        : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB08 : F0 D6    : BEQ CAE0       : A=82 X=03 Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB0A : A0 0B    : LDY #0B        : A=82 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CB0C : B1 40    : LDA (40),Y     : A=94 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB0E : 29 27    : AND #27        : A=04 X=03 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+CB10 : C9 0F    : CMP #0F        : A=04 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB12 : F0 CC    : BEQ CAE0       : A=04 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB14 : 18       : CLC            : A=04 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+CB15 : 60       : RTS            : A=04 X=03 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=04 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+0307 : 90 01    : BCC 030A       : A=04 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030A : B1 40    : LDA (40),Y     : A=05 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+030C : D1 5A    : CMP (5A),Y     : A=05 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+030E : D0 F2    : BNE 0302       : A=05 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+pc: prediction failed at DB1A old pc was 0302
+DB1A : 20 E0 C2 : JSR C2E0       : A=05 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2E0 : 18       : CLC            : A=05 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E1 : A5 40    : LDA 40         : A=60 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2E3 : 69 20    : ADC #20        : A=80 X=03 Y=0A SP=?? N=1 V=1 D=? I=? Z=0 C=0
+C2E5 : 85 40    : STA 40         : A=80 X=03 Y=0A SP=?? N=1 V=1 D=? I=? Z=0 C=0
+C2E7 : A5 41    : LDA 41         : A=03 X=03 Y=0A SP=?? N=0 V=1 D=? I=? Z=0 C=0
+C2E9 : 69 00    : ADC #00        : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2EB : 85 41    : STA 41         : A=03 X=03 Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2ED : C9 04    : CMP #04        : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 90 0F    : BCC C300       : A=03 X=03 Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C300 : A0 00    : LDY #00        : A=03 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C302 : B1 40    : LDA (40),Y     : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C304 : F0 E8    : BEQ C2EE       : A=00 X=03 Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+opcode 28: cycle prediction fail: expected 4 actual 2
+C2EE : 28       : PLP            : A=00 X=03 Y=00 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+C2EF : 60       : RTS            : A=00 X=03 Y=00 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0305 : A0 0A    : LDY #0A        : A=00 X=03 Y=0A SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+opcode 90: cycle prediction fail: expected 3 actual 2
+0307 : 90 01    : BCC 030A       : A=00 X=03 Y=0A SP=?? N=0 V=1 D=0 I=0 Z=0 C=0 prediction failed
+0309 : 60       : RTS            : A=00 X=03 Y=0A SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+opcode b0: cycle prediction fail: expected 2 actual 3
+04C5 : B0 04    : BCS 04CB       : A=00 X=03 Y=0A SP=?? N=0 V=1 D=0 I=0 Z=0 C=0 prediction failed
+04CB : A2 CD    : LDX #CD        : A=00 X=CD Y=0A SP=?? N=1 V=1 D=0 I=0 Z=0 C=0
+04CD : A0 E5    : LDY #E5        : A=00 X=CD Y=E5 SP=?? N=1 V=1 D=0 I=0 Z=0 C=0
+pc: prediction failed at DCCF old pc was 04CF
+DCCF : 20 E1 C3 : JSR C3E1       : A=00 X=CD Y=E5 SP=?? N=1 V=1 D=0 I=0 Z=0 C=0
+C3E1 : 48       : PHA            : A=00 X=CD Y=E5 SP=?? N=1 V=1 D=0 I=0 Z=0 C=0
+C3E2 : A5 C7    : LDA C7         : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3E4 : 48       : PHA            : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3E5 : A5 E6    : LDA E6         : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3E7 : 48       : PHA            : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3E8 : 84 C7    : STY C7         : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3EA : 86 E6    : STX E6         : A=00 X=CD Y=E5 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3EC : A0 00    : LDY #00        : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+pc: prediction failed at DBEE old pc was C3EE
+DBEE : 20 C5 C3 : JSR C3C5       : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3C5 : AD 01 80 : LDA 8001       : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3C8 : 29 10    : AND #10        : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+opcode f0: cycle prediction fail: expected 3 actual 2
+C3CA : F0 E1    : BEQ C3AD       : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0 prediction failed
+C3CC : 60       : RTS            : A=00 X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+0301 : B1 E6    : LDA (E6),Y     : A=4E X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0303 : 8D 00 80 : STA 8000       : A=4E X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0306 : F0 04    : BEQ 030C       : A=4E X=CD Y=00 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0308 : C8       : INY            : A=4E X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0309 : 4C EE C3 : JMP C3EE       : A=4E X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+pc: prediction failed at DBEE old pc was C3EE
+DBEE : 20 C5 C3 : JSR C3C5       : A=4E X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+C3C5 : AD 01 80 : LDA 8001       : A=00 X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+C3C8 : 29 10    : AND #10        : A=00 X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+opcode f0: cycle prediction fail: expected 3 actual 2
+C3CA : F0 E1    : BEQ C3AD       : A=00 X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0 prediction failed
+C3CC : 60       : RTS            : A=00 X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+0301 : B1 C6    : LDA (C6),Y     : A=67 X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0303 : 8D 00 80 : STA 8000       : A=6F X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0 prediction failed
+0306 : F0 04    : BEQ 030C       : A=6F X=CD Y=01 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0308 : C8       : INY            : A=6F X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+0309 : 4C EE C3 : JMP C3EE       : A=6F X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+pc: prediction failed at DBEE old pc was C3EE
+DBEE : 20 C5 CB : JSR CBC5       : A=6F X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=0 C=0
+CBC5 : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CBC8 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CBCA : F0 E1    : BEQ CBAD       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CBAD : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CBB0 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CBB2 : F0 E1    : BEQ CB95       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB95 : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB98 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB9A : F0 E1    : BEQ CB7D       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB7D : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB80 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB82 : F0 E1    : BEQ CB65       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB65 : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB68 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB6A : F0 E1    : BEQ CB4D       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB4D : AD 01 80 : LDA 8001       : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0
+CB50 : 29 10    : AND #10        : A=00 X=CD Y=02 SP=?? N=0 V=1 D=0 I=0 Z=1 C=0

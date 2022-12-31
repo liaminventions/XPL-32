@@ -117,11 +117,11 @@ conversion_type=0
 conv_options=0
 
 [view0]
-scale=4.328262088729188e-6
+scale=2.5750516792479923e-5
 v_offset=-46
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x41\0\0\a8\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 9968542 11701323 64305165 1316960 45411399 47807221 -8 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 3392772 1002609 57219836 22306109 49082300 43337857 -8 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -143,5 +143,5 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 [meta_obj0]
 type=selection
 assoc_view=0
-start_time=22 serialization::archive 14 0 0 0 0 10199660 0 6702727 26210896 50783686 87344416 -8 0 0 6
-end_time=22 serialization::archive 14 0 0 0 0 10429360 0 194155 80254644 73757892 17157460 -8 0 0 6
+start_time=22 serialization::archive 14 0 0 0 0 3972200 0 363709 6286720 12826427 30534473 -8 0 0 6
+end_time=22 serialization::archive 14 0 0 0 0 4195200 0 3177014 20726734 79560762 19485010 -8 0 0 6
