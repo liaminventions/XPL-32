@@ -375,7 +375,7 @@ reploop
 .(
   ;; is the sd card availible?
   lda path
-  bne wait_txd_empty
+  beq wait_txd_empty
   ;; if so, print the current directory.
   jsr printpath
   ;; print the prompt
