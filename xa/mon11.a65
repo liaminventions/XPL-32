@@ -4128,6 +4128,9 @@ rlerrormsg:
 ; adds a recently added folder at (folderpointer) to the PATH variable.
 addpath:
 .(
+  pha
+  phx
+  phy
   ldy #0
   ldx path
 aplp:
@@ -4139,6 +4142,26 @@ aplp:
   bne aplp
   stz path,x
   stx path
+  ply
+  plx
+  pla
+  rts
+.)
+
+; delete PATH
+; goes back a directory, used when cd ..
+backpath:
+.(
+  phx
+  pha
+  sec
+  lda path
+  sbc #11	; remove dir
+  sta path
+  ldx path
+  stz path,x
+  pla
+  plx
   rts
 .)
 
@@ -4236,8 +4259,6 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   ; ok, that should do it.
-  ; now add this to the current directory
-  jsr addpath
   ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
@@ -4258,6 +4279,8 @@ cdsub:
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
+  ; now add this to the current directory
+  jsr addpath
   rts
 .)
 fileerror
@@ -4460,6 +4483,7 @@ endthat:
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
+  jsr backpath		; go back
   jsr refreshpath	; refresh the directory
   rts
 jumptolist:
@@ -4788,7 +4812,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6158,$00
+  .dsb 6129,$00
 
 ; ----KERNAL----
 
