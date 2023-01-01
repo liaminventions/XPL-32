@@ -4442,6 +4442,8 @@ lscmd:
   cmp #1	       ; if there's only one argument (ls) then list current directory 
   bne jmperror
   jsr refreshpath
+  lda #$ff
+  sta backdir
   jmp list
 jmperror:
   jmp error
@@ -4455,6 +4457,7 @@ processparam           ; process the filename parameter
   sta folderpointer+1
   ; now cd
   jsr cdd
+  stz backdir
 .)
 list:			; list file dir
 .(
@@ -4510,6 +4513,10 @@ endthat:
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
+  lda backdir
+  bne dontb
+  jsr backpath		; cd .. if ls <folderpath>
+dontb:
   jsr refreshpath	; refresh the directory
   rts
 jumptolist:
@@ -4838,7 +4845,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6096,$00
+  .dsb 6083,$00
 
 ; ----KERNAL----
 
