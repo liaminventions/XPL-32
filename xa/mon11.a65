@@ -4409,14 +4409,6 @@ dontl:
   jmp ldlp
 ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
-  ; DEBUG print folder inputted
-  ldy #0
-fe:
-  lda (folderpointer),y
-  jsr print_chara
-  iny
-  cpy #11
-  bne fe
   rts
 .)
 
@@ -4545,6 +4537,8 @@ processparam           ; the user specified a file, process the filename paramet
   sta folderpointer+1
   ; convert string
   jsr shortconvert
+  ; Refresh
+  jsr refreshpath
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4843,7 +4837,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6083,$00
+  .dsb 6092,$00
 
 ; ----KERNAL----
 
