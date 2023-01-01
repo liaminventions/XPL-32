@@ -324,7 +324,7 @@ inlp:
   lda subdirname,x
   sta path+1,x
   inx
-  cpx #$11
+  cpx #11
   bne inlp
   inx
   stz path,x
@@ -4138,7 +4138,7 @@ aplp:
   sta path,x
   iny
   inx
-  cpy #$11
+  cpy #11
   bne aplp
   stz path,x
   stx path
