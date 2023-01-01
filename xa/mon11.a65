@@ -4411,6 +4411,10 @@ ext:
 extd:
   ply
   jsr dbgf
+  clc
+  lda sc	; add to sc
+  adc #11
+  sta sc
   lda #11
   sta fileext
   ; move name
@@ -4427,11 +4431,7 @@ mvlp:
   ply
   jmp mvlp
 ad2sc:
-  ; add to folderpointer
-  clc
-  lda folderpointer
-  adc #11
-  sta folderpointer
+  ply
   ldy sc
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
@@ -4440,9 +4440,14 @@ fill:
 filllp:			
   sta (folderpointer),y
   iny
-  cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
+  cpy #19 		; stop if index over 18, we don't want to overwrite the file extension
   bne filllp
   jsr dbgf
+  ; add 11 to folderpointer
+  clc
+  lda folderpointer
+  adc #11
+  sta folderpointer
   ; now we need to convert lowercase to uppercase
   ldy #0
 ldlp:
@@ -4914,7 +4919,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6013,$00
+  .dsb 6005,$00
 
 ; ----KERNAL----
 
