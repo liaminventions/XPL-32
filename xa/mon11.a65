@@ -4057,8 +4057,6 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
-;; TODO fix everything, all the xplDOS things and load error out with and SD readsector error.
-;;
 ;; the first byte of path is 0 if there was an init error.
 ;; otherwise it is a index to PATH for the empty space after the last foldername
 ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
@@ -4070,7 +4068,7 @@ fat_error
 ;; Commands:
 ;; CD
 ;; LS
-;; LOAD
+;; LOAD - TODO fix
 ;; CAT
 ;; upcoming commands (TODO):
 ;; MKDIR
@@ -4336,6 +4334,8 @@ catcmd:
   sta folderpointer+1
   ; Convert to SHORT
   jsr shortconvert
+  ; Refresh Path
+  jsr refreshpath
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
@@ -4353,8 +4353,6 @@ catcmd:
   ldx #<buffer
   ldy #>buffer
   jsr w_acia_full
-  ; Refresh Directory
-  jsr refreshpath
   rts
 .)
 
