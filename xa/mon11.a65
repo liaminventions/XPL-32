@@ -4381,11 +4381,11 @@ shortconvert:
   ; loop through the null-terminated string at (folderpointer)
   ; and convert it to SHORT format.
   ; ex. "file.xpl",0 --> "FILE    XPL"
-  ldy #10
+  ldy #11
   lda #0
   sta (folderpointer),y
   jsr dbgf
-  lda #8
+  lda #10
   sta fileext
   ldy #0
 shortlp:
@@ -4396,17 +4396,19 @@ shortlp:
   jmp shortlp
 extst:
   sty sc		; now move the file extension
-  jsr dbgf
-  ldy sc
-ext:
   iny
+  iny
+  iny
+  iny
+ext:
+  dey
   lda (folderpointer),y
   phy
   ldy fileext
   sta (folderpointer),y
-  iny
+  dey
   sty fileext
-  cpy #11
+  cpy #8
   beq extd
   ply
   jmp ext
@@ -4423,6 +4425,7 @@ filllp:
   iny
   cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
   bne filllp
+  jsr dbgf
   ; now we need to convert lowercase to uppercase
   ldy #0
 ldlp:
@@ -4894,7 +4897,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6032,$00
+  .dsb 6030,$00
 
 ; ----KERNAL----
 
