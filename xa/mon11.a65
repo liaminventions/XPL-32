@@ -4381,6 +4381,9 @@ shortconvert:
   ; loop through the null-terminated string at (folderpointer)
   ; and convert it to SHORT format.
   ; ex. "file.xpl",0 --> "FILE    XPL"
+  ldy #10
+  lda #0
+  sta (folderpointer),y
   lda #8
   sta fileext
   ldy #0
@@ -4880,7 +4883,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6056,$00
+  .dsb 6050,$00
 
 ; ----KERNAL----
 
