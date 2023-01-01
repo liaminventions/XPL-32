@@ -4236,6 +4236,14 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   ; ok, that should do it.
+  ; DEBUG print folder inputted
+  ldy #0
+fe:
+  lda (folderpointer),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne fe
   ; now add this to the current directory
   jsr addpath
   ; Open root directory
@@ -4265,14 +4273,6 @@ fileerror
   ldx #<foldermsg
   ldy #>foldermsg
   jsr w_acia_full
-  ; DEBUG print folder inputted
-  ldy #0
-fe:
-  lda (folderpointer),y
-  jsr print_chara
-  iny
-  cpy #11
-  bne fe
   rts
 
 error
@@ -4370,6 +4370,14 @@ dontl:
   jmp ldlp
 ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
+  ; DEBUG print folder inputted
+  ldy #0
+fe:
+  lda (folderpointer),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne fe
   rts
 .)
 
@@ -4473,7 +4481,6 @@ jumptolist:
 loadcmd
 .(
   ;; check arguments
-  jmp loadone
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
   beq processparam
@@ -4789,7 +4796,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6155,$00
+  .dsb 6146,$00
 
 ; ----KERNAL----
 
