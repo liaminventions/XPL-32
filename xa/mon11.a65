@@ -4395,14 +4395,13 @@ shortlp:
   jmp shortlp
 extst:
   sty sc		; now move the file extension
-ext:
   iny
+ext:
   lda (folderpointer),y
   phy
   ldy fileext
   sta (folderpointer),y
   iny
-  sty fileext
   cpy #11
   beq extd
   ply
@@ -4883,7 +4882,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6050,$00
+  .dsb 6052,$00
 
 ; ----KERNAL----
 
