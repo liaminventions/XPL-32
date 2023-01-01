@@ -326,9 +326,9 @@ inlp:
   inx
   cpx #$11
   bne inlp
-  stz path,x
   inx
-  stx path 
+  stz path,x
+  stx path
 
 initf:
 
