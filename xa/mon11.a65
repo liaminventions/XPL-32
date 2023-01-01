@@ -4216,7 +4216,7 @@ cdd:
   ldy #0
 cdlp:
   lda (folderpointer),y
-  beq cdd   ; if null, stop.
+  beq fill   ; if null, stop.
   cmp #$40  ; if numbers/symbols, skip.
   bcc dont
   cmp #$5f  ; if _ skip
