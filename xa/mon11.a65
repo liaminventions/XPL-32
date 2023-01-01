@@ -4062,10 +4062,11 @@ fat_error
 ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
 ;; BUG root usage is not possible, thus, it is required that we are in a folder
 ;; ls does not seem to like reading the SD root.
+;; BUG some filenames do not work.
 ;; Commands:
 ;; CD
 ;; LS
-;; LOAD - TODO fix
+;; LOAD
 ;; CAT
 ;; upcoming commands (TODO):
 ;; MKDIR
@@ -4171,7 +4172,7 @@ patherror:
 ;; print PATH
 ;; prints the current directory, like linux
 ;; for example,
-;; /folder/test>_
+;; /folder/test/>_
 ;;
 printpath:
 .(
@@ -4287,14 +4288,15 @@ filllp:
   bne filllp
   ; ok, that should do it.
   ; Open root directory
-  jsr fat32_openroot	
+  ;jsr fat32_openroot	
   ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcs error
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
   ; Open subdirectory
-  jsr fat32_opendirent	; open folder
+  ;jsr fat32_opendirent	; open folder
+  jsr refreshpath
 .)
 cdsub:
 .(
@@ -4426,6 +4428,14 @@ dontl:
   jmp ldlp
 ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
+  ; DEBUG print folder inputted
+  ldy #0
+fe:
+  lda (folderpointer),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne fe
   rts
 .)
 
@@ -4571,6 +4581,9 @@ processparam           ; the user specified a file, process the filename paramet
   lda #$0f 		; $0F00
   sta buffer+1
   sta buffer+3
+  ldy #>lds
+  ldx #<lds
+  jsr w_acia_full
   ldx folderpointer
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent

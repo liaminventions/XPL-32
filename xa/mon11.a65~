@@ -106,6 +106,7 @@ fileext		= $14
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 pathindex	= $16 ; 2byt
+backdir		= $18
 
 ;; startup enable
 SEN		= $7ffd
@@ -273,9 +274,6 @@ init_acia
   jsr via_init
   jsr sd_init
   bcc load1
-  ldx #<sd_error
-  ldy #>sd_error
-  jsr w_acia_full
   stz path
   jmp initf
 load1
@@ -3094,9 +3092,9 @@ initialized
   rts
 
 initfailed
-  ldy #>initfailedmsg
-  ldx #<initfailedmsg
-  jsr w_acia_full
+  ;ldy #>initfailedmsg
+  ;ldx #<initfailedmsg
+  ;jsr w_acia_full
   sec
   rts
 
@@ -4056,8 +4054,6 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
-;; TODO fix everything, all the xplDOS things and load error out with and SD readsector error.
-;;
 ;; the first byte of path is 0 if there was an init error.
 ;; otherwise it is a index to PATH for the empty space after the last foldername
 ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
@@ -4066,6 +4062,7 @@ fat_error
 ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
 ;; BUG root usage is not possible, thus, it is required that we are in a folder
 ;; ls does not seem to like reading the SD root.
+;; BUG some filenames do not work.
 ;; Commands:
 ;; CD
 ;; LS
@@ -4097,10 +4094,11 @@ rloop:
   ldy #>path
   jsr fat32_finddirent
   bcc fine
-  jmp patherror
+  jmp patherr
 fine:
   jsr fat32_opendirent
   ; advance to the next directory
+  clc
   lda pathindex
   adc #11
   sta pathindex
@@ -4108,26 +4106,32 @@ fine:
   lda path
   cmp pathindex
   bne rloop      ; if not, cd to the next directory
+  clc
   rts
+.)
 patherr:
   ldx #<patherror
   ldy #>patherror
   jsr w_acia_full
+  sec
   rts
-.)
 rlerror:
   ldx #<rlerrormsg
   ldy #>rlerrormsg
   jsr w_acia_full
+  sec
   rts
 
 rlerrormsg:
-  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer.", $0d, $0a, $00
+  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer", $0d, $0a, $00
 
 ; add PATH
 ; adds a recently added folder at (folderpointer) to the PATH variable.
 addpath:
 .(
+  pha
+  phx
+  phy
   ldy #0
   ldx path
 aplp:
@@ -4139,6 +4143,26 @@ aplp:
   bne aplp
   stz path,x
   stx path
+  ply
+  plx
+  pla
+  rts
+.)
+
+; delete PATH
+; goes back a directory, used in cd ..
+backpath:
+.(
+  phx
+  pha
+  sec
+  lda path
+  sbc #11	; remove dir
+  sta path
+  ldx path
+  stz path,x
+  pla
+  plx
   rts
 .)
 
@@ -4148,13 +4172,14 @@ patherror:
 ;; print PATH
 ;; prints the current directory, like linux
 ;; for example,
-;; /folder/test>_
+;; /folder/test/>_
 ;;
 printpath:
 .(
   ; No memory card?
   lda path
   bne ppc
+  sec
   rts
   ;jmp rlerror
 ppc:
@@ -4188,6 +4213,7 @@ notspace:
   beq ppdone
   jmp pplp	     ; no, print another folder name.
 ppdone:
+  clc
   rts		     ; done!
 .)
 
@@ -4197,6 +4223,10 @@ ppdone:
 
 cdcmd:
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, change to the specified directory
@@ -4212,11 +4242,32 @@ processparam           ; process the filename parameter
 .)
 cdd:
 .(
+  ; check for . or ..
+  ldy #0
+  lda (folderpointer),y
+  cmp #$2e
+  beq dotf
+  lda #$ff
+  sta backdir
+  jmp nopd
+dotf:
+  iny
+  lda (folderpointer),y
+  cmp #$2e
+  beq backdire
+  rts ; do nothing if "cd ."
+backdire:
+  ; "cd .." means go back
+  jsr backpath
+  stz backdir
+  ;jsr refreshpath
+  ;rts
+nopd:
   ; convert lowercase to uppercase
   ldy #0
 cdlp:
   lda (folderpointer),y
-  beq cdd   ; if null, stop.
+  beq fill   ; if null, stop.
   cmp #$40  ; if numbers/symbols, skip.
   bcc dont
   cmp #$5f  ; if _ skip
@@ -4236,8 +4287,6 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   ; ok, that should do it.
-  ; now add this to the current directory
-  jsr addpath
   ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
@@ -4258,6 +4307,11 @@ cdsub:
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
+  ; now add this to the current directory, only if no cd ..
+  lda backdir
+  beq bb
+  jsr addpath
+bb:
   rts
 .)
 fileerror
@@ -4265,14 +4319,6 @@ fileerror
   ldx #<foldermsg
   ldy #>foldermsg
   jsr w_acia_full
-  ; DEBUG print folder inputted
-  ldy #0
-fe:
-  lda (folderpointer),y
-  jsr print_chara
-  iny
-  cpy #11
-  bne fe
   rts
 
 error
@@ -4283,6 +4329,10 @@ error
 
 catcmd:
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2
@@ -4295,6 +4345,8 @@ catcmd:
   sta folderpointer+1
   ; Convert to SHORT
   jsr shortconvert
+  ; Refresh Path
+  jsr refreshpath
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
@@ -4307,13 +4359,18 @@ catcmd:
   sta fat32_address
   lda #>buffer
   sta fat32_address+1
-  jsr fat32_file_read
+redlp:
+  jsr fat32_file_readbyte
+  beq catd
+  jsr print_chara
+  jmp redlp
+catd:
   ; Dump to screen
-  ldx #<buffer
-  ldy #>buffer
-  jsr w_acia_full
-  ; Refresh Directory
-  jsr refreshpath
+  ;ldx #<buffer
+  ;ldy #>buffer
+  ;jsr w_acia_full
+  ; CR LF
+  jsr crlf
   rts
 .)
 
@@ -4384,7 +4441,11 @@ other:
 ;; LS
 
 lscmd:
-.(	
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
@@ -4392,11 +4453,14 @@ lscmd:
   lda ARGINDEX
   cmp #1	       ; if there's only one argument (ls) then list current directory 
   bne jmperror
-  stz folderpointer+1
+  jsr refreshpath
+  lda #$ff
+  sta backdir
   jmp list
 jmperror:
   jmp error
 processparam           ; process the filename parameter
+  stz backdir
   clc
   lda #<INPUT
   adc ARGINDEX+2
@@ -4405,6 +4469,7 @@ processparam           ; process the filename parameter
   sta folderpointer+1
   ; now cd
   jsr cdd
+  stz backdir
 .)
 list:			; list file dir
 .(
@@ -4460,6 +4525,10 @@ endthat:
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
+  lda backdir
+  bne dontb
+  jsr backpath		; cd .. if ls <folderpath>
+dontb:
   jsr refreshpath	; refresh the directory
   rts
 jumptolist:
@@ -4472,8 +4541,11 @@ jumptolist:
 ;; .SAR stands for Start AddRess.
 loadcmd
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
-  jmp loadone
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
   beq processparam
@@ -4491,6 +4563,8 @@ processparam           ; the user specified a file, process the filename paramet
   sta folderpointer+1
   ; convert string
   jsr shortconvert
+  ; Refresh
+  jsr refreshpath
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4498,6 +4572,9 @@ processparam           ; the user specified a file, process the filename paramet
   lda #$0f 		; $0F00
   sta buffer+1
   sta buffer+3
+  ldy #>lds
+  ldx #<lds
+  jsr w_acia_full
   ldx folderpointer
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
@@ -4789,7 +4866,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6156,$00
+  .dsb 6066,$00
 
 ; ----KERNAL----
 
