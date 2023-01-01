@@ -4515,24 +4515,24 @@ loadone:
   ; the user has not specified a filename, so load the SD card handeler program.
   
   ; Open root directory
-  jsr fat32_openroot
+;  jsr fat32_openroot
 
   ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
+;  ldx #<subdirname
+;  ldy #>subdirname
+;  jsr fat32_finddirent
+;  bcc foundsubdir
 
   ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp lo
+;  ldy #>submsg
+;  ldx #<submsg
+;  jsr w_acia_full
+;  jmp lo
 
-foundsubdir
+;foundsubdir
 
   ; Open subdirectory
-  jsr fat32_opendirent
+;  jsr fat32_opendirent
 
   ; Find file by name
   ldx #<loadname
@@ -4788,7 +4788,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6151,$00
+  .dsb 6176,$00
 
 ; ----KERNAL----
 
