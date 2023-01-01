@@ -24,10 +24,10 @@
 ;;; v8 added input command
 ;;; v9 added disassembler
 ;;; v10 software interrupt handling
-;;; v11 xpl-32 support and sd and serial loading routines
+;;; v11 xpl-32 support, xplDOS, kansas city tape, and serial loading
 ;;;
 ;;; Paul Dourish, March-October 2017
-;;; Waverider, 2020-2022
+;;; Waverider, 2020-2023
 
 ;;; My ROM is actually 32K, but half of the ROM is only visible at once.
 ;;; So, everything starts at $C000.
@@ -4512,27 +4512,7 @@ loadone:
 .(
   ; the user has not specified a filename, so load the SD card handeler program.
   
-  ; Open root directory
-;  jsr fat32_openroot
-
-  ; Find subdirectory by name
-;  ldx #<subdirname
-;  ldy #>subdirname
-;  jsr fat32_finddirent
-;  bcc foundsubdir
-
-  ; Subdirectory not found
-;  ldy #>submsg
-;  ldx #<submsg
-;  jsr w_acia_full
-;  jmp lo
-
-;foundsubdir
-
-  ; Open subdirectory
-;  jsr fat32_opendirent
-
-  jsr refreshpath
+  jsr loadf
 
   ; Find file by name
   ldx #<loadname
@@ -4559,7 +4539,7 @@ foundfile
 				
   jsr fat32_file_read		
 
-  jsr refreshpath ; BUG really?
+  jsr loadf		; BUG really?
 
   ldy #>lds
   ldx #<lds
@@ -4602,6 +4582,27 @@ lo:
   rts
   rts
   rts
+
+loadf:
+; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+  ; Subdirectory not found
+  ldy #>submsg
+  ldx #<submsg
+  jsr w_acia_full
+  jmp lo
+
+foundsubdir
+
+  ; Open subdirectory
+  jmp fat32_opendirent
 
 submsg
   .byte "'folder' Not Found!", $00
@@ -4788,7 +4789,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6180,$00
+  .dsb 6155,$00
 
 ; ----KERNAL----
 

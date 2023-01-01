@@ -1,5 +1,5 @@
 ; XPL-32 <FOLDER> type loading code
-; (c) 2022 Waverider
+; (c) 2022-2023 Waverider
 
 charbuffer = $601            ; 1 byte
 seed = $01

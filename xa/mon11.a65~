@@ -24,10 +24,10 @@
 ;;; v8 added input command
 ;;; v9 added disassembler
 ;;; v10 software interrupt handling
-;;; v11 xpl-32 support and sd and serial loading routines
+;;; v11 xpl-32 support, xplDOS, kansas city tape, and serial loading
 ;;;
 ;;; Paul Dourish, March-October 2017
-;;; Waverider, 2020-2022
+;;; Waverider, 2020-2023
 
 ;;; My ROM is actually 32K, but half of the ROM is only visible at once.
 ;;; So, everything starts at $C000.
@@ -324,11 +324,11 @@ inlp:
   lda subdirname,x
   sta path+1,x
   inx
-  cpx #$11
+  cpx #11
   bne inlp
-  stz path,x
   inx
-  stx path 
+  stz path,x
+  stx path
 
 initf:
 
@@ -375,7 +375,7 @@ reploop
 .(
   ;; is the sd card availible?
   lda path
-  bne wait_txd_empty
+  beq wait_txd_empty
   ;; if so, print the current directory.
   jsr printpath
   ;; print the prompt
@@ -4056,6 +4056,8 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
+;; TODO fix everything, all the xplDOS things and load error out with and SD readsector error.
+;;
 ;; the first byte of path is 0 if there was an init error.
 ;; otherwise it is a index to PATH for the empty space after the last foldername
 ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
@@ -4087,14 +4089,12 @@ refreshpath:
   beq rlerror
   lda #1	; path+1 because path+0 is the path size variable
   sta pathindex
-  lda #>path
-  sta pathindex+1
   ; If memory card, then goto dir
   jsr fat32_openroot
 rloop:
   ; Open the directory
   ldx pathindex
-  ldy pathindex
+  ldy #>path
   jsr fat32_finddirent
   bcc fine
   jmp patherror
@@ -4104,10 +4104,9 @@ fine:
   lda pathindex
   adc #11
   sta pathindex
-  lda pathindex+1
-  adc #0  ; carry bit
-  sta pathindex+1
-  lda (pathindex) ; end of path?
+  ;lda (pathindex) ; end of path?
+  lda path
+  cmp pathindex
   bne rloop      ; if not, cd to the next directory
   rts
 patherr:
@@ -4136,7 +4135,7 @@ aplp:
   sta path,x
   iny
   inx
-  cpy #$11
+  cpy #11
   bne aplp
   stz path,x
   stx path
@@ -4156,7 +4155,8 @@ printpath:
   ; No memory card?
   lda path
   bne ppc
-  jmp rlerror
+  rts
+  ;jmp rlerror
 ppc:
   lda #'/'
   jsr print_chara
@@ -4327,7 +4327,7 @@ shortconvert:
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp #'.'		; find the dot	
+  cmp #$2e		; find the dot	
   beq extst
   iny
   jmp shortlp
@@ -4446,7 +4446,7 @@ nameloop:
 dot:
   lda filetype
   bne endthat		; if it's a file,
-  lda #'.'		; shows its file extention
+  lda #$2e		; shows its file extention
   jsr print_chara
 lopii:
   cpy #11
@@ -4473,6 +4473,7 @@ jumptolist:
 loadcmd
 .(
   ;; check arguments
+  jmp loadone
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
   beq processparam
@@ -4511,25 +4512,7 @@ loadone:
 .(
   ; the user has not specified a filename, so load the SD card handeler program.
   
-  ; Open root directory
-  jsr fat32_openroot
-
-  ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-
-  ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp lo
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent
+  jsr loadf
 
   ; Find file by name
   ldx #<loadname
@@ -4556,7 +4539,7 @@ foundfile
 				
   jsr fat32_file_read		
 
-  jsr refreshpath ; BUG really?
+  jsr loadf		; BUG really?
 
   ldy #>lds
   ldx #<lds
@@ -4599,6 +4582,27 @@ lo:
   rts
   rts
   rts
+
+loadf:
+; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+  ; Subdirectory not found
+  ldy #>submsg
+  ldx #<submsg
+  jsr w_acia_full
+  jmp lo
+
+foundsubdir
+
+  ; Open subdirectory
+  jmp fat32_opendirent
 
 submsg
   .byte "'folder' Not Found!", $00
@@ -4785,7 +4789,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6152,$00
+  .dsb 6156,$00
 
 ; ----KERNAL----
 
