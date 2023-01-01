@@ -1,0 +1,43 @@
+hello, world!
+
+this is a test of the CAT command.
+
+heres some assembly language:
+
+catcmd:
+.(
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2
+  bne error
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; Convert to SHORT
+  jsr shortconvert
+  ; Refresh Path
+  jsr refreshpath
+  ; Find the file
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs error
+  ; Open the file
+  jsr fat32_opendirent
+  ; Read file contents into buffer
+  lda #<buffer
+  sta fat32_address
+  lda #>buffer
+  sta fat32_address+1
+  jsr fat32_file_read
+  ; Dump to screen
+  ldx #<buffer
+  ldy #>buffer
+  jsr w_acia_full
+  rts
+.)
+
+
