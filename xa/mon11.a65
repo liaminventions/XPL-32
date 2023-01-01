@@ -4384,7 +4384,6 @@ shortconvert:
   ldy #22
   lda #0
   sta (folderpointer),y
-  ;jsr dbgf
   lda #19
   sta fileext
   ldy #0
@@ -4410,7 +4409,6 @@ ext:
   jmp ext
 extd:
   ply
-  jsr dbgf
   clc
   lda sc	; add to sc
   adc #11
@@ -4444,7 +4442,6 @@ filllp:
   iny
   cpy #19 		; stop if index over 18, we don't want to overwrite the file extension
   bne filllp
-  jsr dbgf
   ; add 11 to folderpointer
   clc
   lda folderpointer
@@ -4466,21 +4463,6 @@ dontl:
   jmp ldlp
 ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
-  jsr dbgf
-  rts
-.)
-
-dbgf:
-.(
-  ; DEBUG print folder inputted
-  ldy #0
-fe:
-  lda (folderpointer),y
-  jsr print_chara
-  iny
-  cpy #11
-  bne fe
-  jsr crlf
   rts
 .)
 
@@ -4921,7 +4903,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 5994,$00
+  .dsb 6019,$00
 
 ; ----KERNAL----
 
