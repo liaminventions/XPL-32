@@ -106,6 +106,7 @@ fileext		= $14
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 pathindex	= $16 ; 2byt
+backdir		= $18
 
 ;; startup enable
 SEN		= $7ffd
@@ -4240,15 +4241,20 @@ cdd:
   ldy #0
   lda (folderpointer),y
   cmp #$2e
-  bne nopd
+  beq dotf
+  lda #$ff
+  sta backdir
+  jmp nopd
+dotf:
   iny
   lda (folderpointer),y
   cmp #$2e
-  beq backdir
+  beq backdire
   rts ; do nothing if "cd ."
-backdir:
+backdire:
   ; "cd .." means go back
   jsr backpath
+  stz backdir
   ;jsr refreshpath
   ;rts
 nopd:
@@ -4296,7 +4302,7 @@ cdsub:
   ; ok, it exists, now cd
   jsr fat32_opendirent
   ; all done.
-  ; now add this to the current directory
+  ; now add this to the current directory, only if no cd ..
   jsr addpath
   rts
 .)
@@ -4829,7 +4835,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6109,$00
+  .dsb 6100,$00
 
 ; ----KERNAL----
 
