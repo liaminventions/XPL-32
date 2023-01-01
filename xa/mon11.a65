@@ -4574,6 +4574,10 @@ processparam           ; the user specified a file, process the filename paramet
   jsr shortconvert
   ; Refresh
   jsr refreshpath
+  ; Loading..
+  ldx #<loading_msg
+  ldy #>loading_msg
+  jsr w_acia_full
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4696,7 +4700,7 @@ filmsg2
 lds
   .byte "Loading SD Handler...", $00
 ends
-  .byte "Done.", $0d, $0a, $0d, $0a, $00
+  .byte "Done.", $0d, $0a, $00
   
 
 ;; memory test
@@ -4872,7 +4876,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6066,$00
+  .dsb 6061,$00
 
 ; ----KERNAL----
 
