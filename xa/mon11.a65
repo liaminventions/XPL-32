@@ -4402,6 +4402,7 @@ ext:
   ldy fileext
   sta (folderpointer),y
   iny
+  sty fileext
   cpy #11
   beq extd
   ply
@@ -4882,7 +4883,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6052,$00
+  .dsb 6050,$00
 
 ; ----KERNAL----
 
