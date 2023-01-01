@@ -4473,6 +4473,7 @@ jumptolist:
 loadcmd
 .(
   ;; check arguments
+  jmp loadone
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
   beq processparam
@@ -4787,7 +4788,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6183,$00
+  .dsb 6180,$00
 
 ; ----KERNAL----
 
