@@ -4235,6 +4235,22 @@ processparam           ; process the filename parameter
 .)
 cdd:
 .(
+  ; check for . or ..
+  ldy #0
+  lda (folderpointer),y
+  cmp #$2e
+  bne nopd
+  iny
+  lda (folderpointer),y
+  cmp #$2e
+  beq backdir
+  rts ; do nothing if "cd ."
+backdir:
+  ; "cd .." means go back
+  jsr backpath
+  jsr refreshpath
+  rts
+nopd:
   ; convert lowercase to uppercase
   ldy #0
 cdlp:
@@ -4812,7 +4828,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6129,$00
+  .dsb 6106,$00
 
 ; ----KERNAL----
 
