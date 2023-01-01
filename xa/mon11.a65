@@ -4427,6 +4427,7 @@ mvlp:
   ldy fileext
   sta (folderpointer),y
   iny
+  sty fileext
   cpy sc
   beq ad2sc
   ply
@@ -4920,7 +4921,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 5996,$00
+  .dsb 5994,$00
 
 ; ----KERNAL----
 
