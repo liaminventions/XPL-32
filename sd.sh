@@ -1,3 +1,3 @@
 #!/bin/bash
-cp /mnt/usb/folder/* sd\ card\ contents/folder
+cp -r /mnt/usb/folder/* sd\ card\ contents/folder
 
