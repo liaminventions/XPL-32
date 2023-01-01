@@ -4513,7 +4513,7 @@ nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
   lda backdir
-  beq dontb
+  bne dontb
   jsr backpath		; go back if ls <foldername>
 dontb:
   jsr refreshpath	; refresh the directory
