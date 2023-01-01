@@ -4238,6 +4238,14 @@ filllp:
   ; ok, that should do it.
   ; DEBUG print folder inputted
   ldy #0
+fee:
+  lda (folderpointer),y
+  jsr print_chara
+  iny
+  cpy #11
+  bne fee
+  ; DEBUG print folder inputted
+  ldy #0
 fe:
   lda (folderpointer),y
   jsr print_chara
@@ -4796,7 +4804,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6146,$00
+  .dsb 6134,$00
 
 ; ----KERNAL----
 
