@@ -4788,7 +4788,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6152,$00
+  .dsb 6151,$00
 
 ; ----KERNAL----
 
