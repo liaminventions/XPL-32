@@ -274,9 +274,6 @@ init_acia
   jsr via_init
   jsr sd_init
   bcc load1
-  ldx #<sd_error
-  ldy #>sd_error
-  jsr w_acia_full
   stz path
   jmp initf
 load1
@@ -3095,9 +3092,9 @@ initialized
   rts
 
 initfailed
-  ldy #>initfailedmsg
-  ldx #<initfailedmsg
-  jsr w_acia_full
+  ;ldy #>initfailedmsg
+  ;ldx #<initfailedmsg
+  ;jsr w_acia_full
   sec
   rts
 
@@ -4096,7 +4093,7 @@ rloop:
   ldy #>path
   jsr fat32_finddirent
   bcc fine
-  jmp patherror
+  jmp patherr
 fine:
   jsr fat32_opendirent
   ; advance to the next directory
@@ -4108,21 +4105,24 @@ fine:
   lda path
   cmp pathindex
   bne rloop      ; if not, cd to the next directory
+  clc
   rts
+.)
 patherr:
   ldx #<patherror
   ldy #>patherror
   jsr w_acia_full
+  sec
   rts
-.)
 rlerror:
   ldx #<rlerrormsg
   ldy #>rlerrormsg
   jsr w_acia_full
+  sec
   rts
 
 rlerrormsg:
-  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer.", $0d, $0a, $00
+  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer", $0d, $0a, $00
 
 ; add PATH
 ; adds a recently added folder at (folderpointer) to the PATH variable.
@@ -4178,6 +4178,7 @@ printpath:
   ; No memory card?
   lda path
   bne ppc
+  sec
   rts
   ;jmp rlerror
 ppc:
@@ -4211,6 +4212,7 @@ notspace:
   beq ppdone
   jmp pplp	     ; no, print another folder name.
 ppdone:
+  clc
   rts		     ; done!
 .)
 
@@ -4220,6 +4222,10 @@ ppdone:
 
 cdcmd:
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, change to the specified directory
@@ -4322,6 +4328,10 @@ error
 
 catcmd:
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2
@@ -4430,7 +4440,11 @@ other:
 ;; LS
 
 lscmd:
-.(	
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
@@ -4526,6 +4540,10 @@ jumptolist:
 ;; .SAR stands for Start AddRess.
 loadcmd
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
@@ -4844,7 +4862,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6088,$00
+  .dsb 6066,$00
 
 ; ----KERNAL----
 
