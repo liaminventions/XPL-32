@@ -78,6 +78,7 @@ zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 24 bytes
 ; only used during fat32 processing
+path = $300		    ; one page
 fat32_workspace = $400      ; two pages
 buffer = $600		    ; two pages
 ; now, addresses $0800-$7ffc are free.
@@ -104,6 +105,7 @@ lix		= $13
 fileext		= $14
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
+pathindex	= $16 ; 2byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -274,30 +276,32 @@ init_acia
   ldx #<sd_error
   ldy #>sd_error
   jsr w_acia_full
-  jmp initdone
+  stz path
+  jmp initf
 load1
   jsr fat32_init
   bcs initerror
 
  ; Open root directory
- ; jsr fat32_openroot
+  jsr fat32_openroot
 
   ; Find subdirectory by name
-  ;ldx #<subdirname
-  ;ldy #>subdirname
-  ;jsr fat32_finddirent
-  ;bcc foundsubdir
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdirr
 
   ; Subdirectory not found
-  ;ldy #>submsg
-  ;ldx #<submsg
-  ;jsr w_acia_full
-  ;jmp initdone
+  ldy #>submsg
+  ldx #<submsg
+  jsr w_acia_full
+  stz path
+  jmp initf
 
-;foundsubdir
+foundsubdirr
 
   ; Open subdirectory
-  ;jsr fat32_opendirent	; open folder
+  jsr fat32_opendirent	; open folder
 
   jmp initdone 
 
@@ -311,8 +315,22 @@ initerror
   jsr print_hex_acia
   lda #'!'
   jsr print_chara
+  stz path
+  jmp initf
 
 initdone
+  ldx #0
+inlp:
+  lda subdirname,x
+  sta path+1,x
+  inx
+  cpx #$11
+  bne inlp
+  stz path,x
+  inx
+  stx path 
+
+initf:
 
   ldx #$FF
 
@@ -355,6 +373,11 @@ sayhello
 ;;;
 reploop
 .(
+  ;; is the sd card availible?
+  lda path
+  bne wait_txd_empty
+  ;; if so, print the current directory.
+  jsr printpath
   ;; print the prompt
 wait_txd_empty  
   lda ACIA_STATUS
@@ -4033,16 +4056,19 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
-;; TODO make a path system
-;; TODO reload that path at the end of every command (current path buffer)
-;; BUG it is assumed that <FOLDER> is the root
-;; BUG load specific file errors out. TODO fix
+;; the first byte of path is 0 if there was an init error.
+;; otherwise it is a index to PATH for the empty space after the last foldername
+;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
+;; v = 11f+1
+;; for example:
+;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
+;; BUG root usage is not possible, thus, it is required that we are in a folder
 ;; ls does not seem to like reading the SD root.
 ;; Commands:
-;; CD - TODO fix
-;; LS - TODO fix folder specifications
-;; LOAD - TODO fix load a specified file
-;; CAT - TODO fix
+;; CD
+;; LS
+;; LOAD
+;; CAT
 ;; upcoming commands (TODO):
 ;; MKDIR
 ;; SAVE
@@ -4050,13 +4076,127 @@ fat_error
 ;; RM
 ;; etc...
 
+; PATH refresh
+; goes to the ROOT directory, and CDs to the directory at PATH.
+;
+; this is probably equivilent to "Refresh" in Microsoft Windows.
+refreshpath:
+.(
+  ; No memory card?
+  lda path
+  beq rlerror
+  lda #1	; path+1 because path+0 is the path size variable
+  sta pathindex
+  lda #>path
+  sta pathindex+1
+  ; If memory card, then goto dir
+  jsr fat32_openroot
+rloop:
+  ; Open the directory
+  ldx pathindex
+  ldy pathindex
+  jsr fat32_finddirent
+  bcc fine
+  jmp patherror
+fine:
+  jsr fat32_opendirent
+  ; advance to the next directory
+  lda pathindex
+  adc #11
+  sta pathindex
+  lda pathindex+1
+  adc #0  ; carry bit
+  sta pathindex+1
+  lda (pathindex) ; end of path?
+  bne rloop      ; if not, cd to the next directory
+  rts
+patherr:
+  ldx #<patherror
+  ldy #>patherror
+  jsr w_acia_full
+  rts
+.)
+rlerror:
+  ldx #<rlerrormsg
+  ldy #>rlerrormsg
+  jsr w_acia_full
+  rts
+
+rlerrormsg:
+  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer.", $0d, $0a, $00
+
+; add PATH
+; adds a recently added folder at (folderpointer) to the PATH variable.
+addpath:
+.(
+  ldy #0
+  ldx path
+aplp:
+  lda (folderpointer),y
+  sta path,x
+  iny
+  inx
+  cpy #$11
+  bne aplp
+  stz path,x
+  stx path
+  rts
+.)
+
+patherror:
+  .byte "No Memory Card", $0d, $0a, $00
+
+;; print PATH
+;; prints the current directory, like linux
+;; for example,
+;; /folder/test>_
+;;
+printpath:
+.(
+  ; No memory card?
+  lda path
+  bne ppc
+  jmp rlerror
+ppc:
+  lda #'/'
+  jsr print_chara
+  lda #1	     ; path+1 because path+0 is the path size variable
+  sta pathindex
+  lda #>path
+  sta pathindex+1
+  ldy #0
+pplp:
+  ; loop through path and print the folder, in lowercase
+  lda (pathindex),y
+  cmp #$20 	     ; space?
+  beq ppd	
+  ora #$20 	     ; if not, print (in lowercase)
+  jsr print_chara
+  iny
+  jmp pplp
+ppd:
+  lda #'/' ; if space, dir done.
+  jsr print_chara
+ppdl:
+  lda (pathindex),y  ; look for the next entry.
+  cmp #$20
+  bne notspace
+  iny
+  jmp ppdl
+notspace:
+  lda (pathindex),y  ; end of path?
+  beq ppdone
+  jmp pplp	     ; no, print another folder name.
+ppdone:
+  rts		     ; done!
+.)
+
 ;; CD
 ;; Change the directory
 ;; if you use cdsub, folderpointer holds the address of the folder name
 
 cdcmd:
 .(
-  ;jsr sdsetup
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, change to the specified directory
@@ -4069,6 +4209,9 @@ processparam           ; process the filename parameter
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+.)
+cdd:
+.(
   ; convert lowercase to uppercase
   ldy #0
 cdlp:
@@ -4083,7 +4226,6 @@ cdlp:
 dont:
   iny
   jmp cdlp
-cdd:
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
 fill:
@@ -4094,7 +4236,8 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   ; ok, that should do it.
-  ;jsr sdsetup
+  ; now add this to the current directory
+  jsr addpath
   ; Open root directory
   jsr fat32_openroot	
   ; Find the subdirectory by name
@@ -4104,7 +4247,6 @@ filllp:
   bcs error
   ; Open subdirectory
   jsr fat32_opendirent	; open folder
-
 .)
 cdsub:
 .(
@@ -4143,7 +4285,7 @@ catcmd:
 .(
   ;; check arguments
   lda ARGINDEX
-  cmp #2	       ; if there's two arguments, list the specified directory
+  cmp #2
   bne error
   clc
   lda #<INPUT
@@ -4170,6 +4312,8 @@ catcmd:
   ldx #<buffer
   ldy #>buffer
   jsr w_acia_full
+  ; Refresh Directory
+  jsr refreshpath
   rts
 .)
 
@@ -4183,7 +4327,7 @@ shortconvert:
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp '.'		; find the dot	
+  cmp #'.'		; find the dot	
   beq extst
   iny
   jmp shortlp
@@ -4215,7 +4359,7 @@ filllp:
 ldlp:
   lda (folderpointer),y
   beq ldd   ; if null, stop.
-  cmp #$40  ; if numbers/symbols, skip.
+  cmp #$40  ; if numbers/symbols/space, skip.
   bcc dontl
   cmp #$5f  ; if _ skip
   beq dontl
@@ -4241,27 +4385,6 @@ other:
 
 lscmd:
 .(	
-  ; Open root directory
-  jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc foundsubdir
-  ; Subdirectory not found
-  ldy #>sd_error
-  ldx #<sd_error
-  jsr w_acia_full
-  jsr error_sound
-  rts
-  rts
-  rts
-  rts
-
-foundsubdir
-
-  ; Open subdirectory
-  jsr fat32_opendirent	; open folder
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, list the specified directory
@@ -4281,8 +4404,7 @@ processparam           ; process the filename parameter
   lda #>INPUT
   sta folderpointer+1
   ; now cd
-  jsr cdsub
-  ; BUG after this is done, the current directory is NOT restored!
+  jsr cdd
 .)
 list:			; list file dir
 .(
@@ -4338,6 +4460,7 @@ endthat:
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
+  jsr refreshpath	; refresh the directory
   rts
 jumptolist:
   jsr crlf
@@ -4377,15 +4500,15 @@ processparam           ; the user specified a file, process the filename paramet
   ldx folderpointer
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
-  bcc foundcode
-lderror
-  ldx #<errormsg	; if it was not found, error and return.
-  ldy #>errormsg
+  bcc loadfoundcode
+lderror:
+  ldx #<foldermsg	; if it was not found, error and return.
+  ldy #>foldermsg
   jsr w_acia_full
   rts
-  rts
-  rts
+.)
 loadone:
+.(
   ; the user has not specified a filename, so load the SD card handeler program.
   
   ; Open root directory
@@ -4401,7 +4524,7 @@ loadone:
   ldy #>submsg
   ldx #<submsg
   jsr w_acia_full
-  jmp looopp
+  jmp lo
 
 foundsubdir
 
@@ -4418,7 +4541,7 @@ foundsubdir
   ldy #>filmsg
   ldx #<filmsg
   jsr w_acia_full
-  jmp looopp
+  jmp lo
 
 foundfile
  
@@ -4433,26 +4556,7 @@ foundfile
 				
   jsr fat32_file_read		
 
-  ; Open root directory
-  ; BUG do we really need to reload the entire directory path?
-  jsr fat32_openroot
-
-  ; Find subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcc startload
-
-  ; Subdirectory not found
-  ldy #>submsg
-  ldx #<submsg
-  jsr w_acia_full
-  jmp looopp
- 
-startload
-
-  ; Open subdirectory
-  jsr fat32_opendirent
+  jsr refreshpath ; BUG really?
 
   ldy #>lds
   ldx #<lds
@@ -4461,15 +4565,17 @@ startload
   ldx #<filename	; CODE.XPL is the sd card's loader
   ldy #>filename
   jsr fat32_finddirent
-  bcc foundcode
+  bcc loadfoundcode
 
   ldy #>filmsg2
   ldx #<filmsg2
   jsr w_acia_full
-  jmp looopp
-
-foundcode
-
+  rts
+  rts
+  rts
+.)
+loadfoundcode
+.(
   jsr fat32_opendirent	; open the file
 
   lda buffer		; and load it to the address
@@ -4481,18 +4587,19 @@ foundcode
 
   ; All done.
 
-  ;ldy #>ends
-  ;ldx #<ends
-  ;jsr w_acia_full	; BUG done message or not?
+  ldy #>ends
+  ldx #<ends
+  jsr w_acia_full
 
   jmp (buffer+2)	; jump to start address from LOADADDR.SAR
 
-looopp
+.)
+
+lo:
   rts
   rts
   rts
 
-.)
 submsg
   .byte "'folder' Not Found!", $00
 filmsg
@@ -4678,7 +4785,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6429,$00
+  .dsb 6152,$00
 
 ; ----KERNAL----
 
@@ -4752,7 +4859,7 @@ KERNAL_sd_readsector:
 ; other
 
 KERNAL_loadcmd:
-  jmp loadcmd+75
+  jmp loadone
 KERNAL_tsave:
   jmp tsavecmd+81
 KERNAL_tload:
