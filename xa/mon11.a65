@@ -106,7 +106,8 @@ fileext		= $14
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 pathindex	= $16 ; 2byt
-backdir		= $18
+backdir		= $18 ; 1byt
+sc		= $19 ; 1byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -4394,14 +4395,14 @@ extst:
 ext:
   iny
   lda (folderpointer),y
-  phy
+  sty sc
   ldy fileext
   sta (folderpointer),y
-  ply
-  inc fileext
-  lda fileext
-  cmp #11
-  bne ext
+  cpy #11
+  beq extd
+  ldy sc
+  jmp ext
+extd:
   ply
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
@@ -4876,7 +4877,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6061,$00
+  .dsb 6060,$00
 
 ; ----KERNAL----
 
