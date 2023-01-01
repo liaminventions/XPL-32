@@ -4245,13 +4245,13 @@ fee:
   cpy #11
   bne fee
   ; DEBUG print folder inputted
-  ldy #0
-fe:
-  lda (folderpointer),y
-  jsr print_chara
-  iny
-  cpy #11
-  bne fe
+  ;ldy #0
+;fe:
+;  lda (folderpointer),y
+;  jsr print_chara
+;  iny
+;  cpy #11
+;  bne fe
   ; now add this to the current directory
   jsr addpath
   ; Open root directory
@@ -4804,7 +4804,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6134,$00
+  .dsb 6147,$00
 
 ; ----KERNAL----
 
