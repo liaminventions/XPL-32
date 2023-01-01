@@ -4385,7 +4385,7 @@ shortconvert:
   lda #0
   sta (folderpointer),y
   jsr dbgf
-  lda #10
+  lda #19
   sta fileext
   ldy #0
 shortlp:
@@ -4396,17 +4396,13 @@ shortlp:
   jmp shortlp
 extst:
   sty sc		; now move the file extension
-  iny
-  iny
-  iny
-  iny
 ext:
-  dey
+  iny
   lda (folderpointer),y
   phy
   ldy fileext
   sta (folderpointer),y
-  dey
+  iny
   sty fileext
   cpy #8
   beq extd
@@ -4415,6 +4411,27 @@ ext:
 extd:
   ply
   jsr dbgf
+  lda #11
+  sta fileext
+  ; move name
+  ldy #$ff
+mvlp:
+  iny
+  lda (folderpointer),y
+  phy
+  ldy fileext
+  sta (folderpointer),y
+  iny
+  cpy sc
+  beq ad2sc
+  ply
+  jmp mvlp
+ad2sc:
+  ; add to folderpointer
+  clc
+  lda folderpointer
+  adc #11
+  sta folderpointer
   ldy sc
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
@@ -4897,7 +4914,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6030,$00
+  .dsb 6004,$00
 
 ; ----KERNAL----
 
