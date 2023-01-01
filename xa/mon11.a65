@@ -4056,6 +4056,8 @@ fat_error
 ;; xplDOS
 ;; SD Card Navigation.
 ;;
+;; TODO fix everything, all the xplDOS things and load error out with and SD readsector error.
+;;
 ;; the first byte of path is 0 if there was an init error.
 ;; otherwise it is a index to PATH for the empty space after the last foldername
 ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
@@ -4087,14 +4089,12 @@ refreshpath:
   beq rlerror
   lda #1	; path+1 because path+0 is the path size variable
   sta pathindex
-  lda #>path
-  sta pathindex+1
   ; If memory card, then goto dir
   jsr fat32_openroot
 rloop:
   ; Open the directory
   ldx pathindex
-  ldy pathindex+1
+  ldy #>path
   jsr fat32_finddirent
   bcc fine
   jmp patherror
@@ -4104,9 +4104,6 @@ fine:
   lda pathindex
   adc #11
   sta pathindex
-  lda pathindex+1
-  adc #0  ; carry bit
-  sta pathindex+1
   ;lda (pathindex) ; end of path?
   lda path
   cmp pathindex
@@ -4534,7 +4531,7 @@ loadone:
   ; Open subdirectory
 ;  jsr fat32_opendirent
 
-  ;jsr refreshpath
+  jsr refreshpath
 
   ; Find file by name
   ldx #<loadname
@@ -4561,7 +4558,7 @@ foundfile
 				
   jsr fat32_file_read		
 
-  ;jsr refreshpath ; BUG really?
+  jsr refreshpath ; BUG really?
 
   ldy #>lds
   ldx #<lds
@@ -4790,7 +4787,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6179,$00
+  .dsb 6183,$00
 
 ; ----KERNAL----
 
