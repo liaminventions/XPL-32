@@ -4581,9 +4581,6 @@ processparam           ; the user specified a file, process the filename paramet
   lda #$0f 		; $0F00
   sta buffer+1
   sta buffer+3
-  ldy #>lds
-  ldx #<lds
-  jsr w_acia_full
   ldx folderpointer
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
@@ -4875,7 +4872,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6059,$00
+  .dsb 6066,$00
 
 ; ----KERNAL----
 
