@@ -4101,6 +4101,7 @@ rloop:
 fine:
   jsr fat32_opendirent
   ; advance to the next directory
+  clc
   lda pathindex
   adc #11
   sta pathindex
@@ -4149,7 +4150,7 @@ aplp:
 .)
 
 ; delete PATH
-; goes back a directory, used when cd ..
+; goes back a directory, used in cd ..
 backpath:
 .(
   phx
@@ -4248,8 +4249,8 @@ cdd:
 backdir:
   ; "cd .." means go back
   jsr backpath
-  jsr refreshpath
-  rts
+  ;jsr refreshpath
+  ;rts
 nopd:
   ; convert lowercase to uppercase
   ldy #0
@@ -4828,7 +4829,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6106,$00
+  .dsb 6109,$00
 
 ; ----KERNAL----
 
