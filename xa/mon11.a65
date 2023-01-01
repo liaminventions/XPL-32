@@ -4534,7 +4534,7 @@ loadone:
   ; Open subdirectory
 ;  jsr fat32_opendirent
 
-  jsr refreshpath
+  ;jsr refreshpath
 
   ; Find file by name
   ldx #<loadname
@@ -4561,7 +4561,7 @@ foundfile
 				
   jsr fat32_file_read		
 
-  jsr refreshpath ; BUG really?
+  ;jsr refreshpath ; BUG really?
 
   ldy #>lds
   ldx #<lds
@@ -4790,7 +4790,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6173,$00
+  .dsb 6179,$00
 
 ; ----KERNAL----
 
