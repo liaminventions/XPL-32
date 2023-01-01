@@ -4384,6 +4384,7 @@ shortconvert:
   ldy #10
   lda #0
   sta (folderpointer),y
+  jsr dbgf
   lda #8
   sta fileext
   ldy #0
@@ -4395,6 +4396,8 @@ shortlp:
   jmp shortlp
 extst:
   sty sc		; now move the file extension
+  jsr dbgf
+  ldy sc
 ext:
   iny
   lda (folderpointer),y
@@ -4409,6 +4412,7 @@ ext:
   jmp ext
 extd:
   ply
+  jsr dbgf
   ldy sc
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
@@ -4435,6 +4439,12 @@ dontl:
   jmp ldlp
 ldd:
   ; ok! now we have a SHORT formatted filename at (folderpointer).
+  jsr dbgf
+  rts
+.)
+
+dbgf:
+.(
   ; DEBUG print folder inputted
   ldy #0
 fe:
@@ -4443,6 +4453,7 @@ fe:
   iny
   cpy #11
   bne fe
+  jsr crlf
   rts
 .)
 
@@ -4883,7 +4894,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6050,$00
+  .dsb 6032,$00
 
 ; ----KERNAL----
 
