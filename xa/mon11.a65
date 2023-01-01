@@ -4330,7 +4330,7 @@ shortconvert:
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp #'.'		; find the dot	
+  cmp '.'		; find the dot	
   beq extst
   iny
   jmp shortlp
@@ -4449,7 +4449,7 @@ nameloop:
 dot:
   lda filetype
   bne endthat		; if it's a file,
-  lda #'.'		; shows its file extention
+  lda '.'		; shows its file extention
   jsr print_chara
 lopii:
   cpy #11
