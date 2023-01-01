@@ -4094,7 +4094,7 @@ refreshpath:
 rloop:
   ; Open the directory
   ldx pathindex
-  ldy pathindex
+  ldy pathindex+1
   jsr fat32_finddirent
   bcc fine
   jmp patherror
@@ -4107,7 +4107,9 @@ fine:
   lda pathindex+1
   adc #0  ; carry bit
   sta pathindex+1
-  lda (pathindex) ; end of path?
+  ;lda (pathindex) ; end of path?
+  lda path
+  cmp pathindex
   bne rloop      ; if not, cd to the next directory
   rts
 patherr:
@@ -4156,7 +4158,8 @@ printpath:
   ; No memory card?
   lda path
   bne ppc
-  jmp rlerror
+  rts
+  ;jmp rlerror
 ppc:
   lda #'/'
   jsr print_chara
