@@ -4395,8 +4395,8 @@ shortlp:
   jmp shortlp
 extst:
   sty sc		; now move the file extension
-  iny
 ext:
+  iny
   lda (folderpointer),y
   phy
   ldy fileext
