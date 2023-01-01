@@ -4353,6 +4353,8 @@ catcmd:
   ldx #<buffer
   ldy #>buffer
   jsr w_acia_full
+  ; CR LF
+  jsr crlf
   rts
 .)
 
@@ -4837,7 +4839,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6092,$00
+  .dsb 6089,$00
 
 ; ----KERNAL----
 
