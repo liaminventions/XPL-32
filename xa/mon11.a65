@@ -4303,7 +4303,10 @@ cdsub:
   jsr fat32_opendirent
   ; all done.
   ; now add this to the current directory, only if no cd ..
+  lda backdir
+  beq bb
   jsr addpath
+bb:
   rts
 .)
 fileerror
@@ -4835,7 +4838,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6100,$00
+  .dsb 6096,$00
 
 ; ----KERNAL----
 
