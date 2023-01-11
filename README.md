@@ -1,4 +1,5 @@
 # XPL-32
+![](https://raw.githubusercontent.com/liaminventions/XPL-32/main/images/PXL_20221223_221107943.jpg)
 The XPL-32 is a homebrew 6502 laptop, with four 48-pin expansion slots, and a 22-pin I/O port.
  ### XPL-32 stands for:
 eXpandable 
