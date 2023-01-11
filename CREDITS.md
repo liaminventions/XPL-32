@@ -19,3 +19,5 @@ py-kcs tape debugger: David Beazley and Waverider (I added binary mode)
 Music is composed and arranged by various artists.
 
 6502 Debugger for Sigrok: hoglet
+
+Tape Frequency Decoder: Mats Engstrom
