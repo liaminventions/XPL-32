@@ -26,11 +26,9 @@ vdp_reset:
   jsr vdp_initialize_pattern_table
   jsr vdp_initialize_name_table
   jsr vdp_enable_display
-  lda #$ff
-  sta $b001
-  rts
-  rts
-  rts
+  lda #$80
+  sta $b002
+  sta $b000
   rts
 
 vdp_reg_reset:

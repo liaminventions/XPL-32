@@ -46,9 +46,9 @@ reset:
 
   jsr vdp_set_registers
   jsr vdp_setup
-  lda #255	; activate display
-  sta $b003
-  sta $b001
+  lda #$80	; activate display
+  sta $b002
+  sta $b000
   ;lda #0
   jsr init
   cli

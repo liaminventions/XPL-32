@@ -35,10 +35,9 @@ vdp_reset:
   jsr vdp_initialize_pattern_table
   jsr vdp_initialize_name_table
   jsr vdp_enable_display
-  lda $ff
+  lda #$80
   sta $b002
   sta $b000
-  sta $b001
   rts
   rts
   rts
@@ -128,8 +127,6 @@ vdp_enable_display:
   sta VDP_REG
   pla
   rts
-
-  .org $1000
 
 vdp_register_inits:
 vdp_register_0: .byte %00000000 ; 0  0  0  0  0  0  M3 EXTVDP
