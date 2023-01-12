@@ -106,7 +106,8 @@ fileext		= $14
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 pathindex	= $16 ; 2byt
-backdir		= $18
+backdir		= $18 ; 1byt
+sc		= $19 ; 1byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -988,6 +989,12 @@ error
   rts
 .)
 
+; Audio-based data storage
+; commands:
+; tsave
+; tload
+;
+
 ; Save to cassette tape
 ;
 ; Argumented with a start and end address
@@ -1011,8 +1018,8 @@ processparam           ; process the (second) address parameter
   jsr read16hex
   clc			; process the (first) address parameter
   lda #<INPUT
-  adc ARGINDEX+2
-  sta stackaccess
+  adc ARGINDEX+2IU7
+  sta stackaccess\
   lda #>INPUT
   sta stackaccess+1
   jsr push16
@@ -1162,38 +1169,6 @@ starter:
 one:			; 2400hz sound 8 cyc
   php
   pha
-  ;jsr togtap ; 1
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 2
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 3
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 4
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 5
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 6
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 7
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 8
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
   lda #$4c
   sta $b80e
   lda #$9d
@@ -1217,22 +1192,6 @@ reg:
 zero: 			; 1200hz sound 4 cyc
   php
   pha 
-  ;jsr togtap ; 1
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 2
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 3
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 4
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
   lda #$a6
   sta $b80e
   lda #$4e
@@ -1242,28 +1201,6 @@ zero: 			; 1200hz sound 4 cyc
   pla
   plp
   rts
-
-;onefreq:
-;  stz $b00b
-;  lda #$ae
-;  sta $b004		; freq
-;  lda #$00
-;  sta $b005
-;intro:
-;  bit $b00d		; delay complete?
-;  bvc intro
-;  rts
-
-;zerofreq:
-;  stz $b00b
-;  lda #$3f
-;  sta $b004
-;  lda #$01
-;  sta $b005
-;intro2:
-;  bit $b00d
-;  bvc intro2
-;  rts
 
 error
   lda #<tsaveerrstring
@@ -4288,14 +4225,15 @@ filllp:
   bne filllp
   ; ok, that should do it.
   ; Open root directory
-  jsr fat32_openroot	
+  ;jsr fat32_openroot	
   ; Find the subdirectory by name
-  ldx #<subdirname
-  ldy #>subdirname
-  jsr fat32_finddirent
-  bcs error
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
   ; Open subdirectory
-  jsr fat32_opendirent	; open folder
+  ;jsr fat32_opendirent	; open folder
+  jsr refreshpath
 .)
 cdsub:
 .(
@@ -4379,7 +4317,10 @@ shortconvert:
   ; loop through the null-terminated string at (folderpointer)
   ; and convert it to SHORT format.
   ; ex. "file.xpl",0 --> "FILE    XPL"
-  lda #8
+  ldy #22
+  lda #0
+  sta (folderpointer),y
+  lda #19
   sta fileext
   ldy #0
 shortlp:
@@ -4389,19 +4330,45 @@ shortlp:
   iny
   jmp shortlp
 extst:
-  phy			; now move the file extension
+  sty sc		; now move the file extension
 ext:
   iny
   lda (folderpointer),y
   phy
   ldy fileext
   sta (folderpointer),y
+  iny
+  sty fileext
+  cpy #22
+  beq extd
   ply
-  inc fileext
-  lda fileext
-  cmp #11
-  bne ext
+  jmp ext
+extd:
   ply
+  clc
+  lda sc	; add to sc
+  adc #11
+  sta sc
+  lda #11
+  sta fileext
+  ; move name
+  ldy #0
+  jmp mvlp+1
+mvlp:
+  iny
+  lda (folderpointer),y
+  phy
+  ldy fileext
+  sta (folderpointer),y
+  iny
+  sty fileext
+  cpy sc
+  beq ad2sc
+  ply
+  jmp mvlp
+ad2sc:
+  ply
+  ldy sc
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
 fill:
@@ -4409,8 +4376,13 @@ fill:
 filllp:			
   sta (folderpointer),y
   iny
-  cpy #8 		; stop if index over 7, we don't want to overwrite the file extension
+  cpy #19 		; stop if index over 18, we don't want to overwrite the file extension
   bne filllp
+  ; add 11 to folderpointer
+  clc
+  lda folderpointer
+  adc #11
+  sta folderpointer
   ; now we need to convert lowercase to uppercase
   ldy #0
 ldlp:
@@ -4565,6 +4537,10 @@ processparam           ; the user specified a file, process the filename paramet
   jsr shortconvert
   ; Refresh
   jsr refreshpath
+  ; Loading..
+  ldx #<loading_msg
+  ldy #>loading_msg
+  jsr w_acia_full
   ; BUG i need to add a start address header to the .XPL file format...
   ; at the moment it is assumed that the file will load and run at $0F00
   stz buffer
@@ -4572,9 +4548,6 @@ processparam           ; the user specified a file, process the filename paramet
   lda #$0f 		; $0F00
   sta buffer+1
   sta buffer+3
-  ldy #>lds
-  ldx #<lds
-  jsr w_acia_full
   ldx folderpointer
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
@@ -4690,7 +4663,7 @@ filmsg2
 lds
   .byte "Loading SD Handler...", $00
 ends
-  .byte "Done.", $0d, $0a, $0d, $0a, $00
+  .byte "Done.", $0d, $0a, $00
   
 
 ;; memory test
@@ -4866,7 +4839,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6066,$00
+  .dsb 6019,$00
 
 ; ----KERNAL----
 

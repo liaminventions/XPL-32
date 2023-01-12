@@ -989,6 +989,12 @@ error
   rts
 .)
 
+; Audio-based data storage
+; commands:
+; tsave
+; tload
+;
+
 ; Save to cassette tape
 ;
 ; Argumented with a start and end address
@@ -1163,38 +1169,6 @@ starter:
 one:			; 2400hz sound 8 cyc
   php
   pha
-  ;jsr togtap ; 1
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 2
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 3
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 4
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 5
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 6
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 7
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
-  ;jsr togtap ; 8
-  ;jsr onefreq
-  ;jsr togtap
-  ;jsr onefreq
   lda #$4c
   sta $b80e
   lda #$9d
@@ -1218,22 +1192,6 @@ reg:
 zero: 			; 1200hz sound 4 cyc
   php
   pha 
-  ;jsr togtap ; 1
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 2
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 3
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
-  ;jsr togtap ; 4
-  ;jsr zerofreq
-  ;jsr togtap
-  ;jsr zerofreq
   lda #$a6
   sta $b80e
   lda #$4e
@@ -1243,28 +1201,6 @@ zero: 			; 1200hz sound 4 cyc
   pla
   plp
   rts
-
-;onefreq:
-;  stz $b00b
-;  lda #$ae
-;  sta $b004		; freq
-;  lda #$00
-;  sta $b005
-;intro:
-;  bit $b00d		; delay complete?
-;  bvc intro
-;  rts
-
-;zerofreq:
-;  stz $b00b
-;  lda #$3f
-;  sta $b004
-;  lda #$01
-;  sta $b005
-;intro2:
-;  bit $b00d
-;  bvc intro2
-;  rts
 
 error
   lda #<tsaveerrstring
