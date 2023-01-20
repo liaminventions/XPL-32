@@ -1,0 +1,681 @@
+;; xplDOS
+;; unix-esque SD Card Navigation system.
+;;
+;; the first byte of path is 0 if there was an init error.
+;; otherwise it is a index to PATH for the empty space after the last foldername
+;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use:
+;; v = 11f+1
+;; for example:
+;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
+;; BUG root usage is not possible, thus, it is required that we are in a folder
+;; ls does not seem to like reading the SD root.
+;; BUG some filenames do not work.
+;; Commands:
+;; CD
+;; LS
+;; LOAD
+;; CAT
+;; upcoming commands (TODO):
+;; MKDIR
+;; SAVE
+;; EDIT (or VI?)
+;; RM
+;; CP
+;; MV
+;; TAR?
+;; MAN?
+
+; PATH refresh
+; goes to the ROOT directory, and CDs to the directory at PATH.
+;
+; this is probably equivilent to "Refresh" in Microsoft Windows.
+refreshpath:
+.(
+  ; No memory card?
+  lda path
+  beq rlerror
+  lda #1	; path+1 because path+0 is the path size variable
+  sta pathindex
+  ; If memory card, then goto dir
+  jsr fat32_openroot
+rloop:
+  ; Open the directory
+  ldx pathindex
+  ldy #>path
+  jsr fat32_finddirent
+  bcc fine
+  jmp patherr
+fine:
+  jsr fat32_opendirent
+  ; advance to the next directory
+  clc
+  lda pathindex
+  adc #11
+  sta pathindex
+  ;lda (pathindex) ; end of path?
+  lda path
+  cmp pathindex
+  bne rloop      ; if not, cd to the next directory
+  clc
+  rts
+.)
+patherr:
+  ldx #<patherror
+  ldy #>patherror
+  jsr w_acia_full
+  sec
+  rts
+rlerror:
+  ldx #<rlerrormsg
+  ldy #>rlerrormsg
+  jsr w_acia_full
+  sec
+  rts
+
+rlerrormsg:
+  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer", $0d, $0a, $00
+
+; add PATH
+; adds a recently added folder at (folderpointer) to the PATH variable.
+addpath:
+.(
+  pha
+  phx
+  phy
+  ldy #0
+  ldx path
+aplp:
+  lda (folderpointer),y
+  sta path,x
+  iny
+  inx
+  cpy #11
+  bne aplp
+  stz path,x
+  stx path
+  ply
+  plx
+  pla
+  rts
+.)
+
+; delete PATH
+; goes back a directory, used in cd ..
+backpath:
+.(
+  phx
+  pha
+  sec
+  lda path
+  sbc #11	; remove dir
+  sta path
+  ldx path
+  stz path,x
+  pla
+  plx
+  rts
+.)
+
+patherror:
+  .byte "No Memory Card", $0d, $0a, $00
+
+;; print PATH
+;; prints the current directory, like linux
+;; for example,
+;; /folder/test/>_
+;;
+printpath:
+.(
+  ; No memory card?
+  lda path
+  bne ppc
+  sec
+  rts
+  ;jmp rlerror
+ppc:
+  lda #'/'
+  jsr print_chara
+  lda #1	     ; path+1 because path+0 is the path size variable
+  sta pathindex
+  lda #>path
+  sta pathindex+1
+  ldy #0
+pplp:
+  ; loop through path and print the folder, in lowercase
+  lda (pathindex),y
+  cmp #$20 	     ; space?
+  beq ppd	
+  ora #$20 	     ; if not, print (in lowercase)
+  jsr print_chara
+  iny
+  jmp pplp
+ppd:
+  lda #'/' ; if space, dir done.
+  jsr print_chara
+ppdl:
+  lda (pathindex),y  ; look for the next entry.
+  cmp #$20
+  bne notspace
+  iny
+  jmp ppdl
+notspace:
+  lda (pathindex),y  ; end of path?
+  beq ppdone
+  jmp pplp	     ; no, print another folder name.
+ppdone:
+  clc
+  rts		     ; done!
+.)
+
+;; CD
+;; Change the directory
+;; if you use cdsub, folderpointer holds the address of the folder name
+
+cdcmd:
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, change to the specified directory
+  beq processparam
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+.)
+cdd:
+.(
+  ; check for . or ..
+  ldy #0
+  lda (folderpointer),y
+  cmp #$2e
+  beq dotf
+  lda #$ff
+  sta backdir
+  jmp nopd
+dotf:
+  iny
+  lda (folderpointer),y
+  cmp #$2e
+  beq backdire
+  rts ; do nothing if "cd ."
+backdire:
+  ; "cd .." means go back
+  jsr backpath
+  stz backdir
+  ;jsr refreshpath
+  ;rts
+nopd:
+  ; convert lowercase to uppercase
+  ldy #0
+cdlp:
+  lda (folderpointer),y
+  beq fill   ; if null, stop.
+  cmp #$40  ; if numbers/symbols, skip.
+  bcc dont
+  cmp #$5f  ; if _ skip
+  beq dont
+  and #$df  ; otherwise convert to uppercase
+  sta (folderpointer),y
+dont:
+  iny
+  jmp cdlp
+  ; we need to loop through the null-terminated string
+  ; and convert it to SHORT format
+fill:
+  lda #$20
+filllp:
+  sta (folderpointer),y
+  iny
+  cpy #12 ; stop if index over 11
+  bne filllp
+  ; ok, that should do it.
+  ; Open root directory
+  ;jsr fat32_openroot	
+  ; Find the subdirectory by name
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
+  ; Open subdirectory
+  ;jsr fat32_opendirent	; open folder
+  jsr refreshpath
+.)
+cdsub:
+.(
+  ; check if the folder exists + get info
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs fileerror
+  ; ok, it exists, now cd
+  jsr fat32_opendirent
+  ; all done.
+  ; now add this to the current directory, only if no cd ..
+  lda backdir
+  beq bb
+  jsr addpath
+bb:
+  rts
+.)
+fileerror
+  ; no such folder
+  ldx #<foldermsg
+  ldy #>foldermsg
+  jsr w_acia_full
+  rts
+
+error
+  ldx #<errormsg
+  ldy #>errormsg
+  jsr w_acia_full
+  rts
+
+catcmd:
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2
+  bne error
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; Convert to SHORT
+  jsr shortconvert
+  ; Refresh Path
+  jsr refreshpath
+  ; Find the file
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs error
+  ; Open the file
+  jsr fat32_opendirent
+  ; Read file contents into buffer
+  lda #<buffer
+  sta fat32_address
+  lda #>buffer
+  sta fat32_address+1
+redlp:
+  jsr fat32_file_readbyte
+  beq catd
+  jsr print_chara
+  jmp redlp
+catd:
+  ; Dump to screen
+  ;ldx #<buffer
+  ;ldy #>buffer
+  ;jsr w_acia_full
+  ; CR LF
+  jsr crlf
+  rts
+.)
+
+shortconvert:
+.(
+  ; loop through the null-terminated string at (folderpointer)
+  ; and convert it to SHORT format.
+  ; ex. "file.xpl",0 --> "FILE    XPL"
+  ldy #22
+  lda #0
+  sta (folderpointer),y
+  lda #19
+  sta fileext
+  ldy #0
+shortlp:
+  lda (folderpointer),y
+  cmp #$2e		; find the dot	
+  beq extst
+  iny
+  jmp shortlp
+extst:
+  sty sc		; now move the file extension
+ext:
+  iny
+  lda (folderpointer),y
+  phy
+  ldy fileext
+  sta (folderpointer),y
+  iny
+  sty fileext
+  cpy #22
+  beq extd
+  ply
+  jmp ext
+extd:
+  ply
+  clc
+  lda sc	; add to sc
+  adc #11
+  sta sc
+  lda #11
+  sta fileext
+  ; move name
+  ldy #0
+  jmp mvlp+1
+mvlp:
+  iny
+  lda (folderpointer),y
+  phy
+  ldy fileext
+  sta (folderpointer),y
+  iny
+  sty fileext
+  cpy sc
+  beq ad2sc
+  ply
+  jmp mvlp
+ad2sc:
+  ply
+  ldy sc
+; the file extention is moved, now pad spaces from the end of the name
+; to the start of the extension.
+fill:
+  lda #$20		
+filllp:			
+  sta (folderpointer),y
+  iny
+  cpy #19 		; stop if index over 18, we don't want to overwrite the file extension
+  bne filllp
+  ; add 11 to folderpointer
+  clc
+  lda folderpointer
+  adc #11
+  sta folderpointer
+  ; now we need to convert lowercase to uppercase
+  ldy #0
+ldlp:
+  lda (folderpointer),y
+  beq ldd   ; if null, stop.
+  cmp #$40  ; if numbers/symbols/space, skip.
+  bcc dontl
+  cmp #$5f  ; if _ skip
+  beq dontl
+  and #$df  ; otherwise convert to uppercase
+  sta (folderpointer),y
+dontl:
+  iny
+  jmp ldlp
+ldd:
+  ; ok! now we have a SHORT formatted filename at (folderpointer).
+  rts
+.)
+
+other:
+  ; Write a letter of the filename currently being read
+  lda (zp_sd_address),y
+  ora #$20		; convert uppercase to lowercase
+  jsr print_chara
+  iny
+  rts
+
+;; LS
+
+lscmd:
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, list the specified directory
+  beq processparam
+  lda ARGINDEX
+  cmp #1	       ; if there's only one argument (ls) then list current directory 
+  bne jmperror
+  jsr refreshpath
+  lda #$ff
+  sta backdir
+  jmp list
+jmperror:
+  jmp error
+processparam           ; process the filename parameter
+  stz backdir
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; now cd
+  jsr cdd
+  stz backdir
+.)
+list:			; list file dir
+.(
+  jsr fat32_readdirent	; files?
+  bcs nofiles
+  ;and #$40
+  ;beq arc
+ebut:
+  ldx #0
+  ldy #8
+chklp:
+  cpy #11
+  beq no
+  lda (zp_sd_address),y
+  cmp #$20
+  bne chky
+  inx
+chky:
+  iny
+  jmp chklp
+no:
+  cpx #3
+  bne arc
+dir:
+  lda #$ff
+  sta filetype		; directorys show up as 
+  jmp name		; yourfilename     test		    folder  ...Etc
+arc:
+  stz filetype 		; files show up as
+name:			; test.xpl         music.xpl        file.bin  ...Etc
+  ; At this point, we know that there are no files, files, or a suddir
+  ; Now for the name
+  ldy #0
+nameloop:
+  cpy #8
+  beq dot
+  jsr other
+  jmp nameloop
+dot:
+  lda filetype
+  bne endthat		; if it's a file,
+  lda #$2e		; shows its file extention
+  jsr print_chara
+lopii:
+  cpy #11
+  beq endthat		; print 3-letter file extention
+  jsr other
+  jmp lopii
+endthat:
+  lda #$09 ; Tab
+  jsr print_chara	; tab
+  jmp list ; go again	; next file if there are any left
+nofiles:		; if not,
+endlist:		; exit listing code
+  jsr crlf
+  lda backdir
+  bne dontb
+  jsr backpath		; cd .. if ls <folderpath>
+dontb:
+  jsr refreshpath	; refresh the directory
+  rts
+jumptolist:
+  jsr crlf
+  jmp list
+.)
+
+;; load
+;; Here we load a file from the SD card.
+;; .SAR stands for Start AddRess.
+loadcmd
+.(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, load the specified file
+  beq processparam
+  lda ARGINDEX
+  cmp #1	       ; if there's only one argument, do a handeler load.
+  beq loadone
+jmperror:
+  jmp lderror
+processparam           ; the user specified a file, process the filename parameter.
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT		; argument buffer under 256 bytes, so no adc #0.
+  sta folderpointer+1
+  ; convert string
+  jsr shortconvert
+  ; Refresh
+  jsr refreshpath
+  ; Loading..
+  ldx #<loading_msg
+  ldy #>loading_msg
+  jsr w_acia_full
+  ; BUG i need to add a start address header to the .XPL file format...
+  ; at the moment it is assumed that the file will load and run at $0F00
+  stz buffer
+  stz buffer+2
+  lda #$0f 		; $0F00
+  sta buffer+1
+  sta buffer+3
+  ldx folderpointer
+  ldy folderpointer+1	; find the file
+  jsr fat32_finddirent
+  bcc loadfoundcode
+lderror:
+  ldx #<foldermsg	; if it was not found, error and return.
+  ldy #>foldermsg
+  jsr w_acia_full
+  rts
+.)
+loadone:
+.(
+  ; the user has not specified a filename, so load the SD card handeler program.
+  
+  jsr loadf
+
+  ; Find file by name
+  ldx #<loadname
+  ldy #>loadname		; this is LOADADDR.SAR, which is what I plan 
+  jsr fat32_finddirent		; to merge into a header of .XPL files.
+  bcc foundfile			; it holds the load address and jump address
+				; of CODE.XPL.
+  ; File not found
+  ldy #>filmsg
+  ldx #<filmsg
+  jsr w_acia_full
+  jmp lo
+
+foundfile
+ 
+  ; Open file
+  jsr fat32_opendirent
+
+  ; Read file contents into buffer
+  lda #<buffer
+  sta fat32_address
+  lda #>buffer
+  sta fat32_address+1
+				
+  jsr fat32_file_read		
+
+  jsr loadf		; BUG really?
+
+  ldy #>lds
+  ldx #<lds
+  jsr w_acia_full
+
+  ldx #<filename	; CODE.XPL is the sd card's loader
+  ldy #>filename
+  jsr fat32_finddirent
+  bcc loadfoundcode
+
+  ldy #>filmsg2
+  ldx #<filmsg2
+  jsr w_acia_full
+  rts
+  rts
+  rts
+.)
+loadfoundcode
+.(
+  jsr fat32_opendirent	; open the file
+
+  lda buffer		; and load it to the address
+  sta fat32_address	; from LOADADDR.SAR
+  lda buffer+1
+  sta fat32_address+1
+
+  jsr fat32_file_read
+
+  ; All done.
+
+  ldy #>ends
+  ldx #<ends
+  jsr w_acia_full
+
+  jmp (buffer+2)	; jump to start address from LOADADDR.SAR
+
+.)
+
+lo:
+  rts
+  rts
+  rts
+
+loadf:
+; Open root directory
+  jsr fat32_openroot
+
+  ; Find subdirectory by name
+  ldx #<subdirname
+  ldy #>subdirname
+  jsr fat32_finddirent
+  bcc foundsubdir
+
+  ; Subdirectory not found
+  ldy #>submsg
+  ldx #<submsg
+  jsr w_acia_full
+  jmp lo
+
+foundsubdir
+
+  ; Open subdirectory
+  jmp fat32_opendirent
+
+submsg
+  .byte "'folder' Not Found!", $00
+filmsg
+  .byte "'loadaddr.sar' Not Found!", $00
+filmsg2
+  .byte "'code.xpl' Not Found!", $00
+lds
+  .byte "Loading SD Handler...", $00
+ends
+  .byte "Done.", $0d, $0a, $00
+  
+
