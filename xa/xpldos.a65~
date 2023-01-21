@@ -366,7 +366,6 @@ filllp:
   jsr refreshpath
 .)
 cdsub:
-.(
   ; check if the folder exists + get info
   ldx folderpointer
   ldy folderpointer+1
@@ -382,7 +381,7 @@ cdsub:
 cdbb:
   plx
   rts
-.)
+
 fileerror
   ; no such folder
   ldx #<foldermsg

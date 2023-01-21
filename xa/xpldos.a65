@@ -134,6 +134,10 @@ no:
   ; no / dir
   ; proceed normally
   stz dircnt
+  lda pathindex
+  sta folderpointer
+  lda pathindex+1
+  sta folderpointer+1
   sec
   rts
 .)
@@ -307,7 +311,7 @@ processparam           ; process the filename parameter
 cdd:
 .(
   ; handle dir
-  jsr jmpdir
+  jsr jmpdir 
   bcc cdbb
   ; check for . or ..
   ldy #0

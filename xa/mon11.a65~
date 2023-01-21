@@ -79,10 +79,10 @@ zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 24 bytes
 ; only used during fat32 processing
 path = $300		    ; one page
-tmp = $400		    ; one page
+tmp = $400		    ; one page (used only in xpldos)
 fat32_workspace = $500      ; two pages
 buffer = $700		    ; two pages
-; now, addresses $0800-$7ffc are free.
+; now, addresses $0900-$7ffc are free.
 
 ;; $0080-00FF is my operand stack
 ;; $0100-01FF is 6502 stack
@@ -2780,7 +2780,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6019,$00
+  .dsb 6098,$00
 
 ; ----KERNAL----
 
