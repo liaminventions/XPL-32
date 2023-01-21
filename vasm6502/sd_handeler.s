@@ -29,7 +29,7 @@ fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes
 fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 
-  .org $0800
+  .org $0900
 jumptoit:
   jmp sdstart
 
