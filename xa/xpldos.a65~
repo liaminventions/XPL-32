@@ -28,118 +28,126 @@
 ; Jump to / dir
 ; jumps to a dir with a /
 ; temp addr at "tmp"
-jmpdir:
-.(
-  ; stash folderpointer
-  lda folderpointer
-  sta pathindex
-  lda folderpointer+1
-  sta pathindex+1
-  lda #<tmp
-  sta folderpointer
-  lda #>tmp
-  sta folderpointer+1
-  ; check if there is a slash at all
-  ldy #0
-chklp:
-  lda (pathindex),y
-  beq no
-  cmp '/'
-  beq css
-  iny
-  jmp chklp
-css:  
-  cpy #0	; was the / at the start? ex. "ls /folder"
-  beq root	;				  ^			
-  ; ok. the path is relative. (ls test/hi) NOT root (ls /test/hi)	 
-  ; now incrementally cd
-  inc dircnt
-  ldy #0
-  jmp cse
-cslp:
-  lda (pathindex),y
-  beq csdone
-  cmp '/'	; / ?
-  beq csdn
-  iny
-  jmp cslp
-csdn:
-  iny
-cse:
-  ; a dot?
-  lda (pathindex),y
-  cmp #$2e
-  bne csnd
-  iny
-  lda (pathindex),y 
-  cmp #$2e
-  bne csndd
-  ; if .. then go back
-  jsr backpath
-  jmp csnd
-csndd:
-  ; if . then do nothing
-  dey
-csnd:
-  ; convert to uppercase
-  ; first copy to temp addr
-  phy
-  ldx #0
-csclp:
-  lda (pathindex),y
-  cmp #'/'
-  beq scn
-  sta tmp,x
-  iny
-  inx
-  jmp csclp
-scn:
-  inc dircnt
-  lda #$2e
-  sta tmp,x
-  inx
-  lda #$20
-  ldy #0
-scnl:
-  sta tmp,x
-  inx
-  iny
-  cpy #3
-  bne scnl
-  ply
-  ; then convert
-  jsr shortconvert
-  jsr addpath	; add it
-  ; next folder
-  clc
-  tya
-  adc folderpointer
-  sta folderpointer
-  jmp cslp
-csdone:
-  lda pathindex
-  sta folderpointer
-  lda pathindex+1
-  sta folderpointer+1
-  jsr refreshpath	; load it
-  ; all done
-  clc
-  rts
-root:
-  ; root !!
-  ldx #<rootmsg
-  ldy #>rootmsg
-  jsr w_acia_full
-no:
-  ; no / dir
-  ; proceed normally
-  stz dircnt
-  sec
-  rts
-.)
 
-rootmsg:
-  .byte "Root Not Yet Supported! Use ", $22, "folder", $22, " instead", $0d, $0a, $00
+;jmpdir:
+;.(
+;  ; stash folderpointer
+;  lda folderpointer
+;  sta pathindex
+;  lda folderpointer+1
+;  sta pathindex+1
+;  lda #<tmp
+;  sta folderpointer
+;  lda #>tmp
+;  sta folderpointer+1
+;  ; check if there is a slash at all
+;  ldy #0
+;chklp:
+;  lda (pathindex),y
+;  beq no
+;  cmp '/'
+;  beq css
+;  iny
+;  jmp chklp
+;css:  
+;  cpy #0	; was the / at the start? ex. "ls /folder"
+;  beq root	;				  ^			
+;  ; ok. the path is relative. (ls test/hi) NOT root (ls /test/hi)	 
+;  ; now incrementally cd
+;  ldy #0
+;  jmp cse
+;cslp:
+;  lda (pathindex),y
+;  beq csdone
+;  cmp '/'	; / ?
+;  beq csdn
+;  iny
+;  jmp cslp
+;csdn:
+;  iny
+;cse:
+;  ; a dot?
+;;  lda (pathindex),y
+;;  cmp #$2e
+;;  bne csnd
+;;  iny
+;;  lda (pathindex),y 
+;;  cmp #$2e
+;;  bne csndd
+;;  ; if .. then go back
+;;  jsr backpath
+;;  lda dircnt
+;;  bne csnd
+;;  ; auugh
+;;  jmp csnd
+;;csndd:
+;;  ; if . then do nothing
+;;  dey
+;;csnd:
+;  inc dircnt
+;  ; convert to uppercase
+;  ; first copy to temp addr
+;  phy
+;  ldx #0
+;csclp:
+;  lda (pathindex),y
+;  beq scn
+;  cmp #'/'
+;  beq scn
+;  sta tmp,x
+;  iny
+;  inx
+;  jmp csclp
+;scn:
+;  lda #$2e
+;  sta tmp,x
+;  inx
+;  lda #$20
+;  ldy #0
+;scnl:
+;  sta tmp,x
+;  inx
+;  iny
+;  cpy #3
+;  bne scnl
+;  ply
+;  ; then convert
+;  jsr shortconvert
+;  jsr addpath	; add it
+;  ; next folder
+;  clc
+;  tya
+;  adc folderpointer
+;  sta folderpointer
+;  jmp cslp
+;csdone:
+;  lda pathindex
+;  sta folderpointer
+;  lda pathindex+1
+;  sta folderpointer+1
+;  jsr refreshpath	; load it
+;  ; all done
+;  clc
+;  rts
+;root:
+;  ; root !!
+;  ldx #<rootmsg
+;  ldy #>rootmsg
+;  jsr w_acia_full
+;no:
+;  ; no / dir
+;  ; proceed normally
+;  stz dircnt
+;  lda pathindex
+;  sta folderpointer
+;  lda pathindex+1
+;  sta folderpointer+1
+;  sec
+;  rts
+;.)
+;
+;rootmsg:
+;  .byte "Root Not Yet Supported! Use ", $22, "folder", $22, " instead", $0d, $0a, $00
 
 ; PATH refresh
 ; goes to the ROOT directory, and CDs to the directory at PATH.
@@ -149,7 +157,7 @@ refreshpath:
 .(
   ; No memory card?
   lda path
-  beq rlerror
+  beq patherr
   lda #1	; path+1 because path+0 is the path size variable
   sta pathindex
   ; If memory card, then goto dir
@@ -307,7 +315,7 @@ processparam           ; process the filename parameter
 cdd:
 .(
   ; handle dir
-  jsr jmpdir
+  jsr jmpdir 
   bcc cdbb
   ; check for . or ..
   ldy #0
