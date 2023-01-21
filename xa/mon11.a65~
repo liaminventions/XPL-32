@@ -79,8 +79,9 @@ zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 24 bytes
 ; only used during fat32 processing
 path = $300		    ; one page
-fat32_workspace = $400      ; two pages
-buffer = $600		    ; two pages
+tmp = $400		    ; one page
+fat32_workspace = $500      ; two pages
+buffer = $700		    ; two pages
 ; now, addresses $0800-$7ffc are free.
 
 ;; $0080-00FF is my operand stack
@@ -101,13 +102,14 @@ cnt    		= $12 ; 2byt
 len    		= $14 ; 2byt
 cnt2		= $15 ; 2byt
 ;; xplDOS:
-lix		= $13
-fileext		= $14
+lix		= $13 ; 1byt
+fileext		= $14 ; 1byt
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
 pathindex	= $16 ; 2byt
 backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
+dircnt		= $1a ; 1byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -2745,7 +2747,7 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "ls", $09, " - list the current directory", $0d, $0a
 		 .byte "cd", $09, " - change to the specified directory", $0d, $0a
 		 .byte "cat", $09, " - dumps a file directly to the screen", $0d, $0a
-		 .byte "clear", $09 " - clears the screen", $0d, $0a
+		 .byte "clear", $09, " - clears the screen", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a
 helpstringend:   .byte $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00

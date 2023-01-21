@@ -9,6 +9,7 @@
 ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
 ;; BUG root usage is not possible, thus, it is required that we are in a folder (ls does not seem to like reading the SD root.)
 ;; TODO add path support to a typed command
+;; TODO need to add /path support to file-based commands  
 ;; Commands:
 ;; CD
 ;; LS
@@ -23,6 +24,122 @@
 ;; MV
 ;; TAR?
 ;; MAN?
+
+; Jump to / dir
+; jumps to a dir with a /
+; temp addr at "tmp"
+jmpdir:
+.(
+  ; stash folderpointer
+  lda folderpointer
+  sta pathindex
+  lda folderpointer+1
+  sta pathindex+1
+  lda #<tmp
+  sta folderpointer
+  lda #>tmp
+  sta folderpointer+1
+  ; check if there is a slash at all
+  ldy #0
+chklp:
+  lda (pathindex),y
+  beq no
+  cmp '/'
+  beq css
+  iny
+  jmp chklp
+css:  
+  cpy #0	; was the / at the start? ex. "ls /folder"
+  beq root	;				  ^			
+  ; ok. the path is relative. (ls test/hi) NOT root (ls /test/hi)	 
+  ; now incrementally cd
+  inc dircnt
+  ldy #0
+  jmp cse
+cslp:
+  lda (pathindex),y
+  beq csdone
+  cmp '/'	; / ?
+  beq csdn
+  iny
+  jmp cslp
+csdn:
+  iny
+cse:
+  ; a dot?
+  lda (pathindex),y
+  cmp #$2e
+  bne csnd
+  iny
+  lda (pathindex),y 
+  cmp #$2e
+  bne csndd
+  ; if .. then go back
+  jsr backpath
+  jmp csnd
+csndd:
+  ; if . then do nothing
+  dey
+csnd:
+  ; convert to uppercase
+  ; first copy to temp addr
+  phy
+  ldx #0
+csclp:
+  lda (pathindex),y
+  cmp #'/'
+  beq scn
+  sta tmp,x
+  iny
+  inx
+  jmp csclp
+scn:
+  inc dircnt
+  lda #$2e
+  sta tmp,x
+  inx
+  lda #$20
+  ldy #0
+scnl:
+  sta tmp,x
+  inx
+  iny
+  cpy #3
+  bne scnl
+  ply
+  ; then convert
+  jsr shortconvert
+  jsr addpath	; add it
+  ; next folder
+  clc
+  tya
+  adc folderpointer
+  sta folderpointer
+  jmp cslp
+csdone:
+  lda pathindex
+  sta folderpointer
+  lda pathindex+1
+  sta folderpointer+1
+  jsr refreshpath	; load it
+  ; all done
+  clc
+  rts
+root:
+  ; root !!
+  ldx #<rootmsg
+  ldy #>rootmsg
+  jsr w_acia_full
+no:
+  ; no / dir
+  ; proceed normally
+  stz dircnt
+  sec
+  rts
+.)
+
+rootmsg:
+  .byte "Root Not Yet Supported! Use ", $22, "folder", $22, " instead", $0d, $0a, $00
 
 ; PATH refresh
 ; goes to the ROOT directory, and CDs to the directory at PATH.
@@ -43,7 +160,7 @@ rloop:
   ldy #>path
   jsr fat32_finddirent
   bcc fine
-  jmp patherr
+  jmp rlerror
 fine:
   jsr fat32_opendirent
   ; advance to the next directory
@@ -65,17 +182,14 @@ patherr:
   sec
   rts
 rlerror:
-  ldx #<rlerrormsg
-  ldy #>rlerrormsg
+  ldx #<foldermsg
+  ldy #>foldermsg
   jsr w_acia_full
   sec
   rts
 
-rlerrormsg:
-  .byte "Internal PATH Error. Try reconnecting the memory card and resetting the computer", $0d, $0a, $00
-
 ; add PATH
-; adds a recently added folder at (folderpointer) to the PATH variable.
+; adds a SHORT formatted folder at (folderpointer) to the PATH variable.
 addpath:
 .(
   pha
@@ -116,7 +230,7 @@ backpath:
 .)
 
 patherror:
-  .byte "No Memory Card", $0d, $0a, $00
+  .byte "No Memory Card.", $0d, $0a, $00
 
 ;; print PATH
 ;; prints the current directory, like linux/unix
@@ -172,6 +286,7 @@ ppdone:
 
 cdcmd:
 .(
+  phx
   lda path
   bne cdf
   jmp patherr
@@ -191,6 +306,9 @@ processparam           ; process the filename parameter
 .)
 cdd:
 .(
+  ; handle dir
+  jsr jmpdir
+  bcc cdbb
   ; check for . or ..
   ldy #0
   lda (folderpointer),y
@@ -248,7 +366,6 @@ filllp:
   jsr refreshpath
 .)
 cdsub:
-.(
   ; check if the folder exists + get info
   ldx folderpointer
   ldy folderpointer+1
@@ -259,11 +376,12 @@ cdsub:
   ; all done.
   ; now add this to the current directory, only if no cd ..
   lda backdir
-  beq bb
+  beq cdbb
   jsr addpath
-bb:
+cdbb:
+  plx
   rts
-.)
+
 fileerror
   ; no such folder
   ldx #<foldermsg
@@ -455,8 +573,12 @@ processparam           ; process the filename parameter
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  ; get /
+  jsr jmpdir
+  bcc dontcd
   ; now cd
   jsr cdd
+dontcd:
   stz backdir
 .)
 list:			; list file dir
@@ -515,6 +637,16 @@ endlist:		; exit listing code
   jsr crlf
   lda backdir
   bne dontb
+  lda dircnt
+  beq nono
+  ldx #0
+dddl:
+  jsr backpath
+  inx
+  cpx dircnt
+  bne dddl
+  jmp dontb
+nono:
   jsr backpath		; cd .. if ls <folderpath>
 dontb:
   jsr refreshpath	; refresh the directory
