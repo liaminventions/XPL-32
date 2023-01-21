@@ -223,6 +223,10 @@ table18
   .byte "cat", $00
   .word catcmd
 table19
+  .word table20
+  .byte "clear", $00
+  .word clearcmd
+table20
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
@@ -989,8 +993,15 @@ error
   rts
 .)
 
+; Clear Screen
+clearcmd:
+  phx
+  jsr clear_display
+  plx
+  rts
+
 ; include cassette tape system
-#include "libtape.a65"
+#include "tape.a65"
 
 testcmd
   ;jsr xmodemtest

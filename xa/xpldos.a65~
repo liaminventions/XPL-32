@@ -7,8 +7,9 @@
 ;; v = 11f+1
 ;; for example:
 ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
-;; BUG root usage is not possible, thus, it is required that we are in a folder (ls does not seem to like reading the SD root.)
+;; BUG root usage is not possible, thus, it is required that we are in a folder
 ;; TODO add path support to a typed command
+;; ls does not seem to like reading the SD root.
 ;; Commands:
 ;; CD
 ;; LS
@@ -527,7 +528,6 @@ jumptolist:
 ;; load
 ;; Here we load a file from the SD card.
 ;; .SAR stands for Start AddRess.
-
 loadcmd
 .(
   lda path
