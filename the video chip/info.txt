@@ -31,3 +31,4 @@ Hex (Decimal) and meaning
 20 (32) to 7E (126) - Standard ASCII codes
 7F (127) - Delete
 80 (128) to FF (255) - PC (DOS) extended characters
+

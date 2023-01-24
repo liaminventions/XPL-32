@@ -30,11 +30,11 @@ processparam           ; process the filename parameter
   ; print filename
   lda #$0e
   jsr print_chara
-  lda #24
+  lda #0
   jsr print_chara
   lda #$0f
   jsr print_chara
-  lda #0
+  lda #24
   jsr print_chara
   jsr w_acia_full
   ldx #<loading_msg
@@ -87,11 +87,11 @@ vdone:
   ; file displayed, no eof yet.
   lda #$0e
   jsr print_chara
-  lda #24
+  lda #75
   jsr print_chara
   lda #$0f
   jsr print_chara
-  lda #75
+  lda #24
   jsr print_chara
   ldx #<partm
   ldy #>partm
