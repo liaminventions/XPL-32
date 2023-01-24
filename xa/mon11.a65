@@ -110,7 +110,9 @@ backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
 ;; vi..?
-viaddr		= $10 ; 2byt
+viaddr		= $1a ; 2byt
+cursor_x	= $1c ; 1byt
+cursor_y	= $1d ; 1byt
 
 ;; startup enable
 SEN		= $7ffd

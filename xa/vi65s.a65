@@ -7,7 +7,7 @@ vicmd:
   phx
   lda #$02
   jsr print_chara
-  lda #$db
+  lda #0
   jsr print_chara
   ;; check arguments
   lda ARGINDEX
@@ -29,16 +29,28 @@ processparam           ; process the filename parameter
   sty folderpointer+1
   phx
   phy
-  ldx #<loading_msg
-  ldy #>loading_msg
-  jsr w_acia_full 
+  jsr cleardisplay
+  lda #$0f
+  jsr print_chara
+  lda #24
+  jsr print_chara
+  ; print filename
+  lda #$22
+  jsr print_chara
+  ply
+  plx
+  jsr w_acia_full
+  lda #$22
+  jsr print_chara
+  lda #$20
+  jsr print_chara
   ; convert to SHORT
   jsr shortconvert
   ; refresh
   jsr refreshpath
   ; chech if the file exists
   ldx folderpointer
-  ldy folderpointer
+  ldy folderpointer+1
   jsr fat32_finddirent
   bcs vnf
   ; if it exists, load it to $0900
@@ -49,19 +61,7 @@ processparam           ; process the filename parameter
   stz fat32_address
   jsr fat32_file_read
   ; now print first part to screen
-  jsr cleardisplay
-  ; print filename
-  lda #$0e
-  jsr print_chara
-  lda #0
-  jsr print_chara
-  lda #$0f
-  jsr print_chara
-  lda #24
-  jsr print_chara
-  ply
-  plx
-  jsr w_acia_full
+  jsr ascii_home
   ldx #0
   ldy #0
   stz viaddr
@@ -77,7 +77,7 @@ vcplp:
 otherv:
   jsr print_chara
   cpx #24
-  beq vdone
+  beq startcsr  ; file displayed, no eof yet
   inc buffer
   lda buffer
   bne nnon
@@ -87,21 +87,10 @@ nnon:
 cr:
   inx
   jmp otherv
-vdone:
-  ; file displayed, no eof yet.
-  lda #$0e
-  jsr print_chara
-  lda #75
-  jsr print_chara
-  lda #$0f
-  jsr print_chara
-  lda #24
-  jsr print_chara
-  ldx #<partm
-  ldy #>partm
+vnf:
+  ldx #<nfm
+  ldy #>nfm
   jsr w_acia_full
-  jmp startcsr
-vnf
   ldx #0
 veof:
   ; eof reached. fill the screen with ~
@@ -120,22 +109,10 @@ vinlp:
   inx
   cpx #24
   bne vinlp
-  ; print "all"
-  lda #$0e
-  jsr print_chara
-  lda #70
-  jsr print_chara
-  lda #$0f
-  jsr print_chara
-  lda #24
-  jsr print_chara
-  ldx #<allm
-  ldy #>allm
-  jsr w_acia_full
 startcsr:
   lda #$0e
   jsr print_chara
-  lda #60
+  lda #70
   jsr print_chara
   lda #$0f
   jsr print_chara
@@ -148,13 +125,16 @@ startcsr:
   lda #'0'
   jsr print_chara
   jsr ascii_home
+  lda #$02
+  jsr print_chara
+  lda #$db
+  jsr print_chara
+  stz cursor_x
+  stz cursor_y
 vlp:
   jmp vlp
   plx
   rts
 .)
 
-allm:   .byte "All ",0
-partm:  .byte "Part",0
-topm:   .byte "Top ",0
-botm:   .byte "Bot ",0
+nfm:	.byte "[New File]",0
