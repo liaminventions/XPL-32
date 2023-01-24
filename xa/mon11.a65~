@@ -109,6 +109,8 @@ pathindex	= $16 ; 2byt
 backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
+;; vi..?
+viaddr		= $10 ; 2byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -2755,6 +2757,7 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "cd", $09, " - change to the specified directory", $0d, $0a
 		 .byte "cat", $09, " - dumps a file directly to the screen", $0d, $0a
 		 .byte "clear", $09, " - clears the screen", $0d, $0a
+		 .byte "vi", $09, " - edits a file on the sd card", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a
 helpstringend:   .byte $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
@@ -2787,7 +2790,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6239,$00
+  .dsb 6233,$00
 
 ; ----KERNAL----
 

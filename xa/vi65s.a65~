@@ -1,8 +1,95 @@
+; VI
+; requires xplDOS
+;
+
 vicmd:
 .(
   phx
-  jsr clear_display
-  ldx #1
+  jsr cleardisplay
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, edit the typed file
+  beq processparam
+  lda ARGINDEX
+  cmp #1	       ; if there's only one argument, edit an unnamed file
+  bne jer
+  jmp vnf
+jer:
+  jmp error
+processparam           ; process the filename parameter
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  tax
+  ldy #>INPUTc
+  sty folderpointer+1
+  ; print filename
+  lda #$0e
+  jsr print_chara
+  lda #24
+  jsr print_chara
+  jsr w_acia_full
+  ; convert to SHORT
+  jsr shortconvert
+  ; chech if the file exists
+  ldx folderpointer
+  ldy folderpointer
+  jsr fat32_finddirent
+  bcs vnf
+  ; if it exists, load it to $0900
+  ; WARNING this will overwrite RAM!
+  jsr fat32_opendirent
+  lda #$09
+  sta fat32_address+1
+  stz fat32_address
+  jsr fat32_file_read
+  ; now print first part to screen
+  jsr ascii_home
+  ldx #0
+  ldy #0
+  stz viaddr
+  lda $09
+  sta viaddr+1
+vcplp:
+  lda (viaddr),y
+  beq veof
+  cmp #$0d
+  beq cr
+  cmp #$0a
+  beq cr
+otherv:
+  jsr print_chara
+  cpx #24
+  beq vdone
+  inc buffer
+  lda buffer
+  bne nnon
+  inc buffer+1
+nnon:
+  jmp vcplp
+cr:
+  inx
+  jmp otherv
+vdone:
+  ; file displayed, no eof yet.
+  lda #$0e
+  jsr print_chara
+  lda #24
+  jsr print_chara
+  lda #$0f
+  jsr print_chara
+  lda #75
+  jsr print_chara
+  ldx #<partm
+  ldy #>partm
+  jsr w_acia_full
+  jmp startcsr
+vnf
+  ldx #0
+veof:
+  ; eof reached. fill the screen with ~
+  inx
 vinlp:
   lda #$0f
   jsr print_chara
@@ -17,13 +104,26 @@ vinlp:
   inx
   cpx #24
   bne vinlp
+  ; print "all"
+  lda #$0e
+  jsr print_chara
+  lda #24
+  jsr print_chara
+  lda #$0f
+  jsr print_chara
+  lda #70
+  jsr print_chara
+  ldx #<allm
+  ldy #>allm
+  jsr w_acia_full
+startcsr:
   lda #$0e
   jsr print_chara
   lda #70
   jsr print_chara
   lda #$0f
   jsr print_chara
-  txa
+  lda #24
   jsr print_chara
   lda #'0'
   jsr print_chara
@@ -31,12 +131,12 @@ vinlp:
   jsr print_chara
   lda #'0'
   jsr print_chara
-  lda #$0e
-  jsr print_chara
-  lda #0
-  jsr print_chara
+  jsr ascii_home
 vlp:
   jmp vlp
   plx
   rts
 .)
+
+allm:   .byte "All ",0
+partm:  .byte "Part",0
