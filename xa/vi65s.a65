@@ -1,0 +1,39 @@
+vicmd:
+.(
+  phx
+  ldx #1
+vinlp:
+  lda #$0f
+  jsr print_chara
+  txa
+  jsr print_chara
+  lda #$0e
+  jsr print_chara
+  lda #0
+  jsr print_chara
+  lda '~'
+  jsr print_chara
+  inx
+  cpx #24
+  bne vinlp
+  lda #$0e
+  jsr print_chara
+  lda #70
+  jsr print_chara
+  lda #$0f
+  jsr print_chara
+  txa
+  jsr print_chara
+  lda #'0'
+  jsr print_chara
+  lda #','
+  jsr print_chara
+  lda #'0'
+  jsr print_chara
+  lda #$0e
+  jsr print_chara
+  lda #0
+  jsr print_chara
+  plx
+  rts
+.)

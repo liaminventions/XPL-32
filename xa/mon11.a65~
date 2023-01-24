@@ -200,6 +200,10 @@ table12
   ;.byte "receive", $00
   ;.word receivecmd
 ;table13
+  .word table13
+  .byte "vi", $00
+  .word vicmd
+table13
   .word table14
   .byte "load", $00
   .word loadcmd
@@ -2605,6 +2609,10 @@ fat_error
 
 #include "xpldos.a65"
 
+; goofy ahh fake vi
+
+#include "vi65s.a65"
+
 ;; memory test
 ;; the process is, for each page of memory (and MEMTESTBASE points
 ;; to the starting point), we write the number of that page into
@@ -2779,7 +2787,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6110,$00
+  .dsb 6324,$00
 
 ; ----KERNAL----
 
