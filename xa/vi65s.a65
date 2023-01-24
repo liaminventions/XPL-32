@@ -33,9 +33,15 @@ processparam           ; process the filename parameter
   jsr print_chara
   lda #24
   jsr print_chara
+  lda #$0f
+  jsr print_chara
+  lda #0
+  jsr print_chara
   jsr w_acia_full
   ; convert to SHORT
   jsr shortconvert
+  ; refresh
+  jsr refreshpath
   ; chech if the file exists
   ldx folderpointer
   ldy folderpointer
