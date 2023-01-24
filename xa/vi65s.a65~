@@ -6,6 +6,10 @@ vicmd:
 .(
   phx
   jsr cleardisplay
+  lda #$02
+  jsr print_chara
+  lda #$db
+  jsr print_chara
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, edit the typed file
@@ -22,7 +26,7 @@ processparam           ; process the filename parameter
   adc ARGINDEX+2
   sta folderpointer
   tax
-  ldy #>INPUTc
+  ldy #>INPUT
   sty folderpointer+1
   ; print filename
   lda #$0e

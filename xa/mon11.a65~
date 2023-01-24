@@ -282,6 +282,11 @@ init_acia
   sta ACIA_COMMAND
   lda #%00011111		; 1 stop bit, 8 data bits, 19200 baud
   sta ACIA_CONTROL
+ 
+  lda #$02
+  jsr print_chara		; set cursor to _
+  lda #$5f
+  jsr print_chara
 
   jsr via_init
   jsr sd_init
@@ -2790,7 +2795,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6233,$00
+  .dsb 6019,$00
 
 ; ----KERNAL----
 

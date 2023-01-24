@@ -6,6 +6,10 @@ vicmd:
 .(
   phx
   jsr cleardisplay
+  lda #$02
+  jsr print_chara
+  lda #$db
+  jsr print_chara
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, edit the typed file
@@ -107,11 +111,11 @@ vinlp:
   ; print "all"
   lda #$0e
   jsr print_chara
-  lda #24
+  lda #70
   jsr print_chara
   lda #$0f
   jsr print_chara
-  lda #70
+  lda #24
   jsr print_chara
   ldx #<allm
   ldy #>allm
@@ -119,7 +123,7 @@ vinlp:
 startcsr:
   lda #$0e
   jsr print_chara
-  lda #70
+  lda #60
   jsr print_chara
   lda #$0f
   jsr print_chara
