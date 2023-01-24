@@ -5,6 +5,7 @@
 vicmd:
 .(
   phx
+  jsr cleardisplay
   lda #$02
   jsr print_chara
   lda #0
@@ -29,7 +30,6 @@ processparam           ; process the filename parameter
   sty folderpointer+1
   phx
   phy
-  jsr cleardisplay
   lda #$0f
   jsr print_chara
   lda #24
