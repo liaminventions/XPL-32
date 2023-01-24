@@ -6,6 +6,10 @@ vicmd:
 .(
   phx
   jsr cleardisplay
+  lda #$0f
+  jsr print_chara
+  lda #24
+  jsr print_chara
   lda #$02
   jsr print_chara
   lda #0
@@ -30,10 +34,6 @@ processparam           ; process the filename parameter
   sty folderpointer+1
   phx
   phy
-  lda #$0f
-  jsr print_chara
-  lda #24
-  jsr print_chara
   ; print filename
   lda #$22
   jsr print_chara
@@ -68,24 +68,27 @@ processparam           ; process the filename parameter
   lda #$09
   sta viaddr+1
 vcplp:
-  lda (viaddr),y
+  lda (viaddr)
   beq veof
   cmp #$0d
   beq cr
   cmp #$0a
   beq cr
+  iny
+  cpy #80
+  beq cr
 otherv:
   jsr print_chara
-  cpx #24
   beq startcsr  ; file displayed, no eof yet
-  inc buffer
-  lda buffer
+  inc viaddr
+  lda viaddr
   bne nnon
-  inc buffer+1
+  inc viaddr+1
 nnon:
   jmp vcplp
 cr:
   inx
+  ldy #0
   jmp otherv
 vnf:
   ldx #<nfm
