@@ -72,8 +72,6 @@ vcplp:
   beq veof
   cmp #$0d
   beq cr
-  cmp #$0a
-  beq cr
   iny
   cpy #80
   beq cr
