@@ -27,20 +27,11 @@ processparam           ; process the filename parameter
   tax
   ldy #>INPUT
   sty folderpointer+1
-  ; print filename
-  lda #$0e
-  jsr print_chara
-  lda #0
-  jsr print_chara
-  lda #$0f
-  jsr print_chara
-  lda #24
-  jsr print_chara
-  jsr w_acia_full
+  phx
+  phy
   ldx #<loading_msg
   ldy #>loading_msg
-  jsr w_acia_full
-  jsr fat32_opendirent
+  jsr w_acia_full 
   ; convert to SHORT
   jsr shortconvert
   ; refresh
@@ -51,13 +42,26 @@ processparam           ; process the filename parameter
   jsr fat32_finddirent
   bcs vnf
   ; if it exists, load it to $0900
-  ; WARNING this will overwrite RAM!
+  ; WARNING this will overwrite RAM! 
+  jsr fat32_opendirent
   lda #$09
   sta fat32_address+1
   stz fat32_address
   jsr fat32_file_read
   ; now print first part to screen
   jsr cleardisplay
+  ; print filename
+  lda #$0e
+  jsr print_chara
+  lda #0
+  jsr print_chara
+  lda #$0f
+  jsr print_chara
+  lda #24
+  jsr print_chara
+  ply
+  plx
+  jsr w_acia_full
   ldx #0
   ldy #0
   stz viaddr
