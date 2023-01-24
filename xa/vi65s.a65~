@@ -5,7 +5,6 @@
 vicmd:
 .(
   phx
-  jsr cleardisplay
   lda #$02
   jsr print_chara
   lda #$db
@@ -33,9 +32,19 @@ processparam           ; process the filename parameter
   jsr print_chara
   lda #24
   jsr print_chara
+  lda #$0f
+  jsr print_chara
+  lda #0
+  jsr print_chara
   jsr w_acia_full
+  ldx #<loading_msg
+  ldy #>loading_msg
+  jsr w_acia_full
+  jsr fat32_opendirent
   ; convert to SHORT
   jsr shortconvert
+  ; refresh
+  jsr refreshpath
   ; chech if the file exists
   ldx folderpointer
   ldy folderpointer
@@ -43,13 +52,12 @@ processparam           ; process the filename parameter
   bcs vnf
   ; if it exists, load it to $0900
   ; WARNING this will overwrite RAM!
-  jsr fat32_opendirent
   lda #$09
   sta fat32_address+1
   stz fat32_address
   jsr fat32_file_read
   ; now print first part to screen
-  jsr ascii_home
+  jsr cleardisplay
   ldx #0
   ldy #0
   stz viaddr
@@ -144,3 +152,5 @@ vlp:
 
 allm:   .byte "All ",0
 partm:  .byte "Part",0
+topm:   .byte "Top ",0
+botm:   .byte "Bot ",0
