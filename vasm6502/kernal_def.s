@@ -21,9 +21,8 @@ fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
 
-fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
+fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
-
 ; ROUTINES
 
 ; inits

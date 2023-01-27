@@ -14,8 +14,8 @@
 ; MERGED INTO ONE FILE AND MACROS AND CONDITIONAL STATEMENTS REMOVED
 ; BY G. SEARLE 2013
 ;
-; Also is modified to work on the XPL-32 and with some various routines added
-; by Waverider  2020-2022
+; MODIFIED TO RUN ON THE XPL-32 AND VARIOUS ROUTINES ADDED
+; BY WAVERIDER 2020-2023
 ;
 ;
 ; I/O and load/saves added to the end of this code
@@ -49,8 +49,6 @@
 ; wavid's creditz:
 ; * Of course, Ben Eater is a major inspiration.
 ; * George Foot made most of the SD Card stuff.
-; * krallja is very helpful
-; * JB Langston (lol)
 ; * And me, Waverider...
 ;
 ; to recap:
