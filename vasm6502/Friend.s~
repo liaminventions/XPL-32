@@ -31,18 +31,12 @@ init:
 loop:
   jmp loop
 irq:
-  pha
-  phx
-  phy
   ; IRQ code goes here
   lda #$40
   sta $b00d
   jsr putbut
   jsr PlaySid
   nop
-  ply
-  plx
-  pla
   rti
 
 InitSid2	    phx
