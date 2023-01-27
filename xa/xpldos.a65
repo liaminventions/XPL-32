@@ -677,21 +677,30 @@ cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
-  beq processparam
+  beq lprocessparam
   lda ARGINDEX
   cmp #1	       ; if there's only one argument, do a handeler load.
   beq loadone
-jmperror:
-  jmp lderror
-processparam           ; the user specified a file, process the filename parameter.
+.)
+lderror:
+  ldx #<foldermsg	; if it was not found, error and return.
+  ldy #>foldermsg
+  jsr w_acia_full
+  rts
+lprocessparam           ; the user specified a file, process the filename parameter.
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT		; argument buffer under 256 bytes, so no adc #0.
   sta folderpointer+1
+loadlc:
+.(
   ; convert string
   jsr shortconvert
+.)
+loadpath:
+.(
   ; Refresh
   jsr refreshpath
   ; Loading..
@@ -709,11 +718,7 @@ processparam           ; the user specified a file, process the filename paramet
   ldy folderpointer+1	; find the file
   jsr fat32_finddirent
   bcc loadfoundcode
-lderror:
-  ldx #<foldermsg	; if it was not found, error and return.
-  ldy #>foldermsg
-  jsr w_acia_full
-  rts
+  jmp lderror
 .)
 loadone:
 .(

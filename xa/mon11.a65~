@@ -74,6 +74,8 @@ PRINTVEC   = $0042  ; and $0043. for printing routine.
 ENTRY	   = $0044  ; and $0045
 MEMTESTBASE= $0046  ; and $0047
 ; sd card:
+; BUG these should be above (in memory) the variables printvec, entry, and memtestbase
+; they need to stay like this for now until i can re-define programs that define it.
 zp_sd_address = $40         ; 2 bytes
 zp_sd_currentsector = $42   ; 4 bytes
 zp_fat32_variables = $46    ; 24 bytes
@@ -110,7 +112,9 @@ backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
 ;; vi..?
-viaddr		= $10 ; 2byt
+viaddr		= $1a ; 2byt
+cursor_x	= $1c ; 1byt
+cursor_y	= $1d ; 1byt
 
 ;; startup enable
 SEN		= $7ffd

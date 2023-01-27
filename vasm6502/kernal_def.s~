@@ -1,54 +1,63 @@
 ; kernal def
 
-acia_init = $ffa9
+; SD VARIABLES & LOCATIONS
+zp_sd_address = $48         ; 2 bytes
+zp_sd_currentsector = $4a   ; 4 bytes
+zp_fat32_variables = $4f    ; 24 bytes
 
-stock_via = $ffac
+path = $400		    ; page
+fat32_workspace = $500      ; two pages
+buffer = $700		    ; two pages
+endbuf = $900
 
-sd_init = $ffaf
+fat32_readbuffer = fat32_workspace
 
-fat32_init = $ffb2
+fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
+fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
+fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
+fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
+fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
+fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
+fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
+fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
 
-print_hex_acia = $ffb5
+fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
+fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
 
-crlf = $ffb8
+; ROUTINES
 
-cleardisplay = $ffbb
-
-rxpoll = $ffbe
-
-txpoll = $ffc1
-
-print_chara = $ffc4
-print_char_acia = $ffc4
-
-ascii_home = $ffc7
-
-w_acia_full = $ffca
-
-fat32_seekcluster = $ffcd
-
-fat32_readnextcluster = $ffd0
-
-fat32_openroot = $ffd3
-
-fat32_opendirent = $ffd6
-
-fat32_readdirent = $ffd9
-
-fat32_finddirent = $ffdc
-
-fat32_file_readbyte = $ffdf
-
-fat32_file_read = $ffe2
-
-sd_readbyte = $ffe5
-
-sd_sendcommand = $ffe8
-
-sd_readsector = $ffeb
-
-loadcmd = $ffee
-
-tsave = $fff1
-
-tload = $fff4
+; inits
+acia_init = $ffac		; initialize acia
+stock_via = $ffaf		; default via initialization
+sd_init = $ffb2			; initialize sd card
+fat32_init = $ffb5		; initialize fat32 (requires sd init)
+; acia
+print_hex_acia = $ffb8		; prints a hex byte in A
+crlf = $ffbb			; prints CR+LF
+cleardisplay = $ffbe		; clears the screen
+rxpoll = $ffc1			; return if a key pressed
+txpoll = $ffc4			; check if we can write to the screen (automaticlly done in all acia routunes)
+print_chara = $ffc7		; print one char from A
+print_char_acia = $ffc7		; same as print_chara
+ascii_home = $ffca		; home the cursor
+w_acia_full = $ffcd		; print a null-terminated string, #< in x and #> in y
+; fat32
+fat32_seekcluster = $ffd0	; gets ready to read the next cluster, and advances it according to the FAT
+fat32_readnextcluster = $ffd3	; reads the next sector from a cluster chain into the buffer at fat32_address.
+fat32_openroot = $ffd6		; prepare to read the root directory
+fat32_opendirent = $ffd9	; prepare to read a file or directory based on a dirent
+fat32_readdirent = $ffdc	; read a directory entry from the open directory
+fat32_finddirent = $ffdf	; finds a particular directory entry. X,Y point to the 11-character filename to seek.
+fat32_file_readbyte = $ffe2	; read a byte from an open file
+fat32_file_read = $ffe5		; read a whole file into memory (assumes the file has just been opened and no data has been read yet)
+; TODO fat32_file_write, fat32_file_writebyte, fat32_writedirent, and fat32_writenextcluster COMING SOON
+; sd
+sd_readbyte = $ffe8		; read a byte from the sd card
+sd_sendcommand = $ffeb		; send a command to the sd card
+sd_readsector = $ffee		; read a sector from the sd card (512 bytes)
+; TODO sd_writesector and sd_writebyte COMING SOON
+; load/save
+loadcmd = $fff1			; load /folder/code.xpl (with address at /folder/loadaddr.sar)
+tsave = $fff4			; save a file to tape. start address at cnt and end address at len (16-bit)
+tload = $fff7			; load a file from tape. the file location header is also loaded from tape
+; TODO loadpath, loadlc, savecmd, savepath, and savelc COMING SOON

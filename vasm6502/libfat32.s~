@@ -385,8 +385,8 @@ fat32_readnextsector:
   rts
 
 fat32_writenextsector:
-  ; Writes the next sector from a cluster chain into the buffer at fat32_address.
-  ;
+  ; TODO Writes the next sector from a cluster chain into the buffer at fat32_address.
+  ; 
   ; Advances the current sector ready for the next write and looks up the next cluster
   ; in the chain when necessary.
   ;
@@ -497,7 +497,7 @@ fat32_opendirent:
   rts
 
 fat32_writedirent:
-  ; Write a directory entry from the open directory
+  ; TODO Write a directory entry from the open directory
   ; requires:
   ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
   ;   and the processes of:
@@ -638,10 +638,10 @@ fat32_writedirent:
   rts
 
 jmpskipdiv:
-  jmp .skipdiv
+  jmp skipdiv
 
 fat32_findnextfreecluster:
-; Find next free cluster
+; TODO Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
 ; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
@@ -754,7 +754,7 @@ fat32_findnextfreecluster:
   lda	fat32_lba+3
   adc	#0
   sta	fat32_lba+3
-.skipdiv:
+skipdiv:
   ; now we have preformed LBA=+LASTFOUNDSECTOR/128
   ; LBA - FATSTART = RESULT
   sec

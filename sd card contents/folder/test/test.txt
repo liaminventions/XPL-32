@@ -6,6 +6,10 @@ heres some assembly language:
 
 catcmd:
 .(
+  lda path
+  bne cdf
+  jmp patherr
+cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2
@@ -32,11 +36,18 @@ catcmd:
   sta fat32_address
   lda #>buffer
   sta fat32_address+1
-  jsr fat32_file_read
+redlp:
+  jsr fat32_file_readbyte
+  beq catd
+  jsr print_chara
+  jmp redlp
+catd:
   ; Dump to screen
-  ldx #<buffer
-  ldy #>buffer
-  jsr w_acia_full
+  ;ldx #<buffer
+  ;ldy #>buffer
+  ;jsr w_acia_full
+  ; CR LF
+  jsr crlf
   rts
 .)
 

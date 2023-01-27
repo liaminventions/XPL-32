@@ -385,8 +385,8 @@ fat32_readnextsector:
   rts
 
 fat32_writenextsector:
-  ; Writes the next sector from a cluster chain into the buffer at fat32_address.
-  ;
+  ; TODO Writes the next sector from a cluster chain into the buffer at fat32_address.
+  ; 
   ; Advances the current sector ready for the next write and looks up the next cluster
   ; in the chain when necessary.
   ;
@@ -497,7 +497,7 @@ fat32_opendirent:
   rts
 
 fat32_writedirent:
-  ; Write a directory entry from the open directory
+  ; TODO Write a directory entry from the open directory
   ; requires:
   ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
   ;   and the processes of:
@@ -641,7 +641,7 @@ jmpskipdiv:
   jmp skipdiv
 
 fat32_findnextfreecluster:
-; Find next free cluster
+; TODO Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
 ; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
@@ -939,7 +939,7 @@ fat32_readdirent:
 
 
 fat32_finddirent:
-  ; Finds a particular directory entryu  X,Y point to the 11-character filename to seek.
+  ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
   ; The directory should already be open for iteration.
 
   ; Form ZP pointer to user's filename

@@ -1,2359 +1,1058 @@
-F00:0001       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-F00:0002       ;                                     ;
-F00:0003       ;      Modified_VDP.s                 ;
-F00:0004       ;      Written in 6502 assembly       ;
-F00:0005       ;      Started 7/27/21 by tramlaw101  ;
-F00:0006       ;                                     ;
-F00:0007       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+F00:0001       ; XPL-32 <FOLDER> type loading code
+F00:0002       ; (c) 2022-2023 Waverider
+F00:0003       
+F00:0004       charbuffer = $601            ; 1 byte
+F00:0005       seed = $01
+F00:0006       donefact = $02		     ; vars
+F00:0007       irqcount = $03
 F00:0008       
-F00:0009       ; TMS9918A
-F00:0010       VDP_VRAM               = $8800		; address to set MODE low for a video ram operation on the TMS9918A Video Display Proces
-F00:0011       VDP_REG                = $8801		; address to set MODE high for a video register operation on the TMS9918A Video Display 
-F00:0012       VDP_WRITE_VRAM_BIT     = %01000000  	; pattern of second vram address write: 01AAAAAA
-F00:0013       VDP_REGISTER_BITS      = %10000000  	; pattern of second register write: 10000RRR
-F00:0014       
-F00:0015       VDP_PATTERN_TABLE_BASE = $0000
-F00:0016       VDP_SPRITE_PATTERN_TABLE_BASE = $1800
-F00:0017       VDP_COLOR_TABLE_BASE = $2000
-F00:0018       VDP_NAME_TABLE_BASE = $3800
-F00:0019       VDP_SPR_ATT_TABLE_BASE = $3B00
-F00:0020       
-F00:0021       TEXT_LOC		= $00FF
-F00:0022       
-F00:0023       ; zero page addresses
-F00:0024       VDP_PATTERN_INIT    	= $30
-F00:0025       VDP_PATTERN_INIT_HI 	= $31
-F00:0026       
-F00:0027       VDP_NAME_POINTER        = $32
-F00:0028       
-F00:0029         .org $0f00
-F00:0030         .macro vdp_write_vram			; macro to store address in vdp_reg for write
+F00:0009         .org $0900
+F00:0010       jumptoit:
+F00:0011         jmp sdstart
+               S01:00000900:  4C 25 09
+F00:0012       
+F00:0013         .include "hwconfig.s"
+F01:0001       PORTB = $b000
+F01:0002       PORTA = $b001
+F01:0003       DDRB = $b002
+F01:0004       DDRA = $b003
+F01:0005       
+F01:0006       LCD_E  = %10000000
+F01:0007       LCD_RW = %01000000
+F01:0008       LCD_RS = %00100000
+F01:0009       
+F01:0010       SD_CS   = %00010000
+F01:0011       SD_SCK  = %00001000
+F01:0012       SD_MOSI = %00000100
+F01:0013       SD_MISO = %00000010
+F01:0014       
+F01:0015       PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
+F01:0016       
+F01:0017       via_init:
+F01:0018         lda #%11111111          ; Set all pins on port B to output
+               S01:00000903:  A9 FF
+F01:0019         sta DDRB
+               S01:00000905:  8D 02 B0
+F01:0020         lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+               S01:00000908:  A9 FC
+F01:0021         sta DDRA
+               S01:0000090A:  8D 03 B0
+F01:0022         rts
+               S01:0000090D:  60
+F01:0023       
+F01:0024       
+F00:0014         .include "kernal_def.s"
+F02:0001       ; kernal def
+F02:0002       
+F02:0003       ; SD VARIABLES & LOCATIONS
+F02:0004       zp_sd_address = $48         ; 2 bytes
+F02:0005       zp_sd_currentsector = $4a   ; 4 bytes
+F02:0006       zp_fat32_variables = $4f    ; 24 bytes
+F02:0007       
+F02:0008       path = $400		    ; page
+F02:0009       fat32_workspace = $500      ; two pages
+F02:0010       buffer = $700		    ; two pages
+F02:0011       endbuf = $900
+F02:0012       
+F02:0013       fat32_readbuffer = fat32_workspace
+F02:0014       
+F02:0015       fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
+F02:0016       fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
+F02:0017       fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
+F02:0018       fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
+F02:0019       fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
+F02:0020       fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
+F02:0021       fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
+F02:0022       fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
+F02:0023       
+F02:0024       fat32_errorstage        = fat32_bytesremaining  ; only used during initializatio
+F02:0025       fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
+F02:0026       
+F02:0027       ; ROUTINES
+F02:0028       
+F02:0029       ; inits
+F02:0030       acia_init = $ffac		; initialize acia
+F02:0031       stock_via = $ffaf		; default via initialization
+F02:0032       sd_init = $ffb2			; initialize sd card
+F02:0033       fat32_init = $ffb5		; initialize fat32 (requires sd init)
+F02:0034       ; acia
+F02:0035       print_hex_acia = $ffb8		; prints a hex byte in A
+F02:0036       crlf = $ffbb			; prints CR+LF
+F02:0037       cleardisplay = $ffbe		; clears the screen
+F02:0038       rxpoll = $ffc1			; return if a key pressed
+F02:0039       txpoll = $ffc4			; check if we can write to the screen (automaticlly done in all acia routunes)
+F02:0040       print_chara = $ffc7		; print one char from A
+F02:0041       print_char_acia = $ffc7		; same as print_chara
+F02:0042       ascii_home = $ffca		; home the cursor
+F02:0043       w_acia_full = $ffcd		; print a null-terminated string, #< in x and #> in y
+F02:0044       ; fat32
+F02:0045       fat32_seekcluster = $ffd0	; gets ready to read the next cluster, and advances it according to the FAT
+F02:0046       fat32_readnextcluster = $ffd3	; reads the next sector from a cluster chain into the buffer at fat32_address.
+F02:0047       fat32_openroot = $ffd6		; prepare to read the root directory
+F02:0048       fat32_opendirent = $ffd9	; prepare to read a file or directory based on a dirent
+F02:0049       fat32_readdirent = $ffdc	; read a directory entry from the open directory
+F02:0050       fat32_finddirent = $ffdf	; finds a particular directory entry. X,Y point to the 11-character filename to seek.
+F02:0051       fat32_file_readbyte = $ffe2	; read a byte from an open file
+F02:0052       fat32_file_read = $ffe5		; read a whole file into memory (assumes the file has just been opened and no data has been rea
+F02:0053       ; TODO fat32_file_write, fat32_file_writebyte, fat32_writedirent, and fat32_writenextcluster COMING SOON
+F02:0054       ; sd
+F02:0055       sd_readbyte = $ffe8		; read a byte from the sd card
+F02:0056       sd_sendcommand = $ffeb		; send a command to the sd card
+F02:0057       sd_readsector = $ffee		; read a sector from the sd card (512 bytes)
+F02:0058       ; TODO sd_writesector and sd_writebyte COMING SOON
+F02:0059       ; load/save
+F02:0060       loadcmd = $fff1			; load /folder/code.xpl (with address at /folder/loadaddr.sar)
+F02:0061       tsave = $fff4			; save a file to tape. start address at cnt and end address at len (16-bit)
+F02:0062       tload = $fff7			; load a file from tape. the file location header is also loaded from tape
+F02:0063       ; TODO loadpath, loadlc, savecmd, savepath, and savelc COMING SOON
+F02:0064       
+F02:0065       
+F02:0066       
+F00:0015       
+F00:0016       dirname:
+F00:0017         .asciiz "FOLDER     "	     ; standard directory name, SHORT format
+               S01:0000090E:  46 4F 4C 44 45 52 20 20 20 20 20
+F00:0018       
+F00:0019       errormsg:
+F00:0020         .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
+               S01:0000091A:  0D
+               S01:0000091B:  0A
+               S01:0000091C:  45 52 52 4F 52 21
+               S01:00000922:  0D
+               S01:00000923:  0A
+               S01:00000924:  00
+F00:0021       
+F00:0022       sdstart:
+F00:0023         stz $00		; 0
+               S01:00000925:  64 00
+F00:0024       
+F00:0025         lda #$55		; shftable value
+               S01:00000927:  A9 55
+F00:0026         sta seed
+               S01:00000929:  85 01
+F00:0027       	
+F00:0028         jsr cleardisplay	; clear display
+               S01:0000092B:  20 BE FF
+F00:0029       
+F00:0030         ldx  #<loadmsg	; title screen
+               S01:0000092E:  A2 9A
+F00:0031         ldy  #>loadmsg
+               S01:00000930:  A0 09
+F00:0032         jsr  w_acia_full
+               S01:00000932:  20 CD FF
+F00:0033       
+F00:0034         ldx  #<lodmm
+               S01:00000935:  A2 C7
+F00:0035         ldy  #>lodmm
+               S01:00000937:  A0 09
+F00:0036         jsr  w_acia_full
+               S01:00000939:  20 CD FF
 F00:0037       
-F00:0038       ;;;;;;;;;;;;;;;;;;; reset ;;;;;;;;;;;;;;;;;;;
+F00:0038         jsr rootsetup		; setup sd card
+               S01:0000093C:  20 42 09
 F00:0039       
-F00:0040       reset:
-F00:0041       
-F00:0042       ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
-F00:0043       
-F00:0044         sei
-               S01:00000F00:  78
-F00:0045         stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
-               S01:00000F01:  9C 0E B0
-F00:0046       
-F00:0047         jsr vdp_set_registers
-               S01:00000F04:  20 45 0F
-F00:0048         jsr vdp_setup
-               S01:00000F07:  20 38 0F
-F00:0049         lda #$ff	; activate display
-               S01:00000F0A:  A9 FF
-F00:0050         sta $b002
-               S01:00000F0C:  8D 02 B0
-F00:0051         sta $b000
-               S01:00000F0F:  8D 00 B0
-F00:0052         lda #0
-               S01:00000F12:  A9 00
-F00:0053         jsr InitSid
-               S01:00000F14:  20 00 10
-F00:0054         ;cli
-F00:0055       holding:
-F00:0056         ;;jsr changecolor
-F00:0057         lda VDP_REG
-               S01:00000F17:  AD 01 88
-F00:0058         and #$80
-               S01:00000F1A:  29 80
-F00:0059         beq holding
-               S01:00000F1C:  F0 F9
-F00:0060         lda #$0e
-               S01:00000F1E:  A9 0E
-F00:0061         sta VDP_REG
-               S01:00000F20:  8D 01 88
-F00:0062         lda #$87
-               S01:00000F23:  A9 87
-F00:0063         sta VDP_REG
-               S01:00000F25:  8D 01 88
-F00:0064         jsr PlaySid
-               S01:00000F28:  20 03 10
-F00:0065         lda #$00
-               S01:00000F2B:  A9 00
-F00:0066         sta VDP_REG
-               S01:00000F2D:  8D 01 88
-F00:0067         lda #$87
-               S01:00000F30:  A9 87
-F00:0068         sta VDP_REG
-               S01:00000F32:  8D 01 88
-F00:0069         jmp holding
-               S01:00000F35:  4C 17 0F
+F00:0040       findrau:
+F00:0041         jmp type		; start "type" program
+               S01:0000093F:  4C 66 09
+F00:0042       
+F00:0043       rootsetup:		; setup <ROOT>
+F00:0044         pha
+               S01:00000942:  48
+F00:0045         phx
+               S01:00000943:  DA
+F00:0046         phy
+               S01:00000944:  5A
+F00:0047       
+F00:0048         ; Open root directory
+F00:0049         jsr fat32_openroot
+               S01:00000945:  20 D6 FF
+F00:0050       
+F00:0051         ; Find the subdirectory by name
+F00:0052         ldx #<dirname
+               S01:00000948:  A2 0E
+F00:0053         ldy #>dirname
+               S01:0000094A:  A0 09
+F00:0054         jsr fat32_finddirent
+               S01:0000094C:  20 DF FF
+F00:0055         bcc foundsubdir
+               S01:0000094F:  90 0E
+F00:0056       
+F00:0057       error:
+F00:0058       
+F00:0059         ; Subdirectory not found
+F00:0060         ldy #>errormsg
+               S01:00000951:  A0 09
+F00:0061         ldx #<errormsg
+               S01:00000953:  A2 1A
+F00:0062         jsr w_acia_full
+               S01:00000955:  20 CD FF
+F00:0063         jsr error_sound
+               S01:00000958:  20 03 0B
+F00:0064         rts
+               S01:0000095B:  60
+F00:0065         rts
+               S01:0000095C:  60
+F00:0066         rts
+               S01:0000095D:  60
+F00:0067         rts
+               S01:0000095E:  60
+F00:0068       
+F00:0069       foundsubdir
 F00:0070       
-F00:0071       ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
-F00:0072       
-F00:0073       vdp_setup:
-F00:0074         jsr vdp_initialize_name_table
-               S01:00000F38:  20 7C 0F
-F00:0075         jsr vdp_initialize_color_table
-               S01:00000F3B:  20 95 1D
-F00:0076         ;jsr vdp_write_name_table
-F00:0077         jsr vdp_initialize_pattern_table
-               S01:00000F3E:  20 63 1D
-F00:0078         jsr vdp_enable_display
-               S01:00000F41:  20 C7 1D
-F00:0079         rts
-               S01:00000F44:  60
-F00:0080       
-F00:0081       ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
-F00:0082       
-F00:0083       vdp_set_registers:
-F00:0084         pha
-               S01:00000F45:  48
-F00:0085         phx
-               S01:00000F46:  DA
-F00:0086         ldx #0
-               S01:00000F47:  A2 00
-F00:0087       .loop:
-F00:0088         lda vdp_register_inits,x
-               S01:00000F49:  BD D4 1D
-F00:0089         sta VDP_REG
-               S01:00000F4C:  8D 01 88
-F00:0090         txa
-               S01:00000F4F:  8A
-F00:0091         ora #VDP_REGISTER_BITS 				; combine the register number with the second write pattern
-               S01:00000F50:  09 80
-F00:0092         sta VDP_REG
-               S01:00000F52:  8D 01 88
-F00:0093         inx
-               S01:00000F55:  E8
-F00:0094         cpx #8
-               S01:00000F56:  E0 08
-F00:0095         bne .loop
-               S01:00000F58:  D0 EF
-F00:0096         plx
-               S01:00000F5A:  FA
-F00:0097         pla
-               S01:00000F5B:  68
-F00:0098         rts
-               S01:00000F5C:  60
-F00:0099       
-F00:0100       wait:
-F00:0101       	phx
-               S01:00000F5D:  DA
-F00:0102       	phy
-               S01:00000F5E:  5A
-F00:0103               tay          ; load secondary loop cycle count (A reg)
-               S01:00000F5F:  A8
-F00:0104               ldx  #$ff
-               S01:00000F60:  A2 FF
-F00:0105       delay   dex          ; (2 cycles)
-               S01:00000F62:  CA
-F00:0106               bne  delay   ; (3 cycles in loop, 2 cycles at end)
-               S01:00000F63:  D0 FD
-F00:0107               dey          ; (2 cycles)
-               S01:00000F65:  88
-F00:0108               bne  delay   ; (3 cycles in loop, 2 cycles at end)
-               S01:00000F66:  D0 FA
-F00:0109       	ply
-               S01:00000F68:  7A
-F00:0110       	plx
-               S01:00000F69:  FA
-F00:0111       	rts
-               S01:00000F6A:  60
+F00:0071         ; Open subdirectory
+F00:0072         jsr fat32_opendirent	; open folder
+               S01:0000095F:  20 D9 FF
+F00:0073       
+F00:0074         ply
+               S01:00000962:  7A
+F00:0075         plx 
+               S01:00000963:  FA
+F00:0076         pla
+               S01:00000964:  68
+F00:0077         rts
+               S01:00000965:  60
+F00:0078       
+F00:0079       
+F00:0080       type:			; typing a filename
+F00:0081         ldx #<typemsg		; Filename:_
+               S01:00000966:  A2 F6
+F00:0082         ldy #>typemsg
+               S01:00000968:  A0 09
+F00:0083         jsr w_acia_full
+               S01:0000096A:  20 CD FF
+F00:0084         ldx #0
+               S01:0000096D:  A2 00
+F00:0085         lda #' '
+               S01:0000096F:  A9 20
+F00:0086         sta $04		; I frogor
+               S01:00000971:  85 04
+F00:0087         jmp typeloop		; start loop
+               S01:00000973:  4C AA 0A
+F00:0088       
+F00:0089       rxpol:
+F00:0090         lda $8001
+               S01:00000976:  AD 01 80
+F00:0091         and #$08		; non-irq rx polling code
+               S01:00000979:  29 08
+F00:0092         beq rxpol
+               S01:0000097B:  F0 F9
+F00:0093         rts
+               S01:0000097D:  60
+F00:0094       
+F00:0095       rxput:
+F00:0096         lda $8001
+               S01:0000097E:  AD 01 80
+F00:0097         and #$08		; it loops
+               S01:00000981:  29 08
+F00:0098         beq typelop
+               S01:00000983:  F0 01
+F00:0099         rts
+               S01:00000985:  60
+F00:0100       typelop:
+F00:0101         jmp typeloop
+               S01:00000986:  4C AA 0A
+F00:0102       
+F00:0103       lodmsg:
+F00:0104         .byte $0d, $0a, "Loading...", $0d, $0a, $00
+               S01:00000989:  0D
+               S01:0000098A:  0A
+               S01:0000098B:  4C 6F 61 64 69 6E 67 2E 2E 2E
+               S01:00000995:  0D
+               S01:00000996:  0A
+               S01:00000997:  00
+F00:0105       donemsg:
+F00:0106         .byte $0c, $00
+               S01:00000998:  0C
+               S01:00000999:  00
+F00:0107       
+F00:0108       loadmsg:
+F00:0109         .byte "          -------- SD Loader --------     ", $0d, $0a, $00
+               S01:0000099A:  20 20 20 20 20 20 20 20 20 20 2D 2D 2D 2D 2D 2D
+               S01:000009AA:  2D 2D 20 53 44 20 4C 6F 61 64 65 72 20 2D 2D 2D
+               S01:000009BA:  0D
+               S01:000009BB:  0A
+               S01:000009BC:  00
+F00:0110       lodmm:
+F00:0111         .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
+               S01:000009C7:  20 20 20 20 20 20 20 20 20 20 50 72 65 73 73 20
+               S01:000009D7:  28 6C 29 20 74 6F 20 6C 69 73 74 20 3C 46 4F 4C
+               S01:000009E7:  0D
+               S01:000009E8:  0A
+               S01:000009E9:  0D
+               S01:000009EA:  0A
+               S01:000009EB:  00
 F00:0112       
-F00:0113       changecolor:
-F00:0114         pha
-               S01:00000F6B:  48
-F00:0115         inc vdp_register_7
-               S01:00000F6C:  EE DB 1D
-F00:0116         lda vdp_register_7
-               S01:00000F6F:  AD DB 1D
-F00:0117         sta VDP_REG
-               S01:00000F72:  8D 01 88
-F00:0118         lda #$87
-               S01:00000F75:  A9 87
-F00:0119         sta VDP_REG
-               S01:00000F77:  8D 01 88
-F00:0120         pla
-               S01:00000F7A:  68
-F00:0121         rts
-               S01:00000F7B:  60
-F00:0122       
-F00:0123       ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
-F00:0124       
-F00:0125       vdp_initialize_name_table:
-F00:0126         pha
-               S01:00000F7C:  48
-F00:0127         phx
-               S01:00000F7D:  DA
-F00:0128         phy
-               S01:00000F7E:  5A
-F00:0129         vdp_write_vram VDP_NAME_TABLE_BASE
-F01:0001         pha
-               S01:00000F7F:  48
-F01:0002         lda #<(VDP_NAME_TABLE_BASE)
-               S01:00000F80:  A9 00
-F01:0003         sta VDP_REG
-               S01:00000F82:  8D 01 88
-F01:0004         lda #(VDP_WRITE_VRAM_BIT | >VDP_NAME_TABLE_BASE)
-               S01:00000F85:  A9 78
-F01:0005         sta VDP_REG
-               S01:00000F87:  8D 01 88
-F01:0006         pla
-               S01:00000F8A:  68
-F00:0130         stz VDP_NAME_POINTER
-               S01:00000F8B:  64 32
-F00:0131         ;lda #$20
-F00:0132         ldy #0
-               S01:00000F8D:  A0 00
-F00:0133       vdp_name_table_loop:
-F00:0134         sty VDP_VRAM
-               S01:00000F8F:  8C 00 88
-F00:0135         iny
-               S01:00000F92:  C8
-F00:0136         bne vdp_name_table_loop
-               S01:00000F93:  D0 FA
-F00:0137       
-F00:0138         inc VDP_NAME_POINTER
-               S01:00000F95:  E6 32
-F00:0139         ldx VDP_NAME_POINTER
-               S01:00000F97:  A6 32
-F00:0140         cpx #3
-               S01:00000F99:  E0 03
-F00:0141         bne vdp_name_table_loop
-               S01:00000F9B:  D0 F2
-F00:0142         
-F00:0143         ply
-               S01:00000F9D:  7A
-F00:0144         plx
-               S01:00000F9E:  FA
-F00:0145         pla
-               S01:00000F9F:  68
-F00:0146         rts
-               S01:00000FA0:  60
-F00:0147       
-F00:0148       vdp_write_name_table:
-F00:0149         pha
-               S01:00000FA1:  48
-F00:0150         phx
-               S01:00000FA2:  DA
-F00:0151         vdp_write_vram TEXT_LOC
-F02:0001         pha
-               S01:00000FA3:  48
-F02:0002         lda #<(TEXT_LOC)
-               S01:00000FA4:  A9 FF
-F02:0003         sta VDP_REG
-               S01:00000FA6:  8D 01 88
-F02:0004         lda #(VDP_WRITE_VRAM_BIT | >TEXT_LOC)
-               S01:00000FA9:  A9 40
-F02:0005         sta VDP_REG
-               S01:00000FAB:  8D 01 88
-F02:0006         pla
-               S01:00000FAE:  68
-F00:0152         ldx #0
-               S01:00000FAF:  A2 00
-F00:0153       .loop:
-F00:0154         lda text_vdp,x
-               S01:00000FB1:  BD D4 1D
-F00:0155         beq end_write
-               S01:00000FB4:  F0 07
-F00:0156         sta VDP_VRAM
-               S01:00000FB6:  8D 00 88
-F00:0157         inx
-               S01:00000FB9:  E8
-F00:0158         jmp .loop
-               S01:00000FBA:  4C B1 0F
-F00:0159       end_write:
-F00:0160         plx
-               S01:00000FBD:  FA
-F00:0161         pla
-               S01:00000FBE:  68
-F00:0162         rts 
-               S01:00000FBF:  60
-F00:0163       
-F00:0164         .include "wavid.s"
-F03:0001       d400_sVoc1FreqLo = $b800
-F03:0002       d401_sVoc1FreqHi = $b801
-F03:0003       d402_sVoc1PWidthLo = $b802
-F03:0004       d403_sVoc1PWidthHi = $b803
-F03:0005       d404_sVoc1Control = $b804
-F03:0006       d405_sVoc1AttDec = $b805
-F03:0007       d406_sVoc1SusRel = $b806
-F03:0008       d407_sVoc2FreqLo = $b807
-F03:0009       d408_sVoc2FreqHi = $b808
-F03:0010       d409_sVoc2PWidthLo = $b809
-F03:0011       d40a_sVoc2PWidthHi = $b80a
-F03:0012       d40b_sVoc2Control = $b80b
-F03:0013       d40c_sVoc2AttDec = $b80c
-F03:0014       d40d_sVoc2SusRel = $b80d
-F03:0015       d40e_sVoc3FreqLo = $b80e
-F03:0016       d40f_sVoc3FreqHi = $b80f
-F03:0017       d410_sVoc3PWidthLo = $b810
-F03:0018       d411_sVoc3PWidthHi = $b811
-F03:0019       d412_sVoc3Control = $b812
-F03:0020       d413_sVoc3AttDec = $b813
-F03:0021       d414_sVoc3SusRel = $b814
-F03:0022       d415_sFiltFreqLo = $b815
-F03:0023       d416_sFiltFreqHi = $b816
-F03:0024       d417_sFiltControl = $b817
-F03:0025       d418_sFiltMode = $b818
-F03:0026       
-F03:0027         .org $1000
-F03:0028       
-F03:0029       InitSid             jmp L1040
-               S02:00001000:  4C 40 10
-F03:0030                           
-F03:0031       PlaySid             jmp L1095
-               S02:00001003:  4C 95 10
-F03:0032                           
-F03:0033       L1006               jmp L10d3
-               S02:00001006:  4C D3 10
-F03:0034       
-F03:0035       
-F03:0036         .binary "wavid_ascii.bin"
-               S02:00001009:  01 01 01 00 07 0E 01 02 04 00 00 00 01 00 00 00
-               S02:00001019:  00 0F 00 00 00 00 04 3E 20 22 43 48 41 4D 41 45
-F03:0037       
-F03:0038                           
-F03:0039       L1040               lda #$00
-               S02:00001040:  A9 00
-F03:0040                           asl a
-               S02:00001042:  0A
-F03:0041                           tay
-               S02:00001043:  A8
-F03:0042                           ldx #$00
-               S02:00001044:  A2 00
-F03:0043       L1046               lda $18a0,y
-               S02:00001046:  B9 A0 18
-F03:0044                           sta $17d9,x
-               S02:00001049:  9D D9 17
-F03:0045                           lda $18a1,y
-               S02:0000104C:  B9 A1 18
-F03:0046                           sta $17dc,x
-               S02:0000104F:  9D DC 17
-F03:0047                           iny
-               S02:00001052:  C8
-F03:0048                           iny
-               S02:00001053:  C8
-F03:0049                           inx
-               S02:00001054:  E8
-F03:0050                           cpx #$03
-               S02:00001055:  E0 03
-F03:0051                           bne L1046
-               S02:00001057:  D0 ED
-F03:0052                           lda $18a0,y
-               S02:00001059:  B9 A0 18
-F03:0053                           sta L10be + 1
-               S02:0000105C:  8D BF 10
-F03:0054                           lda $18a1,y
-               S02:0000105F:  B9 A1 18
-F03:0055                           sta $101a
-               S02:00001062:  8D 1A 10
-F03:0056                           ldx #$00
-               S02:00001065:  A2 00
-F03:0057                           txa
-               S02:00001067:  8A
-F03:0058       L1068               sta $17df,x
-               S02:00001068:  9D DF 17
-F03:0059                           inx
-               S02:0000106B:  E8
-F03:0060                           cpx #$79
-               S02:0000106C:  E0 79
-F03:0061                           bne L1068
-               S02:0000106E:  D0 F8
-F03:0062                           tax
-               S02:00001070:  AA
-F03:0063       L1071               lda #$02
-               S02:00001071:  A9 02
-F03:0064                           sta $17e5,x
-               S02:00001073:  9D E5 17
-F03:0065                           sta $1009,x
-               S02:00001076:  9D 09 10
-F03:0066                           inx
-               S02:00001079:  E8
-F03:0067                           cpx #$03
-               S02:0000107A:  E0 03
-F03:0068                           bne L1071
-               S02:0000107C:  D0 F3
-F03:0069                           ldx #$00
-               S02:0000107E:  A2 00
-F03:0070                           txa
-               S02:00001080:  8A
-F03:0071       L1081               sta d400_sVoc1FreqLo,x
-               S02:00001081:  9D 00 B8
-F03:0072                           inx
-               S02:00001084:  E8
-F03:0073                           cpx #$18
-               S02:00001085:  E0 18
-F03:0074                           bne L1081
-               S02:00001087:  D0 F8
-F03:0075                           lda #$08
-               S02:00001089:  A9 08
-F03:0076                           sta d404_sVoc1Control
-               S02:0000108B:  8D 04 B8
-F03:0077                           sta d40b_sVoc2Control
-               S02:0000108E:  8D 0B B8
-F03:0078                           sta d412_sVoc3Control
-               S02:00001091:  8D 12 B8
-F03:0079                           rts
-               S02:00001094:  60
-F03:0080                           
-F03:0081       L1095               lda $fa
-               S02:00001095:  A5 FA
-F03:0082                           pha
-               S02:00001097:  48
-F03:0083                           lda $fb
-               S02:00001098:  A5 FB
-F03:0084                           pha
-               S02:0000109A:  48
-F03:0085                           dec $1016
-               S02:0000109B:  CE 16 10
-F03:0086                           bmi L10be
-               S02:0000109E:  30 1E
-F03:0087                           ldx #$00
-               S02:000010A0:  A2 00
-F03:0088                           jsr S1373
-               S02:000010A2:  20 73 13
-F03:0089                           inx
-               S02:000010A5:  E8
-F03:0090                           jsr S1373
-               S02:000010A6:  20 73 13
-F03:0091                           inx
-               S02:000010A9:  E8
-F03:0092                           jsr S1373
-               S02:000010AA:  20 73 13
-F03:0093       L10ad               lda $1019
-               S02:000010AD:  AD 19 10
-F03:0094                           clc
-               S02:000010B0:  18
-F03:0095                           adc $1853
-               S02:000010B1:  6D 53 18
-F03:0096                           sta d416_sFiltFreqHi
-               S02:000010B4:  8D 16 B8
-F03:0097                           pla
-               S02:000010B7:  68
-F03:0098                           sta $fb
-               S02:000010B8:  85 FB
-F03:0099                           pla
-               S02:000010BA:  68
-F03:0100                           sta $fa
-               S02:000010BB:  85 FA
-F03:0101                           rts
-               S02:000010BD:  60
-F03:0102                           
-F03:0103       L10be               lda #$00
-               S02:000010BE:  A9 00
-F03:0104                           sta $1016
-               S02:000010C0:  8D 16 10
-F03:0105                           ldx #$00
-               S02:000010C3:  A2 00
-F03:0106                           jsr S10e1
-               S02:000010C5:  20 E1 10
-F03:0107                           inx
-               S02:000010C8:  E8
-F03:0108                           jsr S10e1
-               S02:000010C9:  20 E1 10
-F03:0109                           inx
-               S02:000010CC:  E8
-F03:0110                           jsr S10e1
-               S02:000010CD:  20 E1 10
-F03:0111                           jmp L10ad
-               S02:000010D0:  4C AD 10
-F03:0112                           
-F03:0113       L10d3               ldx #$00
-               S02:000010D3:  A2 00
-F03:0114                           jsr L1654
-               S02:000010D5:  20 54 16
-F03:0115                           inx
-               S02:000010D8:  E8
-F03:0116                           jsr L1654
-               S02:000010D9:  20 54 16
-F03:0117                           inx
-               S02:000010DC:  E8
-F03:0118                           jsr L1654
-               S02:000010DD:  20 54 16
-F03:0119                           rts
-               S02:000010E0:  60
-F03:0120                           
-F03:0121       S10e1               lda $1009,x
-               S02:000010E1:  BD 09 10
-F03:0122                           beq L10eb
-               S02:000010E4:  F0 05
-F03:0123                           dec $17e5,x
-               S02:000010E6:  DE E5 17
-F03:0124                           beq L10ee
-               S02:000010E9:  F0 03
-F03:0125       L10eb               jmp S1373
-               S02:000010EB:  4C 73 13
-F03:0126                           
-F03:0127       L10ee               lda $17d9,x
-               S02:000010EE:  BD D9 17
-F03:0128                           sta $fa
-               S02:000010F1:  85 FA
-F03:0129                           lda $17dc,x
-               S02:000010F3:  BD DC 17
-F03:0130                           sta $fb
-               S02:000010F6:  85 FB
-F03:0131                           ldy $17df,x
-               S02:000010F8:  BC DF 17
-F03:0132                           lda ($fa),y
-               S02:000010FB:  B1 FA
-F03:0133                           bpl L1145
-               S02:000010FD:  10 46
-F03:0134                           cmp #$ff
-               S02:000010FF:  C9 FF
-F03:0135                           bne L110c
-               S02:00001101:  D0 09
-F03:0136                           iny
-               S02:00001103:  C8
-F03:0137                           lda ($fa),y
-               S02:00001104:  B1 FA
-F03:0138                           sta $17df,x
-               S02:00001106:  9D DF 17
-F03:0139                           tay
-               S02:00001109:  A8
-F03:0140                           lda ($fa),y
-               S02:0000110A:  B1 FA
-F03:0141       L110c               cmp #$fd
-               S02:0000110C:  C9 FD
-F03:0142                           bne L1120
-               S02:0000110E:  D0 10
-F03:0143                           iny
-               S02:00001110:  C8
-F03:0144                           lda ($fa),y
-               S02:00001111:  B1 FA
-F03:0145                           sta $17ee,x
-               S02:00001113:  9D EE 17
-F03:0146                           iny
-               S02:00001116:  C8
-F03:0147                           tya
-               S02:00001117:  98
-F03:0148                           sta $17df,x
-               S02:00001118:  9D DF 17
-F03:0149                           lda ($fa),y
-               S02:0000111B:  B1 FA
-F03:0150                           jmp L1145
-               S02:0000111D:  4C 45 11
-F03:0151                           
-F03:0152       L1120               cmp #$fc
-               S02:00001120:  C9 FC
-F03:0153                           bne L1139
-               S02:00001122:  D0 15
-F03:0154                           iny
-               S02:00001124:  C8
-F03:0155                           lda ($fa),y
-               S02:00001125:  B1 FA
-F03:0156                           eor #$ff
-               S02:00001127:  49 FF
-F03:0157                           clc
-               S02:00001129:  18
-F03:0158                           adc #$01
-               S02:0000112A:  69 01
-F03:0159                           sta $17ee,x
-               S02:0000112C:  9D EE 17
-F03:0160                           iny
-               S02:0000112F:  C8
-F03:0161                           tya
-               S02:00001130:  98
-F03:0162                           sta $17df,x
-               S02:00001131:  9D DF 17
-F03:0163                           lda ($fa),y
-               S02:00001134:  B1 FA
-F03:0164                           jmp L1145
-               S02:00001136:  4C 45 11
-F03:0165                           
-F03:0166       L1139               cmp #$fe
-               S02:00001139:  C9 FE
-F03:0167                           bne L1145
-               S02:0000113B:  D0 08
-F03:0168                           lda #$00
-               S02:0000113D:  A9 00
-F03:0169                           sta $1009,x
-               S02:0000113F:  9D 09 10
-F03:0170                           jmp L1654
-               S02:00001142:  4C 54 16
-F03:0171                           
-F03:0172       L1145               tay
-               S02:00001145:  A8
-F03:0173                           lda $1c45,y
-               S02:00001146:  B9 45 1C
-F03:0174                           sta $fa
-               S02:00001149:  85 FA
-F03:0175                           lda $1c55,y
-               S02:0000114B:  B9 55 1C
-F03:0176                           sta $fb
-               S02:0000114E:  85 FB
-F03:0177       L1150               ldy $17e2,x
-               S02:00001150:  BC E2 17
-F03:0178       L1153               lda ($fa),y
-               S02:00001153:  B1 FA
-F03:0179                           bmi L115a
-               S02:00001155:  30 03
-F03:0180                           jmp L1314
-               S02:00001157:  4C 14 13
-F03:0181                           
-F03:0182       L115a               cmp #$fd
-               S02:0000115A:  C9 FD
-F03:0183                           bne L116c
-               S02:0000115C:  D0 0E
-F03:0184                           iny
-               S02:0000115E:  C8
-F03:0185                           lda ($fa),y
-               S02:0000115F:  B1 FA
-F03:0186                           sta $17e8,x
-               S02:00001161:  9D E8 17
-F03:0187                           iny
-               S02:00001164:  C8
-F03:0188                           tya
-               S02:00001165:  98
-F03:0189                           sta $17e2,x
-               S02:00001166:  9D E2 17
-F03:0190                           jmp L1153
-               S02:00001169:  4C 53 11
-F03:0191                           
-F03:0192       L116c               cmp #$fc
-               S02:0000116C:  C9 FC
-F03:0193                           bne L117e
-               S02:0000116E:  D0 0E
-F03:0194                           iny
-               S02:00001170:  C8
-F03:0195                           lda ($fa),y
-               S02:00001171:  B1 FA
-F03:0196                           sta $17eb,x
-               S02:00001173:  9D EB 17
-F03:0197                           iny
-               S02:00001176:  C8
-F03:0198                           tya
-               S02:00001177:  98
-F03:0199                           sta $17e2,x
-               S02:00001178:  9D E2 17
-F03:0200                           jmp L1153
-               S02:0000117B:  4C 53 11
-F03:0201                           
-F03:0202       L117e               cmp #$f0
-               S02:0000117E:  C9 F0
-F03:0203                           bne L11cc
-               S02:00001180:  D0 4A
-F03:0204                           iny
-               S02:00001182:  C8
-F03:0205                           lda ($fa),y
-               S02:00001183:  B1 FA
-F03:0206                           pha
-               S02:00001185:  48
-F03:0207                           and #$07
-               S02:00001186:  29 07
-F03:0208                           sta $1856
-               S02:00001188:  8D 56 18
-F03:0209                           ldy $1012,x
-               S02:0000118B:  BC 12 10
-F03:0210                           lda $1779,y
-               S02:0000118E:  B9 79 17
-F03:0211                           sta $180c,x
-               S02:00001191:  9D 0C 18
-F03:0212                           lda $1856
-               S02:00001194:  AD 56 18
-F03:0213                           beq L11b7
-               S02:00001197:  F0 1E
-F03:0214                           lda #$00
-               S02:00001199:  A9 00
-F03:0215                           sta $180f,x
-               S02:0000119B:  9D 0F 18
-F03:0216                           sta $1806,x
-               S02:0000119E:  9D 06 18
-F03:0217                           sta $1833,x
-               S02:000011A1:  9D 33 18
-F03:0218                           sta $1836,x
-               S02:000011A4:  9D 36 18
-F03:0219                           sta $1839,x
-               S02:000011A7:  9D 39 18
-F03:0220                           tay
-               S02:000011AA:  A8
-F03:0221       L11ab               asl $180c,x
-               S02:000011AB:  1E 0C 18
-F03:0222                           rol $180f,x
-               S02:000011AE:  3E 0F 18
-F03:0223                           iny
-               S02:000011B1:  C8
-F03:0224                           cpy $1856
-               S02:000011B2:  CC 56 18
-F03:0225                           bne L11ab
-               S02:000011B5:  D0 F4
-F03:0226       L11b7               pla
-               S02:000011B7:  68
-F03:0227                           lsr a
-               S02:000011B8:  4A
-F03:0228                           lsr a
-               S02:000011B9:  4A
-F03:0229                           lsr a
-               S02:000011BA:  4A
-F03:0230                           lsr a
-               S02:000011BB:  4A
-F03:0231                           sta $1809,x
-               S02:000011BC:  9D 09 18
-F03:0232                           lda $17e2,x
-               S02:000011BF:  BD E2 17
-F03:0233                           clc
-               S02:000011C2:  18
-F03:0234                           adc #$02
-               S02:000011C3:  69 02
-F03:0235                           sta $17e2,x
-               S02:000011C5:  9D E2 17
-F03:0236                           tay
-               S02:000011C8:  A8
-F03:0237                           jmp L1153
-               S02:000011C9:  4C 53 11
-F03:0238                           
-F03:0239       L11cc               cmp #$fe
-               S02:000011CC:  C9 FE
-F03:0240                           bne L11f4
-               S02:000011CE:  D0 24
-F03:0241       L11d0               lda $17e8,x
-               S02:000011D0:  BD E8 17
-F03:0242                           sta $17e5,x
-               S02:000011D3:  9D E5 17
-F03:0243                           inc $17e2,x
-               S02:000011D6:  FE E2 17
-F03:0244                           iny
-               S02:000011D9:  C8
-F03:0245                           lda ($fa),y
-               S02:000011DA:  B1 FA
-F03:0246                           sta $1827,x
-               S02:000011DC:  9D 27 18
-F03:0247                           cmp #$ff
-               S02:000011DF:  C9 FF
-F03:0248                           bne L11f1
-               S02:000011E1:  D0 0E
-F03:0249                           lda #$00
-               S02:000011E3:  A9 00
-F03:0250                           sta $17e2,x
-               S02:000011E5:  9D E2 17
-F03:0251                           sta $17f1,x
-               S02:000011E8:  9D F1 17
-F03:0252                           sta $17f4,x
-               S02:000011EB:  9D F4 17
-F03:0253                           inc $17df,x
-               S02:000011EE:  FE DF 17
-F03:0254       L11f1               jmp L1654
-               S02:000011F1:  4C 54 16
-F03:0255                           
-F03:0256       L11f4               cmp #$f4
-               S02:000011F4:  C9 F4
-F03:0257                           bne L1203
-               S02:000011F6:  D0 0B
-F03:0258                           lda $1821,x
-               S02:000011F8:  BD 21 18
-F03:0259                           eor #$01
-               S02:000011FB:  49 01
-F03:0260                           sta $1821,x
-               S02:000011FD:  9D 21 18
-F03:0261                           jmp L11d0
-               S02:00001200:  4C D0 11
-F03:0262                           
-F03:0263       L1203               cmp #$f5
-               S02:00001203:  C9 F5
-F03:0264                           bne L1215
-               S02:00001205:  D0 0E
-F03:0265                           lda $17f4,x
-               S02:00001207:  BD F4 17
-F03:0266                           eor #$ff
-               S02:0000120A:  49 FF
-F03:0267                           sta $17f4,x
-               S02:0000120C:  9D F4 17
-F03:0268                           inc $17e2,x
-               S02:0000120F:  FE E2 17
-F03:0269                           jmp L1150
-               S02:00001212:  4C 50 11
-F03:0270                           
-F03:0271       L1215               cmp #$f3
-               S02:00001215:  C9 F3
-F03:0272                           bne L1227
-               S02:00001217:  D0 0E
-F03:0273                           iny
-               S02:00001219:  C8
-F03:0274                           lda ($fa),y
-               S02:0000121A:  B1 FA
-F03:0275                           sta $17f1,x
-               S02:0000121C:  9D F1 17
-F03:0276                           iny
-               S02:0000121F:  C8
-F03:0277                           tya
-               S02:00001220:  98
-F03:0278                           sta $17e2,x
-               S02:00001221:  9D E2 17
-F03:0279                           jmp L1153
-               S02:00001224:  4C 53 11
-F03:0280                           
-F03:0281       L1227               cmp #$fb
-               S02:00001227:  C9 FB
-F03:0282                           bne L124c
-               S02:00001229:  D0 21
-F03:0283                           iny
-               S02:0000122B:  C8
-F03:0284                           lda ($fa),y
-               S02:0000122C:  B1 FA
-F03:0285                           sta $17f7,x
-               S02:0000122E:  9D F7 17
-F03:0286                           iny
-               S02:00001231:  C8
-F03:0287                           lda ($fa),y
-               S02:00001232:  B1 FA
-F03:0288                           clc
-               S02:00001234:  18
-F03:0289                           adc $17ee,x
-               S02:00001235:  7D EE 17
-F03:0290                           sta $1012,x
-               S02:00001238:  9D 12 10
-F03:0291                           iny
-               S02:0000123B:  C8
-F03:0292                           lda ($fa),y
-               S02:0000123C:  B1 FA
-F03:0293                           clc
-               S02:0000123E:  18
-F03:0294                           adc $17ee,x
-               S02:0000123F:  7D EE 17
-F03:0295                           sta $17fa,x
-               S02:00001242:  9D FA 17
-F03:0296                           tya
-               S02:00001245:  98
-F03:0297                           sta $17e2,x
-               S02:00001246:  9D E2 17
-F03:0298                           jmp L1323
-               S02:00001249:  4C 23 13
-F03:0299                           
-F03:0300       L124c               cmp #$fa
-               S02:0000124C:  C9 FA
-F03:0301                           bne L126f
-               S02:0000124E:  D0 1F
-F03:0302                           iny
-               S02:00001250:  C8
-F03:0303                           lda ($fa),y
-               S02:00001251:  B1 FA
-F03:0304                           sta $17f7,x
-               S02:00001253:  9D F7 17
-F03:0305                           iny
-               S02:00001256:  C8
-F03:0306                           lda ($fa),y
-               S02:00001257:  B1 FA
-F03:0307                           clc
-               S02:00001259:  18
-F03:0308                           adc $17ee,x
-               S02:0000125A:  7D EE 17
-F03:0309                           sta $17fa,x
-               S02:0000125D:  9D FA 17
-F03:0310                           tya
-               S02:00001260:  98
-F03:0311                           sta $17e2,x
-               S02:00001261:  9D E2 17
-F03:0312                           lda #$00
-               S02:00001264:  A9 00
-F03:0313                           sta $183c,x
-               S02:00001266:  9D 3C 18
-F03:0314                           sta $183f,x
-               S02:00001269:  9D 3F 18
-F03:0315                           jmp L11d0
-               S02:0000126C:  4C D0 11
-F03:0316                           
-F03:0317       L126f               cmp #$f9
-               S02:0000126F:  C9 F9
-F03:0318                           bne L1294
-               S02:00001271:  D0 21
-F03:0319                           iny
-               S02:00001273:  C8
-F03:0320                           lda ($fa),y
-               S02:00001274:  B1 FA
-F03:0321                           sta $1857
-               S02:00001276:  8D 57 18
-F03:0322                           beq L1281
-               S02:00001279:  F0 06
-F03:0323                           asl a
-               S02:0000127B:  0A
-F03:0324                           asl a
-               S02:0000127C:  0A
-F03:0325                           asl a
-               S02:0000127D:  0A
-F03:0326                           asl a
-               S02:0000127E:  0A
-F03:0327                           ora #$04
-               S02:0000127F:  09 04
-F03:0328       L1281               sta d417_sFiltControl
-               S02:00001281:  8D 17 B8
-F03:0329                           lda $1857
-               S02:00001284:  AD 57 18
-F03:0330                           and #$f0
-               S02:00001287:  29 F0
-F03:0331                           sta $1018
-               S02:00001289:  8D 18 10
-F03:0332                           iny
-               S02:0000128C:  C8
-F03:0333                           tya
-               S02:0000128D:  98
-F03:0334                           sta $17e2,x
-               S02:0000128E:  9D E2 17
-F03:0335                           jmp L1153
-               S02:00001291:  4C 53 11
-F03:0336                           
-F03:0337       L1294               cmp #$f8
-               S02:00001294:  C9 F8
-F03:0338                           bne L12a6
-               S02:00001296:  D0 0E
-F03:0339                           iny
-               S02:00001298:  C8
-F03:0340                           lda ($fa),y
-               S02:00001299:  B1 FA
-F03:0341                           sta $1853
-               S02:0000129B:  8D 53 18
-F03:0342                           iny
-               S02:0000129E:  C8
-F03:0343                           tya
-               S02:0000129F:  98
-F03:0344                           sta $17e2,x
-               S02:000012A0:  9D E2 17
-F03:0345                           jmp L1153
-               S02:000012A3:  4C 53 11
-F03:0346                           
-F03:0347       L12a6               cmp #$f2
-               S02:000012A6:  C9 F2
-F03:0348                           bne L12bf
-               S02:000012A8:  D0 15
-F03:0349                           iny
-               S02:000012AA:  C8
-F03:0350                           lda ($fa),y
-               S02:000012AB:  B1 FA
-F03:0351                           ldy $100c,x
-               S02:000012AD:  BC 0C 10
-F03:0352                           sta d405_sVoc1AttDec,y
-               S02:000012B0:  99 05 B8
-F03:0353                           lda $17e2,x
-               S02:000012B3:  BD E2 17
-F03:0354                           clc
-               S02:000012B6:  18
-F03:0355                           adc #$02
-               S02:000012B7:  69 02
-F03:0356                           sta $17e2,x
-               S02:000012B9:  9D E2 17
-F03:0357                           jmp L1150
-               S02:000012BC:  4C 50 11
-F03:0358                           
-F03:0359       L12bf               cmp #$f1
-               S02:000012BF:  C9 F1
-F03:0360                           bne L12d8
-               S02:000012C1:  D0 15
-F03:0361                           iny
-               S02:000012C3:  C8
-F03:0362                           lda ($fa),y
-               S02:000012C4:  B1 FA
-F03:0363                           ldy $100c,x
-               S02:000012C6:  BC 0C 10
-F03:0364                           sta d406_sVoc1SusRel,y
-               S02:000012C9:  99 06 B8
-F03:0365                           lda $17e2,x
-               S02:000012CC:  BD E2 17
-F03:0366                           clc
-               S02:000012CF:  18
-F03:0367                           adc #$02
-               S02:000012D0:  69 02
-F03:0368                           sta $17e2,x
-               S02:000012D2:  9D E2 17
-F03:0369                           jmp L1150
-               S02:000012D5:  4C 50 11
-F03:0370                           
-F03:0371       L12d8               cmp #$f7
-               S02:000012D8:  C9 F7
-F03:0372                           bne L12ea
-               S02:000012DA:  D0 0E
-F03:0373                           iny
-               S02:000012DC:  C8
-F03:0374                           lda ($fa),y
-               S02:000012DD:  B1 FA
-F03:0375                           sta $1854
-               S02:000012DF:  8D 54 18
-F03:0376                           iny
-               S02:000012E2:  C8
-F03:0377                           tya
-               S02:000012E3:  98
-F03:0378                           sta $17e2,x
-               S02:000012E4:  9D E2 17
-F03:0379                           jmp L1153
-               S02:000012E7:  4C 53 11
-F03:0380                           
-F03:0381       L12ea               cmp #$f6
-               S02:000012EA:  C9 F6
-F03:0382                           bne L12fc
-               S02:000012EC:  D0 0E
-F03:0383                           iny
-               S02:000012EE:  C8
-F03:0384                           lda ($fa),y
-               S02:000012EF:  B1 FA
-F03:0385                           sta $1855
-               S02:000012F1:  8D 55 18
-F03:0386                           iny
-               S02:000012F4:  C8
-F03:0387                           tya
-               S02:000012F5:  98
-F03:0388                           sta $17e2,x
-               S02:000012F6:  9D E2 17
-F03:0389                           jmp L1153
-               S02:000012F9:  4C 53 11
-F03:0390                           
-F03:0391       L12fc               cmp #$ef
-               S02:000012FC:  C9 EF
-F03:0392                           bne L130e
-               S02:000012FE:  D0 0E
-F03:0393                           iny
-               S02:00001300:  C8
-F03:0394                           lda ($fa),y
-               S02:00001301:  B1 FA
-F03:0395                           sta $1842,x
-               S02:00001303:  9D 42 18
-F03:0396                           iny
-               S02:00001306:  C8
-F03:0397                           tya
-               S02:00001307:  98
-F03:0398                           sta $17e2,x
-               S02:00001308:  9D E2 17
-F03:0399                           jmp L1153
-               S02:0000130B:  4C 53 11
-F03:0400                           
-F03:0401       L130e               inc $17e2,x
-               S02:0000130E:  FE E2 17
-F03:0402                           jmp L1150
-               S02:00001311:  4C 50 11
-F03:0403                           
-F03:0404       L1314               clc
-               S02:00001314:  18
-F03:0405                           adc $17ee,x
-               S02:00001315:  7D EE 17
-F03:0406                           sta $1012,x
-               S02:00001318:  9D 12 10
-F03:0407                           lda $17f4,x
-               S02:0000131B:  BD F4 17
-F03:0408                           beq L1323
-               S02:0000131E:  F0 03
-F03:0409                           jmp L11d0
-               S02:00001320:  4C D0 11
-F03:0410                           
-F03:0411       L1323               iny
-               S02:00001323:  C8
-F03:0412                           lda ($fa),y
-               S02:00001324:  B1 FA
-F03:0413                           sta $1827,x
-               S02:00001326:  9D 27 18
-F03:0414                           lda $17eb,x
-               S02:00001329:  BD EB 17
-F03:0415                           asl a
-               S02:0000132C:  0A
-F03:0416                           asl a
-               S02:0000132D:  0A
-F03:0417                           asl a
-               S02:0000132E:  0A
-F03:0418                           sta $184b,x
-               S02:0000132F:  9D 4B 18
-F03:0419                           tay
-               S02:00001332:  A8
-F03:0420                           lda $17f1,x
-               S02:00001333:  BD F1 17
-F03:0421                           bne L1352
-               S02:00001336:  D0 1A
-F03:0422                           lda $1c65,y
-               S02:00001338:  B9 65 1C
-F03:0423                           pha
-               S02:0000133B:  48
-F03:0424                           lda $1c66,y
-               S02:0000133C:  B9 66 1C
-F03:0425                           ldy $100c,x
-               S02:0000133F:  BC 0C 10
-F03:0426                           sta d406_sVoc1SusRel,y
-               S02:00001342:  99 06 B8
-F03:0427                           pla
-               S02:00001345:  68
-F03:0428                           sta d405_sVoc1AttDec,y
-               S02:00001346:  99 05 B8
-F03:0429                           lda #$09
-               S02:00001349:  A9 09
-F03:0430                           sta d404_sVoc1Control,y
-               S02:0000134B:  99 04 B8
-F03:0431                           sta $1815,x
-               S02:0000134E:  9D 15 18
-F03:0432                           rts
-               S02:00001351:  60
-F03:0433                           
-F03:0434       L1352               asl a
-               S02:00001352:  0A
-F03:0435                           asl a
-               S02:00001353:  0A
-F03:0436                           asl a
-               S02:00001354:  0A
-F03:0437                           asl a
-               S02:00001355:  0A
-F03:0438                           sta $fa
-               S02:00001356:  85 FA
-F03:0439                           lda $1c66,y
-               S02:00001358:  B9 66 1C
-F03:0440                           and #$0f
-               S02:0000135B:  29 0F
-F03:0441                           ora $fa
-               S02:0000135D:  05 FA
-F03:0442                           ldy $100c,x
-               S02:0000135F:  BC 0C 10
-F03:0443                           sta d406_sVoc1SusRel,y
-               S02:00001362:  99 06 B8
-F03:0444                           lda #$00
-               S02:00001365:  A9 00
-F03:0445                           sta d405_sVoc1AttDec,y
-               S02:00001367:  99 05 B8
-F03:0446                           lda #$09
-               S02:0000136A:  A9 09
-F03:0447                           sta d404_sVoc1Control,y
-               S02:0000136C:  99 04 B8
-F03:0448                           sta $1815,x
-               S02:0000136F:  9D 15 18
-F03:0449                           rts
-               S02:00001372:  60
-F03:0450                           
-F03:0451       S1373               lda $1815,x
-               S02:00001373:  BD 15 18
-F03:0452                           bne L137b
-               S02:00001376:  D0 03
-F03:0453                           jmp L147b
-               S02:00001378:  4C 7B 14
-F03:0454                           
-F03:0455       L137b               lda #$00
-               S02:0000137B:  A9 00
-F03:0456                           sta $1815,x
-               S02:0000137D:  9D 15 18
-F03:0457                           sta $183c,x
-               S02:00001380:  9D 3C 18
-F03:0458                           sta $183f,x
-               S02:00001383:  9D 3F 18
-F03:0459                           lda $17e8,x
-               S02:00001386:  BD E8 17
-F03:0460                           sta $17e5,x
-               S02:00001389:  9D E5 17
-F03:0461                           inc $17e2,x
-               S02:0000138C:  FE E2 17
-F03:0462                           ldy $184b,x
-               S02:0000138F:  BC 4B 18
-F03:0463                           lda $1c6b,y
-               S02:00001392:  B9 6B 1C
-F03:0464                           and #$0f
-               S02:00001395:  29 0F
-F03:0465                           sta $1809,x
-               S02:00001397:  9D 09 18
-F03:0466                           beq L13e1
-               S02:0000139A:  F0 45
-F03:0467                           lda $1c6a,y
-               S02:0000139C:  B9 6A 1C
-F03:0468                           sta $1806,x
-               S02:0000139F:  9D 06 18
-F03:0469                           lda $1c6c,y
-               S02:000013A2:  B9 6C 1C
-F03:0470                           and #$f0
-               S02:000013A5:  29 F0
-F03:0471                           lsr a
-               S02:000013A7:  4A
-F03:0472                           lsr a
-               S02:000013A8:  4A
-F03:0473                           lsr a
-               S02:000013A9:  4A
-F03:0474                           sta $1812,x
-               S02:000013AA:  9D 12 18
-F03:0475                           lda $1c6c,y
-               S02:000013AD:  B9 6C 1C
-F03:0476                           and #$07
-               S02:000013B0:  29 07
-F03:0477                           sta $1856
-               S02:000013B2:  8D 56 18
-F03:0478                           ldy $1012,x
-               S02:000013B5:  BC 12 10
-F03:0479                           lda $1779,y
-               S02:000013B8:  B9 79 17
-F03:0480                           sta $180c,x
-               S02:000013BB:  9D 0C 18
-F03:0481                           lda #$00
-               S02:000013BE:  A9 00
-F03:0482                           sta $180f,x
-               S02:000013C0:  9D 0F 18
-F03:0483                           sta $1833,x
-               S02:000013C3:  9D 33 18
-F03:0484                           sta $1836,x
-               S02:000013C6:  9D 36 18
-F03:0485                           sta $1839,x
-               S02:000013C9:  9D 39 18
-F03:0486                           tay
-               S02:000013CC:  A8
-F03:0487                           lda $1856
-               S02:000013CD:  AD 56 18
-F03:0488                           beq L13de
-               S02:000013D0:  F0 0C
-F03:0489       L13d2               asl $180c,x
-               S02:000013D2:  1E 0C 18
-F03:0490                           rol $180f,x
-               S02:000013D5:  3E 0F 18
-F03:0491                           iny
-               S02:000013D8:  C8
-F03:0492                           cpy $1856
-               S02:000013D9:  CC 56 18
-F03:0493                           bne L13d2
-               S02:000013DC:  D0 F4
-F03:0494       L13de               ldy $184b,x
-               S02:000013DE:  BC 4B 18
-F03:0495       L13e1               lda $1c6b,y
-               S02:000013E1:  B9 6B 1C
-F03:0496                           lsr a
-               S02:000013E4:  4A
-F03:0497                           lsr a
-               S02:000013E5:  4A
-F03:0498                           lsr a
-               S02:000013E6:  4A
-F03:0499                           lsr a
-               S02:000013E7:  4A
-F03:0500                           sta $1845,x
-               S02:000013E8:  9D 45 18
-F03:0501                           sta $1848,x
-               S02:000013EB:  9D 48 18
-F03:0502                           lda $1c67,y
-               S02:000013EE:  B9 67 1C
-F03:0503                           sta $17fd,x
-               S02:000013F1:  9D FD 17
-F03:0504                           lda $1c68,y
-               S02:000013F4:  B9 68 1C
-F03:0505                           beq L1411
-               S02:000013F7:  F0 18
-F03:0506                           tay
-               S02:000013F9:  A8
-F03:0507                           sta $1800,x
-               S02:000013FA:  9D 00 18
-F03:0508                           lda $1d0f,y
-               S02:000013FD:  B9 0F 1D
-F03:0509                           sta $182d,x
-               S02:00001400:  9D 2D 18
-F03:0510                           lda $1d24,y
-               S02:00001403:  B9 24 1D
-F03:0511                           sta $182a,x
-               S02:00001406:  9D 2A 18
-F03:0512                           lda #$00
-               S02:00001409:  A9 00
-F03:0513                           sta $1830,x
-               S02:0000140B:  9D 30 18
-F03:0514                           inc $1800,x
-               S02:0000140E:  FE 00 18
-F03:0515       L1411               cpx #$02
-               S02:00001411:  E0 02
-F03:0516                           bne L142f
-               S02:00001413:  D0 1A
-F03:0517                           ldy $184b,x
-               S02:00001415:  BC 4B 18
-F03:0518                           lda $1c69,y
-               S02:00001418:  B9 69 1C
-F03:0519                           beq L142f
-               S02:0000141B:  F0 12
-F03:0520                           sta $1803
-               S02:0000141D:  8D 03 18
-F03:0521                           tay
-               S02:00001420:  A8
-F03:0522                           lda $1d39,y
-               S02:00001421:  B9 39 1D
-F03:0523                           sta $1019
-               S02:00001424:  8D 19 10
-F03:0524                           lda #$00
-               S02:00001427:  A9 00
-F03:0525                           sta $184e
-               S02:00001429:  8D 4E 18
-F03:0526                           inc $1803
-               S02:0000142C:  EE 03 18
-F03:0527       L142f               ldy $17fd,x
-               S02:0000142F:  BC FD 17
-F03:0528                           lda $1cb5,y
-               S02:00001432:  B9 B5 1C
-F03:0529                           sta $181e,x
-               S02:00001435:  9D 1E 18
-F03:0530                           and #$08
-               S02:00001438:  29 08
-F03:0531                           beq L144a
-               S02:0000143A:  F0 0E
-F03:0532                           lda $1ce2,y
-               S02:0000143C:  B9 E2 1C
-F03:0533                           sta $181b,x
-               S02:0000143F:  9D 1B 18
-F03:0534                           lda #$00
-               S02:00001442:  A9 00
-F03:0535                           sta $1818,x
-               S02:00001444:  9D 18 18
-F03:0536                           jmp L145e
-               S02:00001447:  4C 5E 14
-F03:0537                           
-F03:0538       L144a               lda $1ce2,y
-               S02:0000144A:  B9 E2 1C
-F03:0539                           clc
-               S02:0000144D:  18
-F03:0540                           adc $1012,x
-               S02:0000144E:  7D 12 10
-F03:0541                           tay
-               S02:00001451:  A8
-F03:0542                           lda $1719,y
-               S02:00001452:  B9 19 17
-F03:0543                           sta $1818,x
-               S02:00001455:  9D 18 18
-F03:0544                           lda $1779,y
-               S02:00001458:  B9 79 17
-F03:0545                           sta $181b,x
-               S02:0000145B:  9D 1B 18
-F03:0546       L145e               lda #$f7
-               S02:0000145E:  A9 F7
-F03:0547                           sta $1821,x
-               S02:00001460:  9D 21 18
-F03:0548                           lda $1827,x
-               S02:00001463:  BD 27 18
-F03:0549                           cmp #$ff
-               S02:00001466:  C9 FF
-F03:0550                           bne L1478
-               S02:00001468:  D0 0E
-F03:0551                           lda #$00
-               S02:0000146A:  A9 00
-F03:0552                           sta $17e2,x
-               S02:0000146C:  9D E2 17
-F03:0553                           sta $17f1,x
-               S02:0000146F:  9D F1 17
-F03:0554                           sta $17f4,x
-               S02:00001472:  9D F4 17
-F03:0555                           inc $17df,x
-               S02:00001475:  FE DF 17
-F03:0556       L1478               jmp L1696
-               S02:00001478:  4C 96 16
-F03:0557                           
-F03:0558       L147b               cpx #$02
-               S02:0000147B:  E0 02
-F03:0559                           bne L14b4
-               S02:0000147D:  D0 35
-F03:0560                           lda $1857
-               S02:0000147F:  AD 57 18
-F03:0561                           beq L14b4
-               S02:00001482:  F0 30
-F03:0562                           ldy $1803
-               S02:00001484:  AC 03 18
-F03:0563                           lda $1d39,y
-               S02:00001487:  B9 39 1D
-F03:0564                           cmp #$90
-               S02:0000148A:  C9 90
-F03:0565                           bne L1495
-               S02:0000148C:  D0 07
-F03:0566                           lda $1d4e,y
-               S02:0000148E:  B9 4E 1D
-F03:0567                           sta $1803
-               S02:00001491:  8D 03 18
-F03:0568                           tay
-               S02:00001494:  A8
-F03:0569       L1495               lda $1d39,y
-               S02:00001495:  B9 39 1D
-F03:0570                           clc
-               S02:00001498:  18
-F03:0571                           adc $1019
-               S02:00001499:  6D 19 10
-F03:0572                           sta $1019
-               S02:0000149C:  8D 19 10
-F03:0573                           iny
-               S02:0000149F:  C8
-F03:0574                           inc $184e
-               S02:000014A0:  EE 4E 18
-F03:0575                           lda $184e
-               S02:000014A3:  AD 4E 18
-F03:0576                           cmp $1d4e,y
-               S02:000014A6:  D9 4E 1D
-F03:0577                           bne L14b4
-               S02:000014A9:  D0 09
-F03:0578                           lda #$00
-               S02:000014AB:  A9 00
-F03:0579                           sta $184e
-               S02:000014AD:  8D 4E 18
-F03:0580                           iny
-               S02:000014B0:  C8
-F03:0581                           sty $1803
-               S02:000014B1:  8C 03 18
-F03:0582       L14b4               ldy $1800,x
-               S02:000014B4:  BC 00 18
-F03:0583                           lda $1d0f,y
-               S02:000014B7:  B9 0F 1D
-F03:0584                           cmp #$90
-               S02:000014BA:  C9 90
-F03:0585                           bne L14c5
-               S02:000014BC:  D0 07
-F03:0586                           lda $1d24,y
-               S02:000014BE:  B9 24 1D
-F03:0587                           sta $1800,x
-               S02:000014C1:  9D 00 18
-F03:0588                           tay
-               S02:000014C4:  A8
-F03:0589       L14c5               lda $1d24,y
-               S02:000014C5:  B9 24 1D
-F03:0590                           clc
-               S02:000014C8:  18
-F03:0591                           adc $182a,x
-               S02:000014C9:  7D 2A 18
-F03:0592                           sta $182a,x
-               S02:000014CC:  9D 2A 18
-F03:0593                           lda $1d0f,y
-               S02:000014CF:  B9 0F 1D
-F03:0594                           adc $182d,x
-               S02:000014D2:  7D 2D 18
-F03:0595                           sta $182d,x
-               S02:000014D5:  9D 2D 18
-F03:0596                           iny
-               S02:000014D8:  C8
-F03:0597                           inc $1830,x
-               S02:000014D9:  FE 30 18
-F03:0598                           lda $1830,x
-               S02:000014DC:  BD 30 18
-F03:0599                           cmp $1d24,y
-               S02:000014DF:  D9 24 1D
-F03:0600                           bne L14ee
-               S02:000014E2:  D0 0A
-F03:0601                           lda #$00
-               S02:000014E4:  A9 00
-F03:0602                           sta $1830,x
-               S02:000014E6:  9D 30 18
-F03:0603                           iny
-               S02:000014E9:  C8
-F03:0604                           tya
-               S02:000014EA:  98
-F03:0605                           sta $1800,x
-               S02:000014EB:  9D 00 18
-F03:0606       L14ee               lda $17f7,x
-               S02:000014EE:  BD F7 17
-F03:0607                           bne L14f6
-               S02:000014F1:  D0 03
-F03:0608                           jmp L156c
-               S02:000014F3:  4C 6C 15
-F03:0609                           
-F03:0610       L14f6               lda $1012,x
-               S02:000014F6:  BD 12 10
-F03:0611                           cmp $17fa,x
-               S02:000014F9:  DD FA 17
-F03:0612                           bcs L152b
-               S02:000014FC:  B0 2D
-F03:0613                           lda $1818,x
-               S02:000014FE:  BD 18 18
-F03:0614                           clc
-               S02:00001501:  18
-F03:0615                           adc $183c,x
-               S02:00001502:  7D 3C 18
-F03:0616                           lda $181b,x
-               S02:00001505:  BD 1B 18
-F03:0617                           adc $183f,x
-               S02:00001508:  7D 3F 18
-F03:0618                           ldy $17fa,x
-               S02:0000150B:  BC FA 17
-F03:0619                           cmp $1779,y
-               S02:0000150E:  D9 79 17
-F03:0620                           bne L1516
-               S02:00001511:  D0 03
-F03:0621                           jmp L1558
-               S02:00001513:  4C 58 15
-F03:0622                           
-F03:0623       L1516               lda $183c,x
-               S02:00001516:  BD 3C 18
-F03:0624                           clc
-               S02:00001519:  18
-F03:0625                           adc $17f7,x
-               S02:0000151A:  7D F7 17
-F03:0626                           sta $183c,x
-               S02:0000151D:  9D 3C 18
-F03:0627                           lda $183f,x
-               S02:00001520:  BD 3F 18
-F03:0628                           adc #$00
-               S02:00001523:  69 00
-F03:0629                           sta $183f,x
-               S02:00001525:  9D 3F 18
-F03:0630                           jmp L1654
-               S02:00001528:  4C 54 16
-F03:0631                           
-F03:0632       L152b               lda $1818,x
-               S02:0000152B:  BD 18 18
-F03:0633                           clc
-               S02:0000152E:  18
-F03:0634                           adc $183c,x
-               S02:0000152F:  7D 3C 18
-F03:0635                           lda $181b,x
-               S02:00001532:  BD 1B 18
-F03:0636                           adc $183f,x
-               S02:00001535:  7D 3F 18
-F03:0637                           ldy $17fa,x
-               S02:00001538:  BC FA 17
-F03:0638                           cmp $1779,y
-               S02:0000153B:  D9 79 17
-F03:0639                           bne L1543
-               S02:0000153E:  D0 03
-F03:0640                           jmp L1558
-               S02:00001540:  4C 58 15
-F03:0641                           
-F03:0642       L1543               lda $183c,x
-               S02:00001543:  BD 3C 18
-F03:0643                           sec
-               S02:00001546:  38
-F03:0644                           sbc $17f7,x
-               S02:00001547:  FD F7 17
-F03:0645                           sta $183c,x
-               S02:0000154A:  9D 3C 18
-F03:0646                           lda $183f,x
-               S02:0000154D:  BD 3F 18
-F03:0647                           sbc #$00
-               S02:00001550:  E9 00
-F03:0648                           sta $183f,x
-               S02:00001552:  9D 3F 18
-F03:0649                           jmp L1654
-               S02:00001555:  4C 54 16
-F03:0650                           
-F03:0651       L1558               lda $17fa,x
-               S02:00001558:  BD FA 17
-F03:0652                           sta $1012,x
-               S02:0000155B:  9D 12 10
-F03:0653                           lda #$00
-               S02:0000155E:  A9 00
-F03:0654                           sta $183c,x
-               S02:00001560:  9D 3C 18
-F03:0655                           sta $183f,x
-               S02:00001563:  9D 3F 18
-F03:0656                           sta $17f7,x
-               S02:00001566:  9D F7 17
-F03:0657                           jmp L1654
-               S02:00001569:  4C 54 16
-F03:0658                           
-F03:0659       L156c               lda $17f4,x
-               S02:0000156C:  BD F4 17
-F03:0660                           beq L157c
-               S02:0000156F:  F0 0B
-F03:0661                           lda #$00
-               S02:00001571:  A9 00
-F03:0662                           sta $183c,x
-               S02:00001573:  9D 3C 18
-F03:0663                           sta $183f,x
-               S02:00001576:  9D 3F 18
-F03:0664                           jmp L1654
-               S02:00001579:  4C 54 16
-F03:0665                           
-F03:0666       L157c               lda $1809,x
-               S02:0000157C:  BD 09 18
-F03:0667                           bne L1584
-               S02:0000157F:  D0 03
-F03:0668                           jmp L1612
-               S02:00001581:  4C 12 16
-F03:0669                           
-F03:0670       L1584               lda $1806,x
-               S02:00001584:  BD 06 18
-F03:0671                           beq L158f
-               S02:00001587:  F0 06
-F03:0672                           dec $1806,x
-               S02:00001589:  DE 06 18
-F03:0673                           jmp L1612
-               S02:0000158C:  4C 12 16
-F03:0674                           
-F03:0675       L158f               lda $1836,x
-               S02:0000158F:  BD 36 18
-F03:0676                           bne L15dd
-               S02:00001592:  D0 49
-F03:0677                           lda $183c,x
-               S02:00001594:  BD 3C 18
-F03:0678                           clc
-               S02:00001597:  18
-F03:0679                           adc $180c,x
-               S02:00001598:  7D 0C 18
-F03:0680                           sta $183c,x
-               S02:0000159B:  9D 3C 18
-F03:0681                           lda $183f,x
-               S02:0000159E:  BD 3F 18
-F03:0682                           adc $180f,x
-               S02:000015A1:  7D 0F 18
-F03:0683                           sta $183f,x
-               S02:000015A4:  9D 3F 18
-F03:0684                           inc $1839,x
-               S02:000015A7:  FE 39 18
-F03:0685                           lda $1839,x
-               S02:000015AA:  BD 39 18
-F03:0686                           cmp $1809,x
-               S02:000015AD:  DD 09 18
-F03:0687                           bne L1612
-               S02:000015B0:  D0 60
-F03:0688                           inc $1836,x
-               S02:000015B2:  FE 36 18
-F03:0689                           lda $1812,x
-               S02:000015B5:  BD 12 18
-F03:0690                           beq L15cc
-               S02:000015B8:  F0 12
-F03:0691                           clc
-               S02:000015BA:  18
-F03:0692                           adc $180c,x
-               S02:000015BB:  7D 0C 18
-F03:0693                           sta $180c,x
-               S02:000015BE:  9D 0C 18
-F03:0694                           lda $180f,x
-               S02:000015C1:  BD 0F 18
-F03:0695                           adc #$00
-               S02:000015C4:  69 00
-F03:0696                           sta $180f,x
-               S02:000015C6:  9D 0F 18
-F03:0697                           jmp L1654
-               S02:000015C9:  4C 54 16
-F03:0698                           
-F03:0699       L15cc               lda $1833,x
-               S02:000015CC:  BD 33 18
-F03:0700                           bne L15da
-               S02:000015CF:  D0 09
-F03:0701                           asl $180c,x
-               S02:000015D1:  1E 0C 18
-F03:0702                           rol $180f,x
-               S02:000015D4:  3E 0F 18
-F03:0703                           inc $1833,x
-               S02:000015D7:  FE 33 18
-F03:0704       L15da               jmp L1654
-               S02:000015DA:  4C 54 16
-F03:0705                           
-F03:0706       L15dd               lda $183c,x
-               S02:000015DD:  BD 3C 18
-F03:0707                           sec
-               S02:000015E0:  38
-F03:0708                           sbc $180c,x
-               S02:000015E1:  FD 0C 18
-F03:0709                           sta $183c,x
-               S02:000015E4:  9D 3C 18
-F03:0710                           lda $183f,x
-               S02:000015E7:  BD 3F 18
-F03:0711                           sbc $180f,x
-               S02:000015EA:  FD 0F 18
-F03:0712                           sta $183f,x
-               S02:000015ED:  9D 3F 18
-F03:0713                           dec $1839,x
-               S02:000015F0:  DE 39 18
-F03:0714                           lda $1839,x
-               S02:000015F3:  BD 39 18
-F03:0715                           bne L1612
-               S02:000015F6:  D0 1A
-F03:0716                           dec $1836,x
-               S02:000015F8:  DE 36 18
-F03:0717                           lda $1812,x
-               S02:000015FB:  BD 12 18
-F03:0718                           beq L1612
-               S02:000015FE:  F0 12
-F03:0719                           clc
-               S02:00001600:  18
-F03:0720                           adc $180c,x
-               S02:00001601:  7D 0C 18
-F03:0721                           sta $180c,x
-               S02:00001604:  9D 0C 18
-F03:0722                           lda $180f,x
-               S02:00001607:  BD 0F 18
-F03:0723                           adc #$00
-               S02:0000160A:  69 00
-F03:0724                           sta $180f,x
-               S02:0000160C:  9D 0F 18
-F03:0725                           jmp L1654
-               S02:0000160F:  4C 54 16
-F03:0726                           
-F03:0727       L1612               lda $1855
-               S02:00001612:  AD 55 18
-F03:0728                           beq L162e
-               S02:00001615:  F0 17
-F03:0729                           lda $101b
-               S02:00001617:  AD 1B 10
-F03:0730                           sec
-               S02:0000161A:  38
-F03:0731                           sbc $1855
-               S02:0000161B:  ED 55 18
-F03:0732                           sta $101b
-               S02:0000161E:  8D 1B 10
-F03:0733                           lda $101a
-               S02:00001621:  AD 1A 10
-F03:0734                           sbc #$00
-               S02:00001624:  E9 00
-F03:0735                           sta $101a
-               S02:00001626:  8D 1A 10
-F03:0736                           bne L162e
-               S02:00001629:  D0 03
-F03:0737                           sta $1855
-               S02:0000162B:  8D 55 18
-F03:0738       L162e               lda $1854
-               S02:0000162E:  AD 54 18
-F03:0739                           beq L164b
-               S02:00001631:  F0 18
-F03:0740                           clc
-               S02:00001633:  18
-F03:0741                           adc $101b
-               S02:00001634:  6D 1B 10
-F03:0742                           sta $101b
-               S02:00001637:  8D 1B 10
-F03:0743                           lda $101a
-               S02:0000163A:  AD 1A 10
-F03:0744                           adc #$00
-               S02:0000163D:  69 00
-F03:0745                           sta $101a
-               S02:0000163F:  8D 1A 10
-F03:0746                           cmp #$0f
-               S02:00001642:  C9 0F
-F03:0747                           bne L164b
-               S02:00001644:  D0 05
-F03:0748                           lda #$00
-               S02:00001646:  A9 00
-F03:0749                           sta $1854
-               S02:00001648:  8D 54 18
-F03:0750       L164b               lda $101a
-               S02:0000164B:  AD 1A 10
-F03:0751                           ora $1018
-               S02:0000164E:  0D 18 10
-F03:0752                           sta d418_sFiltMode
-               S02:00001651:  8D 18 B8
-F03:0753       L1654               ldy $17fd,x
-               S02:00001654:  BC FD 17
-F03:0754                           lda $1cb5,y
-               S02:00001657:  B9 B5 1C
-F03:0755                           cmp #$90
-               S02:0000165A:  C9 90
-F03:0756                           bne L1668
-               S02:0000165C:  D0 0A
-F03:0757                           lda $1ce2,y
-               S02:0000165E:  B9 E2 1C
-F03:0758                           sta $17fd,x
-               S02:00001661:  9D FD 17
-F03:0759                           tay
-               S02:00001664:  A8
-F03:0760                           lda $1cb5,y
-               S02:00001665:  B9 B5 1C
-F03:0761       L1668               sta $181e,x
-               S02:00001668:  9D 1E 18
-F03:0762                           and #$08
-               S02:0000166B:  29 08
-F03:0763                           beq L167d
-               S02:0000166D:  F0 0E
-F03:0764                           lda $1ce2,y
-               S02:0000166F:  B9 E2 1C
-F03:0765                           sta $181b,x
-               S02:00001672:  9D 1B 18
-F03:0766                           lda #$00
-               S02:00001675:  A9 00
-F03:0767                           sta $1818,x
-               S02:00001677:  9D 18 18
-F03:0768                           jmp L1696
-               S02:0000167A:  4C 96 16
-F03:0769                           
-F03:0770       L167d               lda $1ce2,y
-               S02:0000167D:  B9 E2 1C
-F03:0771                           clc
-               S02:00001680:  18
-F03:0772                           adc $1012,x
-               S02:00001681:  7D 12 10
-F03:0773                           tay
-               S02:00001684:  A8
-F03:0774                           lda $1719,y
-               S02:00001685:  B9 19 17
-F03:0775                           adc $1842,x
-               S02:00001688:  7D 42 18
-F03:0776                           sta $1818,x
-               S02:0000168B:  9D 18 18
-F03:0777                           lda $1779,y
-               S02:0000168E:  B9 79 17
-F03:0778                           adc #$00
-               S02:00001691:  69 00
-F03:0779                           sta $181b,x
-               S02:00001693:  9D 1B 18
-F03:0780       L1696               lda $1848,x
-               S02:00001696:  BD 48 18
-F03:0781                           beq L16a1
-               S02:00001699:  F0 06
-F03:0782                           dec $1848,x
-               S02:0000169B:  DE 48 18
-F03:0783                           jmp L16aa
-               S02:0000169E:  4C AA 16
-F03:0784                           
-F03:0785       L16a1               inc $17fd,x
-               S02:000016A1:  FE FD 17
-F03:0786                           lda $1845,x
-               S02:000016A4:  BD 45 18
-F03:0787                           sta $1848,x
-               S02:000016A7:  9D 48 18
-F03:0788       L16aa               ldy $100c,x
-               S02:000016AA:  BC 0C 10
-F03:0789                           lda $1827,x
-               S02:000016AD:  BD 27 18
-F03:0790                           cmp #$fe
-               S02:000016B0:  C9 FE
-F03:0791                           beq L16f0
-               S02:000016B2:  F0 3C
-F03:0792                           cmp #$fa
-               S02:000016B4:  C9 FA
-F03:0793                           beq L16f0
-               S02:000016B6:  F0 38
-F03:0794                           cmp #$f4
-               S02:000016B8:  C9 F4
-F03:0795                           beq L16f0
-               S02:000016BA:  F0 34
-F03:0796                           cmp #$f5
-               S02:000016BC:  C9 F5
-F03:0797                           beq L16eb
-               S02:000016BE:  F0 2B
-F03:0798                           cmp #$f3
-               S02:000016C0:  C9 F3
-F03:0799                           bcs L16c6
-               S02:000016C2:  B0 02
-F03:0800                           bmi L16f0
-               S02:000016C4:  30 2A
-F03:0801       L16c6               lda $17f4,x
-               S02:000016C6:  BD F4 17
-F03:0802                           bne L16f0
-               S02:000016C9:  D0 25
-F03:0803       L16cb               lda $17e5,x
-               S02:000016CB:  BD E5 17
-F03:0804                           cmp #$01
-               S02:000016CE:  C9 01
-F03:0805                           bne L16da
-               S02:000016D0:  D0 08
-F03:0806                           lda #$00
-               S02:000016D2:  A9 00
-F03:0807                           sta d406_sVoc1SusRel,y
-               S02:000016D4:  99 06 B8
-F03:0808                           jmp L16f0
-               S02:000016D7:  4C F0 16
-F03:0809                           
-F03:0810       L16da               cmp #$02
-               S02:000016DA:  C9 02
-F03:0811                           bne L16f0
-               S02:000016DC:  D0 12
-F03:0812                           lda $1016
-               S02:000016DE:  AD 16 10
-F03:0813                           bne L16f0
-               S02:000016E1:  D0 0D
-F03:0814                           lda #$f6
-               S02:000016E3:  A9 F6
-F03:0815                           sta $1821,x
-               S02:000016E5:  9D 21 18
-F03:0816                           jmp L16f0
-               S02:000016E8:  4C F0 16
-F03:0817                           
-F03:0818       L16eb               lda $17f4,x
-               S02:000016EB:  BD F4 17
-F03:0819                           bne L16cb
-               S02:000016EE:  D0 DB
-F03:0820       L16f0               lda $1818,x
-               S02:000016F0:  BD 18 18
-F03:0821                           clc
-               S02:000016F3:  18
-F03:0822                           adc $183c,x
-               S02:000016F4:  7D 3C 18
-F03:0823                           sta d400_sVoc1FreqLo,y
-               S02:000016F7:  99 00 B8
-F03:0824                           lda $181b,x
-               S02:000016FA:  BD 1B 18
-F03:0825                           adc $183f,x
-               S02:000016FD:  7D 3F 18
-F03:0826                           sta d401_sVoc1FreqHi,y
-               S02:00001700:  99 01 B8
-F03:0827                           lda $182a,x
-               S02:00001703:  BD 2A 18
-F03:0828                           sta d402_sVoc1PWidthLo,y
-               S02:00001706:  99 02 B8
-F03:0829                           lda $182d,x
-               S02:00001709:  BD 2D 18
-F03:0830                           sta d403_sVoc1PWidthHi,y
-               S02:0000170C:  99 03 B8
-F03:0831                           lda $181e,x
-               S02:0000170F:  BD 1E 18
-F03:0832                           and $1821,x
-               S02:00001712:  3D 21 18
-F03:0833                           sta d404_sVoc1Control,y
-               S02:00001715:  99 04 B8
-F03:0834                           rts
-               S02:00001718:  60
-F03:0835         .binary "wavid.bin"
-               S02:00001719:  0C 1C 2D 3E 47 66 7B 91 A9 C3 DD FA 18 38 5A 7D
-               S02:00001729:  A3 CC F6 23 53 86 BB F4 30 70 B4 FB 47 98 ED 47
-F03:0836       
+F00:0113       typemsg:
+F00:0114         .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: ",
+               S01:000009F6:  54 79 70 65 20 74 68 65 20 66 69 6C 65 6E 61 6D
+               S01:00000A06:  65 20 69 6E 20 61 6C 6C 20 63 61 70 73 2E
+               S01:00000A14:  0D
+               S01:00000A15:  0A
+               S01:00000A16:  54 68 65 20 66 69 6C 65 6E 61 6D 65 20 69 73 20
+               S01:00000A26:  75 70 20 74 6F 20 38 20 63 68 61 72 61 63 74 65
+               S01:00000A36:  0D
+               S01:00000A37:  0A
+               S01:00000A38:  20 46 69 6C 65 6E 61 6D 65 3A 20
+               S01:00000A43:  02
+               S01:00000A44:  5F
+               S01:00000A45:  00
+F00:0115       
+F00:0116       loadbuf:
+F00:0117         .byte $20, $20, $20, $20, $20, $20, $20, $20
+               S01:00000A4E:  20
+               S01:00000A4F:  20
+               S01:00000A50:  20
+               S01:00000A51:  20
+               S01:00000A52:  20
+               S01:00000A53:  20
+               S01:00000A54:  20
+               S01:00000A55:  20
+F00:0118         .byte "XPL"
+               S01:00000A56:  58 50 4C
+F00:0119       
+F00:0120       other:
+F00:0121         jsr txpoll		; Write a letter of the filename currently being read
+               S01:00000A59:  20 C4 FF
+F00:0122         lda (zp_sd_address),y
+               S01:00000A5C:  B1 48
+F00:0123         sta $8000
+               S01:00000A5E:  8D 00 80
+F00:0124         iny
+               S01:00000A61:  C8
+F00:0125         rts
+               S01:00000A62:  60
+F00:0126       
+F00:0127       list:			; list file dir
+F00:0128         jsr fat32_readdirent	; files?
+               S01:00000A63:  20 DC FF
+F00:0129         bcs nofiles
+               S01:00000A66:  B0 36
+F00:0130         and #$40
+               S01:00000A68:  29 40
+F00:0131         beq arc
+               S01:00000A6A:  F0 05
+F00:0132       dir:
+F00:0133         lda #'D'		; directorys show up as 
+               S01:00000A6C:  A9 44
+F00:0134         jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+               S01:00000A6E:  4C 73 0A
+F00:0135       arc:
+F00:0136         lda #'F'		; files show up as
+               S01:00000A71:  A9 46
+F00:0137       ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+F00:0138         jsr print_chara	; f or d
+               S01:00000A73:  20 C7 FF
+F00:0139         lda #$20		; space
+               S01:00000A76:  A9 20
+F00:0140         jsr print_chara
+               S01:00000A78:  20 C7 FF
+F00:0141         ; At this point, we know that there are no files, files, or a suddir
+F00:0142         ; Now for the name
+F00:0143         ldy #0
+               S01:00000A7B:  A0 00
+F00:0144       nameloop:
+F00:0145         cpy #8
+               S01:00000A7D:  C0 08
+F00:0146         beq dot
+               S01:00000A7F:  F0 06
+F00:0147         jsr other
+               S01:00000A81:  20 59 0A
+F00:0148         jmp nameloop
+               S01:00000A84:  4C 7D 0A
+F00:0149       dot:
+F00:0150         lda #'.'		; shows a file extention
+               S01:00000A87:  A9 2E
+F00:0151         jsr print_chara
+               S01:00000A89:  20 C7 FF
+F00:0152       lopii:
+F00:0153         cpy #11
+               S01:00000A8C:  C0 0B
+F00:0154         beq endthat		; print 3-letter file extention
+               S01:00000A8E:  F0 06
+F00:0155         jsr other
+               S01:00000A90:  20 59 0A
+F00:0156         jmp lopii
+               S01:00000A93:  4C 8C 0A
+F00:0157       endthat:
+F00:0158         lda #$09 ; Tab
+               S01:00000A96:  A9 09
+F00:0159         jsr print_chara	; tab
+               S01:00000A98:  20 C7 FF
+F00:0160         jmp list ; go again	; next file if there are any left
+               S01:00000A9B:  4C 63 0A
+F00:0161       nofiles:		; if not,
+F00:0162       endlist:		; exit listing code
+F00:0163         jsr crlf
+               S01:00000A9E:  20 BB FF
+F00:0164         jmp type
+               S01:00000AA1:  4C 66 09
 F00:0165       
-F00:0166       ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
-F00:0167       
-F00:0168       vdp_initialize_pattern_table:
-F00:0169         pha
-               S02:00001D63:  48
-F00:0170         phx
-               S02:00001D64:  DA
-F00:0171         vdp_write_vram VDP_PATTERN_TABLE_BASE
-F04:0001         pha
-               S02:00001D65:  48
-F04:0002         lda #<(VDP_PATTERN_TABLE_BASE)
-               S02:00001D66:  A9 00
-F04:0003         sta VDP_REG
-               S02:00001D68:  8D 01 88
-F04:0004         lda #(VDP_WRITE_VRAM_BIT | >VDP_PATTERN_TABLE_BASE)
-               S02:00001D6B:  A9 40
-F04:0005         sta VDP_REG
-               S02:00001D6D:  8D 01 88
-F04:0006         pla
-               S02:00001D70:  68
-F00:0172         lda #<vdp_pattern                         ; load the start address of the patterns to zero page
-               S02:00001D71:  A9 00
-F00:0173         sta VDP_PATTERN_INIT
-               S02:00001D73:  85 30
-F00:0174         lda #>vdp_pattern
-               S02:00001D75:  A9 37
-F00:0175         sta VDP_PATTERN_INIT_HI
-               S02:00001D77:  85 31
-F00:0176       vdp_pattern_table_loop:
-F00:0177         lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-               S02:00001D79:  B2 30
-F00:0178         sta VDP_VRAM                            ; and store it to VRAM
-               S02:00001D7B:  8D 00 88
-F00:0179         inc VDP_PATTERN_INIT
-               S02:00001D7E:  E6 30
-F00:0180         lda VDP_PATTERN_INIT
-               S02:00001D80:  A5 30
-F00:0181         bne wopeee
-               S02:00001D82:  D0 02
-F00:0182         inc VDP_PATTERN_INIT_HI
-               S02:00001D84:  E6 31
-F00:0183       wopeee:
-F00:0184         lda VDP_PATTERN_INIT
-               S02:00001D86:  A5 30
-F00:0185         cmp #<vdp_pattern_end
-               S02:00001D88:  C9 00
-F00:0186         bne vdp_pattern_table_loop
-               S02:00001D8A:  D0 ED
-F00:0187         lda VDP_PATTERN_INIT_HI
-               S02:00001D8C:  A5 31
-F00:0188         cmp #>vdp_pattern_end
-               S02:00001D8E:  C9 4F
-F00:0189         bne vdp_pattern_table_loop
-               S02:00001D90:  D0 E7
-F00:0190         plx
-               S02:00001D92:  FA
-F00:0191         pla
-               S02:00001D93:  68
-F00:0192         rts
-               S02:00001D94:  60
-F00:0193       
-F00:0194       ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
-F00:0195       
-F00:0196       vdp_initialize_color_table:
-F00:0197         pha
-               S02:00001D95:  48
-F00:0198         phx
-               S02:00001D96:  DA
-F00:0199         vdp_write_vram VDP_COLOR_TABLE_BASE
-F05:0001         pha
-               S02:00001D97:  48
-F05:0002         lda #<(VDP_COLOR_TABLE_BASE)
-               S02:00001D98:  A9 00
-F05:0003         sta VDP_REG
-               S02:00001D9A:  8D 01 88
-F05:0004         lda #(VDP_WRITE_VRAM_BIT | >VDP_COLOR_TABLE_BASE)
-               S02:00001D9D:  A9 60
-F05:0005         sta VDP_REG
-               S02:00001D9F:  8D 01 88
-F05:0006         pla
-               S02:00001DA2:  68
-F00:0200         lda #<vdp_color                         ; load the start address of the patterns to zero page
-               S02:00001DA3:  A9 00
-F00:0201         sta VDP_PATTERN_INIT
-               S02:00001DA5:  85 30
-F00:0202         lda #>vdp_color
-               S02:00001DA7:  A9 1E
-F00:0203         sta VDP_PATTERN_INIT_HI
-               S02:00001DA9:  85 31
-F00:0204       vdp_color_table_loop:
-F00:0205         lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-               S02:00001DAB:  B2 30
-F00:0206         sta VDP_VRAM                            ; and store it to VRAM
-               S02:00001DAD:  8D 00 88
-F00:0207         inc VDP_PATTERN_INIT
-               S02:00001DB0:  E6 30
-F00:0208         lda VDP_PATTERN_INIT
-               S02:00001DB2:  A5 30
-F00:0209         bne wopee
-               S02:00001DB4:  D0 02
-F00:0210         inc VDP_PATTERN_INIT_HI
-               S02:00001DB6:  E6 31
-F00:0211       wopee:
-F00:0212         lda VDP_PATTERN_INIT
-               S02:00001DB8:  A5 30
-F00:0213         cmp #<vdp_color_end
-               S02:00001DBA:  C9 00
-F00:0214         bne vdp_color_table_loop
-               S02:00001DBC:  D0 ED
-F00:0215         lda VDP_PATTERN_INIT_HI
-               S02:00001DBE:  A5 31
-F00:0216         cmp #>vdp_color_end
-               S02:00001DC0:  C9 36
-F00:0217         bne vdp_color_table_loop
-               S02:00001DC2:  D0 E7
-F00:0218         plx
-               S02:00001DC4:  FA
-F00:0219         pla
-               S02:00001DC5:  68
-F00:0220         rts
-               S02:00001DC6:  60
-F00:0221       
-F00:0222       
-F00:0223       ;;;;;;;;;;;;;;;;;;; vdp_enable_display ;;;;;;;;;;;;;;;;;;;;;;;;;
-F00:0224       
-F00:0225       vdp_enable_display:
-F00:0226         pha
-               S02:00001DC7:  48
-F00:0227         lda #%11000010			; select 16k bytes of vram, enable the active display, disable vdp interrupt, set text mode
-               S02:00001DC8:  A9 C2
-F00:0228         sta VDP_REG
-               S02:00001DCA:  8D 01 88
-F00:0229         lda #(VDP_REGISTER_BITS | 1)
-               S02:00001DCD:  A9 81
-F00:0230         sta VDP_REG
-               S02:00001DCF:  8D 01 88
-F00:0231         pla
-               S02:00001DD2:  68
-F00:0232         rts
-               S02:00001DD3:  60
-F00:0233       
-F00:0234       text_vdp:
-F00:0235         ;.byte "Hello, World!", $00
-F00:0236       
+F00:0166       jumptolist:
+F00:0167         jsr crlf
+               S01:00000AA4:  20 BB FF
+F00:0168         jmp list
+               S01:00000AA7:  4C 63 0A
+F00:0169       
+F00:0170       typeloop:		; loop to type filenames
+F00:0171       
+F00:0172         jsr rxpol		; read a charactor
+               S01:00000AAA:  20 76 09
+F00:0173         lda $8000
+               S01:00000AAD:  AD 00 80
+F00:0174         sta charbuffer
+               S01:00000AB0:  8D 01 06
+F00:0175       
+F00:0176         cmp #$0d		; enter?
+               S01:00000AB3:  C9 0D
+F00:0177         beq exitloop		; if so, load
+               S01:00000AB5:  F0 17
+F00:0178       			; if not...
+F00:0179         lda charbuffer	
+               S01:00000AB7:  AD 01 06
+F00:0180         cmp #'l'		; check if it's "l"
+               S01:00000ABA:  C9 6C
+F00:0181         beq jumptolist	; if so, list files
+               S01:00000ABC:  F0 E6
+F00:0182       			; if not,
+F00:0183         lda charbuffer	; echo back
+               S01:00000ABE:  AD 01 06
+F00:0184         sta $8000
+               S01:00000AC1:  8D 00 80
+F00:0185       
+F00:0186         lda charbuffer	; and store it in the filename buffer
+               S01:00000AC4:  AD 01 06
+F00:0187         sta loadbuf,x
+               S01:00000AC7:  9D 4E 0A
+F00:0188         inx
+               S01:00000ACA:  E8
+F00:0189         jmp typeloop
+               S01:00000ACB:  4C AA 0A
+F00:0190       
+F00:0191       exitloop:
+F00:0192       
+F00:0193         jsr crlf
+               S01:00000ACE:  20 BB FF
+F00:0194         jsr rootsetup
+               S01:00000AD1:  20 42 09
+F00:0195         
+F00:0196         ldy #>loadbuf
+               S01:00000AD4:  A0 0A
+F00:0197         ldx #<loadbuf
+               S01:00000AD6:  A2 4E
+F00:0198         jsr fat32_finddirent
+               S01:00000AD8:  20 DF FF
+F00:0199         bcc foundfile
+               S01:00000ADB:  90 03
+F00:0200         
+F00:0201         ; File not found
+F00:0202         jmp error
+               S01:00000ADD:  4C 51 09
+F00:0203       
+F00:0204       foundfile
+F00:0205        
+F00:0206         ; Open file
+F00:0207         jsr fat32_opendirent
+               S01:00000AE0:  20 D9 FF
+F00:0208       
+F00:0209         ldx #<lodmsg
+               S01:00000AE3:  A2 89
+F00:0210         ldy #>lodmsg
+               S01:00000AE5:  A0 09
+F00:0211         jsr w_acia_full
+               S01:00000AE7:  20 CD FF
+F00:0212       
+F00:0213         lda #$00
+               S01:00000AEA:  A9 00
+F00:0214         sta fat32_address
+               S01:00000AEC:  85 5D
+F00:0215         lda #$0f
+               S01:00000AEE:  A9 0F
+F00:0216         sta fat32_address+1
+               S01:00000AF0:  85 5E
+F00:0217       
+F00:0218         jsr fat32_file_read  ; Yes. It is finally time to read the file.
+               S01:00000AF2:  20 E5 FF
+F00:0219       
+F00:0220       end:
+F00:0221         ldx #<donemsg
+               S01:00000AF5:  A2 98
+F00:0222         ldy #>donemsg
+               S01:00000AF7:  A0 09
+F00:0223         jsr w_acia_full
+               S01:00000AF9:  20 CD FF
+F00:0224         jsr $0f00
+               S01:00000AFC:  20 00 0F
+F00:0225         rts
+               S01:00000AFF:  60
+F00:0226         rts
+               S01:00000B00:  60
+F00:0227         rts
+               S01:00000B01:  60
+F00:0228         rts
+               S01:00000B02:  60
+F00:0229       
+F00:0230       ;clear_sid
+F00:0231       ;  ldx #$18
+F00:0232       ;csid
+F00:0233       ;  stz $b800,x
+F00:0234       ;  dex
+F00:0235       ;  bne csid
+F00:0236       ;  rts
 F00:0237       
-F00:0238       vdp_register_inits:
-F00:0239       vdp_register_0: .byte %00000010 ; 0  0  0  0  0  0  M3 EXTVDP
-               S02:00001DD4:  02
-F00:0240       vdp_register_1: .byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
-               S02:00001DD5:  82
-F00:0241       vdp_register_2: .byte $0e       ; Name table base / $400. $00 = $0000
-               S02:00001DD6:  0E
-F00:0242       vdp_register_3: .byte $ff       ; Color table base (currently unused)
-               S02:00001DD7:  FF
-F00:0243       vdp_register_4: .byte $03       ; Pattern table base / $800. $01 = $0800
-               S02:00001DD8:  03
-F00:0244       vdp_register_5: .byte $76       ; Sprite attribute table base (currently unused)
-               S02:00001DD9:  76
-F00:0245       vdp_register_6: .byte $03       ; Sprite pattern generator (currently unused)
-               S02:00001DDA:  03
-F00:0246       vdp_register_7: .byte $00       ; FG/BG. 1=>Black, E=>Gray
-               S02:00001DDB:  00
-F00:0247       vdp_end_register_inits:
-F00:0248       
-F00:0249       
-F00:0250       ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
-F00:0251         .align 8
-F00:0252       vdp_color:
-F00:0253         .binary "WAVID.TIAC"
-               S02:00001E00:  61 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11
-               S02:00001E10:  11 11 11 11 11 11 11 61 16 1C 16 C6 16 6C C6 6C
-F00:0254       vdp_color_end:
-F00:0255         .byte $00
-               S02:00003600:  00
-F00:0256       
-F00:0257       ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
-F00:0258       
-F00:0259         .align 8
-F00:0260       vdp_pattern:
-F00:0261         .binary "WAVID.TIAP"
-               S02:00003700:  80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-               S02:00003710:  00 00 00 00 00 00 00 02 D8 F0 E0 1A E0 D1 49 A6
-F00:0262       ; line drawing
-F00:0263         ;.byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
-F00:0264         ;.byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud
-F00:0265         ;.byte $00,$00,$00,$F8,$F8,$18,$18,$18 ; ld
-F00:0266         ;.byte $00,$00,$00,$1F,$1F,$18,$18,$18 ; rd
-F00:0267         ;.byte $18,$18,$18,$F8,$F8,$00,$00,$00 ; lu
-F00:0268         ;.byte $18,$18,$18,$1F,$1F,$00,$00,$00 ; ur
-F00:0269         ;.byte $18,$18,$18,$FF,$FF,$18,$18,$18 ; lurd
-F00:0270       ; <nonsense for debug>
-F00:0271         ;.byte $07,$07,$07,$07,$07,$07,$07,$00 ; 07
-F00:0272         ;.byte $08,$08,$08,$08,$08,$08,$08,$00 ; 08
-F00:0273         ;.byte $09,$09,$09,$09,$09,$09,$09,$00 ; 09
-F00:0274         ;.byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$00 ; 0A
-F00:0275         ;.byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$00 ; 0B
-F00:0276         ;.byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$00 ; 0C
-F00:0277         ;.byte $0D,$0D,$0D,$0D,$0D,$0D,$0D,$00 ; 0D
-F00:0278         ;.byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$00 ; 0E
-F00:0279         ;.byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$00 ; 0F
-F00:0280         ;.byte $10,$10,$10,$10,$10,$10,$10,$00 ; 10
-F00:0281         ;.byte $11,$11,$11,$11,$11,$11,$11,$00 ; 11
-F00:0282         ;.byte $12,$12,$12,$12,$12,$12,$12,$00 ; 12
-F00:0283         ;.byte $13,$13,$13,$13,$13,$13,$13,$00 ; 13
-F00:0284         ;.byte $14,$14,$14,$14,$14,$14,$14,$00 ; 14
-F00:0285         ;.byte $15,$15,$15,$15,$15,$15,$15,$00 ; 15
-F00:0286         ;.byte $16,$16,$16,$16,$16,$16,$16,$00 ; 16
-F00:0287         ;.byte $17,$17,$17,$17,$17,$17,$17,$00 ; 17
-F00:0288         ;.byte $18,$18,$18,$18,$18,$18,$18,$00 ; 18
-F00:0289         ;.byte $19,$19,$19,$19,$19,$19,$19,$00 ; 19
-F00:0290         ;.byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$00 ; 1A
-F00:0291         ;.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$00 ; 1B
-F00:0292         ;.byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$00 ; 1C
-F00:0293         ;.byte $1D,$1D,$1D,$1D,$1D,$1D,$1D,$00 ; 1D
-F00:0294         ;.byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$00 ; 1E
-F00:0295         ;.byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$00 ; 1F
-F00:0296       ; </nonsense>
-F00:0297         ;.byte $00,$00,$00,$00,$00,$00,$00,$00 ; ' '
-F00:0298         ;.byte $20,$20,$20,$00,$20,$20,$00,$00 ; !
-F00:0299         ;.byte $50,$50,$50,$00,$00,$00,$00,$00 ; "
-F00:0300         ;.byte $50,$50,$F8,$50,$F8,$50,$50,$00 ; #
-F00:0301         ;.byte $20,$78,$A0,$70,$28,$F0,$20,$00 ; $
-F00:0302         ;.byte $C0,$C8,$10,$20,$40,$98,$18,$00 ; %
-F00:0303         ;.byte $40,$A0,$A0,$40,$A8,$90,$68,$00 ; &
-F00:0304         ;.byte $20,$20,$40,$00,$00,$00,$00,$00 ; '
-F00:0305         ;.byte $20,$40,$80,$80,$80,$40,$20,$00 ; (
-F00:0306         ;.byte $20,$10,$08,$08,$08,$10,$20,$00 ; )
-F00:0307         ;.byte $20,$A8,$70,$20,$70,$A8,$20,$00 ; *
-F00:0308         ;.byte $00,$20,$20,$F8,$20,$20,$00,$00 ; +
-F00:0309         ;.byte $00,$00,$00,$00,$20,$20,$40,$00 ; ,
-F00:0310         ;.byte $00,$00,$00,$F8,$00,$00,$00,$00 ; -
-F00:0311         ;.byte $00,$00,$00,$00,$20,$20,$00,$00 ; .
-F00:0312         ;.byte $00,$08,$10,$20,$40,$80,$00,$00 ; /
-F00:0313         ;.byte $70,$88,$98,$A8,$C8,$88,$70,$00 ; 0
-F00:0314         ;.byte $20,$60,$20,$20,$20,$20,$70,$00 ; 1
-F00:0315         ;.byte $70,$88,$08,$30,$40,$80,$F8,$00 ; 2
-F00:0316         ;.byte $F8,$08,$10,$30,$08,$88,$70,$00 ; 3
-F00:0317         ;.byte $10,$30,$50,$90,$F8,$10,$10,$00 ; 4
-F00:0318         ;.byte $F8,$80,$F0,$08,$08,$88,$70,$00 ; 5
-F00:0319         ;.byte $38,$40,$80,$F0,$88,$88,$70,$00 ; 6
-F00:0320         ;.byte $F8,$08,$10,$20,$40,$40,$40,$00 ; 7
-F00:0321         ;.byte $70,$88,$88,$70,$88,$88,$70,$00 ; 8
-F00:0322         ;.byte $70,$88,$88,$78,$08,$10,$E0,$00 ; 9
-F00:0323         ;.byte $00,$00,$20,$00,$20,$00,$00,$00 ; :
-F00:0324         ;.byte $00,$00,$20,$00,$20,$20,$40,$00 ; ;
-F00:0325         ;.byte $10,$20,$40,$80,$40,$20,$10,$00 ; <
-F00:0326         ;.byte $00,$00,$F8,$00,$F8,$00,$00,$00 ; =
-F00:0327         ;.byte $40,$20,$10,$08,$10,$20,$40,$00 ; >
-F00:0328         ;.byte $70,$88,$10,$20,$20,$00,$20,$00 ; ?
-F00:0329         ;.byte $70,$88,$A8,$B8,$B0,$80,$78,$00 ; @
-F00:0330         ;.byte $20,$50,$88,$88,$F8,$88,$88,$00 ; A
-F00:0331         ;.byte $F0,$88,$88,$F0,$88,$88,$F0,$00 ; B
-F00:0332         ;.byte $70,$88,$80,$80,$80,$88,$70,$00 ; C
-F00:0333         ;.byte $F0,$88,$88,$88,$88,$88,$F0,$00 ; D
-F00:0334         ;.byte $F8,$80,$80,$F0,$80,$80,$F8,$00 ; E
-F00:0335         ;.byte $F8,$80,$80,$F0,$80,$80,$80,$00 ; F
-F00:0336         ;.byte $78,$80,$80,$80,$98,$88,$78,$00 ; G
-F00:0337         ;.byte $88,$88,$88,$F8,$88,$88,$88,$00 ; H
-F00:0338         ;.byte $70,$20,$20,$20,$20,$20,$70,$00 ; I
-F00:0339         ;.byte $08,$08,$08,$08,$08,$88,$70,$00 ; J
-F00:0340         ;.byte $88,$90,$A0,$C0,$A0,$90,$88,$00 ; K
-F00:0341         ;.byte $80,$80,$80,$80,$80,$80,$F8,$00 ; L
-F00:0342         ;.byte $88,$D8,$A8,$A8,$88,$88,$88,$00 ; M
-F00:0343         ;.byte $88,$88,$C8,$A8,$98,$88,$88,$00 ; N
-F00:0344         ;.byte $70,$88,$88,$88,$88,$88,$70,$00 ; O
-F00:0345         ;.byte $F0,$88,$88,$F0,$80,$80,$80,$00 ; P
-F00:0346         ;.byte $70,$88,$88,$88,$A8,$90,$68,$00 ; Q
-F00:0347         ;.byte $F0,$88,$88,$F0,$A0,$90,$88,$00 ; R
-F00:0348         ;.byte $70,$88,$80,$70,$08,$88,$70,$00 ; S
-F00:0349         ;.byte $F8,$20,$20,$20,$20,$20,$20,$00 ; T
-F00:0350         ;.byte $88,$88,$88,$88,$88,$88,$70,$00 ; U
-F00:0351         ;.byte $88,$88,$88,$88,$50,$50,$20,$00 ; V
-F00:0352         ;.byte $88,$88,$88,$A8,$A8,$D8,$88,$00 ; W
-F00:0353         ;.byte $88,$88,$50,$20,$50,$88,$88,$00 ; X
-F00:0354         ;.byte $88,$88,$50,$20,$20,$20,$20,$00 ; Y
-F00:0355         ;.byte $F8,$08,$10,$20,$40,$80,$F8,$00 ; Z
-F00:0356         ;.byte $F8,$C0,$C0,$C0,$C0,$C0,$F8,$00 ; [
-F00:0357         ;.byte $00,$80,$40,$20,$10,$08,$00,$00 ; \
-F00:0358         ;.byte $F8,$18,$18,$18,$18,$18,$F8,$00 ; ]
-F00:0359         ;.byte $00,$00,$20,$50,$88,$00,$00,$00 ; ^
-F00:0360         ;.byte $00,$00,$00,$00,$00,$00,$F8,$00 ; _
-F00:0361         ;.byte $40,$20,$10,$00,$00,$00,$00,$00 ; `
-F00:0362         ;.byte $00,$00,$70,$88,$88,$98,$68,$00 ; a
-F00:0363         ;.byte $80,$80,$F0,$88,$88,$88,$F0,$00 ; b
-F00:0364         ;.byte $00,$00,$78,$80,$80,$80,$78,$00 ; c
-F00:0365         ;.byte $08,$08,$78,$88,$88,$88,$78,$00 ; d
-F00:0366         ;.byte $00,$00,$70,$88,$F8,$80,$78,$00 ; e
-F00:0367         ;.byte $30,$40,$E0,$40,$40,$40,$40,$00 ; f
-F00:0368         ;.byte $00,$00,$70,$88,$F8,$08,$F0,$00 ; g
-F00:0369         ;.byte $80,$80,$F0,$88,$88,$88,$88,$00 ; h
-F00:0370         ;.byte $00,$40,$00,$40,$40,$40,$40,$00 ; i
-F00:0371         ;.byte $00,$20,$00,$20,$20,$A0,$60,$00 ; j
-F00:0372         ;.byte $00,$80,$80,$A0,$C0,$A0,$90,$00 ; k
-F00:0373         ;.byte $C0,$40,$40,$40,$40,$40,$60,$00 ; l
-F00:0374         ;.byte $00,$00,$D8,$A8,$A8,$A8,$A8,$00 ; m
-F00:0375         ;.byte $00,$00,$F0,$88,$88,$88,$88,$00 ; n
-F00:0376         ;.byte $00,$00,$70,$88,$88,$88,$70,$00 ; o
-F00:0377         ;.byte $00,$00,$70,$88,$F0,$80,$80,$00 ; p
-F00:0378         ;.byte $00,$00,$F0,$88,$78,$08,$08,$00 ; q
-F00:0379         ;.byte $00,$00,$70,$88,$80,$80,$80,$00 ; r
-F00:0380         ;.byte $00,$00,$78,$80,$70,$08,$F0,$00 ; s
-F00:0381         ;.byte $40,$40,$F0,$40,$40,$40,$30,$00 ; t
-F00:0382         ;.byte $00,$00,$88,$88,$88,$88,$78,$00 ; u
-F00:0383         ;.byte $00,$00,$88,$88,$90,$A0,$40,$00 ; v
-F00:0384         ;.byte $00,$00,$88,$88,$88,$A8,$D8,$00 ; w
-F00:0385         ;.byte $00,$00,$88,$50,$20,$50,$88,$00 ; x
-F00:0386         ;.byte $00,$00,$88,$88,$78,$08,$F0,$00 ; y
-F00:0387         ;.byte $00,$00,$F8,$10,$20,$40,$F8,$00 ; z
-F00:0388         ;.byte $38,$40,$20,$C0,$20,$40,$38,$00 ; {
-F00:0389         ;.byte $40,$40,$40,$00,$40,$40,$40,$00 ; |
-F00:0390         ;.byte $E0,$10,$20,$18,$20,$10,$E0,$00 ; }
-F00:0391         ;.byte $40,$A8,$10,$00,$00,$00,$00,$00 ; ~
-F00:0392         ;.byte $A8,$50,$A8,$50,$A8,$50,$A8,$00 ; checkerboard
-F00:0393       vdp_pattern_end:
-F00:0394       
-F00:0395         .byte $00
-               S02:00004F00:  00
-F00:0396       
+F00:0238         .include "errors.s"
+F03:0001       error_sound:
+F03:0002         lda #$55
+               S01:00000B03:  A9 55
+F03:0003         sta donefact
+               S01:00000B05:  85 02
+F03:0004         stz irqcount	; reset irq count
+               S01:00000B07:  64 03
+F03:0005       
+F03:0006       runthesound:
+F03:0007         sei		; turn off irqs
+               S01:00000B09:  78
+F03:0008         lda #<irq
+               S01:00000B0A:  A9 27
+F03:0009         sta $7ffe
+               S01:00000B0C:  8D FE 7F
+F03:0010         lda #>irq
+               S01:00000B0F:  A9 0B
+F03:0011         sta $7fff	; store vectors
+               S01:00000B11:  8D FF 7F
+F03:0012         lda #$c0
+               S01:00000B14:  A9 C0
+F03:0013         sta $b00e	
+               S01:00000B16:  8D 0E B0
+F03:0014         lda #0 ; Song Number
+               S01:00000B19:  A9 00
+F03:0015         jsr InitSid
+               S01:00000B1B:  20 4E 0B
+F03:0016         lda #$40
+               S01:00000B1E:  A9 40
+F03:0017         sta $b00d
+               S01:00000B20:  8D 0D B0
+F03:0018         cli
+               S01:00000B23:  58
+F03:0019         jmp startupsoundloop
+               S01:00000B24:  4C 2F 12
+F03:0020       
+F03:0021       irq:
+F03:0022         lda #$40
+               S01:00000B27:  A9 40
+F03:0023         sta $b00d
+               S01:00000B29:  8D 0D B0
+F03:0024         jsr putbut		; refresh timers
+               S01:00000B2C:  20 3D 0B
+F03:0025         inc irqcount		; a irq has occurred
+               S01:00000B2F:  E6 03
+F03:0026         lda irqcount
+               S01:00000B31:  A5 03
+F03:0027         cmp #$40		; if $32 irqs (end of the error sound)
+               S01:00000B33:  C9 40
+F03:0028         bne continue24542 	; end the stream
+               S01:00000B35:  D0 02
+F03:0029         stz donefact		; its done, tell the loop
+               S01:00000B37:  64 02
+F03:0030       continue24542:
+F03:0031         jsr $1006
+               S01:00000B39:  20 06 10
+F03:0032         rti			; exit
+               S01:00000B3C:  40
+F03:0033       
+F03:0034       putbut:
+F03:0035         ldx #$9e
+               S01:00000B3D:  A2 9E
+F03:0036         stx $b004
+               S01:00000B3F:  8E 04 B0
+F03:0037         stx $b006
+               S01:00000B42:  8E 06 B0
+F03:0038         ldx #$0f  ; 250Hz IRQ
+               S01:00000B45:  A2 0F
+F03:0039         stx $b005
+               S01:00000B47:  8E 05 B0
+F03:0040         stx $b007
+               S01:00000B4A:  8E 07 B0
+F03:0041         rts
+               S01:00000B4D:  60
+F03:0042       InitSid:
+F03:0043         jsr putbut
+               S01:00000B4E:  20 3D 0B
+F03:0044         jmp $1103
+               S01:00000B51:  4C 03 11
+F03:0045       
+F03:0046         .org $1006
+F03:0047       
+F03:0048         .include "errorsound.s"
+F04:0001       d400_sVoc1FreqLo = $b800
+F04:0002       d404_sVoc1Control = $b804
+F04:0003       d40b_sVoc2Control = $b80b
+F04:0004       d412_sVoc3Control = $b812
+F04:0005       
+F04:0006         .org $1006
+F04:0007       
+F04:0008       PlaySid             ldx #$18
+               S02:00001006:  A2 18
+F04:0009       L1008               lda $04,x
+               S02:00001008:  B5 04
+F04:0010                           sta d400_sVoc1FreqLo,x
+               S02:0000100A:  9D 00 B8
+F04:0011                           dex
+               S02:0000100D:  CA
+F04:0012                           bpl L1008
+               S02:0000100E:  10 F8
+F04:0013                           dec $02
+               S02:00001010:  C6 02
+F04:0014                           bmi L1015
+               S02:00001012:  30 01
+F04:0015                           rts
+               S02:00001014:  60
+F04:0016                           
+F04:0017       L1015               stx $02
+               S02:00001015:  86 02
+F04:0018                           lda $03
+               S02:00001017:  A5 03
+F04:0019                           bne L1033
+               S02:00001019:  D0 18
+F04:0020                           jsr $001f
+               S02:0000101B:  20 1F 00
+F04:0021                           beq L1038
+               S02:0000101E:  F0 18
+F04:0022                           cmp #$a0
+               S02:00001020:  C9 A0
+F04:0023                           bcs L102e
+               S02:00001022:  B0 0A
+F04:0024                           sta $2a
+               S02:00001024:  85 2A
+F04:0025                           jsr $001f
+               S02:00001026:  20 1F 00
+F04:0026                           sta $29
+               S02:00001029:  85 29
+F04:0027                           jmp L1076
+               S02:0000102B:  4C 76 10
+F04:0028                           
+F04:0029       L102e               sec
+               S02:0000102E:  38
+F04:0030                           sbc #$9f
+               S02:0000102F:  E9 9F
+F04:0031                           sta $03
+               S02:00001031:  85 03
+F04:0032       L1033               dec $03
+               S02:00001033:  C6 03
+F04:0033                           jmp L1076
+               S02:00001035:  4C 76 10
+F04:0034                           
+F04:0035       L1038               jsr $001f
+               S02:00001038:  20 1F 00
+F04:0036                           cmp #$fd
+               S02:0000103B:  C9 FD
+F04:0037                           beq L106b
+               S02:0000103D:  F0 2C
+F04:0038                           cmp #$fe
+               S02:0000103F:  C9 FE
+F04:0039                           beq L1060
+               S02:00001041:  F0 1D
+F04:0040                           cmp #$ff
+               S02:00001043:  C9 FF
+F04:0041                           beq L104a
+               S02:00001045:  F0 03
+F04:0042                           sta $02
+               S02:00001047:  85 02
+F04:0043                           rts
+               S02:00001049:  60
+F04:0044                           
+F04:0045       L104a               lda #$00
+               S02:0000104A:  A9 00
+F04:0046                           sta d404_sVoc1Control
+               S02:0000104C:  8D 04 B8
+F04:0047                           sta d40b_sVoc2Control
+               S02:0000104F:  8D 0B B8
+F04:0048                           sta d412_sVoc3Control
+               S02:00001052:  8D 12 B8
+F04:0049                           lda #$5e
+               S02:00001055:  A9 5E
+F04:0050                           sta $26
+               S02:00001057:  85 26
+F04:0051                           lda #$10
+               S02:00001059:  A9 10
+F04:0052                           sta $27
+               S02:0000105B:  85 27
+F04:0053                           rts
+               S02:0000105D:  60
+F04:0054                           
+F04:0055                             .byte $ff, $00 
+               S02:0000105E:  FF
+               S02:0000105F:  00
+F04:0056       L1060               lda $1d
+               S02:00001060:  A5 1D
+F04:0057                           sta $26
+               S02:00001062:  85 26
+F04:0058                           lda $1e
+               S02:00001064:  A5 1E
+F04:0059                           sta $27
+               S02:00001066:  85 27
+F04:0060                           jmp L1015
+               S02:00001068:  4C 15 10
+F04:0061                           
+F04:0062       L106b               lda $26
+               S02:0000106B:  A5 26
+F04:0063                           sta $1d
+               S02:0000106D:  85 1D
+F04:0064                           lda $27
+               S02:0000106F:  A5 27
+F04:0065                           sta $1e
+               S02:00001071:  85 1E
+F04:0066                           jmp L1015
+               S02:00001073:  4C 15 10
+F04:0067                           
+F04:0068       L1076               jsr S10a1
+               S02:00001076:  20 A1 10
+F04:0069                           lda #$f8
+               S02:00001079:  A9 F8
+F04:0070       L107b               clc
+               S02:0000107B:  18
+F04:0071                           adc #$07
+               S02:0000107C:  69 07
+F04:0072                           pha
+               S02:0000107E:  48
+F04:0073                           tax
+               S02:0000107F:  AA
+F04:0074                           jsr $001f
+               S02:00001080:  20 1F 00
+F04:0075                           lsr a
+               S02:00001083:  4A
+F04:0076                           php
+               S02:00001084:  08
+F04:0077       L1085               inx
+               S02:00001085:  E8
+F04:0078                           lsr a
+               S02:00001086:  4A
+F04:0079                           bcs L1093
+               S02:00001087:  B0 0A
+F04:0080                           bne L1085
+               S02:00001089:  D0 FA
+F04:0081                           plp
+               S02:0000108B:  28
+F04:0082                           pla
+               S02:0000108C:  68
+F04:0083                           bcs L107b
+               S02:0000108D:  B0 EC
+F04:0084                           jsr S10a1
+               S02:0000108F:  20 A1 10
+F04:0085                           rts
+               S02:00001092:  60
+F04:0086                           
+F04:0087       L1093               pha
+               S02:00001093:  48
+F04:0088                           ldy $ffff,x
+               S02:00001094:  BC FF FF
+F04:0089                           jsr $001f
+               S02:00001097:  20 1F 00
+F04:0090                           sta $0004,y
+               S02:0000109A:  99 04 00
+F04:0091                           pla
+               S02:0000109D:  68
+F04:0092                           jmp L1085
+               S02:0000109E:  4C 85 10
+F04:0093                           
+F04:0094       S10a1               ldy $26
+               S02:000010A1:  A4 26
+F04:0095                           ldx $29
+               S02:000010A3:  A6 29
+F04:0096                           sty $29
+               S02:000010A5:  84 29
+F04:0097                           stx $26
+               S02:000010A7:  86 26
+F04:0098                           ldy $27
+               S02:000010A9:  A4 27
+F04:0099                           ldx $2a
+               S02:000010AB:  A6 2A
+F04:0100                           sty $2a
+               S02:000010AD:  84 2A
+F04:0101                           stx $27
+               S02:000010AF:  86 27
+F04:0102                           rts
+               S02:000010B1:  60
+F04:0103                           
+F04:0104       L10b2               sty $26
+               S02:000010B2:  84 26
+F04:0105                           stx $27
+               S02:000010B4:  86 27
+F04:0106                           ldx #$06
+               S02:000010B6:  A2 06
+F04:0107       L10b8               lda $10c6,x
+               S02:000010B8:  BD C6 10
+F04:0108                           sta $1f,x
+               S02:000010BB:  95 1F
+F04:0109                           dex
+               S02:000010BD:  CA
+F04:0110                           bpl L10b8
+               S02:000010BE:  10 F8
+F04:0111                           lda #$60
+               S02:000010C0:  A9 60
+F04:0112                           sta $28
+               S02:000010C2:  85 28
+F04:0113                           bne L10d0
+               S02:000010C4:  D0 0A
+F04:0114                           inc $26
+               S02:000010C6:  E6 26
+F04:0115                           bne L10cc
+               S02:000010C8:  D0 02
+F04:0116                           inc $27
+               S02:000010CA:  E6 27
+F04:0117       L10cc               lda $ffff
+               S02:000010CC:  AD FF FF
+F04:0118                           rts
+               S02:000010CF:  60
+F04:0119                           
+F04:0120       L10d0               jsr $001f
+               S02:000010D0:  20 1F 00
+F04:0121                           sta $dc04
+               S02:000010D3:  8D 04 DC
+F04:0122                           jsr $001f
+               S02:000010D6:  20 1F 00
+F04:0123                           sta $dc05
+               S02:000010D9:  8D 05 DC
+F04:0124                           jsr $001f
+               S02:000010DC:  20 1F 00
+F04:0125                           sta $29
+               S02:000010DF:  85 29
+F04:0126                           jsr $001f
+               S02:000010E1:  20 1F 00
+F04:0127                           sta $2a
+               S02:000010E4:  85 2A
+F04:0128                           inc $26
+               S02:000010E6:  E6 26
+F04:0129                           bne L10ec
+               S02:000010E8:  D0 02
+F04:0130                           inc $27
+               S02:000010EA:  E6 27
+F04:0131       L10ec               lda $26
+               S02:000010EC:  A5 26
+F04:0132                           sta $1095
+               S02:000010EE:  8D 95 10
+F04:0133                           lda $27
+               S02:000010F1:  A5 27
+F04:0134                           sta $1096
+               S02:000010F3:  8D 96 10
+F04:0135                           ldx #$1c
+               S02:000010F6:  A2 1C
+F04:0136                           lda #$00
+               S02:000010F8:  A9 00
+F04:0137       L10fa               sta $02,x
+               S02:000010FA:  95 02
+F04:0138                           dex
+               S02:000010FC:  CA
+F04:0139                           bpl L10fa
+               S02:000010FD:  10 FB
+F04:0140                           jsr S10a1
+               S02:000010FF:  20 A1 10
+F04:0141                           rts
+               S02:00001102:  60
+F04:0142                           
+F04:0143       InitSid2            ldy #$09
+               S02:00001103:  A0 09
+F04:0144                           ldx #$11
+               S02:00001105:  A2 11
+F04:0145                           jmp L10b2
+               S02:00001107:  4C B2 10
+F04:0146       
+F04:0147         .binary "errorsound.bin"
+               S02:0000110A:  F0 0F 77 11 01 00 12 0D 04 05 0B 14 08 09 07 06
+               S02:0000111A:  0C 03 0E 0F 10 11 17 13 0A 15 16 18 02 00 B6 00
+F04:0148       ;          ^^^^^^^^^^^
+F04:0149       ; put your data file here.
+F04:0150       
+F04:0151       
+F03:0049       
+F03:0050       startupsoundloop:	
+F03:0051         lda donefact		; loop only if the sound is not done
+               S02:0000122F:  A5 02
+F03:0052         bne startupsoundloop
+               S02:00001231:  D0 FC
+F03:0053         stz $b00e		; if done disable irqs
+               S02:00001233:  9C 0E B0
+F03:0054         stz $b00d
+               S02:00001236:  9C 0D B0
+F03:0055         sei
+               S02:00001239:  78
+F03:0056         lda $c0		; clear irq vectors
+               S02:0000123A:  A5 C0
+F03:0057         sta $7fff
+               S02:0000123C:  8D FF 7F
+F03:0058         stz $7ffe
+               S02:0000123F:  9C FE 7F
+F03:0059         jsr clear_sid
+               S02:00001242:  20 49 12
+F03:0060         rts
+               S02:00001245:  60
+F03:0061         rts
+               S02:00001246:  60
+F03:0062         rts
+               S02:00001247:  60
+F03:0063         rts
+               S02:00001248:  60
+F03:0064       
+F03:0065       clear_sid
+F03:0066         ldx #$17 ; 17 cuz no pop
+               S02:00001249:  A2 17
+F03:0067       csid
+F03:0068         stz $b800,x
+               S02:0000124B:  9E 00 B8
+F03:0069         dex
+               S02:0000124E:  CA
+F03:0070         bne csid
+               S02:0000124F:  D0 FA
+F03:0071         rts
+               S02:00001251:  60
+F03:0072       
+F03:0073       
+F00:0239       
 
 
 Sections:
-S01  segf00
-S02  seg1000
+S01  seg900
+S02  seg1006
 
 
 Sources:
-F00  wavrud.s
-F01  vdp_write_vram
-F02  vdp_write_vram
-F03  wavid.s
-F04  vdp_write_vram
-F05  vdp_write_vram
+F00  sd_handeler.s
+F01  hwconfig.s
+F02  kernal_def.s
+F03  errors.s
+F04  errorsound.s
 
 
 Symbols:
-vdp_end_register_inits EXPR(7644=0x1ddc) UNUSED ABS 
-vdp_register_6 EXPR(7642=0x1dda) UNUSED ABS 
-vdp_register_5 EXPR(7641=0x1dd9) UNUSED ABS 
-vdp_register_4 EXPR(7640=0x1dd8) UNUSED ABS 
-vdp_register_3 EXPR(7639=0x1dd7) UNUSED ABS 
-vdp_register_2 EXPR(7638=0x1dd6) UNUSED ABS 
-vdp_register_1 EXPR(7637=0x1dd5) UNUSED ABS 
-vdp_register_0 EXPR(7636=0x1dd4) UNUSED ABS 
-vdp_color_end EXPR(13824=0x3600) ABS 
-wopee EXPR(7608=0x1db8) ABS 
-vdp_color_table_loop EXPR(7595=0x1dab) ABS 
-vdp_color EXPR(7680=0x1e00) ABS 
-vdp_pattern_end EXPR(20224=0x4f00) ABS 
-wopeee EXPR(7558=0x1d86) ABS 
-vdp_pattern_table_loop EXPR(7545=0x1d79) ABS 
-vdp_pattern EXPR(14080=0x3700) ABS 
-L16da EXPR(5850=0x16da) ABS 
-L16cb EXPR(5835=0x16cb) ABS 
-L16c6 EXPR(5830=0x16c6) ABS 
-L16eb EXPR(5867=0x16eb) ABS 
-L16f0 EXPR(5872=0x16f0) ABS 
-L16aa EXPR(5802=0x16aa) ABS 
-L16a1 EXPR(5793=0x16a1) ABS 
-L167d EXPR(5757=0x167d) ABS 
-L1668 EXPR(5736=0x1668) ABS 
-L164b EXPR(5707=0x164b) ABS 
-L162e EXPR(5678=0x162e) ABS 
-L15da EXPR(5594=0x15da) ABS 
-L15cc EXPR(5580=0x15cc) ABS 
-L15dd EXPR(5597=0x15dd) ABS 
-L158f EXPR(5519=0x158f) ABS 
-L1612 EXPR(5650=0x1612) ABS 
-L1584 EXPR(5508=0x1584) ABS 
-L157c EXPR(5500=0x157c) ABS 
-L1543 EXPR(5443=0x1543) ABS 
-L1558 EXPR(5464=0x1558) ABS 
-L1516 EXPR(5398=0x1516) ABS 
-L152b EXPR(5419=0x152b) ABS 
-L156c EXPR(5484=0x156c) ABS 
-L14f6 EXPR(5366=0x14f6) ABS 
-L14ee EXPR(5358=0x14ee) ABS 
-L14c5 EXPR(5317=0x14c5) ABS 
-L1495 EXPR(5269=0x1495) ABS 
-L14b4 EXPR(5300=0x14b4) ABS 
-L1696 EXPR(5782=0x1696) ABS 
-L1478 EXPR(5240=0x1478) ABS 
-L145e EXPR(5214=0x145e) ABS 
-L144a EXPR(5194=0x144a) ABS 
-L142f EXPR(5167=0x142f) ABS 
-L1411 EXPR(5137=0x1411) ABS 
-L13d2 EXPR(5074=0x13d2) ABS 
-L13de EXPR(5086=0x13de) ABS 
-L13e1 EXPR(5089=0x13e1) ABS 
-L147b EXPR(5243=0x147b) ABS 
-L137b EXPR(4987=0x137b) ABS 
-L1352 EXPR(4946=0x1352) ABS 
-L130e EXPR(4878=0x130e) ABS 
-L12fc EXPR(4860=0x12fc) ABS 
-L12ea EXPR(4842=0x12ea) ABS 
-L12d8 EXPR(4824=0x12d8) ABS 
-L12bf EXPR(4799=0x12bf) ABS 
-L12a6 EXPR(4774=0x12a6) ABS 
-L1281 EXPR(4737=0x1281) ABS 
-L1294 EXPR(4756=0x1294) ABS 
-L126f EXPR(4719=0x126f) ABS 
-L1323 EXPR(4899=0x1323) ABS 
-L124c EXPR(4684=0x124c) ABS 
-L1227 EXPR(4647=0x1227) ABS 
-L1215 EXPR(4629=0x1215) ABS 
-L1203 EXPR(4611=0x1203) ABS 
-L11f1 EXPR(4593=0x11f1) ABS 
-L11d0 EXPR(4560=0x11d0) ABS 
-L11f4 EXPR(4596=0x11f4) ABS 
-L11ab EXPR(4523=0x11ab) ABS 
-L11b7 EXPR(4535=0x11b7) ABS 
-L11cc EXPR(4556=0x11cc) ABS 
-L117e EXPR(4478=0x117e) ABS 
-L116c EXPR(4460=0x116c) ABS 
-L1314 EXPR(4884=0x1314) ABS 
-L115a EXPR(4442=0x115a) ABS 
-L1153 EXPR(4435=0x1153) ABS 
-L1150 EXPR(4432=0x1150) ABS 
-L1139 EXPR(4409=0x1139) ABS 
-L1120 EXPR(4384=0x1120) ABS 
-L110c EXPR(4364=0x110c) ABS 
-L1145 EXPR(4421=0x1145) ABS 
-L10ee EXPR(4334=0x10ee) ABS 
-L10eb EXPR(4331=0x10eb) ABS 
-L1654 EXPR(5716=0x1654) ABS 
-S10e1 EXPR(4321=0x10e1) ABS 
-L10ad EXPR(4269=0x10ad) ABS 
-S1373 EXPR(4979=0x1373) ABS 
-L1081 EXPR(4225=0x1081) ABS 
-L1071 EXPR(4209=0x1071) ABS 
-L1068 EXPR(4200=0x1068) ABS 
-L10be EXPR(4286=0x10be) ABS 
-L1046 EXPR(4166=0x1046) ABS 
-L10d3 EXPR(4307=0x10d3) ABS 
-L1006 EXPR(4102=0x1006) UNUSED ABS 
-L1095 EXPR(4245=0x1095) ABS 
-L1040 EXPR(4160=0x1040) ABS 
-d418_sFiltMode EXPR(47128=0xb818) EQU 
-d417_sFiltControl EXPR(47127=0xb817) EQU 
-d416_sFiltFreqHi EXPR(47126=0xb816) EQU 
-d415_sFiltFreqLo EXPR(47125=0xb815) UNUSED EQU 
-d414_sVoc3SusRel EXPR(47124=0xb814) UNUSED EQU 
-d413_sVoc3AttDec EXPR(47123=0xb813) UNUSED EQU 
+csid EXPR(4683=0x124b) ABS 
+clear_sid EXPR(4681=0x1249) ABS 
+InitSid2 EXPR(4355=0x1103) UNUSED ABS 
+L10fa EXPR(4346=0x10fa) ABS 
+L10ec EXPR(4332=0x10ec) ABS 
+L10cc EXPR(4300=0x10cc) ABS 
+L10d0 EXPR(4304=0x10d0) ABS 
+L10b8 EXPR(4280=0x10b8) ABS 
+L10b2 EXPR(4274=0x10b2) ABS 
+L1093 EXPR(4243=0x1093) ABS 
+L1085 EXPR(4229=0x1085) ABS 
+L107b EXPR(4219=0x107b) ABS 
+S10a1 EXPR(4257=0x10a1) ABS 
+L104a EXPR(4170=0x104a) ABS 
+L1060 EXPR(4192=0x1060) ABS 
+L106b EXPR(4203=0x106b) ABS 
+L1076 EXPR(4214=0x1076) ABS 
+L102e EXPR(4142=0x102e) ABS 
+L1038 EXPR(4152=0x1038) ABS 
+L1033 EXPR(4147=0x1033) ABS 
+L1015 EXPR(4117=0x1015) ABS 
+L1008 EXPR(4104=0x1008) ABS 
+PlaySid EXPR(4102=0x1006) UNUSED ABS 
 d412_sVoc3Control EXPR(47122=0xb812) EQU 
-d411_sVoc3PWidthHi EXPR(47121=0xb811) UNUSED EQU 
-d410_sVoc3PWidthLo EXPR(47120=0xb810) UNUSED EQU 
-d40f_sVoc3FreqHi EXPR(47119=0xb80f) UNUSED EQU 
-d40e_sVoc3FreqLo EXPR(47118=0xb80e) UNUSED EQU 
-d40d_sVoc2SusRel EXPR(47117=0xb80d) UNUSED EQU 
-d40c_sVoc2AttDec EXPR(47116=0xb80c) UNUSED EQU 
 d40b_sVoc2Control EXPR(47115=0xb80b) EQU 
-d40a_sVoc2PWidthHi EXPR(47114=0xb80a) UNUSED EQU 
-d409_sVoc2PWidthLo EXPR(47113=0xb809) UNUSED EQU 
-d408_sVoc2FreqHi EXPR(47112=0xb808) UNUSED EQU 
-d407_sVoc2FreqLo EXPR(47111=0xb807) UNUSED EQU 
-d406_sVoc1SusRel EXPR(47110=0xb806) EQU 
-d405_sVoc1AttDec EXPR(47109=0xb805) EQU 
 d404_sVoc1Control EXPR(47108=0xb804) EQU 
-d403_sVoc1PWidthHi EXPR(47107=0xb803) EQU 
-d402_sVoc1PWidthLo EXPR(47106=0xb802) EQU 
-d401_sVoc1FreqHi EXPR(47105=0xb801) EQU 
 d400_sVoc1FreqLo EXPR(47104=0xb800) EQU 
-end_write EXPR(4029=0xfbd) ABS 
-text_vdp EXPR(7636=0x1dd4) ABS 
- vdp_write_name_table loop EXPR(4017=0xfb1) ABS 
-vdp_write_name_table EXPR(4001=0xfa1) UNUSED ABS 
-vdp_name_table_loop EXPR(3983=0xf8f) ABS 
-vdp_register_7 EXPR(7643=0x1ddb) ABS 
-changecolor EXPR(3947=0xf6b) UNUSED ABS 
-delay EXPR(3938=0xf62) ABS 
-wait EXPR(3933=0xf5d) UNUSED ABS 
-vdp_register_inits EXPR(7636=0x1dd4) ABS 
- vdp_set_registers loop EXPR(3913=0xf49) ABS 
-vdp_enable_display EXPR(7623=0x1dc7) ABS 
-vdp_initialize_pattern_table EXPR(7523=0x1d63) ABS 
-vdp_initialize_color_table EXPR(7573=0x1d95) ABS 
-vdp_initialize_name_table EXPR(3964=0xf7c) ABS 
-PlaySid EXPR(4099=0x1003) ABS 
-holding EXPR(3863=0xf17) ABS 
-InitSid EXPR(4096=0x1000) ABS 
-vdp_setup EXPR(3896=0xf38) ABS 
-vdp_set_registers EXPR(3909=0xf45) ABS 
-reset EXPR(3840=0xf00) UNUSED ABS 
-VDP_NAME_POINTER EXPR(50=0x32) EQU 
-VDP_PATTERN_INIT_HI EXPR(49=0x31) EQU 
-VDP_PATTERN_INIT EXPR(48=0x30) EQU 
-TEXT_LOC EXPR(255=0xff) EQU 
-VDP_SPR_ATT_TABLE_BASE EXPR(15104=0x3b00) UNUSED EQU 
-VDP_NAME_TABLE_BASE EXPR(14336=0x3800) EQU 
-VDP_COLOR_TABLE_BASE EXPR(8192=0x2000) EQU 
-VDP_SPRITE_PATTERN_TABLE_BASE EXPR(6144=0x1800) UNUSED EQU 
-VDP_PATTERN_TABLE_BASE EXPR(0=0x0) EQU 
-VDP_REGISTER_BITS EXPR(128=0x80) EQU 
-VDP_WRITE_VRAM_BIT EXPR(64=0x40) EQU 
-VDP_REG EXPR(34817=0x8801) EQU 
-VDP_VRAM EXPR(34816=0x8800) EQU 
+continue24542 EXPR(2873=0xb39) ABS 
+putbut EXPR(2877=0xb3d) ABS 
+startupsoundloop EXPR(4655=0x122f) ABS 
+InitSid EXPR(2894=0xb4e) ABS 
+irq EXPR(2855=0xb27) ABS 
+runthesound EXPR(2825=0xb09) UNUSED ABS 
+end EXPR(2805=0xaf5) UNUSED ABS 
+foundfile EXPR(2784=0xae0) ABS 
+exitloop EXPR(2766=0xace) ABS 
+jumptolist EXPR(2724=0xaa4) ABS 
+endlist EXPR(2718=0xa9e) UNUSED ABS 
+endthat EXPR(2710=0xa96) ABS 
+lopii EXPR(2700=0xa8c) ABS 
+dot EXPR(2695=0xa87) ABS 
+nameloop EXPR(2685=0xa7d) ABS 
+ebut EXPR(2675=0xa73) ABS 
+dir EXPR(2668=0xa6c) UNUSED ABS 
+arc EXPR(2673=0xa71) ABS 
+nofiles EXPR(2718=0xa9e) ABS 
+list EXPR(2659=0xa63) ABS 
+other EXPR(2649=0xa59) ABS 
+loadbuf EXPR(2638=0xa4e) ABS 
+donemsg EXPR(2456=0x998) ABS 
+lodmsg EXPR(2441=0x989) ABS 
+typelop EXPR(2438=0x986) ABS 
+rxput EXPR(2430=0x97e) UNUSED ABS 
+rxpol EXPR(2422=0x976) ABS 
+typeloop EXPR(2730=0xaaa) ABS 
+typemsg EXPR(2550=0x9f6) ABS 
+error_sound EXPR(2819=0xb03) ABS 
+error EXPR(2385=0x951) ABS 
+foundsubdir EXPR(2399=0x95f) ABS 
+type EXPR(2406=0x966) ABS 
+findrau EXPR(2367=0x93f) UNUSED ABS 
+rootsetup EXPR(2370=0x942) ABS 
+lodmm EXPR(2503=0x9c7) ABS 
+loadmsg EXPR(2458=0x99a) ABS 
+errormsg EXPR(2330=0x91a) ABS 
+dirname EXPR(2318=0x90e) ABS 
+tload EXPR(65527=0xfff7) UNUSED EQU 
+tsave EXPR(65524=0xfff4) UNUSED EQU 
+loadcmd EXPR(65521=0xfff1) UNUSED EQU 
+sd_readsector EXPR(65518=0xffee) UNUSED EQU 
+sd_sendcommand EXPR(65515=0xffeb) UNUSED EQU 
+sd_readbyte EXPR(65512=0xffe8) UNUSED EQU 
+fat32_file_read EXPR(65509=0xffe5) EQU 
+fat32_file_readbyte EXPR(65506=0xffe2) UNUSED EQU 
+fat32_finddirent EXPR(65503=0xffdf) EQU 
+fat32_readdirent EXPR(65500=0xffdc) EQU 
+fat32_opendirent EXPR(65497=0xffd9) EQU 
+fat32_openroot EXPR(65494=0xffd6) EQU 
+fat32_readnextcluster EXPR(65491=0xffd3) UNUSED EQU 
+fat32_seekcluster EXPR(65488=0xffd0) UNUSED EQU 
+w_acia_full EXPR(65485=0xffcd) EQU 
+ascii_home EXPR(65482=0xffca) UNUSED EQU 
+print_char_acia EXPR(65479=0xffc7) UNUSED EQU 
+print_chara EXPR(65479=0xffc7) EQU 
+txpoll EXPR(65476=0xffc4) EQU 
+rxpoll EXPR(65473=0xffc1) UNUSED EQU 
+cleardisplay EXPR(65470=0xffbe) EQU 
+crlf EXPR(65467=0xffbb) EQU 
+print_hex_acia EXPR(65464=0xffb8) UNUSED EQU 
+fat32_init EXPR(65461=0xffb5) UNUSED EQU 
+sd_init EXPR(65458=0xffb2) UNUSED EQU 
+stock_via EXPR(65455=0xffaf) UNUSED EQU 
+acia_init EXPR(65452=0xffac) UNUSED EQU 
+fat32_filenamepointer EXPR(99=0x63) UNUSED EQU 
+fat32_errorstage EXPR(99=0x63) UNUSED EQU 
+fat32_bytesremaining EXPR(99=0x63) EQU 
+fat32_nextcluster EXPR(95=0x5f) UNUSED EQU 
+fat32_address EXPR(93=0x5d) EQU 
+fat32_pendingsectors EXPR(92=0x5c) UNUSED EQU 
+fat32_sectorspercluster EXPR(91=0x5b) UNUSED EQU 
+fat32_rootcluster EXPR(87=0x57) UNUSED EQU 
+fat32_datastart EXPR(83=0x53) UNUSED EQU 
+fat32_fatstart EXPR(79=0x4f) UNUSED EQU 
+fat32_readbuffer EXPR(1280=0x500) UNUSED EQU 
+endbuf EXPR(2304=0x900) UNUSED EQU 
+buffer EXPR(1792=0x700) UNUSED EQU 
+fat32_workspace EXPR(1280=0x500) EQU 
+path EXPR(1024=0x400) UNUSED EQU 
+zp_fat32_variables EXPR(79=0x4f) EQU 
+zp_sd_currentsector EXPR(74=0x4a) UNUSED EQU 
+zp_sd_address EXPR(72=0x48) EQU 
+via_init EXPR(2307=0x903) UNUSED ABS 
+PORTA_OUTPUTPINS EXPR(252=0xfc) EQU 
+SD_MISO EXPR(2=0x2) UNUSED EQU 
+SD_MOSI EXPR(4=0x4) EQU 
+SD_SCK EXPR(8=0x8) EQU 
+SD_CS EXPR(16=0x10) EQU 
+LCD_RS EXPR(32=0x20) EQU 
+LCD_RW EXPR(64=0x40) EQU 
+LCD_E EXPR(128=0x80) EQU 
+DDRA EXPR(45059=0xb003) EQU 
+DDRB EXPR(45058=0xb002) EQU 
+PORTA EXPR(45057=0xb001) UNUSED EQU 
+PORTB EXPR(45056=0xb000) UNUSED EQU 
+sdstart EXPR(2341=0x925) ABS 
+jumptoit EXPR(2304=0x900) UNUSED ABS 
+irqcount EXPR(3=0x3) EQU 
+donefact EXPR(2=0x2) EQU 
+seed EXPR(1=0x1) EQU 
+charbuffer EXPR(1537=0x601) EQU 
 __RPTCNT EXPR(-1=0xffff) INTERNAL 
 __VASM EXPR(0=0x0) INTERNAL 
 
