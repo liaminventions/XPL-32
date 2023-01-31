@@ -113,6 +113,7 @@ sc		= $19 ; 1byt
 viaddr		= $1a ; 2byt
 cursor_x	= $1c ; 1byt
 cursor_y	= $1d ; 1byt
+vif_end		= $1e ; 2byt
 
 ;; startup enable
 SEN		= $7ffd
@@ -2797,7 +2798,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 6014,$00
+  .dsb 6003,$00
 
 ; ----KERNAL----
 

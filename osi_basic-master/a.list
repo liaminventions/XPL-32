@@ -18,8 +18,8 @@ Current file: osi_bas.s
 000000r 1               ; MERGED INTO ONE FILE AND MACROS AND CONDITIONAL STATEMENTS REMOVED
 000000r 1               ; BY G. SEARLE 2013
 000000r 1               ;
-000000r 1               ; Also is modified to work on the XPL-32 and with some various routines added
-000000r 1               ; by Waverider  2020-2022
+000000r 1               ; MODIFIED TO RUN ON THE XPL-32 AND VARIOUS ROUTINES ADDED
+000000r 1               ; BY WAVERIDER 2020-2023
 000000r 1               ;
 000000r 1               ;
 000000r 1               ; I/O and load/saves added to the end of this code
@@ -53,8 +53,6 @@ Current file: osi_bas.s
 000000r 1               ; wavid's creditz:
 000000r 1               ; * Of course, Ben Eater is a major inspiration.
 000000r 1               ; * George Foot made most of the SD Card stuff.
-000000r 1               ; * krallja is very helpful
-000000r 1               ; * JB Langston (lol)
 000000r 1               ; * And me, Waverider...
 000000r 1               ;
 000000r 1               ; to recap:

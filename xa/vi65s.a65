@@ -61,6 +61,7 @@ processparam           ; process the filename parameter
   stz fat32_address
   jsr fat32_file_read
   ; now print first part to screen
+  ; BUG files can go past the screen limit, and glitch the viewer.
   jsr ascii_home
   ldx #0
   ldy #0
@@ -96,6 +97,7 @@ vnf:
 veof:
   ; eof reached. fill the screen with ~
   inx
+  stx vif_end
 vinlp:
   lda #$0f
   jsr print_chara
@@ -133,6 +135,9 @@ startcsr:
   stz cursor_x
   stz cursor_y
 vlp:
+  jsr rxpoll
+  lda $8000
+  jsr print_hex_acia
   jmp vlp
   plx
   rts
