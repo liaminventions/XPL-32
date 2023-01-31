@@ -137,6 +137,7 @@ startcsr:
 vlp:
   ; wait until key pressed
   jsr rxpoll
+  lda $8000
   ; parse arrow keys
   cmp #$18
   beq vi_down
