@@ -8,3 +8,4 @@ Esc[1K = erase to start of line
 Esc[L = scroll down
 Esc[M = scroll up
 Esc- = turn off ANSI interpreter - NEEDED IF USING GRAPHICS otherwise char 1B can't be sent to the display  <--New for 3.0
+
