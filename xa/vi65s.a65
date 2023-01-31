@@ -135,12 +135,36 @@ startcsr:
   stz cursor_x
   stz cursor_y
 vlp:
+  ; wait until key pressed
   jsr rxpoll
-  lda $8000
-  jsr print_hex_acia
+  ; parse arrow keys
+  cmp #$18
+  beq vi_down
+  cmp #$05
+  beq vi_up
+  cmp #$10
+  beq vi_left
+  cmp #$04
+  beq vi_right
   jmp vlp
   plx
   rts
+vi_down:
+  lda #$1f
+  jsr print_chara
+  jmp vlp
+vi_up:
+  lda #$1e
+  jsr print_chara
+  jmp vlp
+vi_left:
+  lda #$1d
+  jsr print_chara
+  jmp vlp
+vi_right:
+  lda #$1c
+  jsr print_chara
+  jmp vlp
 .)
 
 nfm:	.byte "[New File]",0
