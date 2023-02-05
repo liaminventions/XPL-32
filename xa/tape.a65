@@ -3,6 +3,7 @@
 ; tsave
 ; tload
 ;
+; BUG fast mode is not yet functional!
 
 ; Save to cassette tape
 ;
