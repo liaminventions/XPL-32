@@ -90,5 +90,5 @@ jobs:
       - name: Publish Artifacts
         uses: actions/upload-artifact@v2
         with: 
-          name: assets-for-download
+          name: xpl32_rom
           path: artifacts
