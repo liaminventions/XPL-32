@@ -19,7 +19,16 @@ tsavecmd:
   beq speedp
   jmp error
 speedp:
-  jsr tfast
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  lda (stackaccess)
+  cmp #'f'
+  bne processparamr
+  stz tapespeed
   jmp tsn
 processparamr           
   lda #$ff
@@ -268,20 +277,6 @@ rd3:
   bne tape_delay
   rts
 
-tfast:
-  clc
-  lda #<INPUT
-  adc ARGINDEX+4
-  sta stackaccess
-  lda #>INPUT
-  sta stackaccess+1
-  lda (stackaccess)
-  cmp #'f'
-  bne tnono
-  stz tapespeed
-tnono:
-  rts
-
 tsavemsg:
   .byte $02, $ff, "Press Record And play on Tape.", $0d, $0a, $00
 tloadmsg:
@@ -308,7 +303,16 @@ tloadcmd:
   lda ARGINDEX
   cmp #1
   beq notf
-  jsr tfast
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  lda (stackaccess)
+  cmp #'f'
+  bne notf
+  stz tapespeed
   jmp frl
 notf:
   lda #$ff
@@ -433,6 +437,8 @@ rx_wait_delay:
 .)
 
 rx_delay:
+  lda tapespeed
+  beq frx_delay
   phx
   phy
   ldy #$02
