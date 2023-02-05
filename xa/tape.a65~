@@ -298,13 +298,12 @@ tomsg:
 ;
 
 tloadcmd:
-.(
   ;; check arguments
   lda ARGINDEX
   cmp #1
   beq notf
-  cmp #2
-  bne error
+  ;cmp #2
+  ;bne error
   clc
   lda #<INPUT
   adc ARGINDEX+2
@@ -316,10 +315,13 @@ tloadcmd:
   bne notf
   stz tapespeed
   jmp frl
+tload_kernal:
+  phx
 notf:
   lda #$ff
   sta tapespeed	
 frl:
+.(
   phx
   lda #%10111111
   sta DDRA

@@ -2799,7 +2799,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 5870,$00
+  .dsb 5869,$00
 
 ; ----KERNAL----
 
@@ -2875,9 +2875,9 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadone
 KERNAL_tsave:
-  jmp tsavecmd+81
+  jmp tsavecmd+94
 KERNAL_tload:
-  jmp tloadcmd
+  jmp tload_kernal
 
    * = $FFFA
   .word interrupt

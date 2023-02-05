@@ -298,7 +298,6 @@ tomsg:
 ;
 
 tloadcmd:
-.(
   ;; check arguments
   lda ARGINDEX
   cmp #1
@@ -316,10 +315,13 @@ tloadcmd:
   bne notf
   stz tapespeed
   jmp frl
+tload_kernal:
+  phx
 notf:
   lda #$ff
   sta tapespeed	
 frl:
+.(
   phx
   lda #%10111111
   sta DDRA

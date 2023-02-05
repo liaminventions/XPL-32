@@ -2875,9 +2875,9 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadone
 KERNAL_tsave:
-  jmp tsavecmd+81
+  jmp tsavecmd+36
 KERNAL_tload:
-  jmp tloadcmd
+  jmp tload_kernal
 
    * = $FFFA
   .word interrupt
