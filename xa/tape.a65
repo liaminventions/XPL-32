@@ -303,6 +303,8 @@ tloadcmd:
   lda ARGINDEX
   cmp #1
   beq notf
+  cmp #2
+  bne error
   clc
   lda #<INPUT
   adc ARGINDEX+2
@@ -433,6 +435,7 @@ rx_wait_delay:
 .)
 
 rx_delay:
+  pha
   lda tapespeed
   beq frx_delay
   phx
@@ -447,6 +450,7 @@ rx_delay_inner:
   bne rx_delay_outer
   ply
   plx
+  pla
   rts
 
 frx_delay:
@@ -456,5 +460,6 @@ frx_delay_inner:
   dex
   bne frx_delay_inner
   plx
+  pla
   rts
 
