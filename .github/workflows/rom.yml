@@ -79,3 +79,16 @@ jobs:
           cp osi_bas.bin ROM.BIN
           cat xpl.BIN >> ROM.BIN
           cd ../xa
+          
+      # Setup artifact folder
+      - name: Link XPL monitor with BASIC
+        run: |
+          mkdir artifacts
+          cp osi_basic-master/ROM.BIN artifacts/
+  
+      # Publish Artifacts
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with: 
+          name: assets-for-download
+          path: artifacts
