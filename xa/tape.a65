@@ -305,7 +305,7 @@ tloadcmd:
   beq notf
   clc
   lda #<INPUT
-  adc ARGINDEX+4
+  adc ARGINDEX+2
   sta stackaccess
   lda #>INPUT
   sta stackaccess+1
@@ -424,10 +424,6 @@ load_done:
   jsr print_hex_acia
   jsr crlf
   plx
-  rts
-  rts
-  rts
-  rts
   rts
 
 rx_wait_delay:
