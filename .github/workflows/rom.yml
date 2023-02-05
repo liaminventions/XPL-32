@@ -81,7 +81,7 @@ jobs:
           cd ../xa
           
       # Setup artifact folder
-      - name: Link XPL monitor with BASIC
+      - name: Setup artifact folder
         run: |
           mkdir artifacts
           cp osi_basic-master/ROM.BIN artifacts/
