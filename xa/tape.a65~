@@ -299,7 +299,6 @@ tomsg:
 
 tloadcmd:
 .(
-  phx
   ;; check arguments
   lda ARGINDEX
   cmp #1
@@ -321,6 +320,7 @@ notf:
   lda #$ff
   sta tapespeed	
 frl:
+  phx
   lda #%10111111
   sta DDRA
   lda #%11111111
@@ -435,6 +435,7 @@ rx_wait_delay:
 .)
 
 rx_delay:
+  pha
   lda tapespeed
   beq frx_delay
   phx
@@ -449,6 +450,7 @@ rx_delay_inner:
   bne rx_delay_outer
   ply
   plx
+  pla
   rts
 
 frx_delay:
@@ -458,5 +460,6 @@ frx_delay_inner:
   dex
   bne frx_delay_inner
   plx
+  pla
   rts
 

@@ -303,8 +303,8 @@ tloadcmd:
   lda ARGINDEX
   cmp #1
   beq notf
-  cmp #2
-  bne error
+  ;cmp #2
+  ;bne error
   clc
   lda #<INPUT
   adc ARGINDEX+2
