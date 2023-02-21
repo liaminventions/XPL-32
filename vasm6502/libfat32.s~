@@ -19,7 +19,7 @@ fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			    = zp_fat32_variables + $1c  ; 2 bytes
 fat32_dwcount			    = zp_fat32_variables + $1e  ; 2 bytes
 fat32_sectorsperfat		= zp_fat32_variables + $20 ; 2 bytes
-fat32_fsinfocluster		= zp_fat32_variables + $22 ; 2 bytes
+fat32_fsinfosector		= zp_fat32_variables + $22 ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
@@ -183,9 +183,9 @@ fat32_init:
 
   ; Remember FSInfo sector
   lda fat32_readbuffer+38
-  sta fat32_fsinfocluster
+  sta fat32_fsinfosector
   lda fat32_readbuffer+39
-  sta fat32_fsinfocluster+1
+  sta fat32_fsinfosector+1
 
   ; Remember the root cluster
   lda fat32_readbuffer+44
@@ -662,10 +662,10 @@ fat32_findnextfreecluster:
 ;
 ; Also returns a 1 in the carry bit if the SD card is full.
 ;
-  ; Load FSInfo cluster
-  lda fat32_fsinfocluter
+  ; Load FSInfo sector
+  lda fat32_fsinfosector
   sta zp_sd_currentsector
-  lda fat32_fsinfocluster+1
+  lda fat32_fsinfosector+1
   sta zp_sd_currentsector+1
 
   lda #0
@@ -681,16 +681,78 @@ fat32_findnextfreecluster:
   ; Do the read
   jsr sd_readsector
 
-  lda fat32_readbuffer+488
-  lda fat32_readbuffer+489
-  lda fat32_readbuffer+488
-  lda fat32_readbuffer+489
+  ; these are 0xFFFFFFFF if there is no hint
 
+  ; check last known free cluster count
+  lda fat32_readbuffer+488
+  and #$ff
+  bne .validhint
+  lda fat32_readbuffer+489
+  and #$ff
+  bne .validhint
+  lda fat32_readbuffer+488
+  and #$ff
+  bne .validhint
+  lda fat32_readbuffer+489
+  and #$ff
+  bne .validhint
+
+.nohint
+  ; There was no hint, we need to manually calculate the result.
+
+  ; where to start searching for a free cluster
   lda fat32_readbuffer+492
+  and #$ff
+  bne .validhintloc
   lda fat32_readbuffer+493
+  and #$ff
+  bne .validhintloc
   lda fat32_readbuffer+494
+  and #$ff
+  bne .validhintloc
   lda fat32_readbuffer+495
+  and #$ff
+  bne .validhintloc
 
+  ; no hints whatsoever, we are on our own...
+
+  ; TODO find free cluster, populate it, and take note of it.
+
+  clc
+  rts
+
+.validhint
+
+  ; Have we already found this cluster hint?
+  lda fat32_readbuffer+488
+  cmp fat32_lastfoundfreecluster
+  bne .savehint
+  lda fat32_readbuffer+489
+  cmp fat32_lastfoundfreecluster+1
+  bne .savehint
+  lda fat32_readbuffer+490
+  cmp fat32_lastfoundfreecluster+2
+  bne .savehint
+  lda fat32_readbuffer+491
+  cmp fat32_lastfoundfreecluster+3
+  beq .nohint
+
+.savehint
+
+  ; No, save it.
+  lda fat32_readbuffer+488
+  sta fat32_lastfoundfreecluster
+  lda fat32_readbuffer+489
+  sta fat32_lastfoundfreecluster+1
+  lda fat32_readbuffer+490
+  sta fat32_lastfoundfreecluster+2
+  lda fat32_readbuffer+491
+  sta fat32_lastfoundfreecluster+3
+
+  clc
+  rts
+
+  ; BUG BROKEN STUFF HERE
 
   lda fat32_fatstart
   sta fat32_lba
@@ -852,7 +914,7 @@ skipdiv:
   adc (zp_sd_address),y
   beq .gotfreecluster		; If the FAT entry is 0x00000000, we've got the next free cluster
 
-  ; Increment the last found free cluster count
+  ; Increment the last found free cluster count BUG wait thats a counter??!
   inc fat32_lastfoundfreecluster
   bne .ffcdontinc
   inc fat32_lastfoundfreecluster+1
@@ -1136,6 +1198,7 @@ fat32_file_write:
 .wholesectorwriteloop:
   ; Write a sector from fat32_address
   jsr fat32_writenextsector
+  bcs .done	; this shouldn't happen
 
   ; Advance fat32_address by 512 bytes
   lda fat32_address+1
