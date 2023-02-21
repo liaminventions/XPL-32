@@ -18,6 +18,8 @@ fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_result			    = zp_fat32_variables + $1c  ; 2 bytes
 fat32_dwcount			    = zp_fat32_variables + $1e  ; 2 bytes
+fat32_sectorsperfat		= zp_fat32_variables + $20 ; 2 bytes
+fat32_fsinfocluster		= zp_fat32_variables + $22 ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
@@ -130,6 +132,12 @@ fat32_init:
   cmp #2
   bne .fail
 
+  ; Save sectors per FAT
+
+  lda fat32_readbuffer+22
+  sta fat32_sectorsperfat
+  lda fat32_readbuffer+23
+  sta fat32_sectorsperfat+1
 
   ; Calculate the starting sector of the FAT
   clc
@@ -172,6 +180,12 @@ fat32_init:
   ; Sectors-per-cluster is a power of two from 1 to 128
   lda fat32_readbuffer+13
   sta fat32_sectorspercluster
+
+  ; Remember FSInfo sector
+  lda fat32_readbuffer+38
+  sta fat32_fsinfocluster
+  lda fat32_readbuffer+39
+  sta fat32_fsinfocluster+1
 
   ; Remember the root cluster
   lda fat32_readbuffer+44
@@ -648,6 +662,36 @@ fat32_findnextfreecluster:
 ;
 ; Also returns a 1 in the carry bit if the SD card is full.
 ;
+  ; Load FSInfo cluster
+  lda fat32_fsinfocluter
+  sta zp_sd_currentsector
+  lda fat32_fsinfocluster+1
+  sta zp_sd_currentsector+1
+
+  lda #0
+  sta zp_sd_currentsector+2
+  sta zp_sd_currentsector+3
+
+  ; Target buffer
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
+
+  ; Do the read
+  jsr sd_readsector
+
+  lda fat32_readbuffer+488
+  lda fat32_readbuffer+489
+  lda fat32_readbuffer+488
+  lda fat32_readbuffer+489
+
+  lda fat32_readbuffer+492
+  lda fat32_readbuffer+493
+  lda fat32_readbuffer+494
+  lda fat32_readbuffer+495
+
+
   lda fat32_fatstart
   sta fat32_lba
   lda fat32_fatstart+1
@@ -845,13 +889,11 @@ skipdiv:
   inc fat32_lba+3
 .dontinclba:
   ; Out of disk space?
-  ; BUG i should by comparing this with sectors per FAT, not per cluster...
-  ; are they the same? (i dont think so...)
-  dec fat32_sectorspercluster
+  dec fat32_sectorsperfat
   lda fat32_dwcount
-  cmp fat32_sectorspercluster
+  cmp fat32_sectorsperfat
   bcs .dontsubtractdw
-  inc fat32_sectorspercluster
+  inc fat32_sectorsperfat
   jmp .diskfull ; Disk Full
 .dontsubtractdw:
   inc fat32_sectorspercluster
@@ -939,7 +981,7 @@ fat32_readdirent:
 
 
 fat32_finddirent:
-  ; Finds a particular directory entryu  X,Y point to the 11-character filename to seek.
+  ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
   ; The directory should already be open for iteration.
 
   ; Form ZP pointer to user's filename

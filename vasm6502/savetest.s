@@ -35,17 +35,17 @@ LF=10
   .org $0f00
 
 reset:
-;  jsr sd_init
-;  bcs sd_fail
+  jsr sd_init
+  bcs sd_fail
   ; sd init done
-;  lda #'S'
-;  sta ACIAData
-;  jsr fat32_init
-;  bcs faterror
+  lda #'S'
+  sta ACIAData
+  jsr fat32_init
+  bcs faterror
   ; fat32 init done
-;  jsr txpoll
-;  lda #'F'
-;  sta ACIAData
+  jsr txpoll
+  lda #'F'
+  sta ACIAData
   ; init done
 initdone:
   ; now make a dummy file.
@@ -58,8 +58,8 @@ dummyloop:
   ; add an EOF
   lda #0
   sta $0700
-  sta $0701
-  sta $0702
+  ;sta $0701
+  ;sta $0702
 
   jmp MEMORY_SAVE ; OK, here we go.
 
@@ -134,7 +134,7 @@ saveok:
   sta XYLODSAV2+1
   lda #0
   sta fat32_bytesremaining
-  sta fat32_bytesremaining
+  sta fat32_bytesremaining+1
   ldy #0
 savecalclp:
   lda (XYLODSAV2),y
@@ -142,12 +142,12 @@ savecalclp:
   jsr msincremaining
   jmp savecalclp
 mszero:
-  jsr msincremaining
-  lda (XYLODSAV2),y
-  bne savecalclp
-  jsr msincremaining
-  lda (XYLODSAV2),y
-  bne savecalclp
+  ;jsr msincremaining
+  ;lda (XYLODSAV2),y
+  ;bne savecalclp
+  ;jsr msincremaining
+  ;lda (XYLODSAV2),y
+  ;bne savecalclp
 ; done
   jsr fat32_writedirent
   ldx #<savmsg
