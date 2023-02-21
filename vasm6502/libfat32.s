@@ -658,9 +658,9 @@ fat32_findnextfreecluster:
 ; TODO Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
-; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
+; save the 32-bit cluster number at fat32_lastfoundfreecluter.
 ;
-; Also returns a 1 in the carry bit if the SD card is full.
+; Also sets the carry bit if the SD card is full.
 ;
   ; Load FSInfo sector
   lda fat32_fsinfosector
@@ -700,7 +700,7 @@ fat32_findnextfreecluster:
 .nohint
   ; There was no hint, we need to manually calculate the result.
 
-  ; where to start searching for a free cluster
+  ; Is there a hint for where to start searching for a free cluster?
   lda fat32_readbuffer+492
   and #$ff
   bne .validhintloc
@@ -714,9 +714,12 @@ fat32_findnextfreecluster:
   and #$ff
   bne .validhintloc
 
-  ; no hints whatsoever, we are on our own...
+  ; no hints whatsoever, we are all on our own...
 
-  ; TODO find free cluster, populate it, and take note of it.
+.invalidhint
+
+  ; TODO find free cluster, populate it, and take note of it in fat32_lastfoundfreecluster
+  ; (LONG WAY)
 
   clc
   rts
@@ -739,16 +742,53 @@ fat32_findnextfreecluster:
 
 .savehint
 
-  ; No, save it.
+  ; No, check if it's valid
   lda fat32_readbuffer+488
-  sta fat32_lastfoundfreecluster
+  sta fat32_nextcluster
   lda fat32_readbuffer+489
-  sta fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+1
   lda fat32_readbuffer+490
-  sta fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+2
   lda fat32_readbuffer+491
-  sta fat32_lastfoundfreecluster+3
+  sta fat32_nextcluster+3
 
+  ; Seek to cluster
+  jsr fat32_seekcluster
+
+  ; Is it free? (0x00000000)
+  lda fat32_nextcluster
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  bne .invalidhint
+
+  ; Yes, return.
+  clc
+  rts
+
+.validhintloc
+
+  ; Use the hint for looking for a free cluster
+  lda fat32_readbuffer+492
+  sta fat32_nextcluster
+  lda fat32_readbuffer+493
+  sta fat32_nextcluster+1
+  lda fat32_readbuffer+494
+  sta fat32_nextcluster+2
+  lda fat32_readbuffer+495
+  sta fat32_nextcluster+3
+
+  ; Seek to cluster
+  jsr fat32_seekcluster
+
+  ; Is it free? (rare)
+  lda fat32_nextcluster
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  bne .searchclusters
+
+  ; rare scenearo
   clc
   rts
 

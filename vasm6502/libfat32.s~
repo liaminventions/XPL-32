@@ -658,9 +658,9 @@ fat32_findnextfreecluster:
 ; TODO Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
-; save the 32-bit index (from fat_start) to fat32_lastfoundfreecluter.
+; save the 32-bit cluster number at fat32_lastfoundfreecluter.
 ;
-; Also returns a 1 in the carry bit if the SD card is full.
+; Also sets the carry bit if the SD card is full.
 ;
   ; Load FSInfo sector
   lda fat32_fsinfosector
@@ -700,7 +700,7 @@ fat32_findnextfreecluster:
 .nohint
   ; There was no hint, we need to manually calculate the result.
 
-  ; where to start searching for a free cluster
+  ; Is there a hint for where to start searching for a free cluster?
   lda fat32_readbuffer+492
   and #$ff
   bne .validhintloc
@@ -714,9 +714,12 @@ fat32_findnextfreecluster:
   and #$ff
   bne .validhintloc
 
-  ; no hints whatsoever, we are on our own...
+  ; no hints whatsoever, we are all on our own...
 
-  ; TODO find free cluster, populate it, and take note of it.
+.invalidhint
+
+  ; TODO find free cluster, populate it, and take note of it in fat32_lastfoundfreecluster
+  ; (LONG WAY)
 
   clc
   rts
@@ -739,143 +742,59 @@ fat32_findnextfreecluster:
 
 .savehint
 
-  ; No, save it.
+  ; No, check if it's valid
   lda fat32_readbuffer+488
-  sta fat32_lastfoundfreecluster
+  sta fat32_nextcluster
   lda fat32_readbuffer+489
-  sta fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+1
   lda fat32_readbuffer+490
-  sta fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+2
   lda fat32_readbuffer+491
-  sta fat32_lastfoundfreecluster+3
+  sta fat32_nextcluster+3
+
+  ; Seek to cluster
+  jsr fat32_seekcluster
+
+  ; Is it free? (0x00000000)
+  lda fat32_nextcluster
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  bne .invalidhint
+
+  ; Yes, return.
+  clc
+  rts
+
+.validhintloc
+
+  ; We hint for looking for a free cluster
+  lda fat32_readbuffer+492
+  sta fat32_nextcluster
+  lda fat32_readbuffer+493
+  sta fat32_nextcluster+1
+  lda fat32_readbuffer+494
+  sta fat32_nextcluster+2
+  lda fat32_readbuffer+495
+  sta fat32_nextcluster+3
+
+  ; Seek to cluster
+  jsr fat32_seekcluster
+
+  ; Is it free? (0x00000000)
+  lda fat32_nextcluster
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  bne .searchclusters
+
+  ; TODO go there and start looking with the todo routune above
 
   clc
   rts
 
-  ; BUG BROKEN STUFF HERE
+  ; BUG ignore the following code for now
 
-  lda fat32_fatstart
-  sta fat32_lba
-  lda fat32_fatstart+1
-  sta fat32_lba+1			; copy fat_start to lba
-  lda fat32_fatstart+2
-  sta fat32_lba+2
-  lda fat32_fatstart+3
-  sta fat32_lba+3
-  clc
-  lda fat32_lastfoundfreecluster	; if there is no previously found free cluster
-  adc fat32_lastfoundfreecluster+1
-  adc fat32_lastfoundfreecluster+2
-  adc fat32_lastfoundfreecluster+3
-  beq jmpskipdiv				; then skip the division
-  lda fat32_lastfoundfreecluster
-  pha
-  lda fat32_lastfoundfreecluster+1
-  pha
-  lda fat32_lastfoundfreecluster+2	; save original states of the last found sector
-  pha					; (division clobbers it)
-  lda fat32_lastfoundfreecluster+3
-  pha
-  lda $00				; extra variable usage for division
-  pha
-  lda $01
-  pha
-  ; BUG is the math right?
-  ; result = lastfoundfreecluster / 128
-  ; 32-bit division from http://6502.org/source/integers/ummodfix/ummodfix.htm
-  sec            			                ; Detect overflow or /0 condition.
-  lda     fat32_lastfoundfreecluster        ; Divisor must be more than high cell of dividend.  To
-  sbc     #128                        	    ; find out, subtract divisor from high cell of dividend;
-  lda     fat32_lastfoundfreecluster+1      ; if carry flag is still set at the end, the divisor was
-  sbc     #0                         		; not big enough to avoid overflow. This also takes care
-  bcs     .oflo                      		;	 of any /0 condition.  Branch if overflow or /0 error.
-                                    		; We will loop 16 times; but since we shift the dividend
-  ldx     #$11    	                  		; over at the same time as shifting the answer in, the
-                   	                  		; operation must start AND finish with a shift of the
-                   	                  		; low cell of the dividend (which ends up holding the
-                   		                  	; quotient), so we start with 17 (11H) in X.
-.divloop:
-  rol     fat32_lastfoundfreecluster+2      ; Move low cell of dividend left one bit, also shifting
-  rol     fat32_lastfoundfreecluster+3      ; answer in. The 1st rotation brings in a 0, which later
-                        	                ; gets pushed off the other end in the last rotation.
-  dex
-  beq     .enddiv    		                ; Branch to the end if finished.
-
-  rol     fat32_lastfoundfreecluster        ; Shift high cell of dividend left one bit, also
-  rol     fat32_lastfoundfreecluster+1      ; shifting next bit in from high bit of low cell.
-  lda     #0
-  sta     $00   		                   	; Zero old bits of CARRY so subtraction works right.
-  rol     $00   		                  	; Store old high bit of dividend in CARRY.  (For STZ
-                   	                  		; one line up, NMOS 6502 will need lda #0, sta CARRY.)
-  sec                               		; See if divisor will fit into high 17 bits of dividend
-  lda     fat32_lastfoundfreecluster        ; by subtracting and then looking at carry flag.
-  sbc     #128       		                ; First do low byte.
-  sta     $01     	                  		; Save difference low byte until we know if we need it.
-  lda     fat32_lastfoundfreecluster+1      ;
-  sbc     #0     	                  		; Then do high byte.
-  tay             		                   	; Save difference high byte until we know if we need it.
-  lda     $00   			                  ; Bit 0 of CARRY serves as 17th bit.
-  sbc     #0      		                  	; Complete the subtraction by doing the 17th bit before
-  bcc     .divloop 	 	                  	; determining if the divisor fit into the high 17 bits
-                  	                  		; of the dividend.  If so, the carry flag remains set.
-  lda     $01                        			; If divisor fit into dividend high 17 bits, update
-  sta     fat32_lastfoundfreecluster      ; dividend high cell to what it would be after
-  sty     fat32_lastfoundfreecluster+1    ; subtraction.
-  bcs     .divloop    		                	; Branch If Carry Set.  CMOS WDC65C02 could use bcs here. CA65 doesent allow it though.
-
-.oflo:  
-  lda     #$FF    			                  ; If overflow occurred, put FF
-  sta     fat32_lastfoundfreecluster      ; in remainder low byte
-  sta     fat32_lastfoundfreecluster+1    ; and high byte,
-  sta     fat32_lastfoundfreecluster+2    ; and in quotient low byte
-  sta     fat32_lastfoundfreecluster+3    ; and high byte.
-.enddiv:
-  lda	fat32_lastfoundfreecluster+2
-  sta	fat32_result			; store quotient into fat32_result
-  lda	fat32_lastfoundfreecluster+3
-  sta	fat32_result+1
-  pla
-  sta	$01
-  pla
-  sta	$00
-  pla					; restore variables
-  sta	fat32_lastfoundfreecluster+3
-  pla
-  sta	fat32_lastfoundfreecluster+2
-  pla
-  sta	fat32_lastfoundfreecluster+1
-  pla
-  sta	fat32_lastfoundfreecluster
-  ; add the result to lba
-  clc
-  lda	fat32_lba
-  adc	fat32_result
-  sta	fat32_lba
-  lda	fat32_lba+1
-  adc	fat32_result+1
-  sta	fat32_lba+1
-  lda	fat32_lba+2
-  adc	#0
-  sta	fat32_lba+2
-  lda	fat32_lba+3
-  adc	#0
-  sta	fat32_lba+3
-skipdiv:
-  ; now we have preformed LBA=+LASTFOUNDSECTOR/128
-  ; LBA - FATSTART = RESULT
-  sec
-  lda fat32_lba
-  sbc fat32_fatstart
-  sta fat32_dwcount
-  lda fat32_lba+1
-  sbc fat32_fatstart+1
-  sta fat32_dwcount+1
-  lda fat32_lba+2
-  sbc fat32_fatstart+2
-  sta fat32_dwcount+2
-  lda fat32_lba+3
-  sbc fat32_fatstart+3
-  sta fat32_dwcount+3
   ; Save zp_sd_address for later
   lda zp_sd_address
   pha
