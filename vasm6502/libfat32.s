@@ -16,10 +16,8 @@ fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
-fat32_result			    = zp_fat32_variables + $1c  ; 2 bytes
-fat32_dwcount			    = zp_fat32_variables + $1e  ; 2 bytes
-fat32_sectorsperfat		= zp_fat32_variables + $20 ; 2 bytes
-fat32_fsinfosector		= zp_fat32_variables + $22 ; 2 bytes
+fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
+fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
@@ -344,7 +342,6 @@ fat32_seekcluster:
   ; It's the end of the chain, set the top bits so that we can tell this later on
   sta fat32_nextcluster+3
 .notendofchain:
-
   rts
 
 
@@ -718,9 +715,52 @@ fat32_findnextfreecluster:
 
 .invalidhint
 
-  ; TODO find free cluster, populate it, and take note of it in fat32_lastfoundfreecluster
+  ; Find free cluster, populate it, and take note of it in fat32_lastfoundfreecluster
   ; (LONG WAY)
 
+  lda #0
+  sta fat32_nextcluster
+  sta fat32_lastfoundfreecluster
+  sta fat32_nextcluster+1
+  sta fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+2
+  sta fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+3
+  sta fat32_lastfoundfreecluster+3
+
+.searchclusters
+
+  ; Seek to first cluster
+  jsr fat32_seekcluster
+
+  ; Free cluster?
+  lda fat32_nextcluster
+  and #$0f
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  beq .foundcluster
+
+  ; nope - next cluster
+  inc fat32_lastfoundfreecluster
+  bne .searchclusters
+  inc fat32_lastfoundfreecluster+1
+  bne .searchclusters
+  inc fat32_lastfoundfreecluster+2
+  bne .searchclusters
+  inc fat32_lastfoundfreecluster+3
+  jmp .searchclusters
+
+  lda fat32_lastfoundfreecluster
+  sta fat32_nextcluster
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+1
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+2
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_nextcluster+3
+
+.foundcluster
   clc
   rts
 
@@ -792,114 +832,6 @@ fat32_findnextfreecluster:
   clc
   rts
 
-  ; BUG ignore the following code for now
-
-  ; Save zp_sd_address for later
-  lda zp_sd_address
-  pha
-  lda zp_sd_address+1
-  pha 
-  ; Now we will find a free cluster. (finally)
-.findfreeclusterloop:
-  ; We will read at sector LBA
-  lda fat32_lba
-  sta zp_sd_currentsector
-  lda fat32_lba+1
-  sta zp_sd_currentsector+1
-  lda fat32_lba+2
-  sta zp_sd_currentsector+2
-  lda fat32_lba+3
-  sta zp_sd_currentsector+3
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
-  ; Read sector
-  jsr sd_readsector
-  ; Now Check each entry in the sector.
-  ldx #0
-  ldy #0
-.ffcinner:
-  lda (zp_sd_address),y
-  and #$0f			; First 4 bits are reserved.
-  iny
-  clc
-  adc (zp_sd_address),y
-  iny
-  adc (zp_sd_address),y
-  iny
-  adc (zp_sd_address),y
-  beq .gotfreecluster		; If the FAT entry is 0x00000000, we've got the next free cluster
-
-  ; Increment the last found free cluster count BUG wait thats a counter??!
-  inc fat32_lastfoundfreecluster
-  bne .ffcdontinc
-  inc fat32_lastfoundfreecluster+1
-  bne .ffcdontinc
-  inc fat32_lastfoundfreecluster+2
-  bne .ffcdontinc
-  inc fat32_lastfoundfreecluster+3
-.ffcdontinc:
-  ; Now check if the disk is full.
-  lda fat32_lastfoundfreecluster
-  cmp #$ff
-  bne .ffcskip
-  lda fat32_lastfoundfreecluster
-  cmp #$ff
-  bne .ffcskip
-  lda fat32_lastfoundfreecluster
-  cmp #$ff
-  bne .ffcskip
-  lda fat32_lastfoundfreecluster
-  cmp #$f7
-  bne .ffcskip
-  jmp .diskfull	; Disk full
-.ffcskip:
-  inx
-  cpx #129 	; Sector read?
-  bne .ffcinner	; If not go back to read another FAT entry
-  ; Increment LBA
-  inc fat32_lba
-  bne .dontinclba
-  inc fat32_lba+1
-  bne .dontinclba
-  inc fat32_lba+2
-  bne .dontinclba
-  inc fat32_lba+3
-.dontinclba:
-  ; Out of disk space?
-  dec fat32_sectorsperfat
-  lda fat32_dwcount
-  cmp fat32_sectorsperfat
-  bcs .dontsubtractdw
-  inc fat32_sectorsperfat
-  jmp .diskfull ; Disk Full
-.dontsubtractdw:
-  inc fat32_sectorspercluster
-  ; Increment fat32_dwcount
-  inc fat32_dwcount
-  bne .dontincdw
-  inc fat32_dwcount+1
-.dontincdw:
-  jmp .findfreeclusterloop
-.gotfreecluster:
-; Got the free cluster. Carry clear.
-  pla
-  sta zp_sd_address+1
-  pla
-  sta zp_sd_address
-  clc
-  rts
-
-.diskfull:
-; The disk is full. Set carry bit.
-  pla
-  sta zp_sd_address+1
-  pla
-  sta zp_sd_address
-  sec
-  rts
 
 fat32_readdirent:
   ; Read a directory entry from the open directory
