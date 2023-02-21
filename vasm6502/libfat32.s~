@@ -17,11 +17,14 @@ fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
 fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
-fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
+;fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
+fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
 fat32_lba		            = fat32_bytesremaining  ; only used when making a dirent
+
+; TODO add cluster chain creation (saving the next cluster at the previous cluster, and adding a end-of-chain marker.)
 
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
@@ -396,10 +399,9 @@ fat32_readnextsector:
   rts
 
 fat32_writenextsector:
-  ; TODO Writes the next sector from a cluster chain into the buffer at fat32_address.
+  ; TODO Writes the next sector into the buffer at fat32_address.
   ; 
-  ; Advances the current sector ready for the next write and looks up the next cluster
-  ; in the chain when necessary.
+  ; Also looks for new clusters and stores them in the FAT.
   ;
   ; On return, carry is set if its the end of the chain.
 
@@ -408,16 +410,53 @@ fat32_writenextsector:
   bne .writesector
 
   ; No pending sectors, check for end of cluster chain
-  lda fat32_nextcluster+3
-  bmi .endofnextchain
+  ; BUG need to make a end of the chain once the file is done (needs MATH)
+  ;lda fat32_nextcluster+3
+  ;bmi .endofnextchain
 
-  ; Prepare to write the next cluster
-  jsr fat32_seekcluster
-  ; BUG do i use this? or do i need to make a whole other thing so that I can use fat32_file_write..?
+  ; Find the next cluster that can be written to the FAT.
+  jsr fat32_findnextfreecluster
+
+  ; Cache the value so we can add the address of the next one
+  lda fat32_lastfoundfreecluster
+  sta fat32_lastcluster
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_lastcluster+1
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_lastcluster+2
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_lastcluster+3
+
+  ; Find the next one
+  jsr fat32_findnextfreecluster
+
+  ; Enter the address of the last one there
+  ; BUG continued here, this would keep going on...
+  lda fat32_lastcluster+3
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastcluster+2
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastcluster+1
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastcluster
+  sta (zp_sd_address),y
+  
+  ; Target buffer
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
+
+  ; Write the FAT sector
+  jsr sd_writesector
 
 .writesector:
   dec fat32_pendingsectors
 
+  ; BUG fix ram pointer increments
   ; Set up target address
   lda fat32_address
   sta zp_sd_address
@@ -429,7 +468,7 @@ fat32_writenextsector:
 
   ; Advance to next sector
   inc zp_sd_currentsector
-  bne .nextsectorincrementdone
+  bne .nextsectoxrincrementdone
   inc zp_sd_currentsector+1
   bne .nextsectorincrementdone
   inc zp_sd_currentsector+2
@@ -514,6 +553,7 @@ fat32_writedirent:
   ;   and the processes of:
   ;     fat32_finddirent
   ;     fat32_findnextfreecluster
+
   ; Increment pointer by 32 to point to next entry
   clc
   lda zp_sd_address
@@ -583,10 +623,10 @@ fat32_writedirent:
   iny
   sta (zp_sd_address),y
   iny ; 0x14-0x15 - File start cluster (high word)
-  lda fat32_lastfoundfreecluster ; WARNING latfoundfreeclster is in this goofy ahh byte order stated here: http://6502.org/source/integers/ummodfix/ummodfix.htm
+  lda fat32_lastfoundfreecluster+2
   sta (zp_sd_address),y
-  iny ; the byte order works well here though ig...
-  lda fat32_lastfoundfreecluster+1
+  iny
+  lda fat32_lastfoundfreecluster+3
   sta (zp_sd_address),y
   iny ; 0x16-0x19 - File modifiaction date
   lda #0
@@ -597,11 +637,11 @@ fat32_writedirent:
   sta (zp_sd_address),y
   iny
   sta (zp_sd_address),y
-  iny ; 0x1a-0x1b - File start cluster low word
-  lda fat32_lastfoundfreecluster+2
+  iny ; 0x1a-0x1b - File start cluster (low word)
+  lda fat32_lastfoundfreecluster
   sta (zp_sd_address),y
   iny
-  lda fat32_lastfoundfreecluster+3
+  lda fat32_lastfoundfreecluster+1
   sta (zp_sd_address),y
   iny ; 0x1c-0x1f File size in bytes
   lda fat32_bytesremaining
@@ -652,71 +692,16 @@ jmpskipdiv:
   jmp skipdiv
 
 fat32_findnextfreecluster:
-; TODO Find next free cluster
+; Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
 ; save the 32-bit cluster number at fat32_lastfoundfreecluter.
 ;
 ; Also sets the carry bit if the SD card is full.
 ;
-  ; Load FSInfo sector
-  lda fat32_fsinfosector
-  sta zp_sd_currentsector
-  lda fat32_fsinfosector+1
-  sta zp_sd_currentsector+1
+; TODO CHECK FOR BUGS
 
-  lda #0
-  sta zp_sd_currentsector+2
-  sta zp_sd_currentsector+3
-
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
-
-  ; Do the read
-  jsr sd_readsector
-
-  ; these are 0xFFFFFFFF if there is no hint
-
-  ; check last known free cluster count
-  lda fat32_readbuffer+488
-  and #$ff
-  bne .validhint
-  lda fat32_readbuffer+489
-  and #$ff
-  bne .validhint
-  lda fat32_readbuffer+488
-  and #$ff
-  bne .validhint
-  lda fat32_readbuffer+489
-  and #$ff
-  bne .validhint
-3
-.nohint
-  ; There was no hint, we need to manually calculate the result.
-
-  ; Is there a hint for where to start searching for a free cluster?
-  lda fat32_readbuffer+492
-  and #$ff
-  bne .validhintloc
-  lda fat32_readbuffer+493
-  and #$ff
-  bne .validhintloc
-  lda fat32_readbuffer+494
-  and #$ff
-  bne .validhintloc
-  lda fat32_readbuffer+495
-  and #$ff
-  bne .validhintloc
-
-  ; no hints whatsoever, we are all on our own...
-
-.invalidhint
-
-  ; Find free cluster, populate it, and take note of it in fat32_lastfoundfreecluster
-  ; (LONG WAY)
+  ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
 
   lda #0
   sta fat32_nextcluster
@@ -730,10 +715,10 @@ fat32_findnextfreecluster:
 
 .searchclusters
 
-  ; Seek to first cluster
+  ; Seek cluster
   jsr fat32_seekcluster
 
-  ; Free cluster?
+  ; Is the cluster free?
   lda fat32_nextcluster
   and #$0f
   ora fat32_nextcluster+1
@@ -741,7 +726,7 @@ fat32_findnextfreecluster:
   ora fat32_nextcluster+3
   beq .foundcluster
 
-  ; nope - next cluster
+  ; No, increment and loop back
   inc fat32_lastfoundfreecluster
   bne .searchclusters
   inc fat32_lastfoundfreecluster+1
@@ -761,77 +746,8 @@ fat32_findnextfreecluster:
   sta fat32_nextcluster+3
 
 .foundcluster
-  clc
+  ; done.
   rts
-
-.validhint
-
-  ; Have we already found this cluster hint?
-  lda fat32_readbuffer+488
-  cmp fat32_lastfoundfreecluster
-  bne .savehint
-  lda fat32_readbuffer+489
-  cmp fat32_lastfoundfreecluster+1
-  bne .savehint
-  lda fat32_readbuffer+490
-  cmp fat32_lastfoundfreecluster+2
-  bne .savehint
-  lda fat32_readbuffer+491
-  cmp fat32_lastfoundfreecluster+3
-  beq .nohint
-
-.savehint
-
-  ; No, check if it's valid
-  lda fat32_readbuffer+488
-  sta fat32_nextcluster
-  lda fat32_readbuffer+489
-  sta fat32_nextcluster+1
-  lda fat32_readbuffer+490
-  sta fat32_nextcluster+2
-  lda fat32_readbuffer+491
-  sta fat32_nextcluster+3
-
-  ; Seek to cluster
-  jsr fat32_seekcluster
-
-  ; Is it free? (0x00000000)
-  lda fat32_nextcluster
-  ora fat32_nextcluster+1
-  ora fat32_nextcluster+2
-  ora fat32_nextcluster+3
-  bne .invalidhint
-
-  ; Yes, return.
-  clc
-  rts
-
-.validhintloc
-
-  ; Use the hint for looking for a free cluster
-  lda fat32_readbuffer+492
-  sta fat32_nextcluster
-  lda fat32_readbuffer+493
-  sta fat32_nextcluster+1
-  lda fat32_readbuffer+494
-  sta fat32_nextcluster+2
-  lda fat32_readbuffer+495
-  sta fat32_nextcluster+3
-
-  ; Seek to cluster
-  jsr fat32_seekcluster
-
-  ; Is it free? (rare)
-  lda fat32_nextcluster
-  ora fat32_nextcluster+1
-  ora fat32_nextcluster+2
-  ora fat32_nextcluster+3
-  bne .searchclusters
-
-  ; rare scenearo
-  clc
-  rts
-
 
 fat32_readdirent:
   ; Read a directory entry from the open directory
