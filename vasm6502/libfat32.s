@@ -183,10 +183,10 @@ fat32_init:
   sta fat32_sectorspercluster
 
   ; Remember FSInfo sector
-  lda fat32_readbuffer+38
-  sta fat32_fsinfosector
-  lda fat32_readbuffer+39
-  sta fat32_fsinfosector+1
+  ;lda fat32_readbuffer+38
+  ;sta fat32_fsinfosector
+  ;lda fat32_readbuffer+39
+  ;sta fat32_fsinfosector+1
 
   ; Remember the root cluster
   lda fat32_readbuffer+44
@@ -198,7 +198,7 @@ fat32_init:
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
 
-  ; Set the last fount free cluster to 0.
+  ; Set the last found free cluster to 0.
   lda #0
   sta fat32_lastfoundfreecluster
   sta fat32_lastfoundfreecluster+1
@@ -409,29 +409,45 @@ fat32_writenextsector:
   lda fat32_pendingsectors
   bne .writesector
 
-  ; No pending sectors, check for end of cluster chain
-  ; BUG need to make a end of the chain once the file is done (needs MATH)
-  ;lda fat32_nextcluster+3
-  ;bmi .endofnextchain
+  ; No pending sectors, check if this is the last cluster in the chain
+  cmp fat32_sectorspercluster
+  bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
 
-  ; Find the next cluster that can be written to the FAT.
-  jsr fat32_findnextfreecluster
+  ; It is the last one.
 
-  ; Cache the value so we can add the address of the next one
-  lda fat32_lastfoundfreecluster
-  sta fat32_lastcluster
-  lda fat32_lastfoundfreecluster+1
-  sta fat32_lastcluster+1
-  lda fat32_lastfoundfreecluster+2
-  sta fat32_lastcluster+2
-  lda fat32_lastfoundfreecluster+3
-  sta fat32_lastcluster+3
+  ; Write 0x0FFFFFFF (EOC)
+  lda #$0f
+  sta (zp_sd_address),y
+  dey
+  lda #$ff
+  sta (zp_sd_address),y
+  dey
+  sta (zp_sd_address),y
+  dey
+  sta (zp_sd_address),y
+  
+  ; End of chain - set carry and return
+  sec
+  rts
+
+.notlastcluster
 
   ; Find the next one
   jsr fat32_findnextfreecluster
 
-  ; Enter the address of the last one there
-  ; BUG continued here, this would keep going on...
+  ; go back the previous one
+  lda fat32_lastcluster
+  sta fat32_nextcluster
+  lda fat32_lastcluster+1
+  sta fat32_nextcluster+1
+  lda fat32_lastcluster+2
+  sta fat32_nextcluster+2
+  lda fat32_lastcluster+3
+  sta fat32_nextcluster+3
+
+  jsr fat32_seekcluster
+
+  ; Enter the address of the next one here
   lda fat32_lastcluster+3
   sta (zp_sd_address),y
   dey
@@ -444,6 +460,16 @@ fat32_writenextsector:
   lda fat32_lastcluster
   sta (zp_sd_address),y
   
+  ; Save the next one as the last one
+  lda fat32_lastfoundfreecluster
+  sta fat32_lastcluster
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_lastcluster+1
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_lastcluster+2
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_lastcluster+3
+
   ; Target buffer
   lda #<fat32_readbuffer
   sta zp_sd_address
@@ -479,10 +505,6 @@ fat32_writenextsector:
   clc
   rts
 
-.endofnextchain:
-  ; End of chain - set carry and return
-  sec
-  rts
 
 fat32_openroot:
   ; Prepare to read the root directory
@@ -501,6 +523,25 @@ fat32_openroot:
   ; Set the pointer to a large value so we always read a sector the first time through
   lda #$ff
   sta zp_sd_address+1
+
+  rts
+
+fat32_allocatecluster:
+  ; Allocate a cluster to store a file at.
+  ; Must be done BEFORE running fat32_opendirent.
+
+  ; Find a free cluster
+  jsr fat32_findnextfreecluster
+
+  ; Cache the value so we can add the address of the next one later, if any
+  lda fat32_lastfoundfreecluster
+  sta fat32_lastcluster
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_lastcluster+1
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_lastcluster+2
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_lastcluster+3
 
   rts
 
