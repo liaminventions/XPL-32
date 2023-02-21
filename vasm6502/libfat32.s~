@@ -456,7 +456,6 @@ fat32_writenextsector:
 .writesector:
   dec fat32_pendingsectors
 
-  ; BUG fix ram pointer increments
   ; Set up target address
   lda fat32_address
   sta zp_sd_address

@@ -467,7 +467,7 @@ fat32_writenextsector:
 
   ; Advance to next sector
   inc zp_sd_currentsector
-  bne .nextsectoxrincrementdone
+  bne .nextsectorincrementdone
   inc zp_sd_currentsector+1
   bne .nextsectorincrementdone
   inc zp_sd_currentsector+2
