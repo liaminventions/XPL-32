@@ -406,7 +406,7 @@ fat32_writenextsector:
   ; On return, carry is set if its the end of the chain.
 
   ; Maybe there are pending sectors in the current cluster
-  lda fat32_pendingsectors2
+  lda fat32_pendingsectors
   bne .writesector
 
   ; No pending sectors, check if this is the last cluster in the chain
@@ -431,6 +431,8 @@ fat32_writenextsector:
   rts
 
 .notlastcluster
+  ; Wait! Are there enough sectors left to fit exactly in one cluster?
+  bne .endofchain
 
   ; Find the next one
   jsr fat32_findnextfreecluster
@@ -625,7 +627,6 @@ fat32_writedirent:
   clc
   ldy #0
   lda (zp_sd_address),y
-  pha
   bne .dloopstart
   ; End of directory => tell loop
   sec

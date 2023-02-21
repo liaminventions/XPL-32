@@ -431,6 +431,8 @@ fat32_writenextsector:
   rts
 
 .notlastcluster
+  ; Wait! Are there enough sectors left to fit exactly in one cluster?
+  bne .endofchain
 
   ; Find the next one
   jsr fat32_findnextfreecluster
@@ -625,12 +627,8 @@ fat32_writedirent:
   clc
   ldy #0
   lda (zp_sd_address),y
-  pha
-  bne .dloopstart
-  ; End of directory => tell loop
-  sec
-.dloopstart:
-  php
+  bne fat32_writedirent
+  ; End of directory. Now make a new entry.
 .dloop:
   lda (fat32_filenamepointer),y	; copy filename
   sta (zp_sd_address),y
@@ -709,16 +707,9 @@ fat32_writedirent:
   sta zp_sd_address+1
 .overbuffer:
   ; is this the end of the table?
-  plp
-  bcc .skiptable
-  php
   ; if so, next entry is 0
   lda #0
   sta (zp_sd_address),y
-  jmp .dwritenextsector
-.skiptable:
-  php
-.dwritenextsector:
   jsr fat32_writenextsector ; write the data
   clc
   rts
