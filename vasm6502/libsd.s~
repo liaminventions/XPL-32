@@ -329,7 +329,7 @@ sd_writesector:
   jsr .writepage
   dec zp_sd_address+1
 
-   wait for data
+  ; wait for data
   jsr sd_waitresult
   and #$1f
   cmp #$05

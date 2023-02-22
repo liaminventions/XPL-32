@@ -323,6 +323,10 @@ sd_writesector:
   cmp #$00
   bne .fail
 
+  ; Send start token
+  lda #$fe
+  jsr sd_writebyte
+
   ; Need to write 512 bytes - two pages of 256 bytes each
   jsr .writepage
   inc zp_sd_address+1
