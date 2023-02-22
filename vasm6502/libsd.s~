@@ -340,7 +340,7 @@ sd_writesector:
   bne .fail
 
 .waitidle
-  jsr fat32_readbyte
+  jsr sd_readbyte
   cmp #$ff
   bne .waitidle
 

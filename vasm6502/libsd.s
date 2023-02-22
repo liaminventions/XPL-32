@@ -184,7 +184,7 @@ sd_waitresult:
 
 sd_sendcommand:
   ; Debug print which command is being executed
-  jsr cleardisplay
+  ;jsr cleardisplay
 
   lda #'c'
   jsr print_chara
