@@ -709,7 +709,7 @@ fat32_writedirent:
   ; next entry is 0 (end of dir)
   lda #0
   sta (zp_sd_address),y
-  jsr fat32_writenextsector ; write the data
+  jsr fat32_writenextsector ; write all the data...
   clc
   rts
 

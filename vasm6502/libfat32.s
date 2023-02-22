@@ -450,28 +450,22 @@ fat32_writenextsector:
   jsr fat32_seekcluster
 
   ; Enter the address of the next one here
-  lda fat32_lastcluster+3
-  sta (zp_sd_address),y
-  dey
-  lda fat32_lastcluster+2
-  sta (zp_sd_address),y
-  dey
-  lda fat32_lastcluster+1
-  sta (zp_sd_address),y
-  dey
-  lda fat32_lastcluster
-  sta (zp_sd_address),y
-  
-  ; Save the next one as the last one
-  lda fat32_lastfoundfreecluster
-  sta fat32_lastcluster
-  lda fat32_lastfoundfreecluster+1
-  sta fat32_lastcluster+1
-  lda fat32_lastfoundfreecluster+2
-  sta fat32_lastcluster+2
   lda fat32_lastfoundfreecluster+3
   sta fat32_lastcluster+3
-
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_lastcluster+2
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_lastcluster+1
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster
+  sta fat32_lastcluster
+  sta (zp_sd_address),y
+  
   ; Target buffer
   lda #<fat32_readbuffer
   sta zp_sd_address

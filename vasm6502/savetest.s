@@ -2,12 +2,6 @@
 ; 
 ; this code is just for debugging the sd card saving system.
 ; i will use ben eater's debugger for this.
-; BUG not sure if the SD card or the ACIA can run at a low clock rate
-; 
-
-; currently the responce is:
-; c6900Y>
-; or nothing? idk
 
 ACIA = $8000
 ACIAControl = ACIA+3
@@ -35,17 +29,23 @@ LF=10
   .org $0f00
 
 reset:
-  jsr sd_init
-  bcs sd_fail
+  ;jsr sd_init
+  ;bcs sd_fail
   ; sd init done
-  lda #'S'
-  sta ACIAData
-  jsr fat32_init
-  bcs faterror
+  ;lda #'S'
+  ;sta ACIAData
+  ;jsr fat32_init
+  ;bcs faterror
   ; fat32 init done
-  jsr txpoll
-  lda #'F'
-  sta ACIAData
+  ;jsr txpoll
+  ;lda #'F'
+  ;sta ACIAData
+; Set the last found free cluster to 0.
+  lda #0
+  sta fat32_lastfoundfreecluster
+  sta fat32_lastfoundfreecluster+1
+  sta fat32_lastfoundfreecluster+2
+  sta fat32_lastfoundfreecluster+3
   ; init done
 initdone:
   ; now make a dummy file.
@@ -118,6 +118,7 @@ msincb:
   rts
 MEMORY_SAVE:
 ; finally. this is what we need to debug.
+  jsr fat32_allocatecluster
   jsr rootsetup
   jsr fat32_findnextfreecluster
   ldy #>sdbuffer
@@ -128,7 +129,7 @@ MEMORY_SAVE:
   bcs doneloop
 saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
-  lda #$01
+  lda #$00
   sta XYLODSAV2
   lda #$06
   sta XYLODSAV2+1
@@ -153,7 +154,7 @@ mszero:
   ldx #<savmsg
   ldy #>savmsg
   jsr w_acia_full
-  lda #$01
+  lda #$00
   sta fat32_address
   lda #$06
   sta fat32_address+1
