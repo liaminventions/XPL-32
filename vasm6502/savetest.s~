@@ -132,7 +132,7 @@ saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
   lda #$00
   sta XYLODSAV2
-  lda #$06
+  lda #$07
   sta XYLODSAV2+1
   lda #0
   sta fat32_bytesremaining
@@ -157,7 +157,7 @@ mszero:
   jsr w_acia_full
   lda #$00
   sta fat32_address
-  lda #$06
+  lda #$07
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
   ldx #<SAVE_DONE
@@ -201,7 +201,7 @@ errormsg:
 sdbuffer:
   .byte "SAVE    BAS" ; save.bas
 EXIST_MSG:
-  .byte "File Exists. Overwrite? (y) or (n): ",$00
+  .byte "File Exists. Overwrite? (y/n): ",$00
 SAVE_DONE:
   .byte	CR,LF,"Save Complete.",CR,LF,$00
 savmsg:

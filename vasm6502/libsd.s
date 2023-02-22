@@ -254,12 +254,12 @@ sd_readsector:
 
   jsr sd_waitresult
   cmp #$00
-  bne .fail
+  bne sd_fail
 
   ; wait for data
   jsr sd_waitresult
   cmp #$fe
-  bne .fail
+  bne sd_fail
 
   ; Need to read 512 bytes - two pages of 256 bytes each
   jsr .readpage
@@ -273,17 +273,6 @@ sd_readsector:
 
   rts
 
-
-.fail
-  lda #'s'
-  jsr print_chara
-  lda #':'
-  jsr print_chara
-  lda #'f'
-  jsr print_chara
-.failloop
-  jmp .failloop
-
 .readpage
   ; Read 256 bytes to the address at zp_sd_address
   ldy #0
@@ -293,6 +282,16 @@ sd_readsector:
   iny
   bne .readloop
   rts
+
+sd_fail:
+  lda #'s'
+  jsr print_chara
+  lda #':'
+  jsr print_chara
+  lda #'f'
+  jsr print_chara
+.failloop
+  jmp .failloop
 
 
 sd_writesector:
@@ -321,7 +320,7 @@ sd_writesector:
 
   jsr sd_waitresult
   cmp #$00
-  bne .fail
+  bne sd_fail
 
   ; Send start token
   lda #$fe
@@ -337,7 +336,7 @@ sd_writesector:
   jsr sd_waitresult
   and #$1f
   cmp #$05
-  bne .fail
+  bne sd_fail
 
 .waitidle
   jsr sd_readbyte
@@ -348,11 +347,6 @@ sd_writesector:
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
   sta PORTA
 
-  clc
-  rts
-
-.fail:
-  sec
   rts
 
 .writepage:

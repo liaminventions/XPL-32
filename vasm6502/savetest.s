@@ -64,14 +64,14 @@ dummyloop:
 
   jmp MEMORY_SAVE ; OK, here we go.
 
-faterror:
-  lda #'f'
-  jsr print_chara
-  jmp doneloop
-sd_fail:
-  lda #'s'
-  jsr print_chara
-  jmp doneloop
+;faterror:
+;  lda #'f'
+;  jsr print_chara
+;  jmp doneloop
+;sd_fail:
+;  lda #'s'
+;  jsr print_chara
+;  jmp doneloop
 
   .include "errors.s"
   .include "hwconfig.s"
