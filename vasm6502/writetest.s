@@ -53,27 +53,40 @@ reset:
   ldy #>goin
   jsr w_acia_full
 
-  ; make a dummy file.
-  ldx #0
-  ;lda #$ff
-dummyloop:
-  txa
-  sta $5000,x
-  sta $5100,x
-  inx
-  bne dummyloop
-  lda #$50
+  lda #<buffer
+  sta zp_sd_address
+  lda #>buffer
   sta zp_sd_address+1
-  stz zp_sd_address
   
-  ; save to sector 2
-  lda #02
+  ; save to sector 3
+  lda #03
   sta zp_sd_currentsector
   stz zp_sd_currentsector+1
   stz zp_sd_currentsector+2
   stz zp_sd_currentsector+3
 
+  jsr sd_readsector
+
+  lda #'R'
+  jsr print_chara
+
+; make a dummy file.
+  ldx #0
+  ;lda #$aa
+dummyloop:
+  txa
+  sta buffer,x
+  sta buffer+$200,x
+  inx
+  bne dummyloop
+
+  lda #'D'
+  jsr print_chara
+
   jsr sd_writesector
+
+  lda #'W'
+  jsr print_chara
 
   ldx #<ded
   ldy #>ded
@@ -87,7 +100,7 @@ dummyloop:
 ;  rts
 
 hehe:
-  .byte "Press any key to fill sector 2",CR,LF,0
+  .byte "Press any key to fill sector 3",CR,LF,0
 goin:
   .byte "Filling...",0
 ded:

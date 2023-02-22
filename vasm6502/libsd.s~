@@ -330,9 +330,9 @@ sd_writesector:
   dec zp_sd_address+1
 
   ; wait for data
-  jsr sd_waitresult
-  cmp #$fe
-  bne .fail
+  ;jsr sd_waitresult
+  ;cmp #$fe
+  ;bne .fail
 
   ; End command
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)

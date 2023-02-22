@@ -329,10 +329,11 @@ sd_writesector:
   jsr .writepage
   dec zp_sd_address+1
 
-  ; wait for data
-  ;jsr sd_waitresult
-  ;cmp #$fe
-  ;bne .fail
+   wait for data
+  jsr sd_waitresult
+  and #$1f
+  cmp #$05
+  bne .fail
 
   ; End command
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
