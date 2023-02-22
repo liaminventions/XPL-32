@@ -68,26 +68,17 @@ reset:
 
   jsr sd_readsector
 
-  lda #'R'
-  jsr print_chara
-
 ; make a dummy file.
   ldx #$ff
   lda #$aa
 dummyloop:
   txa
-  sta buffer,x
-  sta buffer+$200,x
+  sta $0700,x
+  sta $0800,x
   dex
   bne dummyloop
 
-  lda #'D'
-  jsr print_chara
-
   jsr sd_writesector
-
-  lda #'W'
-  jsr print_chara
 
   ldx #<ded
   ldy #>ded
