@@ -31,19 +31,21 @@ LF=10
   .org $0f00
 
 reset:
+  phx
   ldx #<hehe
   ldy #>hehe
   jsr w_acia_full
 
   ; make a dummy file.
   ldx #0
+  ;lda #$ff
 dummyloop:
   txa
-  sta $0600,x
-  sta $0700,x
+  sta $1000,x
+  sta $1100,x
   inx
   bne dummyloop
-  lda #$06
+  lda #$10
   sta zp_sd_address+1
   stz zp_sd_address
   
@@ -60,12 +62,13 @@ dummyloop:
   ldy #>ded
   jsr w_acia_full
 
+  plx
   rts
 
 hehe:
-  .byte "Press any key to erase the hard drive.",CR,LF,0
+  .byte "Press any key to fill sector 2",CR,LF,0
 ded:
-  .byte "SD card gone...",CR,LF,0
+  .byte "Done.",CR,LF,0
 
   .include "errors.s"
   .include "hwconfig.s"
