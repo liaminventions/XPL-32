@@ -31,158 +31,185 @@ F00:0030
 F00:0031         .org $0f00
 F00:0032       
 F00:0033       reset:
-F00:0034         phx
-               S01:00000F00:  DA
-F00:0035         ldx #<hehe
-               S01:00000F01:  A2 30
-F00:0036         ldy #>hehe
-               S01:00000F03:  A0 0F
-F00:0037         jsr w_acia_full
-               S01:00000F05:  20 C5 12
-F00:0038       
-F00:0039         ; make a dummy file.
-F00:0040         ldx #0
-               S01:00000F08:  A2 00
-F00:0041         ;lda #$ff
-F00:0042       dummyloop:
-F00:0043         txa
-               S01:00000F0A:  8A
-F00:0044         sta $1000,x
-               S01:00000F0B:  9D 00 10
-F00:0045         sta $1100,x
-               S01:00000F0E:  9D 00 11
-F00:0046         inx
-               S01:00000F11:  E8
-F00:0047         bne dummyloop
-               S01:00000F12:  D0 F6
-F00:0048         lda #$10
-               S01:00000F14:  A9 10
-F00:0049         sta zp_sd_address+1
-               S01:00000F16:  85 41
-F00:0050         stz zp_sd_address
-               S01:00000F18:  64 40
-F00:0051         
-F00:0052         ; save to sector 2
-F00:0053         lda #02
-               S01:00000F1A:  A9 02
-F00:0054         sta zp_sd_currentsector
-               S01:00000F1C:  85 42
-F00:0055         stz zp_sd_currentsector+1
-               S01:00000F1E:  64 43
-F00:0056         stz zp_sd_currentsector+2
-               S01:00000F20:  64 44
-F00:0057         stz zp_sd_currentsector+3
-               S01:00000F22:  64 45
-F00:0058       
-F00:0059         jsr sd_writesector
-               S01:00000F24:  20 57 14
-F00:0060       
-F00:0061         ldx #<ded
-               S01:00000F27:  A2 51
-F00:0062         ldy #>ded
-               S01:00000F29:  A0 0F
-F00:0063         jsr w_acia_full
-               S01:00000F2B:  20 C5 12
-F00:0064       
-F00:0065         plx
-               S01:00000F2E:  FA
-F00:0066         rts
-               S01:00000F2F:  60
-F00:0067       
-F00:0068       hehe:
-F00:0069         .byte "Press any key to fill sector 2",CR,LF,0
-               S01:00000F30:  50 72 65 73 73 20 61 6E 79 20 6B 65 79 20 74 6F
-               S01:00000F40:  20 66 69 6C 6C 20 73 65 63 74 6F 72 20 32
-               S01:00000F4E:  0D
-               S01:00000F4F:  0A
-               S01:00000F50:  00
-F00:0070       ded:
-F00:0071         .byte "Done.",CR,LF,0
-               S01:00000F51:  44 6F 6E 65 2E
+F00:0034         ;jsr sd_init
+F00:0035         ;bcs sd_fail
+F00:0036         ; sd init done
+F00:0037         ;lda #'S'
+F00:0038         ;sta ACIAData
+F00:0039         ;jsr fat32_init
+F00:0040         ;bcs faterror
+F00:0041         ; fat32 init done
+F00:0042         ;jsr txpoll
+F00:0043         ;lda #'F'
+F00:0044         ;sta ACIAData
+F00:0045       
+F00:0046         ldx #<hehe
+               S01:00000F00:  A2 38
+F00:0047         ldy #>hehe
+               S01:00000F02:  A0 0F
+F00:0048         jsr w_acia_full
+               S01:00000F04:  20 C5 12
+F00:0049       
+F00:0050         jsr rxpoll
+               S01:00000F07:  20 A9 12
+F00:0051       
+F00:0052         ldx #<goin
+               S01:00000F0A:  A2 59
+F00:0053         ldy #>goin
+               S01:00000F0C:  A0 0F
+F00:0054         jsr w_acia_full
+               S01:00000F0E:  20 C5 12
+F00:0055       
+F00:0056         ; make a dummy file.
+F00:0057         ldx #0
+               S01:00000F11:  A2 00
+F00:0058         ;lda #$ff
+F00:0059       dummyloop:
+F00:0060         txa
+               S01:00000F13:  8A
+F00:0061         sta $5000,x
+               S01:00000F14:  9D 00 50
+F00:0062         sta $5100,x
+               S01:00000F17:  9D 00 51
+F00:0063         inx
+               S01:00000F1A:  E8
+F00:0064         bne dummyloop
+               S01:00000F1B:  D0 F6
+F00:0065         lda #$50
+               S01:00000F1D:  A9 50
+F00:0066         sta zp_sd_address+1
+               S01:00000F1F:  85 41
+F00:0067         stz zp_sd_address
+               S01:00000F21:  64 40
+F00:0068         
+F00:0069         ; save to sector 2
+F00:0070         lda #02
+               S01:00000F23:  A9 02
+F00:0071         sta zp_sd_currentsector
+               S01:00000F25:  85 42
+F00:0072         stz zp_sd_currentsector+1
+               S01:00000F27:  64 43
+F00:0073         stz zp_sd_currentsector+2
+               S01:00000F29:  64 44
+F00:0074         stz zp_sd_currentsector+3
+               S01:00000F2B:  64 45
+F00:0075       
+F00:0076         jsr sd_writesector
+               S01:00000F2D:  20 57 14
+F00:0077       
+F00:0078         ldx #<ded
+               S01:00000F30:  A2 64
+F00:0079         ldy #>ded
+               S01:00000F32:  A0 0F
+F00:0080         jsr w_acia_full
+               S01:00000F34:  20 C5 12
+F00:0081       
+F00:0082         rts
+               S01:00000F37:  60
+F00:0083       
+F00:0084       ;sd_fail:
+F00:0085       ;  lda #'s'
+F00:0086       ;  jsr print_chara
+F00:0087       ;  rts
+F00:0088       
+F00:0089       hehe:
+F00:0090         .byte "Press any key to fill sector 2",CR,LF,0
+               S01:00000F38:  50 72 65 73 73 20 61 6E 79 20 6B 65 79 20 74 6F
+               S01:00000F48:  20 66 69 6C 6C 20 73 65 63 74 6F 72 20 32
                S01:00000F56:  0D
                S01:00000F57:  0A
                S01:00000F58:  00
-F00:0072       
-F00:0073         .include "errors.s"
+F00:0091       goin:
+F00:0092         .byte "Filling...",0
+               S01:00000F59:  46 69 6C 6C 69 6E 67 2E 2E 2E
+               S01:00000F63:  00
+F00:0093       ded:
+F00:0094         .byte "Done.",CR,LF,0
+               S01:00000F64:  44 6F 6E 65 2E
+               S01:00000F69:  0D
+               S01:00000F6A:  0A
+               S01:00000F6B:  00
+F00:0095       
+F00:0096         .include "errors.s"
 F01:0001       error_sound:
 F01:0002         lda #$55
-               S01:00000F59:  A9 55
+               S01:00000F6C:  A9 55
 F01:0003         sta donefact
-               S01:00000F5B:  85 01
+               S01:00000F6E:  85 01
 F01:0004         stz irqcount	; reset irq count
-               S01:00000F5D:  64 00
+               S01:00000F70:  64 00
 F01:0005       
 F01:0006       runthesound:
 F01:0007         sei		; turn off irqs
-               S01:00000F5F:  78
+               S01:00000F72:  78
 F01:0008         lda #<irq
-               S01:00000F60:  A9 7D
+               S01:00000F73:  A9 90
 F01:0009         sta $7ffe
-               S01:00000F62:  8D FE 7F
+               S01:00000F75:  8D FE 7F
 F01:0010         lda #>irq
-               S01:00000F65:  A9 0F
+               S01:00000F78:  A9 0F
 F01:0011         sta $7fff	; store vectors
-               S01:00000F67:  8D FF 7F
+               S01:00000F7A:  8D FF 7F
 F01:0012         lda #$c0
-               S01:00000F6A:  A9 C0
+               S01:00000F7D:  A9 C0
 F01:0013         sta $b00e	
-               S01:00000F6C:  8D 0E B0
+               S01:00000F7F:  8D 0E B0
 F01:0014         lda #0 ; Song Number
-               S01:00000F6F:  A9 00
+               S01:00000F82:  A9 00
 F01:0015         jsr InitSid
-               S01:00000F71:  20 A4 0F
+               S01:00000F84:  20 B7 0F
 F01:0016         lda #$40
-               S01:00000F74:  A9 40
+               S01:00000F87:  A9 40
 F01:0017         sta $b00d
-               S01:00000F76:  8D 0D B0
+               S01:00000F89:  8D 0D B0
 F01:0018         cli
-               S01:00000F79:  58
+               S01:00000F8C:  58
 F01:0019         jmp startupsoundloop
-               S01:00000F7A:  4C 2F 12
+               S01:00000F8D:  4C 2F 12
 F01:0020       
 F01:0021       irq:
 F01:0022         lda #$40
-               S01:00000F7D:  A9 40
+               S01:00000F90:  A9 40
 F01:0023         sta $b00d
-               S01:00000F7F:  8D 0D B0
+               S01:00000F92:  8D 0D B0
 F01:0024         jsr putbut		; refresh timers
-               S01:00000F82:  20 93 0F
+               S01:00000F95:  20 A6 0F
 F01:0025         inc irqcount		; a irq has occurred
-               S01:00000F85:  E6 00
+               S01:00000F98:  E6 00
 F01:0026         lda irqcount
-               S01:00000F87:  A5 00
+               S01:00000F9A:  A5 00
 F01:0027         cmp #$40		; if $32 irqs (end of the error sound)
-               S01:00000F89:  C9 40
+               S01:00000F9C:  C9 40
 F01:0028         bne continue24542 	; end the stream
-               S01:00000F8B:  D0 02
+               S01:00000F9E:  D0 02
 F01:0029         stz donefact		; its done, tell the loop
-               S01:00000F8D:  64 01
+               S01:00000FA0:  64 01
 F01:0030       continue24542:
 F01:0031         jsr $1006
-               S01:00000F8F:  20 06 10
+               S01:00000FA2:  20 06 10
 F01:0032         rti			; exit
-               S01:00000F92:  40
+               S01:00000FA5:  40
 F01:0033       
 F01:0034       putbut:
 F01:0035         ldx #$9e
-               S01:00000F93:  A2 9E
+               S01:00000FA6:  A2 9E
 F01:0036         stx $b004
-               S01:00000F95:  8E 04 B0
+               S01:00000FA8:  8E 04 B0
 F01:0037         stx $b006
-               S01:00000F98:  8E 06 B0
+               S01:00000FAB:  8E 06 B0
 F01:0038         ldx #$0f  ; 250Hz IRQ
-               S01:00000F9B:  A2 0F
+               S01:00000FAE:  A2 0F
 F01:0039         stx $b005
-               S01:00000F9D:  8E 05 B0
+               S01:00000FB0:  8E 05 B0
 F01:0040         stx $b007
-               S01:00000FA0:  8E 07 B0
+               S01:00000FB3:  8E 07 B0
 F01:0041         rts
-               S01:00000FA3:  60
+               S01:00000FB6:  60
 F01:0042       InitSid:
 F01:0043         jsr putbut
-               S01:00000FA4:  20 93 0F
+               S01:00000FB7:  20 A6 0F
 F01:0044         jmp $1103
-               S01:00000FA7:  4C 03 11
+               S01:00000FBA:  4C 03 11
 F01:0045       
 F01:0046         .org $1006
 F01:0047       
@@ -510,7 +537,7 @@ F01:0071         rts
                S02:00001251:  60
 F01:0072       
 F01:0073       
-F00:0074         .include "hwconfig.s"
+F00:0097         .include "hwconfig.s"
 F03:0001       PORTB = $b000
 F03:0002       PORTA = $b001
 F03:0003       DDRB = $b002
@@ -540,7 +567,7 @@ F03:0022         rts
                S02:0000125C:  60
 F03:0023       
 F03:0024       
-F00:0075         .include "libacia.s"
+F00:0098         .include "libacia.s"
 F04:0001       ;       ------------------ 6551 ACIA Subroutine Library -------------------
 F04:0002       ; Includes:
 F04:0003       ; acia_init       - Initializes the ACIA
@@ -741,7 +768,7 @@ F04:0117         pla
 F04:0118         rts
                S02:000012E7:  60
 F04:0119       
-F00:0076         .include "libsd.s"
+F00:0099         .include "libsd.s"
 F05:0001       ; SD card interface module
 F05:0002       ;
 F05:0003       ; Requires zero-page variable storage:
@@ -1317,7 +1344,7 @@ F05:0357
 F05:0358       
 F05:0359       
 F05:0360       
-F00:0077         .include "libfat32.s"
+F00:0100         .include "libfat32.s"
 F06:0001       ; FAT32/SD interface library
 F06:0002       ;
 F06:0003       ; This module requires some RAM workspace to be defined elsewhere:
@@ -2918,15 +2945,15 @@ F06:1003       .done:
 F06:1004         rts
                S02:00001922:  60
 F06:1005       
-F00:0078       
-F00:0079       failedmsg:
-F00:0080         .byte "Failed!",CR,LF,$00
+F00:0101       
+F00:0102       failedmsg:
+F00:0103         .byte "Failed!",CR,LF,$00
                S02:00001923:  46 61 69 6C 65 64 21
                S02:0000192A:  0D
                S02:0000192B:  0A
                S02:0000192C:  00
-F00:0081       
-F00:0082       
+F00:0104       
+F00:0105       
 
 
 Sections:
@@ -3041,7 +3068,6 @@ endwacia EXPR(4832=0x12e0) ABS
 acia_man EXPR(4818=0x12d2) ABS 
 ascii_home EXPR(4797=0x12bd) UNUSED ABS 
 print_char_acia EXPR(4794=0x12ba) UNUSED ABS 
-rxpoll EXPR(4777=0x12a9) ABS 
 txpoll EXPR(4769=0x12a1) ABS 
 cleardisplay EXPR(4758=0x1296) ABS 
 crlf EXPR(4737=0x1281) UNUSED ABS 
@@ -3090,18 +3116,20 @@ d412_sVoc3Control EXPR(47122=0xb812) EQU
 d40b_sVoc2Control EXPR(47115=0xb80b) EQU 
 d404_sVoc1Control EXPR(47108=0xb804) EQU 
 d400_sVoc1FreqLo EXPR(47104=0xb800) EQU 
-continue24542 EXPR(3983=0xf8f) ABS 
-putbut EXPR(3987=0xf93) ABS 
+continue24542 EXPR(4002=0xfa2) ABS 
+putbut EXPR(4006=0xfa6) ABS 
 startupsoundloop EXPR(4655=0x122f) ABS 
-InitSid EXPR(4004=0xfa4) ABS 
-irq EXPR(3965=0xf7d) ABS 
-runthesound EXPR(3935=0xf5f) UNUSED ABS 
-error_sound EXPR(3929=0xf59) UNUSED ABS 
-ded EXPR(3921=0xf51) ABS 
+InitSid EXPR(4023=0xfb7) ABS 
+irq EXPR(3984=0xf90) ABS 
+runthesound EXPR(3954=0xf72) UNUSED ABS 
+error_sound EXPR(3948=0xf6c) UNUSED ABS 
+ded EXPR(3940=0xf64) ABS 
 sd_writesector EXPR(5207=0x1457) ABS 
-dummyloop EXPR(3850=0xf0a) ABS 
+dummyloop EXPR(3859=0xf13) ABS 
+goin EXPR(3929=0xf59) ABS 
+rxpoll EXPR(4777=0x12a9) ABS 
 w_acia_full EXPR(4805=0x12c5) ABS 
-hehe EXPR(3888=0xf30) ABS 
+hehe EXPR(3896=0xf38) ABS 
 reset EXPR(3840=0xf00) UNUSED ABS 
 LF EXPR(10=0xa) EQU 
 CR EXPR(13=0xd) EQU 

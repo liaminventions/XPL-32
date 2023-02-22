@@ -65,11 +65,11 @@ dummyloop:
 
 faterror:
   lda #'f'
-  jsr w_acia_full
+  jsr print_chara
   jmp doneloop
 sd_fail:
   lda #'s'
-  jsr w_acia_full
+  jsr print_chara
   jmp doneloop
 
   .include "errors.s"
