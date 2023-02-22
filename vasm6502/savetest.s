@@ -9,17 +9,18 @@ ACIACommand = ACIA+2
 ACIAStatus = ACIA+1
 ACIAData = ACIA
 
-fat32_workspace = $200      ; two pages
-
-buffer = $400               ; 512 bytes
-endbuf = $600
-
 irqcount = $00
 donefact = $01
 
-zp_sd_address = $40 ; 2
-zp_sd_currentsector = $42 ; 4
-zp_fat32_variables = $46 ; 32
+; sd card:
+zp_sd_address = $48         ; 2 bytes
+zp_sd_currentsector = $4a   ; 4 bytes
+zp_fat32_variables = $4f    ; 24 bytes
+; only used during fat32 processing
+path = $400		    ; page
+fat32_workspace = $500      ; two pages
+buffer = $700		    ; two pages
+endbuf = $900
 
 XYLODSAV2 = $64 ; 2
 
@@ -52,12 +53,12 @@ initdone:
   ldx #0
 dummyloop:
   txa
-  sta $0600,x
+  sta $0700,x
   inx
   bne dummyloop
   ; add an EOF
   lda #0
-  sta $0700
+  sta $0800
   ;sta $0701
   ;sta $0702
 
@@ -131,7 +132,7 @@ saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
   lda #$00
   sta XYLODSAV2
-  lda #$06
+  lda #$07
   sta XYLODSAV2+1
   lda #0
   sta fat32_bytesremaining
@@ -156,7 +157,7 @@ mszero:
   jsr w_acia_full
   lda #$00
   sta fat32_address
-  lda #$06
+  lda #$07
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
   ldx #<SAVE_DONE
@@ -200,7 +201,7 @@ errormsg:
 sdbuffer:
   .byte "SAVE    BAS" ; save.bas
 EXIST_MSG:
-  .byte "File Exists. Overwrite? (y) or (n): ",$00
+  .byte "File Exists. Overwrite? (y/n): ",$00
 SAVE_DONE:
   .byte	CR,LF,"Save Complete.",CR,LF,$00
 savmsg:
