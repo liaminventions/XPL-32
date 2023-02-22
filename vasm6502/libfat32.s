@@ -627,7 +627,7 @@ fat32_writedirent:
   clc
   ldy #0
   lda (zp_sd_address),y
-  bne fat32_writedirent
+  bne fat32_writedirent ; go again
   ; End of directory. Now make a new entry.
 .dloop:
   lda (fat32_filenamepointer),y	; copy filename
@@ -706,11 +706,10 @@ fat32_writedirent:
   lda #>fat32_readbuffer
   sta zp_sd_address+1
 .overbuffer:
-  ; is this the end of the table?
-  ; if so, next entry is 0
+  ; next entry is 0 (end of dir)
   lda #0
   sta (zp_sd_address),y
-  jsr fat32_writenextsector ; write the data
+  jsr fat32_writenextsector ; write all the data...
   clc
   rts
 
