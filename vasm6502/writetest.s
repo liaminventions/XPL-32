@@ -13,17 +13,18 @@ ACIACommand = ACIA+2
 ACIAStatus = ACIA+1
 ACIAData = ACIA
 
-fat32_workspace = $200      ; two pages
-
-buffer = $400               ; 512 bytes
-endbuf = $600
-
 irqcount = $00
 donefact = $01
 
-zp_sd_address = $40 ; 2
-zp_sd_currentsector = $42 ; 4
-zp_fat32_variables = $46 ; 32
+; sd card:
+zp_sd_address = $48         ; 2 bytes
+zp_sd_currentsector = $4a   ; 4 bytes
+zp_fat32_variables = $4f    ; 24 bytes
+; only used during fat32 processing
+path = $400		    ; page
+fat32_workspace = $500      ; two pages
+buffer = $700		    ; two pages
+endbuf = $900
 
 CR=13
 LF=10
@@ -72,7 +73,7 @@ reset:
 
 ; make a dummy file.
   ldx #$ff
-  ;lda #$aa
+  lda #$aa
 dummyloop:
   txa
   sta buffer,x
