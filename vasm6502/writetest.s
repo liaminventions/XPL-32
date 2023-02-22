@@ -71,13 +71,13 @@ reset:
   jsr print_chara
 
 ; make a dummy file.
-  ldx #0
+  ldx #$ff
   ;lda #$aa
 dummyloop:
   txa
   sta buffer,x
   sta buffer+$200,x
-  inx
+  dex
   bne dummyloop
 
   lda #'D'
