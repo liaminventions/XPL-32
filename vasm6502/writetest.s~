@@ -72,9 +72,9 @@ reset:
 
 ; make a dummy file.
   ldx #0
-  lda #$aa
+  ;lda #$aa
 dummyloop:
-  ;txa
+  txa
   sta buffer,x
   sta buffer+$200,x
   inx
@@ -84,6 +84,9 @@ dummyloop:
   jsr print_chara
 
   jsr sd_writesector
+
+  lda #'W'
+  jsr print_chara
 
   ldx #<ded
   ldy #>ded

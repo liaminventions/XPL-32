@@ -80,7 +80,7 @@ sd_init:
   bne .initfailed
 
   ; Not initialized yet, so wait a while then try again.
-  ; This retry is important, to give the card time to initialize.
+   	; This retry is important, to give the card time to initialize.
 
   ldx #0
   ldy #0
@@ -302,7 +302,7 @@ sd_writesector:
   ;    zp_sd_currentsector   32-bit sector number
   ;    zp_sd_address     address of buffer to take data from
   
-  lda #SD_MISO
+  lda #SD_MOSI
   sta PORTA
 
   ; Command 24, arg is sector number, crc not checked
@@ -333,11 +333,16 @@ sd_writesector:
   jsr .writepage
   dec zp_sd_address+1
 
-  ; wait for data
+  ; wait for data response
   jsr sd_waitresult
   and #$1f
   cmp #$05
   bne .fail
+
+.waitidle
+  jsr sd_readbyte
+  cmp #$ff
+  bne .waitidle
 
   ; End command
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
