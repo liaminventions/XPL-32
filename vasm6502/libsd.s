@@ -360,7 +360,9 @@ sd_writesector:
   ldy #0
 .writeloop:
   lda (zp_sd_address),y
+  phy
   jsr sd_writebyte
+  ply
   iny
   bne .writeloop
   rts
