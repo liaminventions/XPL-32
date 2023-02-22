@@ -323,31 +323,26 @@ sd_writesector:
   cmp #$00
   bne .fail
 
-  ; wait for data
-  ;jsr sd_waitresult
-  ;cmp #$fe
-  ;bne .fail
-  ; BUG I don't think it need to wait for any more data, but I gotta check the datasheet more... (hard to read)
-
   ; Need to write 512 bytes - two pages of 256 bytes each
   jsr .writepage
   inc zp_sd_address+1
   jsr .writepage
   dec zp_sd_address+1
 
+  ; wait for data
+  jsr sd_waitresult
+  cmp #$fe
+  bne .fail
+
   ; End command
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
   sta PORTA
 
-  sec
+  clc
   rts
 
 .fail:
-  ldx #<failedmsg
-  ldy #>failedmsg  ;Failed!
-  jsr w_acia_full
-.failloop:
-  clc
+  sec
   rts
 
 .writepage:

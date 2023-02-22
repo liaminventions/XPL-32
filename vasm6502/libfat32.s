@@ -415,6 +415,8 @@ fat32_writenextsector:
 
   ; It is the last one.
 
+.lastcluster
+
   ; Write 0x0FFFFFFF (EOC)
   lda #$0f
   sta (zp_sd_address),y
@@ -432,7 +434,7 @@ fat32_writenextsector:
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
-  bne .endofchain
+  bne .lastcluster
 
   ; Find the next one
   jsr fat32_findnextfreecluster
@@ -711,9 +713,6 @@ fat32_writedirent:
   ; Card Full
   sec
   rts
-
-jmpskipdiv:
-  jmp skipdiv
 
 fat32_findnextfreecluster:
 ; Find next free cluster

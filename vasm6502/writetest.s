@@ -25,8 +25,6 @@ zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
 zp_fat32_variables = $46 ; 32
 
-XYLODSAV2 = $64 ; 2
-
 CR=13
 LF=10
 
@@ -49,7 +47,9 @@ dummyloop:
   sta zp_sd_address+1
   stz zp_sd_address
   
-  stz zp_sd_currentsector
+  ; save to sector 2
+  lda #02
+  sta zp_sd_currentsector
   stz zp_sd_currentsector+1
   stz zp_sd_currentsector+2
   stz zp_sd_currentsector+3
@@ -72,4 +72,7 @@ ded:
   .include "libacia.s"
   .include "libsd.s"
   .include "libfat32.s"
+
+failedmsg:
+  .byte "Failed!",CR,LF,$00
 

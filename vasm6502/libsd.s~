@@ -95,12 +95,12 @@ sd_init:
 
 .initialized
   lda #'Y'
-  jsr print_char
+  jsr print_chara
   rts
 
 .initfailed
   lda #'X'
-  jsr print_char
+  jsr print_chara
 .loop
   jmp .loop
 
@@ -184,13 +184,13 @@ sd_waitresult:
 
 sd_sendcommand:
   ; Debug print which command is being executed
-  jsr lcd_cleardisplay
+  jsr cleardisplay
 
   lda #'c'
-  jsr print_char
+  jsr print_chara
   ldx #0
   lda (zp_sd_address,x)
-  jsr print_hex
+  jsr print_hex_acia
 
   lda #SD_MOSI           ; pull CS low to begin command
   sta PORTA
@@ -218,7 +218,7 @@ sd_sendcommand:
   pha
 
   ; Debug print the result code
-  jsr print_hex
+  jsr print_hex_acia
 
   ; End command
   lda #SD_CS | SD_MOSI   ; set CS high again
@@ -276,11 +276,11 @@ sd_readsector:
 
 .fail
   lda #'s'
-  jsr print_char
+  jsr print_chara
   lda #':'
-  jsr print_char
+  jsr print_chara
   lda #'f'
-  jsr print_char
+  jsr print_chara
 .failloop
   jmp .failloop
 
@@ -339,15 +339,11 @@ sd_writesector:
   lda #SD_CS | SD_MOSI ; set cs and mosi high (disconnected)
   sta PORTA
 
-  sec
+  clc
   rts
 
 .fail:
-  ldx #<failedmsg
-  ldy #>failedmsg  ;Failed!
-  jsr w_acia_full
-.failloop:
-  clc
+  sec
   rts
 
 .writepage:

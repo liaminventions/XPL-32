@@ -7,10 +7,6 @@
 ; 
 ; 
 
-; currently the responce is:
-; c6900Y>
-; or nothing? idk
-
 ACIA = $8000
 ACIAControl = ACIA+3
 ACIACommand = ACIA+2
@@ -28,8 +24,6 @@ donefact = $01
 zp_sd_address = $40 ; 2
 zp_sd_currentsector = $42 ; 4
 zp_fat32_variables = $46 ; 32
-
-XYLODSAV2 = $64 ; 2
 
 CR=13
 LF=10
@@ -53,7 +47,8 @@ dummyloop:
   sta zp_sd_address+1
   stz zp_sd_address
   
-  stz zp_sd_currentsector
+  lda #02
+  sta zp_sd_currentsector
   stz zp_sd_currentsector+1
   stz zp_sd_currentsector+2
   stz zp_sd_currentsector+3
@@ -76,4 +71,7 @@ ded:
   .include "libacia.s"
   .include "libsd.s"
   .include "libfat32.s"
+
+failedmsg:
+  .byte "Failed!",CR,LF,$00
 
