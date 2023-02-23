@@ -637,6 +637,69 @@ fat32_allocatecluster:
 
   rts
 
+fat32_findnextfreecluster:
+; Find next free cluster
+; 
+; This program will search the FAT for an empty entry, and
+; save the 32-bit cluster number at fat32_lastfoundfreecluter.
+;
+; Also sets the carry bit if the SD card is full.
+;
+; TODO CHECK FOR BUGS
+
+  ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
+
+  lda #0
+  sta fat32_nextcluster
+  sta fat32_lastfoundfreecluster
+  sta fat32_nextcluster+1
+  sta fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+2
+  sta fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+3
+  sta fat32_lastfoundfreecluster+3
+
+.searchclusters
+
+  ; Seek cluster
+  jsr fat32_seekcluster
+
+  ; Is the cluster free?
+  lda fat32_nextcluster
+  and #$0f
+  ora fat32_nextcluster+1
+  ora fat32_nextcluster+2
+  ora fat32_nextcluster+3
+  beq .foundcluster
+
+  ; No, increment the cluster count
+  inc fat32_lastfoundfreecluster
+  bne .copycluster
+  inc fat32_lastfoundfreecluster+1
+  bne .copycluster
+  inc fat32_lastfoundfreecluster+2
+  bne .copycluster
+  inc fat32_lastfoundfreecluster+3
+
+.copycluster
+
+  ; Copy the cluster count to the next cluster
+  lda fat32_lastfoundfreecluster
+  sta fat32_nextcluster
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_nextcluster+1
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_nextcluster+2
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_nextcluster+3
+  
+  ; Go again for another pass
+  jmp .searchclusters
+
+.foundcluster
+  ; done.
+  rts
+
 fat32_opendirent:
   ; Prepare to read/write a file or directory based on a dirent
   ;
@@ -806,69 +869,6 @@ fat32_writedirent:
 .dfail:
   ; Card Full
   sec
-  rts
-
-fat32_findnextfreecluster:
-; Find next free cluster
-; 
-; This program will search the FAT for an empty entry, and
-; save the 32-bit cluster number at fat32_lastfoundfreecluter.
-;
-; Also sets the carry bit if the SD card is full.
-;
-; TODO CHECK FOR BUGS
-
-  ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
-
-  lda #0
-  sta fat32_nextcluster
-  sta fat32_lastfoundfreecluster
-  sta fat32_nextcluster+1
-  sta fat32_lastfoundfreecluster+1
-  sta fat32_nextcluster+2
-  sta fat32_lastfoundfreecluster+2
-  sta fat32_nextcluster+3
-  sta fat32_lastfoundfreecluster+3
-
-.searchclusters
-
-  ; Seek cluster
-  jsr fat32_seekcluster
-
-  ; Is the cluster free?
-  lda fat32_nextcluster
-  and #$0f
-  ora fat32_nextcluster+1
-  ora fat32_nextcluster+2
-  ora fat32_nextcluster+3
-  beq .foundcluster
-
-  ; No, increment the cluster count
-  inc fat32_lastfoundfreecluster
-  bne .copycluster
-  inc fat32_lastfoundfreecluster+1
-  bne .copycluster
-  inc fat32_lastfoundfreecluster+2
-  bne .copycluster
-  inc fat32_lastfoundfreecluster+3
-
-.copycluster
-
-  ; Copy the cluster count to the next cluster
-  lda fat32_lastfoundfreecluster
-  sta fat32_nextcluster
-  lda fat32_lastfoundfreecluster+1
-  sta fat32_nextcluster+1
-  lda fat32_lastfoundfreecluster+2
-  sta fat32_nextcluster+2
-  lda fat32_lastfoundfreecluster+3
-  sta fat32_nextcluster+3
-  
-  ; Go again for another pass
-  jmp .searchclusters
-
-.foundcluster
-  ; done.
   rts
 
 fat32_readdirent:

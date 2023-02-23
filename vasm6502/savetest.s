@@ -48,7 +48,7 @@ reset:
   sta fat32_lastfoundfreecluster+2
   sta fat32_lastfoundfreecluster+3
   ; init done
-initdone:
+;initdone:
   ; now make a dummy file.
   ldx #0
 dummyloop:
@@ -107,44 +107,53 @@ transfer_error:
   jsr error_sound
   jmp doneloop
 
-msincremaining:
-  inc fat32_bytesremaining
-  bne msinca
-  inc fat32_bytesremaining
-msinca:
-  inc XYLODSAV2
-  bne msincb
-  inc XYLODSAV2+1
-msincb:
-  rts
+;msincremaining:
+;  inc fat32_bytesremaining
+;  bne msinca
+;  inc fat32_bytesremaining+1
+;msinca:
+;  inc XYLODSAV2
+;  bne msincb
+;  inc XYLODSAV2+1
+;msincb:
+;  rts
+
 MEMORY_SAVE:
 ; finally. this is what we need to debug.
+  ; Allocate the first cluster for the data
   jsr fat32_allocatecluster
+  ; Open the folder
   jsr rootsetup
-  jsr fat32_findnextfreecluster
-  ldy #>sdbuffer
-  ldx #<sdbuffer
-  jsr fat32_finddirent
-  bcs saveok
-  jsr file_exists
-  bcs doneloop
+  
+  ;ldy #>sdbuffer
+  ;ldx #<sdbuffer
+  ;jsr fat32_finddirent
+  ;bcs saveok
+  ;jsr file_exists
+  ;bcs doneloop
 saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
-  lda #$00
-  sta XYLODSAV2
-  lda #$07
-  sta XYLODSAV2+1
-  lda #0
-  sta fat32_bytesremaining
+; For now, just write it.
+  lda #$01
   sta fat32_bytesremaining+1
-  ldy #0
-savecalclp:
-  lda (XYLODSAV2),y
-  beq mszero
-  jsr msincremaining
-  jmp savecalclp
-mszero:
-  ;jsr msincremaining
+  stz fat32_bytesremaining
+
+;  lda #$00
+;  sta XYLODSAV2
+;  lda #$07
+;  sta XYLODSAV2+1
+;  lda #0
+;  sta fat32_bytesremaining
+;  sta fat32_bytesremaining+1
+;  ldy #0
+;savecalclp:
+;  lda (XYLODSAV2),y
+;  beq mszero
+;  jsr msincremaining
+;  jmp savecalclp
+;mszero:
+;  jsr msincremaining
+
   ;lda (XYLODSAV2),y
   ;bne savecalclp
   ;jsr msincremaining
@@ -168,30 +177,30 @@ doneloop:
   rts
   rts
   rts
-file_exists:
+;file_exists:
   ; clc if 'y'
   ; sec if 'n'
-  ldx #<EXIST_MSG
-  ldy #>EXIST_MSG
-  jsr w_acia_full
-fexlp:
-  jsr rxpoll
-  lda ACIAData
-  pha
-  cmp #'y'
-  beq exy
-  cmp #'n'
-  beq exn
-  pla
-  jmp fexlp
-exy:
-  jsr crlf
-  clc
-  rts
-exn:
-  jsr crlf
-  sec
-  rts
+;  ldx #<EXIST_MSG
+;  ldy #>EXIST_MSG
+;  jsr w_acia_full
+;fexlp:
+;  jsr rxpoll
+;  lda ACIAData
+;  pha
+;  cmp #'y'
+;  beq exy
+;  cmp #'n'
+;  beq exn
+;  pla
+;  jmp fexlp
+;exy:
+;  jsr crlf
+;  clc
+;  rts
+;exn:
+;  jsr crlf
+;  sec
+;  rts
 
 dirname:
   .asciiz "FOLDER     "
