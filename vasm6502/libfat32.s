@@ -481,6 +481,8 @@ fat32_writenextsector:
   ; Update the FAT, if needed.
   jsr .sectorbounds
 
+  ; BUG when we write the last cluster, we may miss out on a entire cluster of information! FIXME
+
   ; End of chain - set carry and return
   sec
   rts

@@ -1110,7 +1110,7 @@ fat32_file_write:
 
   ; Has fat32_writenextsector written the FAT table?
   lda fat32_newfatsector
-  bne .fail
+  bne .fail  ; not a fail, just means its done.
 
   ; No, write it here.
   lda fat32_lastsector
