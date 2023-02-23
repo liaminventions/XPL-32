@@ -1,3 +1,9 @@
+[General]
+decode_signals=1
+generated_signals=0
+views=1
+meta_objs=4
+
 [D0]
 name=D0
 enabled=true
@@ -288,18 +294,12 @@ channel3\name=CS#
 channel3\initial_pin_state=2
 channel3\assigned_signal_name=CS
 
-[General]
-decode_signals=1
-generated_signals=0
-views=1
-meta_objs=3
-
 [view0]
-scale=0.0002123923325917154
-v_offset=216
+scale=0.00027846196756326863
+v_offset=-169
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x6\xe8\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 7492058 96185620 94216486 81731018 28439207 12687313 -8 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 22843088 27919340 11440071 97152897 3952386 60850926 -8 1 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 D0\trace_height=32
 D1\trace_height=32
@@ -322,7 +322,7 @@ SCK\trace_height=32
 type=time_marker
 assoc_view=0
 time=22 serialization::archive 14 0 0 0 0 14346306 19668065 80387532 52161376 66335385 23821337 -8 0 0 6
-text=-4 ms
+text=bug #1 - sectors reload (fixed ig)
 
 [meta_obj1]
 type=time_marker
@@ -333,8 +333,8 @@ text=bug #2 - F2?!?!?!??
 [meta_obj2]
 type=time_marker
 assoc_view=0
-time=22 serialization::archive 14 0 0 0 0 101406 3526410 81859609 74154561 83684734 6860470 0 0 0 6
-text=+1:04:10:05.89
+time=22 serialization::archive 14 0 0 0 0 1 2837922 66497238 91622711 79407671 75238433 0 0 0 6
+text=what in the world is this write
 
 [meta_obj3]
 type=time_marker

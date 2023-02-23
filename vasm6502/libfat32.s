@@ -481,11 +481,11 @@ fat32_writenextsector:
   ; Update the FAT, if needed.
   jsr .sectorbounds
 
-  ; BUG when we write the last cluster, we may miss out on a entire cluster of information! FIXME
+  ; BUG (MAY BE FIXED) when we write the last cluster, we may miss out on a entire cluster of information! 
 
-  ; End of chain - set carry and return
-  sec
-  rts
+  ; End of chain - finish up the remaining sectors
+  
+  jmp .writesector
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
