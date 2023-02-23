@@ -120,6 +120,9 @@ transfer_error:
 
 MEMORY_SAVE:
 ; finally. this is what we need to debug.
+  ldx #<savmsg
+  ldy #>savmsg
+  jsr w_acia_full
   ; Allocate the first cluster for the data
   jsr fat32_allocatecluster
   ; Open the folder
@@ -159,16 +162,24 @@ saveok:
   ;jsr msincremaining
   ;lda (XYLODSAV2),y
   ;bne savecalclp
-; done
+
+  ; Save filename pointer
+  lda #<sdbuffer
+  sta fat32_filenamepointer
+  lda #>sdbuffer
+  sta fat32_filenamepointer+1
+
+  ; Great, now make a directory entry for this new file.
   jsr fat32_writedirent
-  ldx #<savmsg
-  ldy #>savmsg
-  jsr w_acia_full
+
+  ; Now, let's write the file...
   lda #$00
   sta fat32_address
   lda #$07
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
+  
+  ; All done!
   ldx #<SAVE_DONE
   ldy #>SAVE_DONE
   jsr w_acia_full

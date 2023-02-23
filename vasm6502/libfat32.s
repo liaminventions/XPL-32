@@ -487,7 +487,7 @@ fat32_writenextsector:
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
-  bne .lastcluster
+  beq .lastcluster
 
   ; Find the next cluster
   jsr fat32_findnextfreecluster
@@ -634,6 +634,10 @@ fat32_allocatecluster:
   sta fat32_lastcluster+2
   lda fat32_lastfoundfreecluster+3
   sta fat32_lastcluster+3
+
+  ; Add marker for new routines, so we don't think this is free.
+  lda #$0f
+  sta (zp_sd_address),y
 
   rts
 
@@ -790,30 +794,35 @@ fat32_writedirent:
   bne .dloop
   ; The full Short filename is #11 bytes long so,
   ; this start at 0x0b - File type
+  ; BUG assumes that we are making a file, not a folder...
   lda #$20		; File Type: ARCHIVE
   sta (zp_sd_address),y
-  iny ; 0x0c - Checksum/File accsess password
+  iny   ; 0x0c - Checksum/File accsess password
   lda #$10		            ; No checksum or password
   sta (zp_sd_address),y
-  pla	; 0x0d - Previous byte at 0x00
+  iny   ; 0x0d - Does not matter now (first char of deleted file)
+  lda #0
   sta (zp_sd_address),y
   iny	; 0x0e-0x11 - File creation time/date
-  lda #0
+.empty
   sta (zp_sd_address),y	; No time/date because I don't have an RTC
   iny
-  sta (zp_sd_address),y
-  iny
-  sta (zp_sd_address),y
-  iny
-  sta (zp_sd_address),y
-  ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#File_Allocation_Table 
-  ; look at "Directory entry" at 0x0E onward on the table.
-  iny ; 0x12-0x13 - User ID
-  lda #0
-  sta (zp_sd_address),y	; No ID
-  iny
-  sta (zp_sd_address),y
-  iny ; 0x14-0x15 - File start cluster (high word)
+  cpy #$14 ; also empty the user ID (0x12-0x13)
+  bne .empty
+  ;sta (zp_sd_address),y
+  ;iny
+  ;sta (zp_sd_address),y
+  ;iny
+  ;sta (zp_sd_address),y
+  ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Directory_entry 
+  ; show the "Directory entry" table and look at at 0x0E onward.
+  ;iny   ; 0x12-0x13 - User ID
+  ;lda #0
+  ;sta (zp_sd_address),y	; No ID
+  ;iny
+  ;sta (zp_sd_address),y
+  ;iny 
+  ; 0x14-0x15 - File start cluster (high word)
   lda fat32_lastfoundfreecluster+2
   sta (zp_sd_address),y
   iny
@@ -823,7 +832,7 @@ fat32_writedirent:
   lda #0
   sta (zp_sd_address),y
   iny
-  sta (zp_sd_address),y   ; no rtc aaaaa
+  sta (zp_sd_address),y   ; no rtc
   iny
   sta (zp_sd_address),y
   iny
@@ -1079,7 +1088,7 @@ fat32_file_write:
   ; No data?
   beq .fail
 
-  ; Store sector count - not a byte count any more
+  ; Store sector count - not a byte count anymore.
   sta fat32_bytesremaining
 
   ; Write entire sectors from the user-supplied buffer
@@ -1101,7 +1110,7 @@ fat32_file_write:
 
   ; Has fat32_writenextsector written the FAT table?
   lda fat32_newfatsector
-  bne .fail
+  bne .fail  ; not a fail, just means its done.
 
   ; No, write it here.
   lda fat32_lastsector
