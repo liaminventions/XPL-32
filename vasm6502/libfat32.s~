@@ -523,15 +523,9 @@ fat32_writenextsector:
   ; Find the next cluster
   jsr fat32_findnextfreecluster
 
-  ; Preserve the current sector
-  lda zp_sd_currentsector
-  pha 
-  lda zp_sd_currentsector+1
-  pha 
-  lda zp_sd_currentsector+2
-  pha 
-  lda zp_sd_currentsector+3
-  pha
+  ; Add marker for new routines, so we don't think this is free.
+  lda #$0f
+  sta (zp_sd_address),y
 
   ; Seek to the previous cluster
   lda fat32_lastcluster
@@ -561,6 +555,16 @@ fat32_writenextsector:
   lda fat32_lastfoundfreecluster
   sta fat32_lastcluster
   sta (zp_sd_address),y
+
+  ; Preserve the current sector
+  lda zp_sd_currentsector
+  pha 
+  lda zp_sd_currentsector+1
+  pha 
+  lda zp_sd_currentsector+2
+  pha 
+  lda zp_sd_currentsector+3
+  pha
 
   ; Update the FAT, if needed.
   jsr .sectorbounds
@@ -668,8 +672,8 @@ fat32_allocatecluster:
   sta fat32_lastcluster+3
 
   ; Add marker for new routines, so we don't think this is free.
-  ;lda #$0f
-  ;sta (zp_sd_address),y
+  lda #$0f
+  sta (zp_sd_address),y
 
   rts
 
@@ -1162,7 +1166,7 @@ fat32_file_write:
   sta fat32_bytesremaining
 
   ; We will be making a new cluster the first time around
-  stz fat32_bytesremaining
+  stz fat32_pendingsectors
 
   ; Write entire sectors from the user-supplied buffer
 .wholesectorwriteloop:
