@@ -219,6 +219,12 @@ fat32_init:
 
 fat32_seekcluster:
   ; Gets ready to read fat32_nextcluster, and advances it according to the FAT
+
+  ; Target buffer
+  lda #<fat32_fatbuffer
+  sta zp_sd_address
+  lda #>fat32_fatbuffer
+  sta zp_sd_address+1
   
   ; FAT sector = (cluster*4) / 512 = (cluster*2) / 256
   lda fat32_nextcluster
@@ -266,12 +272,6 @@ fat32_seekcluster:
 
 ;  lda #$ff
 ;  sta fat32_newfatsector
-
-  ; Target buffer
-  lda #<fat32_fatbuffer
-  sta zp_sd_address
-  lda #>fat32_fatbuffer
-  sta zp_sd_address+1
 
   ; Read the sector from the FAT
   jsr sd_readsector

@@ -295,11 +295,11 @@ views=1
 meta_objs=2
 
 [view0]
-scale=6.338864939269617e-7
-v_offset=267
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x4P\x1\0\0\0\x1\x1\0\0\0\x1\0)
+scale=1.2202811638185167e-6
+v_offset=270
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x6\xe8\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 1 97908800 17321243 78384590 83760955 79283826 0 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 1 71100560 55529875 67035213 5465136 30444574 0 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -322,10 +322,10 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 type=time_marker
 assoc_view=0
 time=22 serialization::archive 14 0 0 0 0 1 45337350 19918606 31595975 41785683 63897239 0 0 0 6
-text=-526132 \x3bcs
+text=-259448 \x3bcs
 
 [meta_obj1]
 type=selection
 assoc_view=0
-start_time=22 serialization::archive 14 0 0 0 0 1 97950599 99999999 87792875 79964147 88067340 0 0 0 6
-end_time=22 serialization::archive 14 0 0 0 0 1 97958600 0 67799987 84622875 97358226 0 0 0 6
+start_time=22 serialization::archive 14 0 0 0 0 1 71185833 80302639 46620225 84346010 30141388 0 0 0 6
+end_time=22 serialization::archive 14 0 0 0 0 1 71282200 0 66677330 32372780 14421462 0 0 0 6

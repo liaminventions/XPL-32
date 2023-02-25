@@ -643,8 +643,8 @@ fat32_allocatecluster:
   sta fat32_lastcluster+3
 
   ; Add marker for new routines, so we don't think this is free.
-  lda #$0f
-  sta (zp_sd_address),y
+  ;lda #$0f
+  ;sta (zp_sd_address),y
 
   rts
 
