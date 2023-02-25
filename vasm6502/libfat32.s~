@@ -448,20 +448,19 @@ fat32_writenextsector:
   ;
   ; On return, carry is set if its the end of the chain.
 
-  ; Are there even any sectors to write?
+  ; Are there any pending sectors in the current cluster
   lda fat32_pendingsectors
-  bne .sectoravailable
+  beq .newcluster
+  jmp .writesector
 
-  ; Nothing to write, set carry.
-  sec
-  rts
+.newcluster
 
-.sectoravailable
+  ; No, make a new cluster
 
-  ; Yes, Check if it's the last cluster in the chain 
+  ; Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
   cmp fat32_sectorspercluster
-  bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
+  bcs .notlastcluster	 ; sectorsremaining >= sectorspercluster?
 
   ; It is the last one.
 
@@ -577,7 +576,7 @@ fat32_writenextsector:
   sta zp_sd_currentsector
   
 .writesector:
-  dec .pendingsectors
+  dec fat32_pendingsectors
 
   ; Set up target address
   lda fat32_address
@@ -1161,6 +1160,9 @@ fat32_file_write:
 
   ; Store sector count - not a byte count anymore.
   sta fat32_bytesremaining
+
+  ; We will be making a new cluster the first time around
+  stz fat32_bytesremaining
 
   ; Write entire sectors from the user-supplied buffer
 .wholesectorwriteloop:
