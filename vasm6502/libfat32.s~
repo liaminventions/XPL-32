@@ -23,11 +23,11 @@ fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
 fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
 fat32_lastsector		= zp_fat32_variables + $23  ; 4 bytes
 fat32_newfatsector		= zp_fat32_variables + $28  ; 1 byte FLAG
+fat32_filenamepointer       	= zp_fat32_variables + $29  ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
-fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
 
-; TODO fix filesize stuff, saved files seem too long and pick up garbage from the RAM...
+; TODO fix filesize stuff, saved files seem too long and pick up garbage from the RAM... (BUG) 
 
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
