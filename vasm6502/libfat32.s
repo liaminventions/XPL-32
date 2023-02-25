@@ -899,6 +899,11 @@ fat32_writedirent:
 
 .nodec
 
+  lda fat32_address
+  sta zp_sd_address
+  lda fat32_address+1
+  sta zp_sd_address+1
+
   ; Read the sector
   jsr sd_writesector
 

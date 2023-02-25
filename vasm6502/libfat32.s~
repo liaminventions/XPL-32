@@ -887,15 +887,17 @@ fat32_writedirent:
 
   ; fix thingy
   lda zp_sd_currentsector
-  bne .nodec
+  bne .skip
   dec zp_sd_currentsector+1
-  bne .nodec
+  bne .skip
   dec zp_sd_currentsector+2
-  bne .nodec
+  bne .skip
   dec zp_sd_currentsector+3
 
-.nodec
+.skip
   dec zp_sd_currentsector
+
+.nodec
 
   ; Read the sector
   jsr sd_writesector
