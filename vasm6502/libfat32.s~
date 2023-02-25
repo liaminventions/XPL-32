@@ -450,7 +450,13 @@ fat32_writenextsector:
 
   ; Are there even any sectors to write?
   lda fat32_pendingsectors
-  beq .fail
+  bne .sectoravailable
+
+  ; Nothing to write, set carry.
+  sec
+  rts
+
+.sectoravailable
 
   ; Yes, Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
@@ -484,11 +490,31 @@ fat32_writenextsector:
   dey
   sta (zp_sd_address),y
 
+  ; Preserve the current sector
+  lda zp_sd_currentsector
+  pha 
+  lda zp_sd_currentsector+1
+  pha 
+  lda zp_sd_currentsector+2
+  pha 
+  lda zp_sd_currentsector+3
+  pha
+
   ; Update the FAT, if needed.
-  jsr fat32_sectorbounds
+  jsr .sectorbounds
 
   ; End of chain - finish up the remaining sectors
-  
+
+  ; Pull back the current sector
+  pla
+  sta zp_sd_currentsector+3
+  pla
+  sta zp_sd_currentsector+2
+  pla
+  sta zp_sd_currentsector+1
+  pla
+  sta zp_sd_currentsector
+
   jmp .writesector
 
 .notlastcluster
@@ -497,6 +523,16 @@ fat32_writenextsector:
 
   ; Find the next cluster
   jsr fat32_findnextfreecluster
+
+  ; Preserve the current sector
+  lda zp_sd_currentsector
+  pha 
+  lda zp_sd_currentsector+1
+  pha 
+  lda zp_sd_currentsector+2
+  pha 
+  lda zp_sd_currentsector+3
+  pha
 
   ; Seek to the previous cluster
   lda fat32_lastcluster
@@ -528,10 +564,20 @@ fat32_writenextsector:
   sta (zp_sd_address),y
 
   ; Update the FAT, if needed.
-  jsr fat32_sectorbounds
+  jsr .sectorbounds
+
+  ; Pull back the current sector
+  pla
+  sta zp_sd_currentsector+3
+  pla
+  sta zp_sd_currentsector+2
+  pla
+  sta zp_sd_currentsector+1
+  pla
+  sta zp_sd_currentsector
   
 .writesector:
-  dec fat32_pendingsectors
+  dec .pendingsectors
 
   ; Set up target address
   lda fat32_address
@@ -555,24 +601,11 @@ fat32_writenextsector:
   ; Success - clear carry and return
   clc
   rts
-.fail
-  sec
-  rts
 
-fat32_sectorbounds:
+.sectorbounds:
   ; Have we passed over a sector while modifying the FAT?
   ;lda fat32_newfatsector
   ;beq .nopass
-
-  ; Yes, preserve the current sector
-  lda zp_sd_currentsector
-  pha 
-  lda zp_sd_currentsector+1
-  pha 
-  lda zp_sd_currentsector+2
-  pha 
-  lda zp_sd_currentsector+3
-  pha 
 
   ; Write the sector
   lda fat32_lastsector
@@ -592,15 +625,6 @@ fat32_sectorbounds:
 
   ; Write the FAT sector
   jsr sd_writesector
-
-  pla
-  sta zp_sd_currentsector+3
-  pla
-  sta zp_sd_currentsector+2
-  pla
-  sta zp_sd_currentsector+1
-  pla
-  sta zp_sd_currentsector
 
 .nopass
   ; We did not, return.

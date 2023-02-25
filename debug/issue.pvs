@@ -292,14 +292,14 @@ channel3\assigned_signal_name=12
 decode_signals=1
 generated_signals=0
 views=1
-meta_objs=2
+meta_objs=1
 
 [view0]
-scale=1.2202811638185167e-6
-v_offset=270
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x6\xe8\x1\0\0\0\x1\x1\0\0\0\x1\0)
+scale=8.224428858356357e-6
+v_offset=327
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x5\x9c\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
-offset=22 serialization::archive 14 0 0 0 0 1 71100560 55529875 67035213 5465136 30444574 0 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 2 17415369 69724221 45508892 23320770 56843999 0 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -319,9 +319,11 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 15\trace_height=32
 
 [meta_obj0]
-type=time_marker
+type=selection
 assoc_view=0
+start_time=22 serialization::archive 14 0 0 0 0 2 17869400 1 30512489 70441520 21408080 0 0 0 6
 time=22 serialization::archive 14 0 0 0 0 1 45337350 19918606 31595975 41785683 63897239 0 0 0 6
+end_time=22 serialization::archive 14 0 0 0 0 2 18409399 99999999 79877429 72327396 27361296 0 0 0 6
 text=-259448 \x3bcs
 
 [meta_obj1]

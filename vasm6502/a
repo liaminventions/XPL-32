@@ -69,7 +69,7 @@ F00:0063         ;sta $0701
 F00:0064         ;sta $0702
 F00:0065       
 F00:0066         jmp MEMORY_SAVE ; OK, here we go.
-               S01:00000F0A:  4C E2 19
+               S01:00000F0A:  4C FA 19
 F00:0067       
 F00:0068       ;faterror:
 F00:0069       ;  lda #'f'
@@ -2037,7 +2037,7 @@ F06:0462         lda fat32_bytesremaining
 F06:0463         cmp fat32_sectorspercluster
                S02:000016CC:  C5 5B
 F06:0464         bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
-               S02:000016CE:  B0 28
+               S02:000016CE:  B0 40
 F06:0465       
 F06:0466         ; It is the last one.
 F06:0467       
@@ -2084,1123 +2084,1160 @@ F06:0490         dey
 F06:0491         sta (zp_sd_address),y
                S02:000016F0:  91 48
 F06:0492       
-F06:0493         ; Update the FAT, if needed.
-F06:0494         jsr fat32_sectorbounds
-               S02:000016F2:  20 4B 17
-F06:0495       
-F06:0496         ; End of chain - finish up the remaining sectors
-F06:0497         
-F06:0498         jmp .writesector
-               S02:000016F5:  4C 2E 17
-F06:0499       
-F06:0500       .notlastcluster
-F06:0501         ; Wait! Are there enough sectors left to fit exactly in one cluster?
-F06:0502         beq .lastcluster
-               S02:000016F8:  F0 D6
-F06:0503       
-F06:0504         ; Find the next cluster
-F06:0505         jsr fat32_findnextfreecluster
-               S02:000016FA:  20 AB 17
-F06:0506       
-F06:0507         ; Seek to the previous cluster
-F06:0508         lda fat32_lastcluster
-               S02:000016FD:  A5 6D
-F06:0509         sta fat32_nextcluster
-               S02:000016FF:  85 5F
-F06:0510         lda fat32_lastcluster+1
-               S02:00001701:  A5 6E
-F06:0511         sta fat32_nextcluster+1
-               S02:00001703:  85 60
-F06:0512         lda fat32_lastcluster+2
-               S02:00001705:  A5 6F
-F06:0513         sta fat32_nextcluster+2
-               S02:00001707:  85 61
-F06:0514         lda fat32_lastcluster+3
-               S02:00001709:  A5 70
-F06:0515         sta fat32_nextcluster+3
-               S02:0000170B:  85 62
-F06:0516       
-F06:0517         jsr fat32_seekcluster
-               S02:0000170D:  20 C2 15
-F06:0518       
-F06:0519         ; Enter the address of the next one into the FAT
-F06:0520         lda fat32_lastfoundfreecluster+3
-               S02:00001710:  A5 6A
-F06:0521         sta fat32_lastcluster+3
-               S02:00001712:  85 70
-F06:0522         sta (zp_sd_address),y
-               S02:00001714:  91 48
-F06:0523         dey
-               S02:00001716:  88
-F06:0524         lda fat32_lastfoundfreecluster+2
-               S02:00001717:  A5 69
-F06:0525         sta fat32_lastcluster+2
-               S02:00001719:  85 6F
-F06:0526         sta (zp_sd_address),y
-               S02:0000171B:  91 48
-F06:0527         dey
-               S02:0000171D:  88
-F06:0528         lda fat32_lastfoundfreecluster+1
-               S02:0000171E:  A5 68
-F06:0529         sta fat32_lastcluster+1
-               S02:00001720:  85 6E
-F06:0530         sta (zp_sd_address),y
-               S02:00001722:  91 48
-F06:0531         dey
-               S02:00001724:  88
-F06:0532         lda fat32_lastfoundfreecluster
-               S02:00001725:  A5 67
-F06:0533         sta fat32_lastcluster
-               S02:00001727:  85 6D
-F06:0534         sta (zp_sd_address),y
-               S02:00001729:  91 48
-F06:0535       
-F06:0536         ; Update the FAT, if needed.
-F06:0537         jsr fat32_sectorbounds
-               S02:0000172B:  20 4B 17
-F06:0538         
-F06:0539       .writesector:
-F06:0540         dec fat32_pendingsectors
-               S02:0000172E:  C6 5C
-F06:0541       
-F06:0542         ; Set up target address
-F06:0543         lda fat32_address
-               S02:00001730:  A5 5D
-F06:0544         sta zp_sd_address
-               S02:00001732:  85 48
-F06:0545         lda fat32_address+1
-               S02:00001734:  A5 5E
-F06:0546         sta zp_sd_address+1
-               S02:00001736:  85 49
-F06:0547       
-F06:0548         ; Write the sector
-F06:0549         jsr sd_writesector
-               S02:00001738:  20 54 14
-F06:0550       
-F06:0551         ; Advance to next sector
-F06:0552         inc zp_sd_currentsector
-               S02:0000173B:  E6 4A
-F06:0553         bne .nextsectorincrementdone
-               S02:0000173D:  D0 0A
-F06:0554         inc zp_sd_currentsector+1
-               S02:0000173F:  E6 4B
-F06:0555         bne .nextsectorincrementdone
-               S02:00001741:  D0 06
-F06:0556         inc zp_sd_currentsector+2
-               S02:00001743:  E6 4C
-F06:0557         bne .nextsectorincrementdone
-               S02:00001745:  D0 02
-F06:0558         inc zp_sd_currentsector+3
-               S02:00001747:  E6 4D
-F06:0559       .nextsectorincrementdone:
-F06:0560       
-F06:0561         ; Success - clear carry and return
-F06:0562         clc
-               S02:00001749:  18
-F06:0563         rts
-               S02:0000174A:  60
-F06:0564       
-F06:0565       fat32_sectorbounds:
-F06:0566         ; Have we passed over a sector while modifying the FAT?
-F06:0567         ;lda fat32_newfatsector
-F06:0568         ;beq .nopass
-F06:0569       
-F06:0570         ; Yes, preserve the current sector
-F06:0571         lda zp_sd_currentsector
-               S02:0000174B:  A5 4A
-F06:0572         pha 
-               S02:0000174D:  48
-F06:0573         lda zp_sd_currentsector+1
-               S02:0000174E:  A5 4B
-F06:0574         pha 
-               S02:00001750:  48
-F06:0575         lda zp_sd_currentsector+2
-               S02:00001751:  A5 4C
-F06:0576         pha 
-               S02:00001753:  48
-F06:0577         lda zp_sd_currentsector+3
-               S02:00001754:  A5 4D
-F06:0578         pha 
-               S02:00001756:  48
-F06:0579       
-F06:0580         ; Write the sector
-F06:0581         lda fat32_lastsector
-               S02:00001757:  A5 72
-F06:0582         sta zp_sd_currentsector
-               S02:00001759:  85 4A
-F06:0583         lda fat32_lastsector+1
-               S02:0000175B:  A5 73
-F06:0584         sta zp_sd_currentsector+1
-               S02:0000175D:  85 4B
-F06:0585         lda fat32_lastsector+2
-               S02:0000175F:  A5 74
-F06:0586         sta zp_sd_currentsector+2
-               S02:00001761:  85 4C
-F06:0587         lda fat32_lastsector+3
-               S02:00001763:  A5 75
-F06:0588         sta zp_sd_currentsector+3
-               S02:00001765:  85 4D
-F06:0589       
-F06:0590         ; Target buffer
-F06:0591         lda #<fat32_fatbuffer
-               S02:00001767:  A9 00
-F06:0592         sta zp_sd_address
-               S02:00001769:  85 48
-F06:0593         lda #>fat32_fatbuffer
-               S02:0000176B:  A9 07
-F06:0594         sta zp_sd_address+1
-               S02:0000176D:  85 49
-F06:0595       
-F06:0596         ; Write the FAT sector
-F06:0597         jsr sd_writesector
-               S02:0000176F:  20 54 14
-F06:0598       
-F06:0599         pla
-               S02:00001772:  68
-F06:0600         sta zp_sd_currentsector+3
-               S02:00001773:  85 4D
-F06:0601         pla
-               S02:00001775:  68
-F06:0602         sta zp_sd_currentsector+2
-               S02:00001776:  85 4C
-F06:0603         pla
-               S02:00001778:  68
-F06:0604         sta zp_sd_currentsector+1
-               S02:00001779:  85 4B
-F06:0605         pla
-               S02:0000177B:  68
-F06:0606         sta zp_sd_currentsector
-               S02:0000177C:  85 4A
-F06:0607       
-F06:0608       .nopass
-F06:0609         ; We did not, return.
-F06:0610         rts
-               S02:0000177E:  60
-F06:0611       
-F06:0612       
-F06:0613       fat32_openroot:
-F06:0614         ; Prepare to read the root directory
-F06:0615       
-F06:0616         lda fat32_rootcluster
-               S02:0000177F:  A5 57
-F06:0617         sta fat32_nextcluster
-               S02:00001781:  85 5F
-F06:0618         lda fat32_rootcluster+1
-               S02:00001783:  A5 58
-F06:0619         sta fat32_nextcluster+1
-               S02:00001785:  85 60
-F06:0620         lda fat32_rootcluster+2
-               S02:00001787:  A5 59
-F06:0621         sta fat32_nextcluster+2
-               S02:00001789:  85 61
-F06:0622         lda fat32_rootcluster+3
-               S02:0000178B:  A5 5A
-F06:0623         sta fat32_nextcluster+3
-               S02:0000178D:  85 62
-F06:0624       
-F06:0625         jsr fat32_seekcluster
-               S02:0000178F:  20 C2 15
-F06:0626       
-F06:0627         ; Set the pointer to a large value so we always read a sector the first time through
-F06:0628         lda #$ff
-               S02:00001792:  A9 FF
-F06:0629         sta zp_sd_address+1
-               S02:00001794:  85 49
-F06:0630       
+F06:0493         ; Preserve the current sector
+F06:0494         lda zp_sd_currentsector
+               S02:000016F2:  A5 4A
+F06:0495         pha 
+               S02:000016F4:  48
+F06:0496         lda zp_sd_currentsector+1
+               S02:000016F5:  A5 4B
+F06:0497         pha 
+               S02:000016F7:  48
+F06:0498         lda zp_sd_currentsector+2
+               S02:000016F8:  A5 4C
+F06:0499         pha 
+               S02:000016FA:  48
+F06:0500         lda zp_sd_currentsector+3
+               S02:000016FB:  A5 4D
+F06:0501         pha
+               S02:000016FD:  48
+F06:0502       
+F06:0503         ; Update the FAT, if needed.
+F06:0504         jsr .sectorbounds
+               S02:000016FE:  20 7B 17
+F06:0505       
+F06:0506         ; End of chain - finish up the remaining sectors
+F06:0507       
+F06:0508         ; Pull back the current sector
+F06:0509         pla
+               S02:00001701:  68
+F06:0510         sta zp_sd_currentsector+3
+               S02:00001702:  85 4D
+F06:0511         pla
+               S02:00001704:  68
+F06:0512         sta zp_sd_currentsector+2
+               S02:00001705:  85 4C
+F06:0513         pla
+               S02:00001707:  68
+F06:0514         sta zp_sd_currentsector+1
+               S02:00001708:  85 4B
+F06:0515         pla
+               S02:0000170A:  68
+F06:0516         sta zp_sd_currentsector
+               S02:0000170B:  85 4A
+F06:0517       
+F06:0518         jmp .writesector
+               S02:0000170D:  4C 5E 17
+F06:0519       
+F06:0520       .notlastcluster
+F06:0521         ; Wait! Are there enough sectors left to fit exactly in one cluster?
+F06:0522         beq .lastcluster
+               S02:00001710:  F0 BE
+F06:0523       
+F06:0524         ; Find the next cluster
+F06:0525         jsr fat32_findnextfreecluster
+               S02:00001712:  20 C3 17
+F06:0526       
+F06:0527         ; Preserve the current sector
+F06:0528         lda zp_sd_currentsector
+               S02:00001715:  A5 4A
+F06:0529         pha 
+               S02:00001717:  48
+F06:0530         lda zp_sd_currentsector+1
+               S02:00001718:  A5 4B
+F06:0531         pha 
+               S02:0000171A:  48
+F06:0532         lda zp_sd_currentsector+2
+               S02:0000171B:  A5 4C
+F06:0533         pha 
+               S02:0000171D:  48
+F06:0534         lda zp_sd_currentsector+3
+               S02:0000171E:  A5 4D
+F06:0535         pha
+               S02:00001720:  48
+F06:0536       
+F06:0537         ; Seek to the previous cluster
+F06:0538         lda fat32_lastcluster
+               S02:00001721:  A5 6D
+F06:0539         sta fat32_nextcluster
+               S02:00001723:  85 5F
+F06:0540         lda fat32_lastcluster+1
+               S02:00001725:  A5 6E
+F06:0541         sta fat32_nextcluster+1
+               S02:00001727:  85 60
+F06:0542         lda fat32_lastcluster+2
+               S02:00001729:  A5 6F
+F06:0543         sta fat32_nextcluster+2
+               S02:0000172B:  85 61
+F06:0544         lda fat32_lastcluster+3
+               S02:0000172D:  A5 70
+F06:0545         sta fat32_nextcluster+3
+               S02:0000172F:  85 62
+F06:0546       
+F06:0547         jsr fat32_seekcluster
+               S02:00001731:  20 C2 15
+F06:0548       
+F06:0549         ; Enter the address of the next one into the FAT
+F06:0550         lda fat32_lastfoundfreecluster+3
+               S02:00001734:  A5 6A
+F06:0551         sta fat32_lastcluster+3
+               S02:00001736:  85 70
+F06:0552         sta (zp_sd_address),y
+               S02:00001738:  91 48
+F06:0553         dey
+               S02:0000173A:  88
+F06:0554         lda fat32_lastfoundfreecluster+2
+               S02:0000173B:  A5 69
+F06:0555         sta fat32_lastcluster+2
+               S02:0000173D:  85 6F
+F06:0556         sta (zp_sd_address),y
+               S02:0000173F:  91 48
+F06:0557         dey
+               S02:00001741:  88
+F06:0558         lda fat32_lastfoundfreecluster+1
+               S02:00001742:  A5 68
+F06:0559         sta fat32_lastcluster+1
+               S02:00001744:  85 6E
+F06:0560         sta (zp_sd_address),y
+               S02:00001746:  91 48
+F06:0561         dey
+               S02:00001748:  88
+F06:0562         lda fat32_lastfoundfreecluster
+               S02:00001749:  A5 67
+F06:0563         sta fat32_lastcluster
+               S02:0000174B:  85 6D
+F06:0564         sta (zp_sd_address),y
+               S02:0000174D:  91 48
+F06:0565       
+F06:0566         ; Update the FAT, if needed.
+F06:0567         jsr .sectorbounds
+               S02:0000174F:  20 7B 17
+F06:0568       
+F06:0569         ; Pull back the current sector
+F06:0570         pla
+               S02:00001752:  68
+F06:0571         sta zp_sd_currentsector+3
+               S02:00001753:  85 4D
+F06:0572         pla
+               S02:00001755:  68
+F06:0573         sta zp_sd_currentsector+2
+               S02:00001756:  85 4C
+F06:0574         pla
+               S02:00001758:  68
+F06:0575         sta zp_sd_currentsector+1
+               S02:00001759:  85 4B
+F06:0576         pla
+               S02:0000175B:  68
+F06:0577         sta zp_sd_currentsector
+               S02:0000175C:  85 4A
+F06:0578         
+F06:0579       .writesector:
+F06:0580         dec fat32_pendingsectors
+               S02:0000175E:  C6 5C
+F06:0581       
+F06:0582         ; Set up target address
+F06:0583         lda fat32_address
+               S02:00001760:  A5 5D
+F06:0584         sta zp_sd_address
+               S02:00001762:  85 48
+F06:0585         lda fat32_address+1
+               S02:00001764:  A5 5E
+F06:0586         sta zp_sd_address+1
+               S02:00001766:  85 49
+F06:0587       
+F06:0588         ; Write the sector
+F06:0589         jsr sd_writesector
+               S02:00001768:  20 54 14
+F06:0590       
+F06:0591         ; Advance to next sector
+F06:0592         inc zp_sd_currentsector
+               S02:0000176B:  E6 4A
+F06:0593         bne .nextsectorincrementdone
+               S02:0000176D:  D0 0A
+F06:0594         inc zp_sd_currentsector+1
+               S02:0000176F:  E6 4B
+F06:0595         bne .nextsectorincrementdone
+               S02:00001771:  D0 06
+F06:0596         inc zp_sd_currentsector+2
+               S02:00001773:  E6 4C
+F06:0597         bne .nextsectorincrementdone
+               S02:00001775:  D0 02
+F06:0598         inc zp_sd_currentsector+3
+               S02:00001777:  E6 4D
+F06:0599       .nextsectorincrementdone:
+F06:0600       
+F06:0601         ; Success - clear carry and return
+F06:0602         clc
+               S02:00001779:  18
+F06:0603         rts
+               S02:0000177A:  60
+F06:0604       
+F06:0605       .sectorbounds:
+F06:0606         ; Have we passed over a sector while modifying the FAT?
+F06:0607         ;lda fat32_newfatsector
+F06:0608         ;beq .nopass
+F06:0609       
+F06:0610         ; Write the sector
+F06:0611         lda fat32_lastsector
+               S02:0000177B:  A5 72
+F06:0612         sta zp_sd_currentsector
+               S02:0000177D:  85 4A
+F06:0613         lda fat32_lastsector+1
+               S02:0000177F:  A5 73
+F06:0614         sta zp_sd_currentsector+1
+               S02:00001781:  85 4B
+F06:0615         lda fat32_lastsector+2
+               S02:00001783:  A5 74
+F06:0616         sta zp_sd_currentsector+2
+               S02:00001785:  85 4C
+F06:0617         lda fat32_lastsector+3
+               S02:00001787:  A5 75
+F06:0618         sta zp_sd_currentsector+3
+               S02:00001789:  85 4D
+F06:0619       
+F06:0620         ; Target buffer
+F06:0621         lda #<fat32_fatbuffer
+               S02:0000178B:  A9 00
+F06:0622         sta zp_sd_address
+               S02:0000178D:  85 48
+F06:0623         lda #>fat32_fatbuffer
+               S02:0000178F:  A9 07
+F06:0624         sta zp_sd_address+1
+               S02:00001791:  85 49
+F06:0625       
+F06:0626         ; Write the FAT sector
+F06:0627         jsr sd_writesector
+               S02:00001793:  20 54 14
+F06:0628       
+F06:0629       .nopass
+F06:0630         ; We did not, return.
 F06:0631         rts
                S02:00001796:  60
 F06:0632       
-F06:0633       fat32_allocatecluster:
-F06:0634         ; Allocate a cluster to store a file at.
-F06:0635         ; Must be done BEFORE running fat32_opendirent.
+F06:0633       
+F06:0634       fat32_openroot:
+F06:0635         ; Prepare to read the root directory
 F06:0636       
-F06:0637         ; Find a free cluster
-F06:0638         jsr fat32_findnextfreecluster
-               S02:00001797:  20 AB 17
-F06:0639       
-F06:0640         ; Cache the value so we can add the address of the next one later, if any
-F06:0641         lda fat32_lastfoundfreecluster
-               S02:0000179A:  A5 67
-F06:0642         sta fat32_lastcluster
-               S02:0000179C:  85 6D
-F06:0643         lda fat32_lastfoundfreecluster+1
-               S02:0000179E:  A5 68
-F06:0644         sta fat32_lastcluster+1
-               S02:000017A0:  85 6E
-F06:0645         lda fat32_lastfoundfreecluster+2
-               S02:000017A2:  A5 69
-F06:0646         sta fat32_lastcluster+2
-               S02:000017A4:  85 6F
-F06:0647         lda fat32_lastfoundfreecluster+3
-               S02:000017A6:  A5 6A
-F06:0648         sta fat32_lastcluster+3
-               S02:000017A8:  85 70
-F06:0649       
-F06:0650         ; Add marker for new routines, so we don't think this is free.
-F06:0651         ;lda #$0f
-F06:0652         ;sta (zp_sd_address),y
+F06:0637         lda fat32_rootcluster
+               S02:00001797:  A5 57
+F06:0638         sta fat32_nextcluster
+               S02:00001799:  85 5F
+F06:0639         lda fat32_rootcluster+1
+               S02:0000179B:  A5 58
+F06:0640         sta fat32_nextcluster+1
+               S02:0000179D:  85 60
+F06:0641         lda fat32_rootcluster+2
+               S02:0000179F:  A5 59
+F06:0642         sta fat32_nextcluster+2
+               S02:000017A1:  85 61
+F06:0643         lda fat32_rootcluster+3
+               S02:000017A3:  A5 5A
+F06:0644         sta fat32_nextcluster+3
+               S02:000017A5:  85 62
+F06:0645       
+F06:0646         jsr fat32_seekcluster
+               S02:000017A7:  20 C2 15
+F06:0647       
+F06:0648         ; Set the pointer to a large value so we always read a sector the first time through
+F06:0649         lda #$ff
+               S02:000017AA:  A9 FF
+F06:0650         sta zp_sd_address+1
+               S02:000017AC:  85 49
+F06:0651       
+F06:0652         rts
+               S02:000017AE:  60
 F06:0653       
-F06:0654         rts
-               S02:000017AA:  60
-F06:0655       
-F06:0656       fat32_findnextfreecluster:
-F06:0657       ; Find next free cluster
-F06:0658       ; 
-F06:0659       ; This program will search the FAT for an empty entry, and
-F06:0660       ; save the 32-bit cluster number at fat32_lastfoundfreecluter.
-F06:0661       ;
-F06:0662       ; Also sets the carry bit if the SD card is full.
-F06:0663       ;
-F06:0664       
-F06:0665         ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
-F06:0666       
-F06:0667         lda #0
-               S02:000017AB:  A9 00
-F06:0668         sta fat32_nextcluster
-               S02:000017AD:  85 5F
-F06:0669         sta fat32_lastfoundfreecluster
-               S02:000017AF:  85 67
-F06:0670         sta fat32_nextcluster+1
-               S02:000017B1:  85 60
-F06:0671         sta fat32_lastfoundfreecluster+1
-               S02:000017B3:  85 68
-F06:0672         sta fat32_nextcluster+2
-               S02:000017B5:  85 61
-F06:0673         sta fat32_lastfoundfreecluster+2
-               S02:000017B7:  85 69
-F06:0674         sta fat32_nextcluster+3
-               S02:000017B9:  85 62
-F06:0675         sta fat32_lastfoundfreecluster+3
-               S02:000017BB:  85 6A
+F06:0654       fat32_allocatecluster:
+F06:0655         ; Allocate a cluster to store a file at.
+F06:0656         ; Must be done BEFORE running fat32_opendirent.
+F06:0657       
+F06:0658         ; Find a free cluster
+F06:0659         jsr fat32_findnextfreecluster
+               S02:000017AF:  20 C3 17
+F06:0660       
+F06:0661         ; Cache the value so we can add the address of the next one later, if any
+F06:0662         lda fat32_lastfoundfreecluster
+               S02:000017B2:  A5 67
+F06:0663         sta fat32_lastcluster
+               S02:000017B4:  85 6D
+F06:0664         lda fat32_lastfoundfreecluster+1
+               S02:000017B6:  A5 68
+F06:0665         sta fat32_lastcluster+1
+               S02:000017B8:  85 6E
+F06:0666         lda fat32_lastfoundfreecluster+2
+               S02:000017BA:  A5 69
+F06:0667         sta fat32_lastcluster+2
+               S02:000017BC:  85 6F
+F06:0668         lda fat32_lastfoundfreecluster+3
+               S02:000017BE:  A5 6A
+F06:0669         sta fat32_lastcluster+3
+               S02:000017C0:  85 70
+F06:0670       
+F06:0671         ; Add marker for new routines, so we don't think this is free.
+F06:0672         ;lda #$0f
+F06:0673         ;sta (zp_sd_address),y
+F06:0674       
+F06:0675         rts
+               S02:000017C2:  60
 F06:0676       
-F06:0677       .searchclusters
-F06:0678       
-F06:0679         ; Seek cluster
-F06:0680         jsr fat32_seekcluster
-               S02:000017BD:  20 C2 15
-F06:0681       
-F06:0682         ; Is the cluster free?
-F06:0683         lda fat32_nextcluster
-               S02:000017C0:  A5 5F
-F06:0684         and #$0f
-               S02:000017C2:  29 0F
-F06:0685         ora fat32_nextcluster+1
-               S02:000017C4:  05 60
-F06:0686         ora fat32_nextcluster+2
-               S02:000017C6:  05 61
-F06:0687         ora fat32_nextcluster+3
-               S02:000017C8:  05 62
-F06:0688         beq .foundcluster
-               S02:000017CA:  F0 21
-F06:0689       
-F06:0690         ; No, increment the cluster count
-F06:0691         inc fat32_lastfoundfreecluster
-               S02:000017CC:  E6 67
-F06:0692         bne .copycluster
-               S02:000017CE:  D0 0A
-F06:0693         inc fat32_lastfoundfreecluster+1
-               S02:000017D0:  E6 68
-F06:0694         bne .copycluster
-               S02:000017D2:  D0 06
-F06:0695         inc fat32_lastfoundfreecluster+2
-               S02:000017D4:  E6 69
-F06:0696         bne .copycluster
-               S02:000017D6:  D0 02
-F06:0697         inc fat32_lastfoundfreecluster+3
-               S02:000017D8:  E6 6A
-F06:0698       
-F06:0699       .copycluster
-F06:0700       
-F06:0701         ; Copy the cluster count to the next cluster
-F06:0702         lda fat32_lastfoundfreecluster
-               S02:000017DA:  A5 67
-F06:0703         sta fat32_nextcluster
-               S02:000017DC:  85 5F
-F06:0704         lda fat32_lastfoundfreecluster+1
-               S02:000017DE:  A5 68
-F06:0705         sta fat32_nextcluster+1
-               S02:000017E0:  85 60
-F06:0706         lda fat32_lastfoundfreecluster+2
-               S02:000017E2:  A5 69
-F06:0707         sta fat32_nextcluster+2
-               S02:000017E4:  85 61
-F06:0708         lda fat32_lastfoundfreecluster+3
-               S02:000017E6:  A5 6A
-F06:0709         sta fat32_nextcluster+3
-               S02:000017E8:  85 62
-F06:0710         
-F06:0711         ; Go again for another pass
-F06:0712         jmp .searchclusters
-               S02:000017EA:  4C BD 17
-F06:0713       
-F06:0714       .foundcluster
-F06:0715         ; done.
-F06:0716         rts
-               S02:000017ED:  60
-F06:0717       
-F06:0718       fat32_opendirent:
-F06:0719         ; Prepare to read/write a file or directory based on a dirent
-F06:0720         ;
-F06:0721         ; Point zp_sd_address at the dirent
-F06:0722       
-F06:0723         ; Remember file size in bytes remaining
-F06:0724         ldy #28
-               S02:000017EE:  A0 1C
-F06:0725         lda (zp_sd_address),y
-               S02:000017F0:  B1 48
-F06:0726         sta fat32_bytesremaining
-               S02:000017F2:  85 63
-F06:0727         iny
-               S02:000017F4:  C8
-F06:0728         lda (zp_sd_address),y
-               S02:000017F5:  B1 48
-F06:0729         sta fat32_bytesremaining+1
-               S02:000017F7:  85 64
-F06:0730         iny
-               S02:000017F9:  C8
-F06:0731         lda (zp_sd_address),y
-               S02:000017FA:  B1 48
-F06:0732         sta fat32_bytesremaining+2
-               S02:000017FC:  85 65
-F06:0733         iny
-               S02:000017FE:  C8
-F06:0734         lda (zp_sd_address),y
-               S02:000017FF:  B1 48
-F06:0735         sta fat32_bytesremaining+3
-               S02:00001801:  85 66
-F06:0736       
-F06:0737         ; Seek to first cluster
-F06:0738         ldy #26
-               S02:00001803:  A0 1A
-F06:0739         lda (zp_sd_address),y
-               S02:00001805:  B1 48
-F06:0740         sta fat32_nextcluster
-               S02:00001807:  85 5F
-F06:0741         iny
-               S02:00001809:  C8
-F06:0742         lda (zp_sd_address),y
-               S02:0000180A:  B1 48
-F06:0743         sta fat32_nextcluster+1
-               S02:0000180C:  85 60
-F06:0744         ldy #20
-               S02:0000180E:  A0 14
-F06:0745         lda (zp_sd_address),y
-               S02:00001810:  B1 48
-F06:0746         sta fat32_nextcluster+2
-               S02:00001812:  85 61
-F06:0747         iny
-               S02:00001814:  C8
-F06:0748         lda (zp_sd_address),y
-               S02:00001815:  B1 48
-F06:0749         sta fat32_nextcluster+3
-               S02:00001817:  85 62
-F06:0750       
-F06:0751         jsr fat32_seekcluster
-               S02:00001819:  20 C2 15
-F06:0752       
-F06:0753         ; Set the pointer to a large value so we always read a sector the first time through
-F06:0754         lda #$ff
-               S02:0000181C:  A9 FF
-F06:0755         sta zp_sd_address+1
-               S02:0000181E:  85 49
-F06:0756       
-F06:0757         rts
-               S02:00001820:  60
-F06:0758       
-F06:0759       fat32_writedirent:
-F06:0760         ; Write a directory entry from the open directory
-F06:0761         ; requires:
-F06:0762         ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
-F06:0763         ;   and the processes of:
-F06:0764         ;     fat32_finddirent
-F06:0765         ;     fat32_findnextfreecluster
-F06:0766         ; BUG fix windows-specific stuff so i can read a written file on my pc
-F06:0767       
-F06:0768         ; Increment pointer by 32 to point to next entry
-F06:0769         clc
-               S02:00001821:  18
-F06:0770         lda zp_sd_address
-               S02:00001822:  A5 48
-F06:0771         adc #32
-               S02:00001824:  69 20
-F06:0772         sta zp_sd_address
-               S02:00001826:  85 48
-F06:0773         lda zp_sd_address+1
-               S02:00001828:  A5 49
-F06:0774         adc #0
-               S02:0000182A:  69 00
-F06:0775         sta zp_sd_address+1
-               S02:0000182C:  85 49
-F06:0776       
-F06:0777         ; If it's not at the end of the buffer, we have data already
-F06:0778         cmp #>(fat32_readbuffer+$200)
-               S02:0000182E:  C9 07
-F06:0779         bcc .gotdirrent
-               S02:00001830:  90 0F
-F06:0780       
-F06:0781         ; Read another sector
-F06:0782         lda #<fat32_readbuffer
-               S02:00001832:  A9 00
-F06:0783         sta fat32_address
-               S02:00001834:  85 5D
-F06:0784         lda #>fat32_readbuffer
-               S02:00001836:  A9 05
-F06:0785         sta fat32_address+1
-               S02:00001838:  85 5E
-F06:0786       
-F06:0787         jsr fat32_readnextsector
-               S02:0000183A:  20 9A 16
-F06:0788         bcc .gotdirrent
-               S02:0000183D:  90 02
-F06:0789       
-F06:0790       .endofdirectorywrite:
-F06:0791         sec
-               S02:0000183F:  38
-F06:0792         rts
-               S02:00001840:  60
-F06:0793       
-F06:0794       .gotdirrent:
-F06:0795         ; Check first character
-F06:0796         clc
-               S02:00001841:  18
-F06:0797         ldy #0
-               S02:00001842:  A0 00
-F06:0798         lda (zp_sd_address),y
-               S02:00001844:  B1 48
-F06:0799         bne fat32_writedirent ; go again
-               S02:00001846:  D0 D9
-F06:0800         ; End of directory. Now make a new entry.
-F06:0801       .dloop:
-F06:0802         lda (fat32_filenamepointer),y	; copy filename
-               S02:00001848:  B1 78
-F06:0803         sta (zp_sd_address),y
-               S02:0000184A:  91 48
-F06:0804         iny
-               S02:0000184C:  C8
-F06:0805         cpy #$0b
-               S02:0000184D:  C0 0B
-F06:0806         bne .dloop
-               S02:0000184F:  D0 F7
-F06:0807         ; The full Short filename is #11 bytes long so,
-F06:0808         ; this start at 0x0b - File type
-F06:0809         ; BUG assumes that we are making a file, not a folder...
-F06:0810         lda #$20		; File Type: ARCHIVE
-               S02:00001851:  A9 20
-F06:0811         sta (zp_sd_address),y
-               S02:00001853:  91 48
-F06:0812         iny   ; 0x0c - Checksum/File accsess password
-               S02:00001855:  C8
-F06:0813         lda #$10		            ; No checksum or password
-               S02:00001856:  A9 10
-F06:0814         sta (zp_sd_address),y
-               S02:00001858:  91 48
-F06:0815         iny   ; 0x0d - first char of deleted file - 0x7d for nothing
-               S02:0000185A:  C8
-F06:0816         lda #$7D
-               S02:0000185B:  A9 7D
-F06:0817         sta (zp_sd_address),y
-               S02:0000185D:  91 48
-F06:0818         iny	; 0x0e-0x11 - File creation time/date
-               S02:0000185F:  C8
-F06:0819         lda #0
-               S02:00001860:  A9 00
-F06:0820       .empty
-F06:0821         sta (zp_sd_address),y	; No time/date because I don't have an RTC
+F06:0677       fat32_findnextfreecluster:
+F06:0678       ; Find next free cluster
+F06:0679       ; 
+F06:0680       ; This program will search the FAT for an empty entry, and
+F06:0681       ; save the 32-bit cluster number at fat32_lastfoundfreecluter.
+F06:0682       ;
+F06:0683       ; Also sets the carry bit if the SD card is full.
+F06:0684       ;
+F06:0685       
+F06:0686         ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
+F06:0687       
+F06:0688         lda #0
+               S02:000017C3:  A9 00
+F06:0689         sta fat32_nextcluster
+               S02:000017C5:  85 5F
+F06:0690         sta fat32_lastfoundfreecluster
+               S02:000017C7:  85 67
+F06:0691         sta fat32_nextcluster+1
+               S02:000017C9:  85 60
+F06:0692         sta fat32_lastfoundfreecluster+1
+               S02:000017CB:  85 68
+F06:0693         sta fat32_nextcluster+2
+               S02:000017CD:  85 61
+F06:0694         sta fat32_lastfoundfreecluster+2
+               S02:000017CF:  85 69
+F06:0695         sta fat32_nextcluster+3
+               S02:000017D1:  85 62
+F06:0696         sta fat32_lastfoundfreecluster+3
+               S02:000017D3:  85 6A
+F06:0697       
+F06:0698       .searchclusters
+F06:0699       
+F06:0700         ; Seek cluster
+F06:0701         jsr fat32_seekcluster
+               S02:000017D5:  20 C2 15
+F06:0702       
+F06:0703         ; Is the cluster free?
+F06:0704         lda fat32_nextcluster
+               S02:000017D8:  A5 5F
+F06:0705         and #$0f
+               S02:000017DA:  29 0F
+F06:0706         ora fat32_nextcluster+1
+               S02:000017DC:  05 60
+F06:0707         ora fat32_nextcluster+2
+               S02:000017DE:  05 61
+F06:0708         ora fat32_nextcluster+3
+               S02:000017E0:  05 62
+F06:0709         beq .foundcluster
+               S02:000017E2:  F0 21
+F06:0710       
+F06:0711         ; No, increment the cluster count
+F06:0712         inc fat32_lastfoundfreecluster
+               S02:000017E4:  E6 67
+F06:0713         bne .copycluster
+               S02:000017E6:  D0 0A
+F06:0714         inc fat32_lastfoundfreecluster+1
+               S02:000017E8:  E6 68
+F06:0715         bne .copycluster
+               S02:000017EA:  D0 06
+F06:0716         inc fat32_lastfoundfreecluster+2
+               S02:000017EC:  E6 69
+F06:0717         bne .copycluster
+               S02:000017EE:  D0 02
+F06:0718         inc fat32_lastfoundfreecluster+3
+               S02:000017F0:  E6 6A
+F06:0719       
+F06:0720       .copycluster
+F06:0721       
+F06:0722         ; Copy the cluster count to the next cluster
+F06:0723         lda fat32_lastfoundfreecluster
+               S02:000017F2:  A5 67
+F06:0724         sta fat32_nextcluster
+               S02:000017F4:  85 5F
+F06:0725         lda fat32_lastfoundfreecluster+1
+               S02:000017F6:  A5 68
+F06:0726         sta fat32_nextcluster+1
+               S02:000017F8:  85 60
+F06:0727         lda fat32_lastfoundfreecluster+2
+               S02:000017FA:  A5 69
+F06:0728         sta fat32_nextcluster+2
+               S02:000017FC:  85 61
+F06:0729         lda fat32_lastfoundfreecluster+3
+               S02:000017FE:  A5 6A
+F06:0730         sta fat32_nextcluster+3
+               S02:00001800:  85 62
+F06:0731         
+F06:0732         ; Go again for another pass
+F06:0733         jmp .searchclusters
+               S02:00001802:  4C D5 17
+F06:0734       
+F06:0735       .foundcluster
+F06:0736         ; done.
+F06:0737         rts
+               S02:00001805:  60
+F06:0738       
+F06:0739       fat32_opendirent:
+F06:0740         ; Prepare to read/write a file or directory based on a dirent
+F06:0741         ;
+F06:0742         ; Point zp_sd_address at the dirent
+F06:0743       
+F06:0744         ; Remember file size in bytes remaining
+F06:0745         ldy #28
+               S02:00001806:  A0 1C
+F06:0746         lda (zp_sd_address),y
+               S02:00001808:  B1 48
+F06:0747         sta fat32_bytesremaining
+               S02:0000180A:  85 63
+F06:0748         iny
+               S02:0000180C:  C8
+F06:0749         lda (zp_sd_address),y
+               S02:0000180D:  B1 48
+F06:0750         sta fat32_bytesremaining+1
+               S02:0000180F:  85 64
+F06:0751         iny
+               S02:00001811:  C8
+F06:0752         lda (zp_sd_address),y
+               S02:00001812:  B1 48
+F06:0753         sta fat32_bytesremaining+2
+               S02:00001814:  85 65
+F06:0754         iny
+               S02:00001816:  C8
+F06:0755         lda (zp_sd_address),y
+               S02:00001817:  B1 48
+F06:0756         sta fat32_bytesremaining+3
+               S02:00001819:  85 66
+F06:0757       
+F06:0758         ; Seek to first cluster
+F06:0759         ldy #26
+               S02:0000181B:  A0 1A
+F06:0760         lda (zp_sd_address),y
+               S02:0000181D:  B1 48
+F06:0761         sta fat32_nextcluster
+               S02:0000181F:  85 5F
+F06:0762         iny
+               S02:00001821:  C8
+F06:0763         lda (zp_sd_address),y
+               S02:00001822:  B1 48
+F06:0764         sta fat32_nextcluster+1
+               S02:00001824:  85 60
+F06:0765         ldy #20
+               S02:00001826:  A0 14
+F06:0766         lda (zp_sd_address),y
+               S02:00001828:  B1 48
+F06:0767         sta fat32_nextcluster+2
+               S02:0000182A:  85 61
+F06:0768         iny
+               S02:0000182C:  C8
+F06:0769         lda (zp_sd_address),y
+               S02:0000182D:  B1 48
+F06:0770         sta fat32_nextcluster+3
+               S02:0000182F:  85 62
+F06:0771       
+F06:0772         jsr fat32_seekcluster
+               S02:00001831:  20 C2 15
+F06:0773       
+F06:0774         ; Set the pointer to a large value so we always read a sector the first time through
+F06:0775         lda #$ff
+               S02:00001834:  A9 FF
+F06:0776         sta zp_sd_address+1
+               S02:00001836:  85 49
+F06:0777       
+F06:0778         rts
+               S02:00001838:  60
+F06:0779       
+F06:0780       fat32_writedirent:
+F06:0781         ; Write a directory entry from the open directory
+F06:0782         ; requires:
+F06:0783         ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
+F06:0784         ;   and the processes of:
+F06:0785         ;     fat32_finddirent
+F06:0786         ;     fat32_findnextfreecluster
+F06:0787         ; BUG fix windows-specific stuff so i can read a written file on my pc
+F06:0788       
+F06:0789         ; Increment pointer by 32 to point to next entry
+F06:0790         clc
+               S02:00001839:  18
+F06:0791         lda zp_sd_address
+               S02:0000183A:  A5 48
+F06:0792         adc #32
+               S02:0000183C:  69 20
+F06:0793         sta zp_sd_address
+               S02:0000183E:  85 48
+F06:0794         lda zp_sd_address+1
+               S02:00001840:  A5 49
+F06:0795         adc #0
+               S02:00001842:  69 00
+F06:0796         sta zp_sd_address+1
+               S02:00001844:  85 49
+F06:0797       
+F06:0798         ; If it's not at the end of the buffer, we have data already
+F06:0799         cmp #>(fat32_readbuffer+$200)
+               S02:00001846:  C9 07
+F06:0800         bcc .gotdirrent
+               S02:00001848:  90 0F
+F06:0801       
+F06:0802         ; Read another sector
+F06:0803         lda #<fat32_readbuffer
+               S02:0000184A:  A9 00
+F06:0804         sta fat32_address
+               S02:0000184C:  85 5D
+F06:0805         lda #>fat32_readbuffer
+               S02:0000184E:  A9 05
+F06:0806         sta fat32_address+1
+               S02:00001850:  85 5E
+F06:0807       
+F06:0808         jsr fat32_readnextsector
+               S02:00001852:  20 9A 16
+F06:0809         bcc .gotdirrent
+               S02:00001855:  90 02
+F06:0810       
+F06:0811       .endofdirectorywrite:
+F06:0812         sec
+               S02:00001857:  38
+F06:0813         rts
+               S02:00001858:  60
+F06:0814       
+F06:0815       .gotdirrent:
+F06:0816         ; Check first character
+F06:0817         clc
+               S02:00001859:  18
+F06:0818         ldy #0
+               S02:0000185A:  A0 00
+F06:0819         lda (zp_sd_address),y
+               S02:0000185C:  B1 48
+F06:0820         bne fat32_writedirent ; go again
+               S02:0000185E:  D0 D9
+F06:0821         ; End of directory. Now make a new entry.
+F06:0822       .dloop:
+F06:0823         lda (fat32_filenamepointer),y	; copy filename
+               S02:00001860:  B1 78
+F06:0824         sta (zp_sd_address),y
                S02:00001862:  91 48
-F06:0822         iny
+F06:0825         iny
                S02:00001864:  C8
-F06:0823         cpy #$14 ; also empty the user ID (0x12-0x13)
-               S02:00001865:  C0 14
-F06:0824         bne .empty
-               S02:00001867:  D0 F9
-F06:0825         ;sta (zp_sd_address),y
-F06:0826         ;iny
-F06:0827         ;sta (zp_sd_address),y
-F06:0828         ;iny
-F06:0829         ;sta (zp_sd_address),y
-F06:0830         ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Directory_entry 
-F06:0831         ; show the "Directory entry" table and look at at 0x0E onward.
-F06:0832         ;iny   ; 0x12-0x13 - User ID
-F06:0833         ;lda #0
-F06:0834         ;sta (zp_sd_address),y	; No ID
-F06:0835         ;iny
-F06:0836         ;sta (zp_sd_address),y
-F06:0837         ;iny 
-F06:0838         ; 0x14-0x15 - File start cluster (high word)
-F06:0839         lda fat32_lastfoundfreecluster+2
-               S02:00001869:  A5 69
-F06:0840         sta (zp_sd_address),y
+F06:0826         cpy #$0b
+               S02:00001865:  C0 0B
+F06:0827         bne .dloop
+               S02:00001867:  D0 F7
+F06:0828         ; The full Short filename is #11 bytes long so,
+F06:0829         ; this start at 0x0b - File type
+F06:0830         ; BUG assumes that we are making a file, not a folder...
+F06:0831         lda #$20		; File Type: ARCHIVE
+               S02:00001869:  A9 20
+F06:0832         sta (zp_sd_address),y
                S02:0000186B:  91 48
-F06:0841         iny
+F06:0833         iny   ; 0x0c - Checksum/File accsess password
                S02:0000186D:  C8
-F06:0842         lda fat32_lastfoundfreecluster+3
-               S02:0000186E:  A5 6A
-F06:0843         sta (zp_sd_address),y
+F06:0834         lda #$10		            ; No checksum or password
+               S02:0000186E:  A9 10
+F06:0835         sta (zp_sd_address),y
                S02:00001870:  91 48
-F06:0844         iny ; 0x16-0x19 - File modifiaction date
+F06:0836         iny   ; 0x0d - first char of deleted file - 0x7d for nothing
                S02:00001872:  C8
-F06:0845         lda #0
-               S02:00001873:  A9 00
-F06:0846         sta (zp_sd_address),y
+F06:0837         lda #$7D
+               S02:00001873:  A9 7D
+F06:0838         sta (zp_sd_address),y
                S02:00001875:  91 48
-F06:0847         iny
+F06:0839         iny	; 0x0e-0x11 - File creation time/date
                S02:00001877:  C8
-F06:0848         sta (zp_sd_address),y   ; no rtc
-               S02:00001878:  91 48
-F06:0849         iny
-               S02:0000187A:  C8
-F06:0850         sta (zp_sd_address),y
-               S02:0000187B:  91 48
-F06:0851         iny
-               S02:0000187D:  C8
-F06:0852         sta (zp_sd_address),y
-               S02:0000187E:  91 48
-F06:0853         iny ; 0x1a-0x1b - File start cluster (low word)
-               S02:00001880:  C8
-F06:0854         lda fat32_lastfoundfreecluster
-               S02:00001881:  A5 67
-F06:0855         sta (zp_sd_address),y
-               S02:00001883:  91 48
-F06:0856         iny
-               S02:00001885:  C8
-F06:0857         lda fat32_lastfoundfreecluster+1
-               S02:00001886:  A5 68
-F06:0858         sta (zp_sd_address),y
-               S02:00001888:  91 48
-F06:0859         iny ; 0x1c-0x1f File size in bytes
-               S02:0000188A:  C8
-F06:0860         lda fat32_bytesremaining
-               S02:0000188B:  A5 63
+F06:0840         lda #0
+               S02:00001878:  A9 00
+F06:0841       .empty
+F06:0842         sta (zp_sd_address),y	; No time/date because I don't have an RTC
+               S02:0000187A:  91 48
+F06:0843         iny
+               S02:0000187C:  C8
+F06:0844         cpy #$14 ; also empty the user ID (0x12-0x13)
+               S02:0000187D:  C0 14
+F06:0845         bne .empty
+               S02:0000187F:  D0 F9
+F06:0846         ;sta (zp_sd_address),y
+F06:0847         ;iny
+F06:0848         ;sta (zp_sd_address),y
+F06:0849         ;iny
+F06:0850         ;sta (zp_sd_address),y
+F06:0851         ; if you have an RTC, refer to https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Directory_entry 
+F06:0852         ; show the "Directory entry" table and look at at 0x0E onward.
+F06:0853         ;iny   ; 0x12-0x13 - User ID
+F06:0854         ;lda #0
+F06:0855         ;sta (zp_sd_address),y	; No ID
+F06:0856         ;iny
+F06:0857         ;sta (zp_sd_address),y
+F06:0858         ;iny 
+F06:0859         ; 0x14-0x15 - File start cluster (high word)
+F06:0860         lda fat32_lastfoundfreecluster+2
+               S02:00001881:  A5 69
 F06:0861         sta (zp_sd_address),y
-               S02:0000188D:  91 48
+               S02:00001883:  91 48
 F06:0862         iny
-               S02:0000188F:  C8
-F06:0863         lda fat32_bytesremaining+1
-               S02:00001890:  A5 64
+               S02:00001885:  C8
+F06:0863         lda fat32_lastfoundfreecluster+3
+               S02:00001886:  A5 6A
 F06:0864         sta (zp_sd_address),y
-               S02:00001892:  91 48
-F06:0865         iny
-               S02:00001894:  C8
+               S02:00001888:  91 48
+F06:0865         iny ; 0x16-0x19 - File modifiaction date
+               S02:0000188A:  C8
 F06:0866         lda #0
-               S02:00001895:  A9 00
-F06:0867         sta (zp_sd_address),y ; Not bigger that 64k
-               S02:00001897:  91 48
+               S02:0000188B:  A9 00
+F06:0867         sta (zp_sd_address),y
+               S02:0000188D:  91 48
 F06:0868         iny
-               S02:00001899:  C8
-F06:0869         sta (zp_sd_address),y
-               S02:0000189A:  91 48
+               S02:0000188F:  C8
+F06:0869         sta (zp_sd_address),y   ; no rtc
+               S02:00001890:  91 48
 F06:0870         iny
-               S02:0000189C:  C8
-F06:0871         ; are we over the buffer?
-F06:0872         lda zp_sd_address+1
-               S02:0000189D:  A5 49
-F06:0873         cmp #>(fat32_readbuffer+$200)
-               S02:0000189F:  C9 07
-F06:0874         bcc .notoverbuffer
-               S02:000018A1:  90 12
-F06:0875         jsr .wr ; if so, write the current sector
-               S02:000018A3:  20 C0 18
-F06:0876         jsr fat32_readnextsector  ; then read the next one.
-               S02:000018A6:  20 9A 16
-F06:0877         bcs .dfail
-               S02:000018A9:  B0 13
-F06:0878         ldy #0
-               S02:000018AB:  A0 00
-F06:0879         lda #<fat32_readbuffer
+               S02:00001892:  C8
+F06:0871         sta (zp_sd_address),y
+               S02:00001893:  91 48
+F06:0872         iny
+               S02:00001895:  C8
+F06:0873         sta (zp_sd_address),y
+               S02:00001896:  91 48
+F06:0874         iny ; 0x1a-0x1b - File start cluster (low word)
+               S02:00001898:  C8
+F06:0875         lda fat32_lastfoundfreecluster
+               S02:00001899:  A5 67
+F06:0876         sta (zp_sd_address),y
+               S02:0000189B:  91 48
+F06:0877         iny
+               S02:0000189D:  C8
+F06:0878         lda fat32_lastfoundfreecluster+1
+               S02:0000189E:  A5 68
+F06:0879         sta (zp_sd_address),y
+               S02:000018A0:  91 48
+F06:0880         iny ; 0x1c-0x1f File size in bytes
+               S02:000018A2:  C8
+F06:0881         lda fat32_bytesremaining
+               S02:000018A3:  A5 63
+F06:0882         sta (zp_sd_address),y
+               S02:000018A5:  91 48
+F06:0883         iny
+               S02:000018A7:  C8
+F06:0884         lda fat32_bytesremaining+1
+               S02:000018A8:  A5 64
+F06:0885         sta (zp_sd_address),y
+               S02:000018AA:  91 48
+F06:0886         iny
+               S02:000018AC:  C8
+F06:0887         lda #0
                S02:000018AD:  A9 00
-F06:0880         sta zp_sd_address
-               S02:000018AF:  85 48
-F06:0881         lda #>fat32_readbuffer
-               S02:000018B1:  A9 05
-F06:0882         sta zp_sd_address+1
-               S02:000018B3:  85 49
-F06:0883       .notoverbuffer
-F06:0884         ; next entry is 0 (end of dir)
-F06:0885         lda #0
-               S02:000018B5:  A9 00
-F06:0886         sta (zp_sd_address),y
-               S02:000018B7:  91 48
-F06:0887         ;jsr fat32_writenextsector ; write all the data...
-F06:0888         jsr .wr
-               S02:000018B9:  20 C0 18
-F06:0889         clc
-               S02:000018BC:  18
-F06:0890         rts
-               S02:000018BD:  60
-F06:0891       
-F06:0892       .dfail:
-F06:0893         ; Card Full
-F06:0894         sec
-               S02:000018BE:  38
-F06:0895         rts
-               S02:000018BF:  60
-F06:0896       
-F06:0897       .wr
-F06:0898       
-F06:0899         ; fix thingy
-F06:0900         lda zp_sd_currentsector
-               S02:000018C0:  A5 4A
-F06:0901         bne .skip
-               S02:000018C2:  D0 0A
-F06:0902         dec zp_sd_currentsector+1
-               S02:000018C4:  C6 4B
-F06:0903         bne .skip
-               S02:000018C6:  D0 06
-F06:0904         dec zp_sd_currentsector+2
-               S02:000018C8:  C6 4C
-F06:0905         bne .skip
-               S02:000018CA:  D0 02
-F06:0906         dec zp_sd_currentsector+3
-               S02:000018CC:  C6 4D
-F06:0907       
-F06:0908       .skip
-F06:0909         dec zp_sd_currentsector
-               S02:000018CE:  C6 4A
-F06:0910       
-F06:0911       .nodec
+F06:0888         sta (zp_sd_address),y ; Not bigger that 64k
+               S02:000018AF:  91 48
+F06:0889         iny
+               S02:000018B1:  C8
+F06:0890         sta (zp_sd_address),y
+               S02:000018B2:  91 48
+F06:0891         iny
+               S02:000018B4:  C8
+F06:0892         ; are we over the buffer?
+F06:0893         lda zp_sd_address+1
+               S02:000018B5:  A5 49
+F06:0894         cmp #>(fat32_readbuffer+$200)
+               S02:000018B7:  C9 07
+F06:0895         bcc .notoverbuffer
+               S02:000018B9:  90 12
+F06:0896         jsr .wr ; if so, write the current sector
+               S02:000018BB:  20 D8 18
+F06:0897         jsr fat32_readnextsector  ; then read the next one.
+               S02:000018BE:  20 9A 16
+F06:0898         bcs .dfail
+               S02:000018C1:  B0 13
+F06:0899         ldy #0
+               S02:000018C3:  A0 00
+F06:0900         lda #<fat32_readbuffer
+               S02:000018C5:  A9 00
+F06:0901         sta zp_sd_address
+               S02:000018C7:  85 48
+F06:0902         lda #>fat32_readbuffer
+               S02:000018C9:  A9 05
+F06:0903         sta zp_sd_address+1
+               S02:000018CB:  85 49
+F06:0904       .notoverbuffer
+F06:0905         ; next entry is 0 (end of dir)
+F06:0906         lda #0
+               S02:000018CD:  A9 00
+F06:0907         sta (zp_sd_address),y
+               S02:000018CF:  91 48
+F06:0908         ;jsr fat32_writenextsector ; write all the data...
+F06:0909         jsr .wr
+               S02:000018D1:  20 D8 18
+F06:0910         clc
+               S02:000018D4:  18
+F06:0911         rts
+               S02:000018D5:  60
 F06:0912       
-F06:0913         lda fat32_address
-               S02:000018D0:  A5 5D
-F06:0914         sta zp_sd_address
-               S02:000018D2:  85 48
-F06:0915         lda fat32_address+1
-               S02:000018D4:  A5 5E
-F06:0916         sta zp_sd_address+1
-               S02:000018D6:  85 49
+F06:0913       .dfail:
+F06:0914         ; Card Full
+F06:0915         sec
+               S02:000018D6:  38
+F06:0916         rts
+               S02:000018D7:  60
 F06:0917       
-F06:0918         ; Read the sector
-F06:0919         jsr sd_writesector
-               S02:000018D8:  20 54 14
-F06:0920       
-F06:0921         ; Advance to next sector
-F06:0922         inc zp_sd_currentsector
-               S02:000018DB:  E6 4A
-F06:0923         bne .sectorincrementdone
-               S02:000018DD:  D0 0A
-F06:0924         inc zp_sd_currentsector+1
-               S02:000018DF:  E6 4B
-F06:0925         bne .sectorincrementdone
-               S02:000018E1:  D0 06
-F06:0926         inc zp_sd_currentsector+2
-               S02:000018E3:  E6 4C
-F06:0927         bne .sectorincrementdone
-               S02:000018E5:  D0 02
-F06:0928         inc zp_sd_currentsector+3
-               S02:000018E7:  E6 4D
-F06:0929       
-F06:0930       .sectorincrementdone
-F06:0931         rts
-               S02:000018E9:  60
-F06:0932       
-F06:0933       fat32_readdirent:
-F06:0934         ; Read a directory entry from the open directory
-F06:0935         ;
-F06:0936         ; On exit the carry is set if there were no more directory entries.
-F06:0937         ;
-F06:0938         ; Otherwise, A is set to the file's attribute byte and
-F06:0939         ; zp_sd_address points at the returned directory entry.
-F06:0940         ; LFNs and empty entries are ignored automatically.
+F06:0918       .wr
+F06:0919       
+F06:0920         ; fix thingy
+F06:0921         lda zp_sd_currentsector
+               S02:000018D8:  A5 4A
+F06:0922         bne .skip
+               S02:000018DA:  D0 0A
+F06:0923         dec zp_sd_currentsector+1
+               S02:000018DC:  C6 4B
+F06:0924         bne .skip
+               S02:000018DE:  D0 06
+F06:0925         dec zp_sd_currentsector+2
+               S02:000018E0:  C6 4C
+F06:0926         bne .skip
+               S02:000018E2:  D0 02
+F06:0927         dec zp_sd_currentsector+3
+               S02:000018E4:  C6 4D
+F06:0928       
+F06:0929       .skip
+F06:0930         dec zp_sd_currentsector
+               S02:000018E6:  C6 4A
+F06:0931       
+F06:0932       .nodec
+F06:0933       
+F06:0934         lda fat32_address
+               S02:000018E8:  A5 5D
+F06:0935         sta zp_sd_address
+               S02:000018EA:  85 48
+F06:0936         lda fat32_address+1
+               S02:000018EC:  A5 5E
+F06:0937         sta zp_sd_address+1
+               S02:000018EE:  85 49
+F06:0938       
+F06:0939         ; Read the sector
+F06:0940         jsr sd_writesector
+               S02:000018F0:  20 54 14
 F06:0941       
-F06:0942         ; Increment pointer by 32 to point to next entry
-F06:0943         clc
-               S02:000018EA:  18
-F06:0944         lda zp_sd_address
-               S02:000018EB:  A5 48
-F06:0945         adc #32
-               S02:000018ED:  69 20
-F06:0946         sta zp_sd_address
-               S02:000018EF:  85 48
-F06:0947         lda zp_sd_address+1
-               S02:000018F1:  A5 49
-F06:0948         adc #0
-               S02:000018F3:  69 00
-F06:0949         sta zp_sd_address+1
-               S02:000018F5:  85 49
+F06:0942         ; Advance to next sector
+F06:0943         inc zp_sd_currentsector
+               S02:000018F3:  E6 4A
+F06:0944         bne .sectorincrementdone
+               S02:000018F5:  D0 0A
+F06:0945         inc zp_sd_currentsector+1
+               S02:000018F7:  E6 4B
+F06:0946         bne .sectorincrementdone
+               S02:000018F9:  D0 06
+F06:0947         inc zp_sd_currentsector+2
+               S02:000018FB:  E6 4C
+F06:0948         bne .sectorincrementdone
+               S02:000018FD:  D0 02
+F06:0949         inc zp_sd_currentsector+3
+               S02:000018FF:  E6 4D
 F06:0950       
-F06:0951         ; If it's not at the end of the buffer, we have data already
-F06:0952         cmp #>(fat32_readbuffer+$200)
-               S02:000018F7:  C9 07
-F06:0953         bcc .gotdata
-               S02:000018F9:  90 0F
-F06:0954       
-F06:0955         ; Read another sector
-F06:0956         lda #<fat32_readbuffer
-               S02:000018FB:  A9 00
-F06:0957         sta fat32_address
-               S02:000018FD:  85 5D
-F06:0958         lda #>fat32_readbuffer
-               S02:000018FF:  A9 05
-F06:0959         sta fat32_address+1
-               S02:00001901:  85 5E
-F06:0960       
-F06:0961         jsr fat32_readnextsector
-               S02:00001903:  20 9A 16
-F06:0962         bcc .gotdata
-               S02:00001906:  90 02
-F06:0963       
-F06:0964       .endofdirectory:
-F06:0965         sec
-               S02:00001908:  38
-F06:0966         rts
-               S02:00001909:  60
-F06:0967       
-F06:0968       .gotdata:
-F06:0969         ; Check first character
-F06:0970         ldy #0
-               S02:0000190A:  A0 00
-F06:0971         lda (zp_sd_address),y
-               S02:0000190C:  B1 48
-F06:0972       
-F06:0973         ; End of directory => abort
-F06:0974         beq .endofdirectory
-               S02:0000190E:  F0 F8
+F06:0951       .sectorincrementdone
+F06:0952         rts
+               S02:00001901:  60
+F06:0953       
+F06:0954       fat32_readdirent:
+F06:0955         ; Read a directory entry from the open directory
+F06:0956         ;
+F06:0957         ; On exit the carry is set if there were no more directory entries.
+F06:0958         ;
+F06:0959         ; Otherwise, A is set to the file's attribute byte and
+F06:0960         ; zp_sd_address points at the returned directory entry.
+F06:0961         ; LFNs and empty entries are ignored automatically.
+F06:0962       
+F06:0963         ; Increment pointer by 32 to point to next entry
+F06:0964         clc
+               S02:00001902:  18
+F06:0965         lda zp_sd_address
+               S02:00001903:  A5 48
+F06:0966         adc #32
+               S02:00001905:  69 20
+F06:0967         sta zp_sd_address
+               S02:00001907:  85 48
+F06:0968         lda zp_sd_address+1
+               S02:00001909:  A5 49
+F06:0969         adc #0
+               S02:0000190B:  69 00
+F06:0970         sta zp_sd_address+1
+               S02:0000190D:  85 49
+F06:0971       
+F06:0972         ; If it's not at the end of the buffer, we have data already
+F06:0973         cmp #>(fat32_readbuffer+$200)
+               S02:0000190F:  C9 07
+F06:0974         bcc .gotdata
+               S02:00001911:  90 0F
 F06:0975       
-F06:0976         ; Empty entry => start again
-F06:0977         cmp #$e5
-               S02:00001910:  C9 E5
-F06:0978         beq fat32_readdirent
-               S02:00001912:  F0 D6
-F06:0979       
-F06:0980         ; Check attributes
-F06:0981         ldy #11
-               S02:00001914:  A0 0B
-F06:0982         lda (zp_sd_address),y
-               S02:00001916:  B1 48
-F06:0983         and #$3f
-               S02:00001918:  29 3F
-F06:0984         cmp #$0f ; LFN => start again
-               S02:0000191A:  C9 0F
-F06:0985         beq fat32_readdirent
-               S02:0000191C:  F0 CC
-F06:0986       
-F06:0987         ; Yield this result
-F06:0988         clc
-               S02:0000191E:  18
-F06:0989         rts
-               S02:0000191F:  60
-F06:0990       
-F06:0991       
-F06:0992       fat32_finddirent:
-F06:0993         ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
-F06:0994         ; The directory should already be open for iteration.
-F06:0995       
-F06:0996         ; Form ZP pointer to user's filename
-F06:0997         stx fat32_filenamepointer
-               S02:00001920:  86 78
-F06:0998         sty fat32_filenamepointer+1
-               S02:00001922:  84 79
-F06:0999         
-F06:1000         ; Iterate until name is found or end of directory
-F06:1001       .direntloop:
-F06:1002         jsr fat32_readdirent
-               S02:00001924:  20 EA 18
-F06:1003         ldy #10
-               S02:00001927:  A0 0A
-F06:1004         bcc .comparenameloop
-               S02:00001929:  90 01
-F06:1005         rts ; with carry set
-               S02:0000192B:  60
-F06:1006       
-F06:1007       .comparenameloop:
-F06:1008         lda (zp_sd_address),y
-               S02:0000192C:  B1 48
-F06:1009         cmp (fat32_filenamepointer),y
-               S02:0000192E:  D1 78
-F06:1010         bne .direntloop ; no match
-               S02:00001930:  D0 F2
-F06:1011         dey
-               S02:00001932:  88
-F06:1012         bpl .comparenameloop
-               S02:00001933:  10 F7
-F06:1013       
-F06:1014         ; Found it
-F06:1015         clc
-               S02:00001935:  18
-F06:1016         rts
-               S02:00001936:  60
-F06:1017       
-F06:1018       
-F06:1019       fat32_file_readbyte:
-F06:1020         ; Read a byte from an open file
-F06:1021         ;
-F06:1022         ; The byte is returned in A with C clear; or if end-of-file was reached, C is set instead
-F06:1023       
-F06:1024         sec
-               S02:00001937:  38
-F06:1025       
-F06:1026         ; Is there any data to read at all?
-F06:1027         lda fat32_bytesremaining
-               S02:00001938:  A5 63
-F06:1028         ora fat32_bytesremaining+1
-               S02:0000193A:  05 64
-F06:1029         ora fat32_bytesremaining+2
-               S02:0000193C:  05 65
-F06:1030         ora fat32_bytesremaining+3
-               S02:0000193E:  05 66
-F06:1031         beq .rts
-               S02:00001940:  F0 3D
-F06:1032       
-F06:1033         ; Decrement the remaining byte count
-F06:1034         lda fat32_bytesremaining
-               S02:00001942:  A5 63
-F06:1035         sbc #1
-               S02:00001944:  E9 01
-F06:1036         sta fat32_bytesremaining
-               S02:00001946:  85 63
-F06:1037         lda fat32_bytesremaining+1
-               S02:00001948:  A5 64
-F06:1038         sbc #0
-               S02:0000194A:  E9 00
-F06:1039         sta fat32_bytesremaining+1
-               S02:0000194C:  85 64
-F06:1040         lda fat32_bytesremaining+2
-               S02:0000194E:  A5 65
-F06:1041         sbc #0
-               S02:00001950:  E9 00
-F06:1042         sta fat32_bytesremaining+2
-               S02:00001952:  85 65
-F06:1043         lda fat32_bytesremaining+3
-               S02:00001954:  A5 66
-F06:1044         sbc #0
-               S02:00001956:  E9 00
-F06:1045         sta fat32_bytesremaining+3
-               S02:00001958:  85 66
-F06:1046         
-F06:1047         ; Need to read a new sector?
-F06:1048         lda zp_sd_address+1
-               S02:0000195A:  A5 49
-F06:1049         cmp #>(fat32_readbuffer+$200)
-               S02:0000195C:  C9 07
-F06:1050         bcc .gotdata
-               S02:0000195E:  90 0D
-F06:1051       
-F06:1052         ; Read another sector
-F06:1053         lda #<fat32_readbuffer
-               S02:00001960:  A9 00
-F06:1054         sta fat32_address
-               S02:00001962:  85 5D
-F06:1055         lda #>fat32_readbuffer
-               S02:00001964:  A9 05
-F06:1056         sta fat32_address+1
-               S02:00001966:  85 5E
-F06:1057       
-F06:1058         jsr fat32_readnextsector
-               S02:00001968:  20 9A 16
-F06:1059         bcs .rts                    ; this shouldn't happen
-               S02:0000196B:  B0 12
-F06:1060       
-F06:1061       .gotdata:
-F06:1062         ldy #0
-               S02:0000196D:  A0 00
-F06:1063         lda (zp_sd_address),y
-               S02:0000196F:  B1 48
-F06:1064       
-F06:1065         inc zp_sd_address
-               S02:00001971:  E6 48
-F06:1066         bne .rts
-               S02:00001973:  D0 0A
-F06:1067         inc zp_sd_address+1
-               S02:00001975:  E6 49
-F06:1068         bne .rts
-               S02:00001977:  D0 06
-F06:1069         inc zp_sd_address+2
-               S02:00001979:  E6 4A
-F06:1070         bne .rts
-               S02:0000197B:  D0 02
-F06:1071         inc zp_sd_address+3
-               S02:0000197D:  E6 4B
+F06:0976         ; Read another sector
+F06:0977         lda #<fat32_readbuffer
+               S02:00001913:  A9 00
+F06:0978         sta fat32_address
+               S02:00001915:  85 5D
+F06:0979         lda #>fat32_readbuffer
+               S02:00001917:  A9 05
+F06:0980         sta fat32_address+1
+               S02:00001919:  85 5E
+F06:0981       
+F06:0982         jsr fat32_readnextsector
+               S02:0000191B:  20 9A 16
+F06:0983         bcc .gotdata
+               S02:0000191E:  90 02
+F06:0984       
+F06:0985       .endofdirectory:
+F06:0986         sec
+               S02:00001920:  38
+F06:0987         rts
+               S02:00001921:  60
+F06:0988       
+F06:0989       .gotdata:
+F06:0990         ; Check first character
+F06:0991         ldy #0
+               S02:00001922:  A0 00
+F06:0992         lda (zp_sd_address),y
+               S02:00001924:  B1 48
+F06:0993       
+F06:0994         ; End of directory => abort
+F06:0995         beq .endofdirectory
+               S02:00001926:  F0 F8
+F06:0996       
+F06:0997         ; Empty entry => start again
+F06:0998         cmp #$e5
+               S02:00001928:  C9 E5
+F06:0999         beq fat32_readdirent
+               S02:0000192A:  F0 D6
+F06:1000       
+F06:1001         ; Check attributes
+F06:1002         ldy #11
+               S02:0000192C:  A0 0B
+F06:1003         lda (zp_sd_address),y
+               S02:0000192E:  B1 48
+F06:1004         and #$3f
+               S02:00001930:  29 3F
+F06:1005         cmp #$0f ; LFN => start again
+               S02:00001932:  C9 0F
+F06:1006         beq fat32_readdirent
+               S02:00001934:  F0 CC
+F06:1007       
+F06:1008         ; Yield this result
+F06:1009         clc
+               S02:00001936:  18
+F06:1010         rts
+               S02:00001937:  60
+F06:1011       
+F06:1012       
+F06:1013       fat32_finddirent:
+F06:1014         ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
+F06:1015         ; The directory should already be open for iteration.
+F06:1016       
+F06:1017         ; Form ZP pointer to user's filename
+F06:1018         stx fat32_filenamepointer
+               S02:00001938:  86 78
+F06:1019         sty fat32_filenamepointer+1
+               S02:0000193A:  84 79
+F06:1020         
+F06:1021         ; Iterate until name is found or end of directory
+F06:1022       .direntloop:
+F06:1023         jsr fat32_readdirent
+               S02:0000193C:  20 02 19
+F06:1024         ldy #10
+               S02:0000193F:  A0 0A
+F06:1025         bcc .comparenameloop
+               S02:00001941:  90 01
+F06:1026         rts ; with carry set
+               S02:00001943:  60
+F06:1027       
+F06:1028       .comparenameloop:
+F06:1029         lda (zp_sd_address),y
+               S02:00001944:  B1 48
+F06:1030         cmp (fat32_filenamepointer),y
+               S02:00001946:  D1 78
+F06:1031         bne .direntloop ; no match
+               S02:00001948:  D0 F2
+F06:1032         dey
+               S02:0000194A:  88
+F06:1033         bpl .comparenameloop
+               S02:0000194B:  10 F7
+F06:1034       
+F06:1035         ; Found it
+F06:1036         clc
+               S02:0000194D:  18
+F06:1037         rts
+               S02:0000194E:  60
+F06:1038       
+F06:1039       
+F06:1040       fat32_file_readbyte:
+F06:1041         ; Read a byte from an open file
+F06:1042         ;
+F06:1043         ; The byte is returned in A with C clear; or if end-of-file was reached, C is set instead
+F06:1044       
+F06:1045         sec
+               S02:0000194F:  38
+F06:1046       
+F06:1047         ; Is there any data to read at all?
+F06:1048         lda fat32_bytesremaining
+               S02:00001950:  A5 63
+F06:1049         ora fat32_bytesremaining+1
+               S02:00001952:  05 64
+F06:1050         ora fat32_bytesremaining+2
+               S02:00001954:  05 65
+F06:1051         ora fat32_bytesremaining+3
+               S02:00001956:  05 66
+F06:1052         beq .rts
+               S02:00001958:  F0 3D
+F06:1053       
+F06:1054         ; Decrement the remaining byte count
+F06:1055         lda fat32_bytesremaining
+               S02:0000195A:  A5 63
+F06:1056         sbc #1
+               S02:0000195C:  E9 01
+F06:1057         sta fat32_bytesremaining
+               S02:0000195E:  85 63
+F06:1058         lda fat32_bytesremaining+1
+               S02:00001960:  A5 64
+F06:1059         sbc #0
+               S02:00001962:  E9 00
+F06:1060         sta fat32_bytesremaining+1
+               S02:00001964:  85 64
+F06:1061         lda fat32_bytesremaining+2
+               S02:00001966:  A5 65
+F06:1062         sbc #0
+               S02:00001968:  E9 00
+F06:1063         sta fat32_bytesremaining+2
+               S02:0000196A:  85 65
+F06:1064         lda fat32_bytesremaining+3
+               S02:0000196C:  A5 66
+F06:1065         sbc #0
+               S02:0000196E:  E9 00
+F06:1066         sta fat32_bytesremaining+3
+               S02:00001970:  85 66
+F06:1067         
+F06:1068         ; Need to read a new sector?
+F06:1069         lda zp_sd_address+1
+               S02:00001972:  A5 49
+F06:1070         cmp #>(fat32_readbuffer+$200)
+               S02:00001974:  C9 07
+F06:1071         bcc .gotdata
+               S02:00001976:  90 0D
 F06:1072       
-F06:1073       .rts:
-F06:1074         rts
-               S02:0000197F:  60
-F06:1075       
-F06:1076       
-F06:1077       fat32_file_read:
-F06:1078         ; Read a whole file into memory.  It's assumed the file has just been opened 
-F06:1079         ; and no data has been read yet.
-F06:1080         ;
-F06:1081         ; Also we read whole sectors, so data in the target region beyond the end of the 
-F06:1082         ; file may get overwritten, up to the next 512-byte boundary.
-F06:1083         ;
-F06:1084         ; And we don't properly support 64k+ files, as it's unnecessary complication given
-F06:1085         ; the 6502's small address space
-F06:1086       
-F06:1087         ; Round the size up to the next whole sector
-F06:1088         lda fat32_bytesremaining
-               S02:00001980:  A5 63
-F06:1089         cmp #1                      ; set carry if bottom 8 bits not zero
-               S02:00001982:  C9 01
-F06:1090         lda fat32_bytesremaining+1
-               S02:00001984:  A5 64
-F06:1091         adc #0                      ; add carry, if any
-               S02:00001986:  69 00
-F06:1092         lsr                         ; divide by 2
-               S02:00001988:  4A
-F06:1093         adc #0                      ; round up
-               S02:00001989:  69 00
-F06:1094       
-F06:1095         ; No data?
-F06:1096         beq .done
-               S02:0000198B:  F0 12
+F06:1073         ; Read another sector
+F06:1074         lda #<fat32_readbuffer
+               S02:00001978:  A9 00
+F06:1075         sta fat32_address
+               S02:0000197A:  85 5D
+F06:1076         lda #>fat32_readbuffer
+               S02:0000197C:  A9 05
+F06:1077         sta fat32_address+1
+               S02:0000197E:  85 5E
+F06:1078       
+F06:1079         jsr fat32_readnextsector
+               S02:00001980:  20 9A 16
+F06:1080         bcs .rts                    ; this shouldn't happen
+               S02:00001983:  B0 12
+F06:1081       
+F06:1082       .gotdata:
+F06:1083         ldy #0
+               S02:00001985:  A0 00
+F06:1084         lda (zp_sd_address),y
+               S02:00001987:  B1 48
+F06:1085       
+F06:1086         inc zp_sd_address
+               S02:00001989:  E6 48
+F06:1087         bne .rts
+               S02:0000198B:  D0 0A
+F06:1088         inc zp_sd_address+1
+               S02:0000198D:  E6 49
+F06:1089         bne .rts
+               S02:0000198F:  D0 06
+F06:1090         inc zp_sd_address+2
+               S02:00001991:  E6 4A
+F06:1091         bne .rts
+               S02:00001993:  D0 02
+F06:1092         inc zp_sd_address+3
+               S02:00001995:  E6 4B
+F06:1093       
+F06:1094       .rts:
+F06:1095         rts
+               S02:00001997:  60
+F06:1096       
 F06:1097       
-F06:1098         ; Store sector count - not a byte count any more
-F06:1099         sta fat32_bytesremaining
-               S02:0000198D:  85 63
-F06:1100       
-F06:1101         ; Read entire sectors to the user-supplied buffer
-F06:1102       .wholesectorreadloop:
-F06:1103         ; Read a sector to fat32_address
-F06:1104         jsr fat32_readnextsector
-               S02:0000198F:  20 9A 16
-F06:1105       
-F06:1106         ; Advance fat32_address by 512 bytes
-F06:1107         lda fat32_address+1
-               S02:00001992:  A5 5E
-F06:1108         adc #2                      ; carry already clear
-               S02:00001994:  69 02
-F06:1109         sta fat32_address+1
-               S02:00001996:  85 5E
-F06:1110       
-F06:1111         ldx fat32_bytesremaining    ; note - actually loads sectors remaining
-               S02:00001998:  A6 63
-F06:1112         dex
-               S02:0000199A:  CA
-F06:1113         stx fat32_bytesremaining    ; note - actually stores sectors remaining
-               S02:0000199B:  86 63
-F06:1114       
-F06:1115         bne .wholesectorreadloop
-               S02:0000199D:  D0 F0
-F06:1116       
-F06:1117       .done:
-F06:1118         rts
-               S02:0000199F:  60
-F06:1119       
-F06:1120       fat32_file_write:
-F06:1121         ; Write a whole file from memory.  It's assumed the file has just been opened 
-F06:1122         ; and no data has been written yet.
-F06:1123         ;
-F06:1124         ; Also we write whole sectors, so data in the target region beyond the end of the 
-F06:1125         ; file may get overwritten, up to the next 512-byte boundary.
-F06:1126         ;
-F06:1127         ; And we don't properly support 64k+ files, as it's unnecessary complication given
-F06:1128         ; the 6502's small address space
-F06:1129       
-F06:1130         ; Round the size up to the next whole sector
-F06:1131         lda fat32_bytesremaining
-               S02:000019A0:  A5 63
-F06:1132         cmp #1                      ; set carry if bottom 8 bits not zero
-               S02:000019A2:  C9 01
-F06:1133         lda fat32_bytesremaining+1
-               S02:000019A4:  A5 64
-F06:1134         adc #0                      ; add carry, if any
-               S02:000019A6:  69 00
-F06:1135         lsr                         ; divide by 2
-               S02:000019A8:  4A
-F06:1136         adc #0                      ; round up
-               S02:000019A9:  69 00
+F06:1098       fat32_file_read:
+F06:1099         ; Read a whole file into memory.  It's assumed the file has just been opened 
+F06:1100         ; and no data has been read yet.
+F06:1101         ;
+F06:1102         ; Also we read whole sectors, so data in the target region beyond the end of the 
+F06:1103         ; file may get overwritten, up to the next 512-byte boundary.
+F06:1104         ;
+F06:1105         ; And we don't properly support 64k+ files, as it's unnecessary complication given
+F06:1106         ; the 6502's small address space
+F06:1107       
+F06:1108         ; Round the size up to the next whole sector
+F06:1109         lda fat32_bytesremaining
+               S02:00001998:  A5 63
+F06:1110         cmp #1                      ; set carry if bottom 8 bits not zero
+               S02:0000199A:  C9 01
+F06:1111         lda fat32_bytesremaining+1
+               S02:0000199C:  A5 64
+F06:1112         adc #0                      ; add carry, if any
+               S02:0000199E:  69 00
+F06:1113         lsr                         ; divide by 2
+               S02:000019A0:  4A
+F06:1114         adc #0                      ; round up
+               S02:000019A1:  69 00
+F06:1115       
+F06:1116         ; No data?
+F06:1117         beq .done
+               S02:000019A3:  F0 12
+F06:1118       
+F06:1119         ; Store sector count - not a byte count any more
+F06:1120         sta fat32_bytesremaining
+               S02:000019A5:  85 63
+F06:1121       
+F06:1122         ; Read entire sectors to the user-supplied buffer
+F06:1123       .wholesectorreadloop:
+F06:1124         ; Read a sector to fat32_address
+F06:1125         jsr fat32_readnextsector
+               S02:000019A7:  20 9A 16
+F06:1126       
+F06:1127         ; Advance fat32_address by 512 bytes
+F06:1128         lda fat32_address+1
+               S02:000019AA:  A5 5E
+F06:1129         adc #2                      ; carry already clear
+               S02:000019AC:  69 02
+F06:1130         sta fat32_address+1
+               S02:000019AE:  85 5E
+F06:1131       
+F06:1132         ldx fat32_bytesremaining    ; note - actually loads sectors remaining
+               S02:000019B0:  A6 63
+F06:1133         dex
+               S02:000019B2:  CA
+F06:1134         stx fat32_bytesremaining    ; note - actually stores sectors remaining
+               S02:000019B3:  86 63
+F06:1135       
+F06:1136         bne .wholesectorreadloop
+               S02:000019B5:  D0 F0
 F06:1137       
-F06:1138         ; No data?
-F06:1139         beq .fail
-               S02:000019AB:  F0 14
+F06:1138       .done:
+F06:1139         rts
+               S02:000019B7:  60
 F06:1140       
-F06:1141         ; Store sector count - not a byte count anymore.
-F06:1142         sta fat32_bytesremaining
-               S02:000019AD:  85 63
-F06:1143       
-F06:1144         ; Write entire sectors from the user-supplied buffer
-F06:1145       .wholesectorwriteloop:
-F06:1146         ; Write a sector from fat32_address
-F06:1147         jsr fat32_writenextsector
-               S02:000019AF:  20 C4 16
-F06:1148         bcs .fail	; this shouldn't happen
-               S02:000019B2:  B0 0D
-F06:1149       
-F06:1150         ; Advance fat32_address by 512 bytes
-F06:1151         lda fat32_address+1
-               S02:000019B4:  A5 5E
-F06:1152         adc #2                      ; carry already clear
-               S02:000019B6:  69 02
-F06:1153         sta fat32_address+1
-               S02:000019B8:  85 5E
-F06:1154       
-F06:1155         ldx fat32_bytesremaining    ; note - actually loads sectors remaining
-               S02:000019BA:  A6 63
-F06:1156         dex
-               S02:000019BC:  CA
-F06:1157         stx fat32_bytesremaining    ; note - actually stores sectors remaining
-               S02:000019BD:  86 63
+F06:1141       fat32_file_write:
+F06:1142         ; Write a whole file from memory.  It's assumed the file has just been opened 
+F06:1143         ; and no data has been written yet.
+F06:1144         ;
+F06:1145         ; Also we write whole sectors, so data in the target region beyond the end of the 
+F06:1146         ; file may get overwritten, up to the next 512-byte boundary.
+F06:1147         ;
+F06:1148         ; And we don't properly support 64k+ files, as it's unnecessary complication given
+F06:1149         ; the 6502's small address space
+F06:1150       
+F06:1151         ; Round the size up to the next whole sector
+F06:1152         lda fat32_bytesremaining
+               S02:000019B8:  A5 63
+F06:1153         cmp #1                      ; set carry if bottom 8 bits not zero
+               S02:000019BA:  C9 01
+F06:1154         lda fat32_bytesremaining+1
+               S02:000019BC:  A5 64
+F06:1155         adc #0                      ; add carry, if any
+               S02:000019BE:  69 00
+F06:1156         lsr                         ; divide by 2
+               S02:000019C0:  4A
+F06:1157         adc #0                      ; round up
+               S02:000019C1:  69 00
 F06:1158       
-F06:1159         bne .wholesectorwriteloop
-               S02:000019BF:  D0 EE
-F06:1160       
-F06:1161         ; Has fat32_writenextsector written the FAT table?
-F06:1162         ;lda fat32_newfatsector
-F06:1163         ;bne .fail  ; not a fail, just means its done.
+F06:1159         ; No data?
+F06:1160         beq .fail
+               S02:000019C3:  F0 14
+F06:1161       
+F06:1162         ; Store sector count - not a byte count anymore.
+F06:1163         sta fat32_bytesremaining
+               S02:000019C5:  85 63
 F06:1164       
-F06:1165         ; No, write it here.
-F06:1166         ;lda fat32_lastsector
-F06:1167         ;sta zp_sd_currentsector
-F06:1168         ;lda fat32_lastsector+1
-F06:1169         ;sta zp_sd_currentsector+1
-F06:1170         ;lda fat32_lastsector+2
-F06:1171         ;sta zp_sd_currentsector+2
-F06:1172         ;lda fat32_lastsector+3
-F06:1173         ;sta zp_sd_currentsector+3
-F06:1174       
-F06:1175         ; Target buffer
-F06:1176         ;lda #<fat32_readbuffer
-F06:1177         ;sta zp_sd_address
-F06:1178         ;lda #>fat32_readbuffer
-F06:1179         ;sta zp_sd_address+1
-F06:1180       
-F06:1181         ; Write the FAT sector
-F06:1182         ;jsr sd_writesector
-F06:1183       
-F06:1184       .fail
-F06:1185         rts
-               S02:000019C1:  60
-F06:1186       
+F06:1165         ; Write entire sectors from the user-supplied buffer
+F06:1166       .wholesectorwriteloop:
+F06:1167         ; Write a sector from fat32_address
+F06:1168         jsr fat32_writenextsector
+               S02:000019C7:  20 C4 16
+F06:1169         bcs .fail	; this shouldn't happen
+               S02:000019CA:  B0 0D
+F06:1170       
+F06:1171         ; Advance fat32_address by 512 bytes
+F06:1172         lda fat32_address+1
+               S02:000019CC:  A5 5E
+F06:1173         adc #2                      ; carry already clear
+               S02:000019CE:  69 02
+F06:1174         sta fat32_address+1
+               S02:000019D0:  85 5E
+F06:1175       
+F06:1176         ldx fat32_bytesremaining    ; note - actually loads sectors remaining
+               S02:000019D2:  A6 63
+F06:1177         dex
+               S02:000019D4:  CA
+F06:1178         stx fat32_bytesremaining    ; note - actually stores sectors remaining
+               S02:000019D5:  86 63
+F06:1179       
+F06:1180         bne .wholesectorwriteloop
+               S02:000019D7:  D0 EE
+F06:1181       
+F06:1182         ; Has fat32_writenextsector written the FAT table?
+F06:1183         ;lda fat32_newfatsector
+F06:1184         ;bne .fail  ; not a fail, just means its done.
+F06:1185       
+F06:1186         ; No, write it here.
+F06:1187         ;lda fat32_lastsector
+F06:1188         ;sta zp_sd_currentsector
+F06:1189         ;lda fat32_lastsector+1
+F06:1190         ;sta zp_sd_currentsector+1
+F06:1191         ;lda fat32_lastsector+2
+F06:1192         ;sta zp_sd_currentsector+2
+F06:1193         ;lda fat32_lastsector+3
+F06:1194         ;sta zp_sd_currentsector+3
+F06:1195       
+F06:1196         ; Target buffer
+F06:1197         ;lda #<fat32_readbuffer
+F06:1198         ;sta zp_sd_address
+F06:1199         ;lda #>fat32_readbuffer
+F06:1200         ;sta zp_sd_address+1
+F06:1201       
+F06:1202         ; Write the FAT sector
+F06:1203         ;jsr sd_writesector
+F06:1204       
+F06:1205       .fail
+F06:1206         rts
+               S02:000019D9:  60
+F06:1207       
 F00:0082       
 F00:0083       rootsetup:		; setup <ROOT>
 F00:0084       
 F00:0085         ; Open root directory
 F00:0086         jsr fat32_openroot
-               S02:000019C2:  20 7F 17
+               S02:000019DA:  20 97 17
 F00:0087       
 F00:0088         ; Find the subdirectory by name
 F00:0089         ldx #<dirname
-               S02:000019C5:  A2 1B
+               S02:000019DD:  A2 33
 F00:0090         ldy #>dirname
-               S02:000019C7:  A0 1A
+               S02:000019DF:  A0 1A
 F00:0091         jsr fat32_finddirent
-               S02:000019C9:  20 20 19
+               S02:000019E1:  20 38 19
 F00:0092         bcc foundsub
-               S02:000019CC:  90 03
+               S02:000019E4:  90 03
 F00:0093       
 F00:0094         ; Subdirectory not found
 F00:0095         jmp transfer_error
-               S02:000019CE:  4C D5 19
+               S02:000019E6:  4C ED 19
 F00:0096       
 F00:0097       foundsub:
 F00:0098       
 F00:0099         ; Open subdirectory
 F00:0100         jsr fat32_opendirent	; open folder
-               S02:000019D1:  20 EE 17
+               S02:000019E9:  20 06 18
 F00:0101       	
 F00:0102         rts			; done
-               S02:000019D4:  60
+               S02:000019EC:  60
 F00:0103       
 F00:0104       transfer_error:
 F00:0105         ldy #>errormsg
-               S02:000019D5:  A0 1A
+               S02:000019ED:  A0 1A
 F00:0106         ldx #<errormsg
-               S02:000019D7:  A2 27
+               S02:000019EF:  A2 3F
 F00:0107         jsr w_acia_full
-               S02:000019D9:  20 C5 12
+               S02:000019F1:  20 C5 12
 F00:0108         jsr error_sound
-               S02:000019DC:  20 0D 0F
+               S02:000019F4:  20 0D 0F
 F00:0109         jmp doneloop
-               S02:000019DF:  4C 18 1A
+               S02:000019F7:  4C 30 1A
 F00:0110       
 F00:0111       ;msincremaining:
 F00:0112       ;  inc fat32_bytesremaining
@@ -3216,17 +3253,17 @@ F00:0121
 F00:0122       MEMORY_SAVE:
 F00:0123       ; finally. this is what we need to debug.
 F00:0124         ldx #<savmsg
-               S02:000019E2:  A2 70
+               S02:000019FA:  A2 88
 F00:0125         ldy #>savmsg
-               S02:000019E4:  A0 1A
+               S02:000019FC:  A0 1A
 F00:0126         jsr w_acia_full
-               S02:000019E6:  20 C5 12
+               S02:000019FE:  20 C5 12
 F00:0127         ; Allocate the first cluster for the data
 F00:0128         jsr fat32_allocatecluster
-               S02:000019E9:  20 97 17
+               S02:00001A01:  20 AF 17
 F00:0129         ; Open the folder
 F00:0130         jsr rootsetup
-               S02:000019EC:  20 C2 19
+               S02:00001A04:  20 DA 19
 F00:0131         
 F00:0132         ;ldy #>sdbuffer
 F00:0133         ;ldx #<sdbuffer
@@ -3238,17 +3275,17 @@ F00:0138       saveok:
 F00:0139       ; Now calculate file size and store it in fat32_bytesremaining.
 F00:0140       ; For now, just write it.
 F00:0141         lda #$80
-               S02:000019EF:  A9 80
+               S02:00001A07:  A9 80
 F00:0142         sta fat32_bytesremaining+1
-               S02:000019F1:  85 64
+               S02:00001A09:  85 64
 F00:0143         lda #$00
-               S02:000019F3:  A9 00
+               S02:00001A0B:  A9 00
 F00:0144         sta fat32_bytesremaining
-               S02:000019F5:  85 63
+               S02:00001A0D:  85 63
 F00:0145         sta fat32_bytesremaining+2
-               S02:000019F7:  85 65
+               S02:00001A0F:  85 65
 F00:0146         sta fat32_bytesremaining+3
-               S02:000019F9:  85 66
+               S02:00001A11:  85 66
 F00:0147       
 F00:0148       ;  lda #$00
 F00:0149       ;  sta XYLODSAV2
@@ -3274,45 +3311,45 @@ F00:0168         ;bne savecalclp
 F00:0169       
 F00:0170         ; Save filename pointer
 F00:0171         lda #<sdbuffer
-               S02:000019FB:  A9 32
+               S02:00001A13:  A9 4A
 F00:0172         sta fat32_filenamepointer
-               S02:000019FD:  85 78
+               S02:00001A15:  85 78
 F00:0173         lda #>sdbuffer
-               S02:000019FF:  A9 1A
+               S02:00001A17:  A9 1A
 F00:0174         sta fat32_filenamepointer+1
-               S02:00001A01:  85 79
+               S02:00001A19:  85 79
 F00:0175       
 F00:0176         ; Great, now make a directory entry for this new file.
 F00:0177         jsr fat32_writedirent
-               S02:00001A03:  20 21 18
+               S02:00001A1B:  20 39 18
 F00:0178       
 F00:0179         ; Now, let's write the file...
 F00:0180         lda #$00
-               S02:00001A06:  A9 00
+               S02:00001A1E:  A9 00
 F00:0181         sta fat32_address
-               S02:00001A08:  85 5D
+               S02:00001A20:  85 5D
 F00:0182         lda #$c0
-               S02:00001A0A:  A9 C0
+               S02:00001A22:  A9 C0
 F00:0183         sta fat32_address+1
-               S02:00001A0C:  85 5E
+               S02:00001A24:  85 5E
 F00:0184         jsr fat32_file_write  ; Yes. It is finally time to save the file.
-               S02:00001A0E:  20 A0 19
+               S02:00001A26:  20 B8 19
 F00:0185         
 F00:0186         ; All done!
 F00:0187         ldx #<SAVE_DONE
-               S02:00001A11:  A2 5D
+               S02:00001A29:  A2 75
 F00:0188         ldy #>SAVE_DONE
-               S02:00001A13:  A0 1A
+               S02:00001A2B:  A0 1A
 F00:0189         jsr w_acia_full
-               S02:00001A15:  20 C5 12
+               S02:00001A2D:  20 C5 12
 F00:0190       doneloop:
 F00:0191         ;jmp doneloop
 F00:0192         rts
-               S02:00001A18:  60
+               S02:00001A30:  60
 F00:0193         rts
-               S02:00001A19:  60
+               S02:00001A31:  60
 F00:0194         rts
-               S02:00001A1A:  60
+               S02:00001A32:  60
 F00:0195       ;file_exists:
 F00:0196         ; clc if 'y'
 F00:0197         ; sec if 'n'
@@ -3340,46 +3377,46 @@ F00:0218       ;  rts
 F00:0219       
 F00:0220       dirname:
 F00:0221         .asciiz "FOLDER     "
-               S02:00001A1B:  46 4F 4C 44 45 52 20 20 20 20 20
+               S02:00001A33:  46 4F 4C 44 45 52 20 20 20 20 20
 F00:0222       errormsg:
 F00:0223         .byte CR,LF,"ERROR!",CR,LF
-               S02:00001A27:  0D
-               S02:00001A28:  0A
-               S02:00001A29:  45 52 52 4F 52 21
-               S02:00001A2F:  0D
-               S02:00001A30:  0A
+               S02:00001A3F:  0D
+               S02:00001A40:  0A
+               S02:00001A41:  45 52 52 4F 52 21
+               S02:00001A47:  0D
+               S02:00001A48:  0A
 F00:0224         .byte 0
-               S02:00001A31:  00
+               S02:00001A49:  00
 F00:0225       sdbuffer:
 F00:0226         .byte "SAVE    BAS" ; save.bas
-               S02:00001A32:  53 41 56 45 20 20 20 20 42 41 53
+               S02:00001A4A:  53 41 56 45 20 20 20 20 42 41 53
 F00:0227       EXIST_MSG:
 F00:0228         .byte "File Exists. Overwrite? (y/n): ",$00
-               S02:00001A3D:  46 69 6C 65 20 45 78 69 73 74 73 2E 20 4F 76 65
-               S02:00001A4D:  72 77 72 69 74 65 3F 20 28 79 2F 6E 29 3A 20
-               S02:00001A5C:  00
+               S02:00001A55:  46 69 6C 65 20 45 78 69 73 74 73 2E 20 4F 76 65
+               S02:00001A65:  72 77 72 69 74 65 3F 20 28 79 2F 6E 29 3A 20
+               S02:00001A74:  00
 F00:0229       SAVE_DONE:
 F00:0230         .byte	CR,LF,"Save Complete.",CR,LF,$00
-               S02:00001A5D:  0D
-               S02:00001A5E:  0A
-               S02:00001A5F:  53 61 76 65 20 43 6F 6D 70 6C 65 74 65 2E
-               S02:00001A6D:  0D
-               S02:00001A6E:  0A
-               S02:00001A6F:  00
-F00:0231       savmsg:
-F00:0232         .byte $0d, $0a, "Saving...", $0d, $0a, $00
-               S02:00001A70:  0D
-               S02:00001A71:  0A
-               S02:00001A72:  53 61 76 69 6E 67 2E 2E 2E
-               S02:00001A7B:  0D
-               S02:00001A7C:  0A
-               S02:00001A7D:  00
-F00:0233       failedmsg:
-F00:0234         .byte "Failed!",CR,LF,$00
-               S02:00001A7E:  46 61 69 6C 65 64 21
+               S02:00001A75:  0D
+               S02:00001A76:  0A
+               S02:00001A77:  53 61 76 65 20 43 6F 6D 70 6C 65 74 65 2E
                S02:00001A85:  0D
                S02:00001A86:  0A
                S02:00001A87:  00
+F00:0231       savmsg:
+F00:0232         .byte $0d, $0a, "Saving...", $0d, $0a, $00
+               S02:00001A88:  0D
+               S02:00001A89:  0A
+               S02:00001A8A:  53 61 76 69 6E 67 2E 2E 2E
+               S02:00001A93:  0D
+               S02:00001A94:  0A
+               S02:00001A95:  00
+F00:0233       failedmsg:
+F00:0234         .byte "Failed!",CR,LF,$00
+               S02:00001A96:  46 61 69 6C 65 64 21
+               S02:00001A9D:  0D
+               S02:00001A9E:  0A
+               S02:00001A9F:  00
 F00:0235       
 
 
@@ -3399,57 +3436,57 @@ F06  libfat32.s
 
 
 Symbols:
-failedmsg EXPR(6782=0x1a7e) UNUSED ABS 
-EXIST_MSG EXPR(6717=0x1a3d) UNUSED ABS 
-SAVE_DONE EXPR(6749=0x1a5d) ABS 
-sdbuffer EXPR(6706=0x1a32) ABS 
-saveok EXPR(6639=0x19ef) UNUSED ABS 
-savmsg EXPR(6768=0x1a70) ABS 
-doneloop EXPR(6680=0x1a18) ABS 
-errormsg EXPR(6695=0x1a27) ABS 
-transfer_error EXPR(6613=0x19d5) ABS 
-foundsub EXPR(6609=0x19d1) ABS 
-dirname EXPR(6683=0x1a1b) ABS 
-rootsetup EXPR(6594=0x19c2) ABS 
- fat32_file_write wholesectorwriteloop EXPR(6575=0x19af) ABS 
- fat32_file_write fail EXPR(6593=0x19c1) ABS 
-fat32_file_write EXPR(6560=0x19a0) ABS 
- fat32_file_read wholesectorreadloop EXPR(6543=0x198f) ABS 
- fat32_file_read done EXPR(6559=0x199f) ABS 
-fat32_file_read EXPR(6528=0x1980) UNUSED ABS 
- fat32_file_readbyte gotdata EXPR(6509=0x196d) ABS 
- fat32_file_readbyte rts EXPR(6527=0x197f) ABS 
-fat32_file_readbyte EXPR(6455=0x1937) UNUSED ABS 
- fat32_finddirent comparenameloop EXPR(6444=0x192c) ABS 
- fat32_finddirent direntloop EXPR(6436=0x1924) ABS 
-fat32_finddirent EXPR(6432=0x1920) ABS 
- fat32_readdirent endofdirectory EXPR(6408=0x1908) ABS 
- fat32_readdirent gotdata EXPR(6410=0x190a) ABS 
-fat32_readdirent EXPR(6378=0x18ea) ABS 
- fat32_writedirent sectorincrementdone EXPR(6377=0x18e9) ABS 
- fat32_writedirent nodec EXPR(6352=0x18d0) UNUSED ABS 
- fat32_writedirent skip EXPR(6350=0x18ce) ABS 
- fat32_writedirent dfail EXPR(6334=0x18be) ABS 
- fat32_writedirent wr EXPR(6336=0x18c0) ABS 
- fat32_writedirent notoverbuffer EXPR(6325=0x18b5) ABS 
- fat32_writedirent empty EXPR(6242=0x1862) ABS 
- fat32_writedirent dloop EXPR(6216=0x1848) ABS 
- fat32_writedirent endofdirectorywrite EXPR(6207=0x183f) UNUSED ABS 
- fat32_writedirent gotdirrent EXPR(6209=0x1841) ABS 
-fat32_writedirent EXPR(6177=0x1821) ABS 
-fat32_opendirent EXPR(6126=0x17ee) ABS 
- fat32_findnextfreecluster copycluster EXPR(6106=0x17da) ABS 
- fat32_findnextfreecluster foundcluster EXPR(6125=0x17ed) ABS 
- fat32_findnextfreecluster searchclusters EXPR(6077=0x17bd) ABS 
-fat32_allocatecluster EXPR(6039=0x1797) ABS 
-fat32_openroot EXPR(6015=0x177f) ABS 
- fat32_sectorbounds nopass EXPR(6014=0x177e) UNUSED ABS 
- fat32_writenextsector nextsectorincrementdone EXPR(5961=0x1749) ABS 
-fat32_findnextfreecluster EXPR(6059=0x17ab) ABS 
- fat32_writenextsector writesector EXPR(5934=0x172e) ABS 
-fat32_sectorbounds EXPR(5963=0x174b) ABS 
+failedmsg EXPR(6806=0x1a96) UNUSED ABS 
+EXIST_MSG EXPR(6741=0x1a55) UNUSED ABS 
+SAVE_DONE EXPR(6773=0x1a75) ABS 
+sdbuffer EXPR(6730=0x1a4a) ABS 
+saveok EXPR(6663=0x1a07) UNUSED ABS 
+savmsg EXPR(6792=0x1a88) ABS 
+doneloop EXPR(6704=0x1a30) ABS 
+errormsg EXPR(6719=0x1a3f) ABS 
+transfer_error EXPR(6637=0x19ed) ABS 
+foundsub EXPR(6633=0x19e9) ABS 
+dirname EXPR(6707=0x1a33) ABS 
+rootsetup EXPR(6618=0x19da) ABS 
+ fat32_file_write wholesectorwriteloop EXPR(6599=0x19c7) ABS 
+ fat32_file_write fail EXPR(6617=0x19d9) ABS 
+fat32_file_write EXPR(6584=0x19b8) ABS 
+ fat32_file_read wholesectorreadloop EXPR(6567=0x19a7) ABS 
+ fat32_file_read done EXPR(6583=0x19b7) ABS 
+fat32_file_read EXPR(6552=0x1998) UNUSED ABS 
+ fat32_file_readbyte gotdata EXPR(6533=0x1985) ABS 
+ fat32_file_readbyte rts EXPR(6551=0x1997) ABS 
+fat32_file_readbyte EXPR(6479=0x194f) UNUSED ABS 
+ fat32_finddirent comparenameloop EXPR(6468=0x1944) ABS 
+ fat32_finddirent direntloop EXPR(6460=0x193c) ABS 
+fat32_finddirent EXPR(6456=0x1938) ABS 
+ fat32_readdirent endofdirectory EXPR(6432=0x1920) ABS 
+ fat32_readdirent gotdata EXPR(6434=0x1922) ABS 
+fat32_readdirent EXPR(6402=0x1902) ABS 
+ fat32_writedirent sectorincrementdone EXPR(6401=0x1901) ABS 
+ fat32_writedirent nodec EXPR(6376=0x18e8) UNUSED ABS 
+ fat32_writedirent skip EXPR(6374=0x18e6) ABS 
+ fat32_writedirent dfail EXPR(6358=0x18d6) ABS 
+ fat32_writedirent wr EXPR(6360=0x18d8) ABS 
+ fat32_writedirent notoverbuffer EXPR(6349=0x18cd) ABS 
+ fat32_writedirent empty EXPR(6266=0x187a) ABS 
+ fat32_writedirent dloop EXPR(6240=0x1860) ABS 
+ fat32_writedirent endofdirectorywrite EXPR(6231=0x1857) UNUSED ABS 
+ fat32_writedirent gotdirrent EXPR(6233=0x1859) ABS 
+fat32_writedirent EXPR(6201=0x1839) ABS 
+fat32_opendirent EXPR(6150=0x1806) ABS 
+ fat32_findnextfreecluster copycluster EXPR(6130=0x17f2) ABS 
+ fat32_findnextfreecluster foundcluster EXPR(6149=0x1805) ABS 
+ fat32_findnextfreecluster searchclusters EXPR(6101=0x17d5) ABS 
+fat32_allocatecluster EXPR(6063=0x17af) ABS 
+fat32_openroot EXPR(6039=0x1797) ABS 
+ fat32_writenextsector nopass EXPR(6038=0x1796) UNUSED ABS 
+ fat32_writenextsector nextsectorincrementdone EXPR(6009=0x1779) ABS 
+fat32_findnextfreecluster EXPR(6083=0x17c3) ABS 
+ fat32_writenextsector writesector EXPR(5982=0x175e) ABS 
+ fat32_writenextsector sectorbounds EXPR(6011=0x177b) ABS 
  fat32_writenextsector lastcluster EXPR(5840=0x16d0) ABS 
- fat32_writenextsector notlastcluster EXPR(5880=0x16f8) ABS 
+ fat32_writenextsector notlastcluster EXPR(5904=0x1710) ABS 
  fat32_writenextsector sectoravailable EXPR(5834=0x16ca) ABS 
 fat32_writenextsector EXPR(5828=0x16c4) ABS 
  fat32_readnextsector sectorincrementdone EXPR(5824=0x16c0) ABS 
@@ -3576,7 +3613,7 @@ InitSid EXPR(3928=0xf58) ABS
 irq EXPR(3889=0xf31) ABS 
 runthesound EXPR(3859=0xf13) UNUSED ABS 
 error_sound EXPR(3853=0xf0d) ABS 
-MEMORY_SAVE EXPR(6626=0x19e2) ABS 
+MEMORY_SAVE EXPR(6650=0x19fa) ABS 
 fat32_lastfoundfreecluster EXPR(103=0x67) EQU 
 reset EXPR(3840=0xf00) UNUSED ABS 
 LF EXPR(10=0xa) EQU 
