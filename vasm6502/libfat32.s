@@ -884,6 +884,21 @@ fat32_writedirent:
   rts
 
 .wr
+
+  ; fix thingy
+  lda zp_sd_currentsector
+  bne .skip
+  dec zp_sd_currentsector+1
+  bne .skip
+  dec zp_sd_currentsector+2
+  bne .skip
+  dec zp_sd_currentsector+3
+
+.skip
+  dec zp_sd_currentsector
+
+.nodec
+
   ; Read the sector
   jsr sd_writesector
 
