@@ -248,23 +248,23 @@ fat32_seekcluster:
   sta zp_sd_currentsector+3
 
   ; Check if this sector is the same as the last one
-  lda fat32_lastsector
-  cmp zp_sd_currentsector
-  bne .newsector
-  lda fat32_lastsector+1
-  cmp zp_sd_currentsector+1
-  bne .newsector
-  lda fat32_lastsector+2
-  cmp zp_sd_currentsector+2
-  bne .newsector
-  lda fat32_lastsector+3
-  cmp zp_sd_currentsector+3
-  beq .notnew
+  ;lda fat32_lastsector
+  ;cmp zp_sd_currentsector
+  ;bne .newsector
+  ;lda fat32_lastsector+1
+  ;cmp zp_sd_currentsector+1
+  ;bne .newsector
+  ;lda fat32_lastsector+2
+  ;cmp zp_sd_currentsector+2
+  ;bne .newsector
+  ;lda fat32_lastsector+3
+  ;cmp zp_sd_currentsector+3
+  ;beq .notnew
 
-.newsector
+;.newsector
 
-  lda #$ff
-  sta fat32_newfatsector
+ ; lda #$ff
+ ; sta fat32_newfatsector
 
   ; Target buffer
   lda #<fat32_readbuffer
@@ -286,9 +286,9 @@ fat32_seekcluster:
   lda zp_sd_currentsector+3
   sta fat32_lastsector+3
 
-.notnew
+;.notnew
 
-  stz fat32_newfatsector
+  ;stz fat32_newfatsector
 
   ; Before using this FAT data, set currentsector ready to read the cluster itself
   ; We need to multiply the cluster number minus two by the number of sectors per 
@@ -447,9 +447,11 @@ fat32_writenextsector:
   lda fat32_pendingsectors
   bne .writesector
 
+  ; BUG cluster remaining calc needed - for now files are 1 cluster long...
+
   ; No pending sectors, check if this is the last cluster in the chain
-  cmp fat32_sectorspercluster
-  bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
+  ;cmp fat32_sectorspercluster
+  ;bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
 
   ; It is the last one.
 
@@ -479,7 +481,7 @@ fat32_writenextsector:
   sta (zp_sd_address),y
 
   ; Update the FAT, if needed.
-  jsr .sectorbounds
+  jsr fat32_sectorbounds
 
   ; End of chain - finish up the remaining sectors
   
@@ -487,7 +489,7 @@ fat32_writenextsector:
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
-  beq .lastcluster
+  ;beq .lastcluster
 
   ; Find the next cluster
   jsr fat32_findnextfreecluster
@@ -522,7 +524,7 @@ fat32_writenextsector:
   sta (zp_sd_address),y
 
   ; Update the FAT, if needed.
-  jsr .sectorbounds
+  jsr fat32_sectorbounds
   
 .writesector:
   dec fat32_pendingsectors
@@ -550,10 +552,10 @@ fat32_writenextsector:
   clc
   rts
 
-.sectorbounds
+fat32_sectorbounds:
   ; Have we passed over a sector while modifying the FAT?
-  lda fat32_newfatsector
-  beq .nopass
+  ;lda fat32_newfatsector
+  ;beq .nopass
 
   ; Yes, preserve the current sector
   lda zp_sd_currentsector
