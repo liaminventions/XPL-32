@@ -885,7 +885,7 @@ fat32_writedirent:
 
 .wr
   ; Read the sector
-  jsr sd_readsector
+  jsr sd_writesector
 
   ; Advance to next sector
   inc zp_sd_currentsector
@@ -896,6 +896,7 @@ fat32_writedirent:
   bne .sectorincrementdone
   inc zp_sd_currentsector+3
 
+.sectorincrementdone
   rts
 
 fat32_readdirent:

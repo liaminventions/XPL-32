@@ -860,7 +860,7 @@ fat32_writedirent:
   ; are we over the buffer?
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
-  bcc .overbuffer
+  bcc .notoverbuffer
   jsr .wr ; if so, write the current sector
   jsr fat32_readnextsector  ; then read the next one.
   bcs .dfail
@@ -869,7 +869,7 @@ fat32_writedirent:
   sta zp_sd_address
   lda #>fat32_readbuffer
   sta zp_sd_address+1
-.overbuffer:
+.notoverbuffer
   ; next entry is 0 (end of dir)
   lda #0
   sta (zp_sd_address),y
@@ -885,7 +885,7 @@ fat32_writedirent:
 
 .wr
   ; Read the sector
-  jsr sd_readsector
+  jsr sd_writesector
 
   ; Advance to next sector
   inc zp_sd_currentsector
