@@ -821,7 +821,7 @@ fat32_writedirent:
   ;iny   ; 0x12-0x13 - User ID
   ;lda #0
   ;sta (zp_sd_address),y	; No ID
-  ;iny
+  ;iny	
   ;sta (zp_sd_address),y
   ;iny 
   ; 0x14-0x15 - File start cluster (high word)

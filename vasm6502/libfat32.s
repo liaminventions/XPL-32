@@ -774,7 +774,7 @@ fat32_writedirent:
   lda #>fat32_readbuffer
   sta fat32_address+1
 
-  jsr fat32_readnextsector
+  jsr sd_readsector
   bcc .gotdirrent
 
 .endofdirectorywrite:

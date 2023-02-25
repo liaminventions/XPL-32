@@ -2621,7 +2621,7 @@ F06:0820         ; show the "Directory entry" table and look at at 0x0E onward.
 F06:0821         ;iny   ; 0x12-0x13 - User ID
 F06:0822         ;lda #0
 F06:0823         ;sta (zp_sd_address),y	; No ID
-F06:0824         ;iny
+F06:0824         ;iny	
 F06:0825         ;sta (zp_sd_address),y
 F06:0826         ;iny 
 F06:0827         ; 0x14-0x15 - File start cluster (high word)
@@ -2696,10 +2696,10 @@ F06:0862         cmp #>(fat32_readbuffer+$200)
                S02:000018A7:  C9 07
 F06:0863         bcc .overbuffer
                S02:000018A9:  90 12
-F06:0864         jsr fat32_writenextsector ; if so, write the current sector
-               S02:000018AB:  20 CA 16
-F06:0865         jsr fat32_readnextsector  ; then read the next one.
-               S02:000018AE:  20 A0 16
+F06:0864         jsr sd_writesector ; if so, write the current sector
+               S02:000018AB:  20 54 14
+F06:0865         jsr sd_readsector  ; then read the next one.
+               S02:000018AE:  20 F6 13
 F06:0866         bcs .dfail
                S02:000018B1:  B0 13
 F06:0867         ldy #0
@@ -2718,8 +2718,8 @@ F06:0874         lda #0
                S02:000018BD:  A9 00
 F06:0875         sta (zp_sd_address),y
                S02:000018BF:  91 48
-F06:0876         jsr fat32_writenextsector ; write all the data...
-               S02:000018C1:  20 CA 16
+F06:0876         jsr sd_writesector ; write all the data...
+               S02:000018C1:  20 54 14
 F06:0877         clc
                S02:000018C4:  18
 F06:0878         rts
