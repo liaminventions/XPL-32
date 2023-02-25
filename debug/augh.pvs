@@ -1,3 +1,9 @@
+[General]
+decode_signals=1
+generated_signals=0
+views=1
+meta_objs=4
+
 [0]
 name=0
 enabled=true
@@ -288,18 +294,12 @@ channel3\name=CS#
 channel3\initial_pin_state=2
 channel3\assigned_signal_name=12
 
-[General]
-decode_signals=1
-generated_signals=0
-views=1
-meta_objs=2
-
 [view0]
-scale=1.6896878435270376e-6
+scale=0.0038224777361410564
 v_offset=162
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x1\xda\x1\0\0\0\x1\x1\0\0\0\x1\0)
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x91\0\0\x6\xe8\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=1
-offset=22 serialization::archive 14 0 0 0 0 1 78991708 48829408 99483297 13100905 19240052 0 0 0 6
+offset=22 serialization::archive 14 0 0 0 0 12589218 43028993 2501814 79229028 62540797 0 -8 1 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 0\trace_height=32
 1\trace_height=32
@@ -322,10 +322,22 @@ zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 type=time_marker
 assoc_view=0
 time=22 serialization::archive 14 0 0 0 0 1 33734825 63518954 27364437 510218 23547900 0 0 0 6
-text=-453056 \x3bcs
+text=begin
 
 [meta_obj1]
 type=time_marker
 assoc_view=0
 time=22 serialization::archive 14 0 0 0 0 1 79040455 98257984 49820523 83849102 65097945 0 0 0 6
-text=problems here
+text=dirent saved in wrong placed (fixed)
+
+[meta_obj2]
+type=time_marker
+assoc_view=0
+time=22 serialization::archive 14 0 0 0 0 1 99247831 54522727 44905816 9414944 70762992 0 0 0 6
+text=BUG this file is going on for WAYY too long...
+
+[meta_obj3]
+type=time_marker
+assoc_view=0
+time=22 serialization::archive 14 0 0 0 0 3133706 12845562 62358395 99966731 20698999 42568303 0 0 0 6
+text=E

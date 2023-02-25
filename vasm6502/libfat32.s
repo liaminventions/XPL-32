@@ -27,7 +27,7 @@ fat32_newfatsector		= zp_fat32_variables + $28  ; 1 byte FLAG
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_filenamepointer       = fat32_bytesremaining  ; only used when searching for a file
 
-; TODO add cluster chain creation (saving the next cluster at the previous cluster, and adding a end-of-chain marker.)
+; TODO fix filesize stuff, saved files seem too long and pick up garbage from the RAM... (BUG)
 
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
@@ -437,7 +437,7 @@ fat32_readnextsector:
   rts
 
 fat32_writenextsector:
-  ; TODO Writes the next sector into the buffer at fat32_address.
+  ; Writes the next sector into the buffer at fat32_address.
   ; 
   ; Also looks for new clusters and stores them in the FAT.
   ;
@@ -480,8 +480,6 @@ fat32_writenextsector:
 
   ; Update the FAT, if needed.
   jsr .sectorbounds
-
-  ; BUG (MAY BE FIXED) when we write the last cluster, we may miss out on a entire cluster of information! 
 
   ; End of chain - finish up the remaining sectors
   
@@ -651,7 +649,6 @@ fat32_findnextfreecluster:
 ;
 ; Also sets the carry bit if the SD card is full.
 ;
-; TODO CHECK FOR BUGS
 
   ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
 
@@ -748,12 +745,13 @@ fat32_opendirent:
   rts
 
 fat32_writedirent:
-  ; TODO Write a directory entry from the open directory
+  ; Write a directory entry from the open directory
   ; requires:
   ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
   ;   and the processes of:
   ;     fat32_finddirent
   ;     fat32_findnextfreecluster
+  ; BUG fix windows-specific stuff so i can read a written file on my pc
 
   ; Increment pointer by 32 to point to next entry
   clc
