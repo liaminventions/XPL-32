@@ -54,11 +54,12 @@ reset:
 dummyloop:
   txa
   sta $0900,x
+  sta $0a00,x
   inx
   bne dummyloop
   ; add an EOF
   lda #0
-  sta $0a00
+  sta $0b00
   ;sta $0701
   ;sta $0702
 
@@ -137,7 +138,7 @@ MEMORY_SAVE:
 saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
 ; For now, just write it.
-  lda #$01
+  lda #$02
   sta fat32_bytesremaining+1
   lda #$00
   sta fat32_bytesremaining

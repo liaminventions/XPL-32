@@ -219,6 +219,12 @@ fat32_init:
 
 fat32_seekcluster:
   ; Gets ready to read fat32_nextcluster, and advances it according to the FAT
+
+  ; Target buffer
+  lda #<fat32_fatbuffer
+  sta zp_sd_address
+  lda #>fat32_fatbuffer
+  sta zp_sd_address+1
   
   ; FAT sector = (cluster*4) / 512 = (cluster*2) / 256
   lda fat32_nextcluster
@@ -266,12 +272,6 @@ fat32_seekcluster:
 
 ;  lda #$ff
 ;  sta fat32_newfatsector
-
-  ; Target buffer
-  lda #<fat32_fatbuffer
-  sta zp_sd_address
-  lda #>fat32_fatbuffer
-  sta zp_sd_address+1
 
   ; Read the sector from the FAT
   jsr sd_readsector
@@ -448,15 +448,14 @@ fat32_writenextsector:
   ;
   ; On return, carry is set if its the end of the chain.
 
-  ; Maybe there are pending sectors in the current cluster
-  ;lda fat32_pendingsectors
-  ;bne .writesector
+  ; Are there even any sectors to write?
+  lda fat32_pendingsectors
+  beq .fail
 
-  ; BUG cluster remaining calc needed - for now files are 1 cluster long...
-
-  ; No pending sectors, check if this is the last cluster in the chain
-  ;cmp fat32_sectorspercluster
-  ;bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
+  ; Yes, Check if it's the last cluster in the chain 
+  lda fat32_bytesremaining
+  cmp fat32_sectorspercluster
+  bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
 
   ; It is the last one.
 
@@ -494,7 +493,7 @@ fat32_writenextsector:
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
-  ;beq .lastcluster
+  beq .lastcluster
 
   ; Find the next cluster
   jsr fat32_findnextfreecluster
@@ -555,6 +554,9 @@ fat32_writenextsector:
 
   ; Success - clear carry and return
   clc
+  rts
+.fail
+  sec
   rts
 
 fat32_sectorbounds:

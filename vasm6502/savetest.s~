@@ -53,12 +53,13 @@ reset:
   ldx #0
 dummyloop:
   txa
-  sta $0700,x
+  sta $0900,x
+  sta $0a00,x
   inx
   bne dummyloop
   ; add an EOF
   lda #0
-  sta $0800
+  sta $0b00
   ;sta $0701
   ;sta $0702
 
@@ -178,7 +179,7 @@ saveok:
   ; Now, let's write the file...
   lda #$00
   sta fat32_address
-  lda #$07
+  lda #$09
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
   

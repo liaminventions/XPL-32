@@ -448,15 +448,20 @@ fat32_writenextsector:
   ;
   ; On return, carry is set if its the end of the chain.
 
-  ; Maybe there are pending sectors in the current cluster
-  ;lda fat32_pendingsectors
-  ;bne .writesector
+  ; Are there even any sectors to write?
+  lda fat32_pendingsectors
+  bne .sectoravailable
 
-  ; BUG cluster remaining calc needed - for now files are 1 cluster long...
+  ; Nothing to write, set carry.
+  sec
+  rts
 
-  ; No pending sectors, check if this is the last cluster in the chain
-  ;cmp fat32_sectorspercluster
-  ;bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
+.sectoravailable
+
+  ; Yes, Check if it's the last cluster in the chain 
+  lda fat32_bytesremaining
+  cmp fat32_sectorspercluster
+  bcs .notlastcluster	 ; pendingsectors >= sectorspercluster?
 
   ; It is the last one.
 
@@ -494,7 +499,7 @@ fat32_writenextsector:
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
-  ;beq .lastcluster
+  beq .lastcluster
 
   ; Find the next cluster
   jsr fat32_findnextfreecluster
