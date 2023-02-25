@@ -1,223 +1,171 @@
-F00:0001       ; writetest
-F00:0002       ;
-F00:0003       ; !! THIS WILL ERASE THE SD CARD AND MAKE IT REQUIRE A REFORMAT !!
-F00:0004       ; 
-F00:0005       ; this code is just for debugging the sd_writesector subroutine.
-F00:0006       ; it will erase sector 0!
-F00:0007       ; 
-F00:0008       ; 
-F00:0009       
-F00:0010       ACIA = $8000
-F00:0011       ACIAControl = ACIA+3
-F00:0012       ACIACommand = ACIA+2
-F00:0013       ACIAStatus = ACIA+1
-F00:0014       ACIAData = ACIA
-F00:0015       
-F00:0016       irqcount = $00
-F00:0017       donefact = $01
-F00:0018       
-F00:0019       ; sd card:
-F00:0020       zp_sd_address = $48         ; 2 bytes
-F00:0021       zp_sd_currentsector = $4a   ; 4 bytes
-F00:0022       zp_fat32_variables = $4f    ; 24 bytes
-F00:0023       ; only used during fat32 processing
-F00:0024       path = $400		    ; page
-F00:0025       fat32_workspace = $500      ; two pages
-F00:0026       buffer = $700		    ; two pages
-F00:0027       endbuf = $900
-F00:0028       
-F00:0029       CR=13
-F00:0030       LF=10
+F00:0001       ; Save test
+F00:0002       ; 
+F00:0003       ; this code is just for debugging the sd card saving system.
+F00:0004       ; i will use ben eater's debugger for this.
+F00:0005       
+F00:0006       ACIA = $8000
+F00:0007       ACIAControl = ACIA+3
+F00:0008       ACIACommand = ACIA+2
+F00:0009       ACIAStatus = ACIA+1
+F00:0010       ACIAData = ACIA
+F00:0011       
+F00:0012       irqcount = $00
+F00:0013       donefact = $01
+F00:0014       
+F00:0015       ; sd card:
+F00:0016       zp_sd_address = $48         ; 2 bytes
+F00:0017       zp_sd_currentsector = $4a   ; 4 bytes
+F00:0018       zp_fat32_variables = $4f    ; 24 bytes
+F00:0019       ; only used during fat32 processing
+F00:0020       path = $400		    ; page
+F00:0021       fat32_workspace = $500      ; two pages
+F00:0022       buffer = $700		    ; two pages
+F00:0023       endbuf = $900
+F00:0024       
+F00:0025       XYLODSAV2 = $64 ; 2
+F00:0026       
+F00:0027       CR=13
+F00:0028       LF=10
+F00:0029       
+F00:0030         .org $0f00
 F00:0031       
-F00:0032         .org $0f00
-F00:0033       
-F00:0034       reset:
-F00:0035         ;jsr sd_init
-F00:0036         ;bcs sd_fail
-F00:0037         ; sd init done
-F00:0038         ;lda #'S'
-F00:0039         ;sta ACIAData
-F00:0040         ;jsr fat32_init
-F00:0041         ;bcs faterror
-F00:0042         ; fat32 init done
-F00:0043         ;jsr txpoll
-F00:0044         ;lda #'F'
-F00:0045         ;sta ACIAData
-F00:0046       
-F00:0047         ldx #<hehe
-               S01:00000F00:  A2 3F
-F00:0048         ldy #>hehe
-               S01:00000F02:  A0 0F
-F00:0049         jsr w_acia_full
-               S01:00000F04:  20 C5 12
-F00:0050       
-F00:0051         jsr rxpoll
-               S01:00000F07:  20 A9 12
-F00:0052       
-F00:0053         ldx #<goin
-               S01:00000F0A:  A2 60
-F00:0054         ldy #>goin
-               S01:00000F0C:  A0 0F
-F00:0055         jsr w_acia_full
-               S01:00000F0E:  20 C5 12
-F00:0056       
-F00:0057         lda #<buffer
-               S01:00000F11:  A9 00
-F00:0058         sta zp_sd_address
-               S01:00000F13:  85 48
-F00:0059         lda #>buffer
-               S01:00000F15:  A9 07
-F00:0060         sta zp_sd_address+1
-               S01:00000F17:  85 49
-F00:0061         
-F00:0062         ; save to sector 3
-F00:0063         lda #03
-               S01:00000F19:  A9 03
-F00:0064         sta zp_sd_currentsector
-               S01:00000F1B:  85 4A
-F00:0065         stz zp_sd_currentsector+1
-               S01:00000F1D:  64 4B
-F00:0066         stz zp_sd_currentsector+2
-               S01:00000F1F:  64 4C
-F00:0067         stz zp_sd_currentsector+3
-               S01:00000F21:  64 4D
-F00:0068       
-F00:0069         jsr sd_readsector
-               S01:00000F23:  20 F6 13
-F00:0070       
-F00:0071       ; make a dummy file.
-F00:0072         ldx #$ff
-               S01:00000F26:  A2 FF
-F00:0073         lda #$aa
-               S01:00000F28:  A9 AA
-F00:0074       dummyloop:
-F00:0075         txa
-               S01:00000F2A:  8A
-F00:0076         sta $0700,x
-               S01:00000F2B:  9D 00 07
-F00:0077         sta $0800,x
-               S01:00000F2E:  9D 00 08
-F00:0078         dex
-               S01:00000F31:  CA
-F00:0079         bne dummyloop
-               S01:00000F32:  D0 F6
-F00:0080       
-F00:0081         jsr sd_writesector
-               S01:00000F34:  20 54 14
-F00:0082       
-F00:0083         ldx #<ded
-               S01:00000F37:  A2 6B
-F00:0084         ldy #>ded
-               S01:00000F39:  A0 0F
-F00:0085         jsr w_acia_full
-               S01:00000F3B:  20 C5 12
-F00:0086       
-F00:0087         rts
-               S01:00000F3E:  60
-F00:0088       
-F00:0089       ;sd_fail:
-F00:0090       ;  lda #'s'
-F00:0091       ;  jsr print_chara
-F00:0092       ;  rts
-F00:0093       
-F00:0094       hehe:
-F00:0095         .byte "Press any key to fill sector 3",CR,LF,0
-               S01:00000F3F:  50 72 65 73 73 20 61 6E 79 20 6B 65 79 20 74 6F
-               S01:00000F4F:  20 66 69 6C 6C 20 73 65 63 74 6F 72 20 33
-               S01:00000F5D:  0D
-               S01:00000F5E:  0A
-               S01:00000F5F:  00
-F00:0096       goin:
-F00:0097         .byte "Filling...",0
-               S01:00000F60:  46 69 6C 6C 69 6E 67 2E 2E 2E
-               S01:00000F6A:  00
-F00:0098       ded:
-F00:0099         .byte "Done.",CR,LF,0
-               S01:00000F6B:  44 6F 6E 65 2E
-               S01:00000F70:  0D
-               S01:00000F71:  0A
-               S01:00000F72:  00
-F00:0100       
-F00:0101         .include "errors.s"
+F00:0032       reset:
+F00:0033         ;jsr sd_init
+F00:0034         ;bcs sd_fail
+F00:0035         ; sd init done
+F00:0036         ;lda #'S'
+F00:0037         ;sta ACIAData
+F00:0038         ;jsr fat32_init
+F00:0039         ;bcs faterror
+F00:0040         ; fat32 init done
+F00:0041         ;jsr txpoll
+F00:0042         ;lda #'F'
+F00:0043         ;sta ACIAData
+F00:0044       ; Set the last found free cluster to 0.
+F00:0045         lda #0
+               S01:00000F00:  A9 00
+F00:0046         sta fat32_lastfoundfreecluster
+               S01:00000F02:  85 67
+F00:0047         sta fat32_lastfoundfreecluster+1
+               S01:00000F04:  85 68
+F00:0048         sta fat32_lastfoundfreecluster+2
+               S01:00000F06:  85 69
+F00:0049         sta fat32_lastfoundfreecluster+3
+               S01:00000F08:  85 6A
+F00:0050         ; init done
+F00:0051       ;initdone:
+F00:0052         ; now make a dummy file.
+F00:0053         ldx #0
+               S01:00000F0A:  A2 00
+F00:0054       dummyloop:
+F00:0055         txa
+               S01:00000F0C:  8A
+F00:0056         sta $0700,x
+               S01:00000F0D:  9D 00 07
+F00:0057         inx
+               S01:00000F10:  E8
+F00:0058         bne dummyloop
+               S01:00000F11:  D0 F9
+F00:0059         ; add an EOF
+F00:0060         lda #0
+               S01:00000F13:  A9 00
+F00:0061         sta $0800
+               S01:00000F15:  8D 00 08
+F00:0062         ;sta $0701
+F00:0063         ;sta $0702
+F00:0064       
+F00:0065         jmp MEMORY_SAVE ; OK, here we go.
+               S01:00000F18:  4C DF 19
+F00:0066       
+F00:0067       ;faterror:
+F00:0068       ;  lda #'f'
+F00:0069       ;  jsr print_chara
+F00:0070       ;  jmp doneloop
+F00:0071       ;sd_fail:
+F00:0072       ;  lda #'s'
+F00:0073       ;  jsr print_chara
+F00:0074       ;  jmp doneloop
+F00:0075       
+F00:0076         .include "errors.s"
 F01:0001       error_sound:
 F01:0002         lda #$55
-               S01:00000F73:  A9 55
+               S01:00000F1B:  A9 55
 F01:0003         sta donefact
-               S01:00000F75:  85 01
+               S01:00000F1D:  85 01
 F01:0004         stz irqcount	; reset irq count
-               S01:00000F77:  64 00
+               S01:00000F1F:  64 00
 F01:0005       
 F01:0006       runthesound:
 F01:0007         sei		; turn off irqs
-               S01:00000F79:  78
+               S01:00000F21:  78
 F01:0008         lda #<irq
-               S01:00000F7A:  A9 97
+               S01:00000F22:  A9 3F
 F01:0009         sta $7ffe
-               S01:00000F7C:  8D FE 7F
+               S01:00000F24:  8D FE 7F
 F01:0010         lda #>irq
-               S01:00000F7F:  A9 0F
+               S01:00000F27:  A9 0F
 F01:0011         sta $7fff	; store vectors
-               S01:00000F81:  8D FF 7F
+               S01:00000F29:  8D FF 7F
 F01:0012         lda #$c0
-               S01:00000F84:  A9 C0
+               S01:00000F2C:  A9 C0
 F01:0013         sta $b00e	
-               S01:00000F86:  8D 0E B0
+               S01:00000F2E:  8D 0E B0
 F01:0014         lda #0 ; Song Number
-               S01:00000F89:  A9 00
+               S01:00000F31:  A9 00
 F01:0015         jsr InitSid
-               S01:00000F8B:  20 BE 0F
+               S01:00000F33:  20 66 0F
 F01:0016         lda #$40
-               S01:00000F8E:  A9 40
+               S01:00000F36:  A9 40
 F01:0017         sta $b00d
-               S01:00000F90:  8D 0D B0
+               S01:00000F38:  8D 0D B0
 F01:0018         cli
-               S01:00000F93:  58
+               S01:00000F3B:  58
 F01:0019         jmp startupsoundloop
-               S01:00000F94:  4C 2F 12
+               S01:00000F3C:  4C 2F 12
 F01:0020       
 F01:0021       irq:
 F01:0022         lda #$40
-               S01:00000F97:  A9 40
+               S01:00000F3F:  A9 40
 F01:0023         sta $b00d
-               S01:00000F99:  8D 0D B0
+               S01:00000F41:  8D 0D B0
 F01:0024         jsr putbut		; refresh timers
-               S01:00000F9C:  20 AD 0F
+               S01:00000F44:  20 55 0F
 F01:0025         inc irqcount		; a irq has occurred
-               S01:00000F9F:  E6 00
+               S01:00000F47:  E6 00
 F01:0026         lda irqcount
-               S01:00000FA1:  A5 00
+               S01:00000F49:  A5 00
 F01:0027         cmp #$40		; if $32 irqs (end of the error sound)
-               S01:00000FA3:  C9 40
+               S01:00000F4B:  C9 40
 F01:0028         bne continue24542 	; end the stream
-               S01:00000FA5:  D0 02
+               S01:00000F4D:  D0 02
 F01:0029         stz donefact		; its done, tell the loop
-               S01:00000FA7:  64 01
+               S01:00000F4F:  64 01
 F01:0030       continue24542:
 F01:0031         jsr $1006
-               S01:00000FA9:  20 06 10
+               S01:00000F51:  20 06 10
 F01:0032         rti			; exit
-               S01:00000FAC:  40
+               S01:00000F54:  40
 F01:0033       
 F01:0034       putbut:
 F01:0035         ldx #$9e
-               S01:00000FAD:  A2 9E
+               S01:00000F55:  A2 9E
 F01:0036         stx $b004
-               S01:00000FAF:  8E 04 B0
+               S01:00000F57:  8E 04 B0
 F01:0037         stx $b006
-               S01:00000FB2:  8E 06 B0
+               S01:00000F5A:  8E 06 B0
 F01:0038         ldx #$0f  ; 250Hz IRQ
-               S01:00000FB5:  A2 0F
+               S01:00000F5D:  A2 0F
 F01:0039         stx $b005
-               S01:00000FB7:  8E 05 B0
+               S01:00000F5F:  8E 05 B0
 F01:0040         stx $b007
-               S01:00000FBA:  8E 07 B0
+               S01:00000F62:  8E 07 B0
 F01:0041         rts
-               S01:00000FBD:  60
+               S01:00000F65:  60
 F01:0042       InitSid:
 F01:0043         jsr putbut
-               S01:00000FBE:  20 AD 0F
+               S01:00000F66:  20 55 0F
 F01:0044         jmp $1103
-               S01:00000FC1:  4C 03 11
+               S01:00000F69:  4C 03 11
 F01:0045       
 F01:0046         .org $1006
 F01:0047       
@@ -545,7 +493,7 @@ F01:0071         rts
                S02:00001251:  60
 F01:0072       
 F01:0073       
-F00:0102         .include "hwconfig.s"
+F00:0077         .include "hwconfig.s"
 F03:0001       PORTB = $b000
 F03:0002       PORTA = $b001
 F03:0003       DDRB = $b002
@@ -575,7 +523,7 @@ F03:0022         rts
                S02:0000125C:  60
 F03:0023       
 F03:0024       
-F00:0103         .include "libacia.s"
+F00:0078         .include "libacia.s"
 F04:0001       ;       ------------------ 6551 ACIA Subroutine Library -------------------
 F04:0002       ; Includes:
 F04:0003       ; acia_init       - Initializes the ACIA
@@ -776,7 +724,7 @@ F04:0117         pla
 F04:0118         rts
                S02:000012E7:  60
 F04:0119       
-F00:0104         .include "libsd.s"
+F00:0079         .include "libsd.s"
 F05:0001       ; SD card interface module
 F05:0002       ;
 F05:0003       ; Requires zero-page variable storage:
@@ -1365,7 +1313,7 @@ F05:0363
 F05:0364       
 F05:0365       
 F05:0366       
-F00:0105         .include "libfat32.s"
+F00:0080         .include "libfat32.s"
 F06:0001       ; FAT32/SD interface library
 F06:0002       ;
 F06:0003       ; This module requires some RAM workspace to be defined elsewhere:
@@ -3167,15 +3115,221 @@ F06:1136       .fail
 F06:1137         rts
                S02:000019BE:  60
 F06:1138       
-F00:0106       
-F00:0107       failedmsg:
-F00:0108         .byte "Failed!",CR,LF,$00
-               S02:000019BF:  46 61 69 6C 65 64 21
-               S02:000019C6:  0D
-               S02:000019C7:  0A
-               S02:000019C8:  00
+F00:0081       
+F00:0082       rootsetup:		; setup <ROOT>
+F00:0083       
+F00:0084         ; Open root directory
+F00:0085         jsr fat32_openroot
+               S02:000019BF:  20 85 17
+F00:0086       
+F00:0087         ; Find the subdirectory by name
+F00:0088         ldx #<dirname
+               S02:000019C2:  A2 12
+F00:0089         ldy #>dirname
+               S02:000019C4:  A0 1A
+F00:0090         jsr fat32_finddirent
+               S02:000019C6:  20 FE 18
+F00:0091         bcc foundsub
+               S02:000019C9:  90 03
+F00:0092       
+F00:0093         ; Subdirectory not found
+F00:0094         jmp transfer_error
+               S02:000019CB:  4C D2 19
+F00:0095       
+F00:0096       foundsub:
+F00:0097       
+F00:0098         ; Open subdirectory
+F00:0099         jsr fat32_opendirent	; open folder
+               S02:000019CE:  20 F8 17
+F00:0100       	
+F00:0101         rts			; done
+               S02:000019D1:  60
+F00:0102       
+F00:0103       transfer_error:
+F00:0104         ldy #>errormsg
+               S02:000019D2:  A0 1A
+F00:0105         ldx #<errormsg
+               S02:000019D4:  A2 1E
+F00:0106         jsr w_acia_full
+               S02:000019D6:  20 C5 12
+F00:0107         jsr error_sound
+               S02:000019D9:  20 1B 0F
+F00:0108         jmp doneloop
+               S02:000019DC:  4C 0F 1A
 F00:0109       
-F00:0110       
+F00:0110       ;msincremaining:
+F00:0111       ;  inc fat32_bytesremaining
+F00:0112       ;  bne msinca
+F00:0113       ;  inc fat32_bytesremaining+1
+F00:0114       ;msinca:
+F00:0115       ;  inc XYLODSAV2
+F00:0116       ;  bne msincb
+F00:0117       ;  inc XYLODSAV2+1
+F00:0118       ;msincb:
+F00:0119       ;  rts
+F00:0120       
+F00:0121       MEMORY_SAVE:
+F00:0122       ; finally. this is what we need to debug.
+F00:0123         ldx #<savmsg
+               S02:000019DF:  A2 67
+F00:0124         ldy #>savmsg
+               S02:000019E1:  A0 1A
+F00:0125         jsr w_acia_full
+               S02:000019E3:  20 C5 12
+F00:0126         ; Allocate the first cluster for the data
+F00:0127         jsr fat32_allocatecluster
+               S02:000019E6:  20 9D 17
+F00:0128         ; Open the folder
+F00:0129         jsr rootsetup
+               S02:000019E9:  20 BF 19
+F00:0130         
+F00:0131         ;ldy #>sdbuffer
+F00:0132         ;ldx #<sdbuffer
+F00:0133         ;jsr fat32_finddirent
+F00:0134         ;bcs saveok
+F00:0135         ;jsr file_exists
+F00:0136         ;bcs doneloop
+F00:0137       saveok:
+F00:0138       ; Now calculate file size and store it in fat32_bytesremaining.
+F00:0139       ; For now, just write it.
+F00:0140         lda #$01
+               S02:000019EC:  A9 01
+F00:0141         sta fat32_bytesremaining+1
+               S02:000019EE:  85 64
+F00:0142         stz fat32_bytesremaining
+               S02:000019F0:  64 63
+F00:0143       
+F00:0144       ;  lda #$00
+F00:0145       ;  sta XYLODSAV2
+F00:0146       ;  lda #$07
+F00:0147       ;  sta XYLODSAV2+1
+F00:0148       ;  lda #0
+F00:0149       ;  sta fat32_bytesremaining
+F00:0150       ;  sta fat32_bytesremaining+1
+F00:0151       ;  ldy #0
+F00:0152       ;savecalclp:
+F00:0153       ;  lda (XYLODSAV2),y
+F00:0154       ;  beq mszero
+F00:0155       ;  jsr msincremaining
+F00:0156       ;  jmp savecalclp
+F00:0157       ;mszero:
+F00:0158       ;  jsr msincremaining
+F00:0159       
+F00:0160         ;lda (XYLODSAV2),y
+F00:0161         ;bne savecalclp
+F00:0162         ;jsr msincremaining
+F00:0163         ;lda (XYLODSAV2),y
+F00:0164         ;bne savecalclp
+F00:0165       
+F00:0166         ; Save filename pointer
+F00:0167         lda #<sdbuffer
+               S02:000019F2:  A9 29
+F00:0168         sta fat32_filenamepointer
+               S02:000019F4:  85 63
+F00:0169         lda #>sdbuffer
+               S02:000019F6:  A9 1A
+F00:0170         sta fat32_filenamepointer+1
+               S02:000019F8:  85 64
+F00:0171       
+F00:0172         ; Great, now make a directory entry for this new file.
+F00:0173         jsr fat32_writedirent
+               S02:000019FA:  20 2B 18
+F00:0174       
+F00:0175         ; Now, let's write the file...
+F00:0176         lda #$00
+               S02:000019FD:  A9 00
+F00:0177         sta fat32_address
+               S02:000019FF:  85 5D
+F00:0178         lda #$07
+               S02:00001A01:  A9 07
+F00:0179         sta fat32_address+1
+               S02:00001A03:  85 5E
+F00:0180         jsr fat32_file_write  ; Yes. It is finally time to save the file.
+               S02:00001A05:  20 7E 19
+F00:0181         
+F00:0182         ; All done!
+F00:0183         ldx #<SAVE_DONE
+               S02:00001A08:  A2 54
+F00:0184         ldy #>SAVE_DONE
+               S02:00001A0A:  A0 1A
+F00:0185         jsr w_acia_full
+               S02:00001A0C:  20 C5 12
+F00:0186       doneloop:
+F00:0187         ;jmp doneloop
+F00:0188         rts
+               S02:00001A0F:  60
+F00:0189         rts
+               S02:00001A10:  60
+F00:0190         rts
+               S02:00001A11:  60
+F00:0191       ;file_exists:
+F00:0192         ; clc if 'y'
+F00:0193         ; sec if 'n'
+F00:0194       ;  ldx #<EXIST_MSG
+F00:0195       ;  ldy #>EXIST_MSG
+F00:0196       ;  jsr w_acia_full
+F00:0197       ;fexlp:
+F00:0198       ;  jsr rxpoll
+F00:0199       ;  lda ACIAData
+F00:0200       ;  pha
+F00:0201       ;  cmp #'y'
+F00:0202       ;  beq exy
+F00:0203       ;  cmp #'n'
+F00:0204       ;  beq exn
+F00:0205       ;  pla
+F00:0206       ;  jmp fexlp
+F00:0207       ;exy:
+F00:0208       ;  jsr crlf
+F00:0209       ;  clc
+F00:0210       ;  rts
+F00:0211       ;exn:
+F00:0212       ;  jsr crlf
+F00:0213       ;  sec
+F00:0214       ;  rts
+F00:0215       
+F00:0216       dirname:
+F00:0217         .asciiz "FOLDER     "
+               S02:00001A12:  46 4F 4C 44 45 52 20 20 20 20 20
+F00:0218       errormsg:
+F00:0219         .byte CR,LF,"ERROR!",CR,LF
+               S02:00001A1E:  0D
+               S02:00001A1F:  0A
+               S02:00001A20:  45 52 52 4F 52 21
+               S02:00001A26:  0D
+               S02:00001A27:  0A
+F00:0220         .byte 0
+               S02:00001A28:  00
+F00:0221       sdbuffer:
+F00:0222         .byte "SAVE    BAS" ; save.bas
+               S02:00001A29:  53 41 56 45 20 20 20 20 42 41 53
+F00:0223       EXIST_MSG:
+F00:0224         .byte "File Exists. Overwrite? (y/n): ",$00
+               S02:00001A34:  46 69 6C 65 20 45 78 69 73 74 73 2E 20 4F 76 65
+               S02:00001A44:  72 77 72 69 74 65 3F 20 28 79 2F 6E 29 3A 20
+               S02:00001A53:  00
+F00:0225       SAVE_DONE:
+F00:0226         .byte	CR,LF,"Save Complete.",CR,LF,$00
+               S02:00001A54:  0D
+               S02:00001A55:  0A
+               S02:00001A56:  53 61 76 65 20 43 6F 6D 70 6C 65 74 65 2E
+               S02:00001A64:  0D
+               S02:00001A65:  0A
+               S02:00001A66:  00
+F00:0227       savmsg:
+F00:0228         .byte $0d, $0a, "Saving...", $0d, $0a, $00
+               S02:00001A67:  0D
+               S02:00001A68:  0A
+               S02:00001A69:  53 61 76 69 6E 67 2E 2E 2E
+               S02:00001A72:  0D
+               S02:00001A73:  0A
+               S02:00001A74:  00
+F00:0229       failedmsg:
+F00:0230         .byte "Failed!",CR,LF,$00
+               S02:00001A75:  46 61 69 6C 65 64 21
+               S02:00001A7C:  0D
+               S02:00001A7D:  0A
+               S02:00001A7E:  00
+F00:0231       
 
 
 Sections:
@@ -3184,7 +3338,7 @@ S02  seg1006
 
 
 Sources:
-F00  writetest.s
+F00  savetest.s
 F01  errors.s
 F02  errorsound.s
 F03  hwconfig.s
@@ -3194,10 +3348,21 @@ F06  libfat32.s
 
 
 Symbols:
-failedmsg EXPR(6591=0x19bf) UNUSED ABS 
+failedmsg EXPR(6773=0x1a75) UNUSED ABS 
+EXIST_MSG EXPR(6708=0x1a34) UNUSED ABS 
+SAVE_DONE EXPR(6740=0x1a54) ABS 
+sdbuffer EXPR(6697=0x1a29) ABS 
+saveok EXPR(6636=0x19ec) UNUSED ABS 
+savmsg EXPR(6759=0x1a67) ABS 
+doneloop EXPR(6671=0x1a0f) ABS 
+errormsg EXPR(6686=0x1a1e) ABS 
+transfer_error EXPR(6610=0x19d2) ABS 
+foundsub EXPR(6606=0x19ce) ABS 
+dirname EXPR(6674=0x1a12) ABS 
+rootsetup EXPR(6591=0x19bf) ABS 
  fat32_file_write wholesectorwriteloop EXPR(6541=0x198d) ABS 
  fat32_file_write fail EXPR(6590=0x19be) ABS 
-fat32_file_write EXPR(6526=0x197e) UNUSED ABS 
+fat32_file_write EXPR(6526=0x197e) ABS 
  fat32_file_read wholesectorreadloop EXPR(6509=0x196d) ABS 
  fat32_file_read done EXPR(6525=0x197d) ABS 
 fat32_file_read EXPR(6494=0x195e) UNUSED ABS 
@@ -3206,7 +3371,7 @@ fat32_file_read EXPR(6494=0x195e) UNUSED ABS
 fat32_file_readbyte EXPR(6421=0x1915) UNUSED ABS 
  fat32_finddirent comparenameloop EXPR(6410=0x190a) ABS 
  fat32_finddirent direntloop EXPR(6402=0x1902) ABS 
-fat32_finddirent EXPR(6398=0x18fe) UNUSED ABS 
+fat32_finddirent EXPR(6398=0x18fe) ABS 
  fat32_readdirent endofdirectory EXPR(6374=0x18e6) ABS 
  fat32_readdirent gotdata EXPR(6376=0x18e8) ABS 
 fat32_readdirent EXPR(6344=0x18c8) ABS 
@@ -3217,12 +3382,12 @@ fat32_readdirent EXPR(6344=0x18c8) ABS
  fat32_writedirent endofdirectorywrite EXPR(6217=0x1849) UNUSED ABS 
  fat32_writedirent gotdirrent EXPR(6219=0x184b) ABS 
 fat32_writedirent EXPR(6187=0x182b) ABS 
-fat32_opendirent EXPR(6136=0x17f8) UNUSED ABS 
+fat32_opendirent EXPR(6136=0x17f8) ABS 
  fat32_findnextfreecluster copycluster EXPR(6116=0x17e4) ABS 
  fat32_findnextfreecluster foundcluster EXPR(6135=0x17f7) ABS 
  fat32_findnextfreecluster searchclusters EXPR(6087=0x17c7) ABS 
-fat32_allocatecluster EXPR(6045=0x179d) UNUSED ABS 
-fat32_openroot EXPR(6021=0x1785) UNUSED ABS 
+fat32_allocatecluster EXPR(6045=0x179d) ABS 
+fat32_openroot EXPR(6021=0x1785) ABS 
  fat32_writenextsector nopass EXPR(6020=0x1784) ABS 
  fat32_writenextsector nextsectorincrementdone EXPR(5963=0x174b) ABS 
 fat32_findnextfreecluster EXPR(6069=0x17b5) ABS 
@@ -3253,7 +3418,6 @@ fat32_newfatsector EXPR(119=0x77) EQU
 fat32_lastsector EXPR(114=0x72) EQU 
 fat32_lastcluster EXPR(109=0x6d) EQU 
 fat32_sectorsperfat EXPR(107=0x6b) EQU 
-fat32_lastfoundfreecluster EXPR(103=0x67) EQU 
 fat32_bytesremaining EXPR(99=0x63) EQU 
 fat32_nextcluster EXPR(95=0x5f) EQU 
 fat32_address EXPR(93=0x5d) EQU 
@@ -3266,10 +3430,12 @@ fat32_readbuffer EXPR(1280=0x500) EQU
  sd_writesector writeloop EXPR(5285=0x14a5) ABS 
  sd_writesector waitidle EXPR(5270=0x1496) ABS 
  sd_writesector writepage EXPR(5283=0x14a3) ABS 
+sd_writesector EXPR(5204=0x1454) ABS 
  sd_fail failloop EXPR(5201=0x1451) ABS 
  sd_readsector readloop EXPR(5177=0x1439) ABS 
  sd_readsector readpage EXPR(5175=0x1437) ABS 
 sd_fail EXPR(5186=0x1442) ABS 
+sd_readsector EXPR(5110=0x13f6) ABS 
 sd_waitresult EXPR(5029=0x13a5) ABS 
  sd_writebyte sendbit EXPR(5016=0x1398) ABS 
  sd_writebyte loop EXPR(5008=0x1390) ABS 
@@ -3294,8 +3460,10 @@ sd_cmd0_bytes EXPR(4955=0x135b) ABS
 sd_init EXPR(4840=0x12e8) UNUSED ABS 
 endwacia EXPR(4832=0x12e0) ABS 
 acia_man EXPR(4818=0x12d2) ABS 
+w_acia_full EXPR(4805=0x12c5) ABS 
 ascii_home EXPR(4797=0x12bd) UNUSED ABS 
 print_char_acia EXPR(4794=0x12ba) UNUSED ABS 
+rxpoll EXPR(4777=0x12a9) ABS 
 txpoll EXPR(4769=0x12a1) ABS 
 cleardisplay EXPR(4758=0x1296) UNUSED ABS 
 crlf EXPR(4737=0x1281) UNUSED ABS 
@@ -3344,26 +3512,22 @@ d412_sVoc3Control EXPR(47122=0xb812) EQU
 d40b_sVoc2Control EXPR(47115=0xb80b) EQU 
 d404_sVoc1Control EXPR(47108=0xb804) EQU 
 d400_sVoc1FreqLo EXPR(47104=0xb800) EQU 
-continue24542 EXPR(4009=0xfa9) ABS 
-putbut EXPR(4013=0xfad) ABS 
+continue24542 EXPR(3921=0xf51) ABS 
+putbut EXPR(3925=0xf55) ABS 
 startupsoundloop EXPR(4655=0x122f) ABS 
-InitSid EXPR(4030=0xfbe) ABS 
-irq EXPR(3991=0xf97) ABS 
-runthesound EXPR(3961=0xf79) UNUSED ABS 
-error_sound EXPR(3955=0xf73) UNUSED ABS 
-ded EXPR(3947=0xf6b) ABS 
-sd_writesector EXPR(5204=0x1454) ABS 
-dummyloop EXPR(3882=0xf2a) ABS 
-sd_readsector EXPR(5110=0x13f6) ABS 
-goin EXPR(3936=0xf60) ABS 
-rxpoll EXPR(4777=0x12a9) ABS 
-w_acia_full EXPR(4805=0x12c5) ABS 
-hehe EXPR(3903=0xf3f) ABS 
+InitSid EXPR(3942=0xf66) ABS 
+irq EXPR(3903=0xf3f) ABS 
+runthesound EXPR(3873=0xf21) UNUSED ABS 
+error_sound EXPR(3867=0xf1b) ABS 
+MEMORY_SAVE EXPR(6623=0x19df) ABS 
+dummyloop EXPR(3852=0xf0c) ABS 
+fat32_lastfoundfreecluster EXPR(103=0x67) EQU 
 reset EXPR(3840=0xf00) UNUSED ABS 
 LF EXPR(10=0xa) EQU 
 CR EXPR(13=0xd) EQU 
+XYLODSAV2 EXPR(100=0x64) UNUSED EQU 
 endbuf EXPR(2304=0x900) UNUSED EQU 
-buffer EXPR(1792=0x700) EQU 
+buffer EXPR(1792=0x700) UNUSED EQU 
 fat32_workspace EXPR(1280=0x500) EQU 
 path EXPR(1024=0x400) UNUSED EQU 
 zp_fat32_variables EXPR(79=0x4f) EQU 

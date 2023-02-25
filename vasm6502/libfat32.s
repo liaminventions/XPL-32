@@ -821,7 +821,7 @@ fat32_writedirent:
   ;iny   ; 0x12-0x13 - User ID
   ;lda #0
   ;sta (zp_sd_address),y	; No ID
-  ;iny
+  ;iny	
   ;sta (zp_sd_address),y
   ;iny 
   ; 0x14-0x15 - File start cluster (high word)
@@ -861,8 +861,8 @@ fat32_writedirent:
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
   bcc .overbuffer
-  jsr fat32_writenextsector ; if so, write the current sector
-  jsr fat32_readnextsector  ; then read the next one.
+  jsr sd_writesector ; if so, write the current sector
+  jsr sd_readsector  ; then read the next one.
   bcs .dfail
   ldy #0
   lda #<fat32_readbuffer
@@ -873,7 +873,7 @@ fat32_writedirent:
   ; next entry is 0 (end of dir)
   lda #0
   sta (zp_sd_address),y
-  jsr fat32_writenextsector ; write all the data...
+  jsr sd_writesector ; write all the data...
   clc
   rts
 

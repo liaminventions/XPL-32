@@ -481,11 +481,11 @@ fat32_writenextsector:
   ; Update the FAT, if needed.
   jsr .sectorbounds
 
-  ; BUG when we write the last cluster, we may miss out on a entire cluster of information! FIXME
+  ; BUG (MAY BE FIXED) when we write the last cluster, we may miss out on a entire cluster of information! 
 
-  ; End of chain - set carry and return
-  sec
-  rts
+  ; End of chain - finish up the remaining sectors
+  
+  jmp .writesector
 
 .notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
@@ -861,8 +861,8 @@ fat32_writedirent:
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
   bcc .overbuffer
-  jsr fat32_writenextsector ; if so, write the current sector
-  jsr fat32_readnextsector  ; then read the next one.
+  jsr sd_writesector ; if so, write the current sector
+  jsr sd_readsector  ; then read the next one.
   bcs .dfail
   ldy #0
   lda #<fat32_readbuffer
@@ -873,7 +873,7 @@ fat32_writedirent:
   ; next entry is 0 (end of dir)
   lda #0
   sta (zp_sd_address),y
-  jsr fat32_writenextsector ; write all the data...
+  jsr sd_writesector ; write all the data...
   clc
   rts
 
