@@ -8,6 +8,7 @@
 ; FIXME once we have more flags, please incorporate all of them into one byte! (flags have two states)
 
 fat32_readbuffer = fat32_workspace
+fat32_fatbuffer = buffer
 
 fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
 fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
@@ -248,28 +249,28 @@ fat32_seekcluster:
   sta zp_sd_currentsector+3
 
   ; Check if this sector is the same as the last one
-  ;lda fat32_lastsector
-  ;cmp zp_sd_currentsector
-  ;bne .newsector
-  ;lda fat32_lastsector+1
-  ;cmp zp_sd_currentsector+1
-  ;bne .newsector
-  ;lda fat32_lastsector+2
-  ;cmp zp_sd_currentsector+2
-  ;bne .newsector
-  ;lda fat32_lastsector+3
-  ;cmp zp_sd_currentsector+3
-  ;beq .notnew
+  lda fat32_lastsector
+  cmp zp_sd_currentsector
+  bne .newsector
+  lda fat32_lastsector+1
+  cmp zp_sd_currentsector+1
+  bne .newsector
+  lda fat32_lastsector+2
+  cmp zp_sd_currentsector+2
+  bne .newsector
+  lda fat32_lastsector+3
+  cmp zp_sd_currentsector+3
+  beq .notnew
 
-;.newsector
+.newsector
 
- ; lda #$ff
- ; sta fat32_newfatsector
+;  lda #$ff
+;  sta fat32_newfatsector
 
   ; Target buffer
-  lda #<fat32_readbuffer
+  lda #<fat32_fatbuffer
   sta zp_sd_address
-  lda #>fat32_readbuffer
+  lda #>fat32_fatbuffer
   sta zp_sd_address+1
 
   ; Read the sector from the FAT
@@ -286,9 +287,13 @@ fat32_seekcluster:
   lda zp_sd_currentsector+3
   sta fat32_lastsector+3
 
-;.notnew
+;  jmp .newc
 
-  ;stz fat32_newfatsector
+.notnew
+
+; stz fat32_newfatsector
+
+;.newc
 
   ; Before using this FAT data, set currentsector ready to read the cluster itself
   ; We need to multiply the cluster number minus two by the number of sectors per 
@@ -444,8 +449,8 @@ fat32_writenextsector:
   ; On return, carry is set if its the end of the chain.
 
   ; Maybe there are pending sectors in the current cluster
-  lda fat32_pendingsectors
-  bne .writesector
+  ;lda fat32_pendingsectors
+  ;bne .writesector
 
   ; BUG cluster remaining calc needed - for now files are 1 cluster long...
 
@@ -535,6 +540,12 @@ fat32_writenextsector:
   lda fat32_address+1
   sta zp_sd_address+1
 
+  ; Target buffer
+  lda #<fat32_readbuffer
+  sta zp_sd_address
+  lda #>fat32_readbuffer
+  sta zp_sd_address+1
+
   ; Write the sector
   jsr sd_writesector
 
@@ -554,8 +565,8 @@ fat32_writenextsector:
 
 fat32_sectorbounds:
   ; Have we passed over a sector while modifying the FAT?
-  lda fat32_newfatsector
-  beq .nopass
+  ;lda fat32_newfatsector
+  ;beq .nopass
 
   ; Yes, preserve the current sector
   lda zp_sd_currentsector
@@ -578,9 +589,9 @@ fat32_sectorbounds:
   sta zp_sd_currentsector+3
 
   ; Target buffer
-  lda #<fat32_readbuffer
+  lda #<fat32_fatbuffer
   sta zp_sd_address
-  lda #>fat32_readbuffer
+  lda #>fat32_fatbuffer
   sta zp_sd_address+1
 
   ; Write the FAT sector
