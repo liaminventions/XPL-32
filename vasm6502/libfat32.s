@@ -802,8 +802,8 @@ fat32_writedirent:
   iny   ; 0x0c - Checksum/File accsess password
   lda #$10		            ; No checksum or password
   sta (zp_sd_address),y
-  iny   ; 0x0d - Does not matter now (first char of deleted file)
-  lda #0
+  iny   ; 0x0d - first char of deleted file - 0x7d for nothing
+  lda #$7D
   sta (zp_sd_address),y
   iny	; 0x0e-0x11 - File creation time/date
 .empty
@@ -1148,27 +1148,27 @@ fat32_file_write:
   bne .wholesectorwriteloop
 
   ; Has fat32_writenextsector written the FAT table?
-  lda fat32_newfatsector
-  bne .fail  ; not a fail, just means its done.
+  ;lda fat32_newfatsector
+  ;bne .fail  ; not a fail, just means its done.
 
   ; No, write it here.
-  lda fat32_lastsector
-  sta zp_sd_currentsector
-  lda fat32_lastsector+1
-  sta zp_sd_currentsector+1
-  lda fat32_lastsector+2
-  sta zp_sd_currentsector+2
-  lda fat32_lastsector+3
-  sta zp_sd_currentsector+3
+  ;lda fat32_lastsector
+  ;sta zp_sd_currentsector
+  ;lda fat32_lastsector+1
+  ;sta zp_sd_currentsector+1
+  ;lda fat32_lastsector+2
+  ;sta zp_sd_currentsector+2
+  ;lda fat32_lastsector+3
+  ;sta zp_sd_currentsector+3
 
   ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
+  ;lda #<fat32_readbuffer
+  ;sta zp_sd_address
+  ;lda #>fat32_readbuffer
+  ;sta zp_sd_address+1
 
   ; Write the FAT sector
-  jsr sd_writesector
+  ;jsr sd_writesector
 
 .fail
   rts

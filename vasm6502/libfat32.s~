@@ -802,8 +802,8 @@ fat32_writedirent:
   iny   ; 0x0c - Checksum/File accsess password
   lda #$10		            ; No checksum or password
   sta (zp_sd_address),y
-  iny   ; 0x0d - Does not matter now (first char of deleted file)
-  lda #0
+  iny   ; 0x0d - first char of deleted file - 0x7d for nothing
+  lda #$7D
   sta (zp_sd_address),y
   iny	; 0x0e-0x11 - File creation time/date
 .empty
@@ -898,6 +898,11 @@ fat32_writedirent:
   dec zp_sd_currentsector
 
 .nodec
+
+  lda fat32_address
+  sta zp_sd_address
+  lda fat32_address+1
+  sta zp_sd_address+1
 
   ; Read the sector
   jsr sd_writesector

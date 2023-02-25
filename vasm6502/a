@@ -75,7 +75,7 @@ F00:0062         ;sta $0701
 F00:0063         ;sta $0702
 F00:0064       
 F00:0065         jmp MEMORY_SAVE ; OK, here we go.
-               S01:00000F18:  4C 09 1A
+               S01:00000F18:  4C EA 19
 F00:0066       
 F00:0067       ;faterror:
 F00:0068       ;  lda #'f'
@@ -2594,10 +2594,10 @@ F06:0803         lda #$10		            ; No checksum or password
                S02:00001860:  A9 10
 F06:0804         sta (zp_sd_address),y
                S02:00001862:  91 48
-F06:0805         iny   ; 0x0d - Does not matter now (first char of deleted file)
+F06:0805         iny   ; 0x0d - first char of deleted file - 0x7d for nothing
                S02:00001864:  C8
-F06:0806         lda #0
-               S02:00001865:  A9 00
+F06:0806         lda #$7D
+               S02:00001865:  A9 7D
 F06:0807         sta (zp_sd_address),y
                S02:00001867:  91 48
 F06:0808         iny	; 0x0e-0x11 - File creation time/date
@@ -3099,7 +3099,7 @@ F06:1125         adc #0                      ; round up
 F06:1126       
 F06:1127         ; No data?
 F06:1128         beq .fail
-               S02:000019B3:  F0 33
+               S02:000019B3:  F0 14
 F06:1129       
 F06:1130         ; Store sector count - not a byte count anymore.
 F06:1131         sta fat32_bytesremaining
@@ -3111,7 +3111,7 @@ F06:1135         ; Write a sector from fat32_address
 F06:1136         jsr fat32_writenextsector
                S02:000019B7:  20 CA 16
 F06:1137         bcs .fail	; this shouldn't happen
-               S02:000019BA:  B0 2C
+               S02:000019BA:  B0 0D
 F06:1138       
 F06:1139         ; Advance fat32_address by 512 bytes
 F06:1140         lda fat32_address+1
@@ -3132,88 +3132,73 @@ F06:1148         bne .wholesectorwriteloop
                S02:000019C7:  D0 EE
 F06:1149       
 F06:1150         ; Has fat32_writenextsector written the FAT table?
-F06:1151         lda fat32_newfatsector
-               S02:000019C9:  A5 77
-F06:1152         bne .fail  ; not a fail, just means its done.
-               S02:000019CB:  D0 1B
+F06:1151         ;lda fat32_newfatsector
+F06:1152         ;bne .fail  ; not a fail, just means its done.
 F06:1153       
 F06:1154         ; No, write it here.
-F06:1155         lda fat32_lastsector
-               S02:000019CD:  A5 72
-F06:1156         sta zp_sd_currentsector
-               S02:000019CF:  85 4A
-F06:1157         lda fat32_lastsector+1
-               S02:000019D1:  A5 73
-F06:1158         sta zp_sd_currentsector+1
-               S02:000019D3:  85 4B
-F06:1159         lda fat32_lastsector+2
-               S02:000019D5:  A5 74
-F06:1160         sta zp_sd_currentsector+2
-               S02:000019D7:  85 4C
-F06:1161         lda fat32_lastsector+3
-               S02:000019D9:  A5 75
-F06:1162         sta zp_sd_currentsector+3
-               S02:000019DB:  85 4D
+F06:1155         ;lda fat32_lastsector
+F06:1156         ;sta zp_sd_currentsector
+F06:1157         ;lda fat32_lastsector+1
+F06:1158         ;sta zp_sd_currentsector+1
+F06:1159         ;lda fat32_lastsector+2
+F06:1160         ;sta zp_sd_currentsector+2
+F06:1161         ;lda fat32_lastsector+3
+F06:1162         ;sta zp_sd_currentsector+3
 F06:1163       
 F06:1164         ; Target buffer
-F06:1165         lda #<fat32_readbuffer
-               S02:000019DD:  A9 00
-F06:1166         sta zp_sd_address
-               S02:000019DF:  85 48
-F06:1167         lda #>fat32_readbuffer
-               S02:000019E1:  A9 05
-F06:1168         sta zp_sd_address+1
-               S02:000019E3:  85 49
+F06:1165         ;lda #<fat32_readbuffer
+F06:1166         ;sta zp_sd_address
+F06:1167         ;lda #>fat32_readbuffer
+F06:1168         ;sta zp_sd_address+1
 F06:1169       
 F06:1170         ; Write the FAT sector
-F06:1171         jsr sd_writesector
-               S02:000019E5:  20 54 14
+F06:1171         ;jsr sd_writesector
 F06:1172       
 F06:1173       .fail
 F06:1174         rts
-               S02:000019E8:  60
+               S02:000019C9:  60
 F06:1175       
 F00:0081       
 F00:0082       rootsetup:		; setup <ROOT>
 F00:0083       
 F00:0084         ; Open root directory
 F00:0085         jsr fat32_openroot
-               S02:000019E9:  20 85 17
+               S02:000019CA:  20 85 17
 F00:0086       
 F00:0087         ; Find the subdirectory by name
 F00:0088         ldx #<dirname
-               S02:000019EC:  A2 3C
+               S02:000019CD:  A2 1D
 F00:0089         ldy #>dirname
-               S02:000019EE:  A0 1A
+               S02:000019CF:  A0 1A
 F00:0090         jsr fat32_finddirent
-               S02:000019F0:  20 28 19
+               S02:000019D1:  20 28 19
 F00:0091         bcc foundsub
-               S02:000019F3:  90 03
+               S02:000019D4:  90 03
 F00:0092       
 F00:0093         ; Subdirectory not found
 F00:0094         jmp transfer_error
-               S02:000019F5:  4C FC 19
+               S02:000019D6:  4C DD 19
 F00:0095       
 F00:0096       foundsub:
 F00:0097       
 F00:0098         ; Open subdirectory
 F00:0099         jsr fat32_opendirent	; open folder
-               S02:000019F8:  20 F8 17
+               S02:000019D9:  20 F8 17
 F00:0100       	
 F00:0101         rts			; done
-               S02:000019FB:  60
+               S02:000019DC:  60
 F00:0102       
 F00:0103       transfer_error:
 F00:0104         ldy #>errormsg
-               S02:000019FC:  A0 1A
+               S02:000019DD:  A0 1A
 F00:0105         ldx #<errormsg
-               S02:000019FE:  A2 48
+               S02:000019DF:  A2 29
 F00:0106         jsr w_acia_full
-               S02:00001A00:  20 C5 12
+               S02:000019E1:  20 C5 12
 F00:0107         jsr error_sound
-               S02:00001A03:  20 1B 0F
+               S02:000019E4:  20 1B 0F
 F00:0108         jmp doneloop
-               S02:00001A06:  4C 39 1A
+               S02:000019E7:  4C 1A 1A
 F00:0109       
 F00:0110       ;msincremaining:
 F00:0111       ;  inc fat32_bytesremaining
@@ -3229,17 +3214,17 @@ F00:0120
 F00:0121       MEMORY_SAVE:
 F00:0122       ; finally. this is what we need to debug.
 F00:0123         ldx #<savmsg
-               S02:00001A09:  A2 91
+               S02:000019EA:  A2 72
 F00:0124         ldy #>savmsg
-               S02:00001A0B:  A0 1A
+               S02:000019EC:  A0 1A
 F00:0125         jsr w_acia_full
-               S02:00001A0D:  20 C5 12
+               S02:000019EE:  20 C5 12
 F00:0126         ; Allocate the first cluster for the data
 F00:0127         jsr fat32_allocatecluster
-               S02:00001A10:  20 9D 17
+               S02:000019F1:  20 9D 17
 F00:0128         ; Open the folder
 F00:0129         jsr rootsetup
-               S02:00001A13:  20 E9 19
+               S02:000019F4:  20 CA 19
 F00:0130         
 F00:0131         ;ldy #>sdbuffer
 F00:0132         ;ldx #<sdbuffer
@@ -3251,11 +3236,11 @@ F00:0137       saveok:
 F00:0138       ; Now calculate file size and store it in fat32_bytesremaining.
 F00:0139       ; For now, just write it.
 F00:0140         lda #$01
-               S02:00001A16:  A9 01
+               S02:000019F7:  A9 01
 F00:0141         sta fat32_bytesremaining+1
-               S02:00001A18:  85 64
+               S02:000019F9:  85 64
 F00:0142         stz fat32_bytesremaining
-               S02:00001A1A:  64 63
+               S02:000019FB:  64 63
 F00:0143       
 F00:0144       ;  lda #$00
 F00:0145       ;  sta XYLODSAV2
@@ -3281,45 +3266,45 @@ F00:0164         ;bne savecalclp
 F00:0165       
 F00:0166         ; Save filename pointer
 F00:0167         lda #<sdbuffer
-               S02:00001A1C:  A9 53
+               S02:000019FD:  A9 34
 F00:0168         sta fat32_filenamepointer
-               S02:00001A1E:  85 63
+               S02:000019FF:  85 63
 F00:0169         lda #>sdbuffer
-               S02:00001A20:  A9 1A
+               S02:00001A01:  A9 1A
 F00:0170         sta fat32_filenamepointer+1
-               S02:00001A22:  85 64
+               S02:00001A03:  85 64
 F00:0171       
 F00:0172         ; Great, now make a directory entry for this new file.
 F00:0173         jsr fat32_writedirent
-               S02:00001A24:  20 2B 18
+               S02:00001A05:  20 2B 18
 F00:0174       
 F00:0175         ; Now, let's write the file...
 F00:0176         lda #$00
-               S02:00001A27:  A9 00
+               S02:00001A08:  A9 00
 F00:0177         sta fat32_address
-               S02:00001A29:  85 5D
+               S02:00001A0A:  85 5D
 F00:0178         lda #$07
-               S02:00001A2B:  A9 07
+               S02:00001A0C:  A9 07
 F00:0179         sta fat32_address+1
-               S02:00001A2D:  85 5E
+               S02:00001A0E:  85 5E
 F00:0180         jsr fat32_file_write  ; Yes. It is finally time to save the file.
-               S02:00001A2F:  20 A8 19
+               S02:00001A10:  20 A8 19
 F00:0181         
 F00:0182         ; All done!
 F00:0183         ldx #<SAVE_DONE
-               S02:00001A32:  A2 7E
+               S02:00001A13:  A2 5F
 F00:0184         ldy #>SAVE_DONE
-               S02:00001A34:  A0 1A
+               S02:00001A15:  A0 1A
 F00:0185         jsr w_acia_full
-               S02:00001A36:  20 C5 12
+               S02:00001A17:  20 C5 12
 F00:0186       doneloop:
 F00:0187         ;jmp doneloop
 F00:0188         rts
-               S02:00001A39:  60
+               S02:00001A1A:  60
 F00:0189         rts
-               S02:00001A3A:  60
+               S02:00001A1B:  60
 F00:0190         rts
-               S02:00001A3B:  60
+               S02:00001A1C:  60
 F00:0191       ;file_exists:
 F00:0192         ; clc if 'y'
 F00:0193         ; sec if 'n'
@@ -3347,46 +3332,46 @@ F00:0214       ;  rts
 F00:0215       
 F00:0216       dirname:
 F00:0217         .asciiz "FOLDER     "
-               S02:00001A3C:  46 4F 4C 44 45 52 20 20 20 20 20
+               S02:00001A1D:  46 4F 4C 44 45 52 20 20 20 20 20
 F00:0218       errormsg:
 F00:0219         .byte CR,LF,"ERROR!",CR,LF
-               S02:00001A48:  0D
-               S02:00001A49:  0A
-               S02:00001A4A:  45 52 52 4F 52 21
-               S02:00001A50:  0D
-               S02:00001A51:  0A
+               S02:00001A29:  0D
+               S02:00001A2A:  0A
+               S02:00001A2B:  45 52 52 4F 52 21
+               S02:00001A31:  0D
+               S02:00001A32:  0A
 F00:0220         .byte 0
-               S02:00001A52:  00
+               S02:00001A33:  00
 F00:0221       sdbuffer:
 F00:0222         .byte "SAVE    BAS" ; save.bas
-               S02:00001A53:  53 41 56 45 20 20 20 20 42 41 53
+               S02:00001A34:  53 41 56 45 20 20 20 20 42 41 53
 F00:0223       EXIST_MSG:
 F00:0224         .byte "File Exists. Overwrite? (y/n): ",$00
-               S02:00001A5E:  46 69 6C 65 20 45 78 69 73 74 73 2E 20 4F 76 65
-               S02:00001A6E:  72 77 72 69 74 65 3F 20 28 79 2F 6E 29 3A 20
-               S02:00001A7D:  00
+               S02:00001A3F:  46 69 6C 65 20 45 78 69 73 74 73 2E 20 4F 76 65
+               S02:00001A4F:  72 77 72 69 74 65 3F 20 28 79 2F 6E 29 3A 20
+               S02:00001A5E:  00
 F00:0225       SAVE_DONE:
 F00:0226         .byte	CR,LF,"Save Complete.",CR,LF,$00
-               S02:00001A7E:  0D
-               S02:00001A7F:  0A
-               S02:00001A80:  53 61 76 65 20 43 6F 6D 70 6C 65 74 65 2E
-               S02:00001A8E:  0D
-               S02:00001A8F:  0A
-               S02:00001A90:  00
+               S02:00001A5F:  0D
+               S02:00001A60:  0A
+               S02:00001A61:  53 61 76 65 20 43 6F 6D 70 6C 65 74 65 2E
+               S02:00001A6F:  0D
+               S02:00001A70:  0A
+               S02:00001A71:  00
 F00:0227       savmsg:
 F00:0228         .byte $0d, $0a, "Saving...", $0d, $0a, $00
-               S02:00001A91:  0D
-               S02:00001A92:  0A
-               S02:00001A93:  53 61 76 69 6E 67 2E 2E 2E
-               S02:00001A9C:  0D
-               S02:00001A9D:  0A
-               S02:00001A9E:  00
+               S02:00001A72:  0D
+               S02:00001A73:  0A
+               S02:00001A74:  53 61 76 69 6E 67 2E 2E 2E
+               S02:00001A7D:  0D
+               S02:00001A7E:  0A
+               S02:00001A7F:  00
 F00:0229       failedmsg:
 F00:0230         .byte "Failed!",CR,LF,$00
-               S02:00001A9F:  46 61 69 6C 65 64 21
-               S02:00001AA6:  0D
-               S02:00001AA7:  0A
-               S02:00001AA8:  00
+               S02:00001A80:  46 61 69 6C 65 64 21
+               S02:00001A87:  0D
+               S02:00001A88:  0A
+               S02:00001A89:  00
 F00:0231       
 
 
@@ -3406,20 +3391,20 @@ F06  libfat32.s
 
 
 Symbols:
-failedmsg EXPR(6815=0x1a9f) UNUSED ABS 
-EXIST_MSG EXPR(6750=0x1a5e) UNUSED ABS 
-SAVE_DONE EXPR(6782=0x1a7e) ABS 
-sdbuffer EXPR(6739=0x1a53) ABS 
-saveok EXPR(6678=0x1a16) UNUSED ABS 
-savmsg EXPR(6801=0x1a91) ABS 
-doneloop EXPR(6713=0x1a39) ABS 
-errormsg EXPR(6728=0x1a48) ABS 
-transfer_error EXPR(6652=0x19fc) ABS 
-foundsub EXPR(6648=0x19f8) ABS 
-dirname EXPR(6716=0x1a3c) ABS 
-rootsetup EXPR(6633=0x19e9) ABS 
+failedmsg EXPR(6784=0x1a80) UNUSED ABS 
+EXIST_MSG EXPR(6719=0x1a3f) UNUSED ABS 
+SAVE_DONE EXPR(6751=0x1a5f) ABS 
+sdbuffer EXPR(6708=0x1a34) ABS 
+saveok EXPR(6647=0x19f7) UNUSED ABS 
+savmsg EXPR(6770=0x1a72) ABS 
+doneloop EXPR(6682=0x1a1a) ABS 
+errormsg EXPR(6697=0x1a29) ABS 
+transfer_error EXPR(6621=0x19dd) ABS 
+foundsub EXPR(6617=0x19d9) ABS 
+dirname EXPR(6685=0x1a1d) ABS 
+rootsetup EXPR(6602=0x19ca) ABS 
  fat32_file_write wholesectorwriteloop EXPR(6583=0x19b7) ABS 
- fat32_file_write fail EXPR(6632=0x19e8) ABS 
+ fat32_file_write fail EXPR(6601=0x19c9) ABS 
 fat32_file_write EXPR(6568=0x19a8) ABS 
  fat32_file_read wholesectorreadloop EXPR(6551=0x1997) ABS 
  fat32_file_read done EXPR(6567=0x19a7) ABS 
@@ -3581,7 +3566,7 @@ InitSid EXPR(3942=0xf66) ABS
 irq EXPR(3903=0xf3f) ABS 
 runthesound EXPR(3873=0xf21) UNUSED ABS 
 error_sound EXPR(3867=0xf1b) ABS 
-MEMORY_SAVE EXPR(6665=0x1a09) ABS 
+MEMORY_SAVE EXPR(6634=0x19ea) ABS 
 dummyloop EXPR(3852=0xf0c) ABS 
 fat32_lastfoundfreecluster EXPR(103=0x67) EQU 
 reset EXPR(3840=0xf00) UNUSED ABS 
