@@ -806,6 +806,7 @@ fat32_writedirent:
   lda #$7D
   sta (zp_sd_address),y
   iny	; 0x0e-0x11 - File creation time/date
+  lda #0
 .empty
   sta (zp_sd_address),y	; No time/date because I don't have an RTC
   iny
