@@ -540,12 +540,6 @@ fat32_writenextsector:
   lda fat32_address+1
   sta zp_sd_address+1
 
-  ; Target buffer
-  lda #<fat32_readbuffer
-  sta zp_sd_address
-  lda #>fat32_readbuffer
-  sta zp_sd_address+1
-
   ; Write the sector
   jsr sd_writesector
 
