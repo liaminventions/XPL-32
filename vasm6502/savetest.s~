@@ -178,6 +178,8 @@ saveok:
   lda #$07
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
+  
+  ; All done!
   ldx #<SAVE_DONE
   ldy #>SAVE_DONE
   jsr w_acia_full

@@ -139,7 +139,10 @@ saveok:
 ; For now, just write it.
   lda #$01
   sta fat32_bytesremaining+1
-  stz fat32_bytesremaining
+  lda #$00
+  sta fat32_bytesremaining
+  sta fat32_bytesremaining+2
+  sta fat32_bytesremaining+3
 
 ;  lda #$00
 ;  sta XYLODSAV2
