@@ -50,16 +50,16 @@ reset:
   ; init done
 ;initdone:
   ; now make a dummy file.
-  ldx #0
-dummyloop:
-  txa
-  sta $0900,x
-  sta $0a00,x
-  inx
-  bne dummyloop
+  ;ldx #0
+;dummyloop:
+  ;txa
+  ;sta $0900,x
+  ;sta $0a00,x
+  ;inx
+  ;bne dummyloop
   ; add an EOF
-  lda #0
-  sta $0b00
+  ;lda #0
+  ;sta $0b00
   ;sta $0701
   ;sta $0702
 
@@ -138,7 +138,7 @@ MEMORY_SAVE:
 saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
 ; For now, just write it.
-  lda #$02
+  lda #$80
   sta fat32_bytesremaining+1
   lda #$00
   sta fat32_bytesremaining
@@ -179,7 +179,7 @@ saveok:
   ; Now, let's write the file...
   lda #$00
   sta fat32_address
-  lda #$09
+  lda #$c0
   sta fat32_address+1
   jsr fat32_file_write  ; Yes. It is finally time to save the file.
   

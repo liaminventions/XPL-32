@@ -55,29 +55,21 @@ F00:0049         sta fat32_lastfoundfreecluster+3
 F00:0050         ; init done
 F00:0051       ;initdone:
 F00:0052         ; now make a dummy file.
-F00:0053         ldx #0
-               S01:00000F0A:  A2 00
-F00:0054       dummyloop:
-F00:0055         txa
-               S01:00000F0C:  8A
-F00:0056         sta $0900,x
-               S01:00000F0D:  9D 00 09
-F00:0057         sta $0a00,x
-               S01:00000F10:  9D 00 0A
-F00:0058         inx
-               S01:00000F13:  E8
-F00:0059         bne dummyloop
-               S01:00000F14:  D0 F6
+F00:0053         ;ldx #0
+F00:0054       ;dummyloop:
+F00:0055         ;txa
+F00:0056         ;sta $0900,x
+F00:0057         ;sta $0a00,x
+F00:0058         ;inx
+F00:0059         ;bne dummyloop
 F00:0060         ; add an EOF
-F00:0061         lda #0
-               S01:00000F16:  A9 00
-F00:0062         sta $0b00
-               S01:00000F18:  8D 00 0B
+F00:0061         ;lda #0
+F00:0062         ;sta $0b00
 F00:0063         ;sta $0701
 F00:0064         ;sta $0702
 F00:0065       
 F00:0066         jmp MEMORY_SAVE ; OK, here we go.
-               S01:00000F1B:  4C E2 19
+               S01:00000F0A:  4C E2 19
 F00:0067       
 F00:0068       ;faterror:
 F00:0069       ;  lda #'f'
@@ -91,83 +83,83 @@ F00:0076
 F00:0077         .include "errors.s"
 F01:0001       error_sound:
 F01:0002         lda #$55
-               S01:00000F1E:  A9 55
+               S01:00000F0D:  A9 55
 F01:0003         sta donefact
-               S01:00000F20:  85 01
+               S01:00000F0F:  85 01
 F01:0004         stz irqcount	; reset irq count
-               S01:00000F22:  64 00
+               S01:00000F11:  64 00
 F01:0005       
 F01:0006       runthesound:
 F01:0007         sei		; turn off irqs
-               S01:00000F24:  78
+               S01:00000F13:  78
 F01:0008         lda #<irq
-               S01:00000F25:  A9 42
+               S01:00000F14:  A9 31
 F01:0009         sta $7ffe
-               S01:00000F27:  8D FE 7F
+               S01:00000F16:  8D FE 7F
 F01:0010         lda #>irq
-               S01:00000F2A:  A9 0F
+               S01:00000F19:  A9 0F
 F01:0011         sta $7fff	; store vectors
-               S01:00000F2C:  8D FF 7F
+               S01:00000F1B:  8D FF 7F
 F01:0012         lda #$c0
-               S01:00000F2F:  A9 C0
+               S01:00000F1E:  A9 C0
 F01:0013         sta $b00e	
-               S01:00000F31:  8D 0E B0
+               S01:00000F20:  8D 0E B0
 F01:0014         lda #0 ; Song Number
-               S01:00000F34:  A9 00
+               S01:00000F23:  A9 00
 F01:0015         jsr InitSid
-               S01:00000F36:  20 69 0F
+               S01:00000F25:  20 58 0F
 F01:0016         lda #$40
-               S01:00000F39:  A9 40
+               S01:00000F28:  A9 40
 F01:0017         sta $b00d
-               S01:00000F3B:  8D 0D B0
+               S01:00000F2A:  8D 0D B0
 F01:0018         cli
-               S01:00000F3E:  58
+               S01:00000F2D:  58
 F01:0019         jmp startupsoundloop
-               S01:00000F3F:  4C 2F 12
+               S01:00000F2E:  4C 2F 12
 F01:0020       
 F01:0021       irq:
 F01:0022         lda #$40
-               S01:00000F42:  A9 40
+               S01:00000F31:  A9 40
 F01:0023         sta $b00d
-               S01:00000F44:  8D 0D B0
+               S01:00000F33:  8D 0D B0
 F01:0024         jsr putbut		; refresh timers
-               S01:00000F47:  20 58 0F
+               S01:00000F36:  20 47 0F
 F01:0025         inc irqcount		; a irq has occurred
-               S01:00000F4A:  E6 00
+               S01:00000F39:  E6 00
 F01:0026         lda irqcount
-               S01:00000F4C:  A5 00
+               S01:00000F3B:  A5 00
 F01:0027         cmp #$40		; if $32 irqs (end of the error sound)
-               S01:00000F4E:  C9 40
+               S01:00000F3D:  C9 40
 F01:0028         bne continue24542 	; end the stream
-               S01:00000F50:  D0 02
+               S01:00000F3F:  D0 02
 F01:0029         stz donefact		; its done, tell the loop
-               S01:00000F52:  64 01
+               S01:00000F41:  64 01
 F01:0030       continue24542:
 F01:0031         jsr $1006
-               S01:00000F54:  20 06 10
+               S01:00000F43:  20 06 10
 F01:0032         rti			; exit
-               S01:00000F57:  40
+               S01:00000F46:  40
 F01:0033       
 F01:0034       putbut:
 F01:0035         ldx #$9e
-               S01:00000F58:  A2 9E
+               S01:00000F47:  A2 9E
 F01:0036         stx $b004
-               S01:00000F5A:  8E 04 B0
+               S01:00000F49:  8E 04 B0
 F01:0037         stx $b006
-               S01:00000F5D:  8E 06 B0
+               S01:00000F4C:  8E 06 B0
 F01:0038         ldx #$0f  ; 250Hz IRQ
-               S01:00000F60:  A2 0F
+               S01:00000F4F:  A2 0F
 F01:0039         stx $b005
-               S01:00000F62:  8E 05 B0
+               S01:00000F51:  8E 05 B0
 F01:0040         stx $b007
-               S01:00000F65:  8E 07 B0
+               S01:00000F54:  8E 07 B0
 F01:0041         rts
-               S01:00000F68:  60
+               S01:00000F57:  60
 F01:0042       InitSid:
 F01:0043         jsr putbut
-               S01:00000F69:  20 58 0F
+               S01:00000F58:  20 47 0F
 F01:0044         jmp $1103
-               S01:00000F6C:  4C 03 11
+               S01:00000F5B:  4C 03 11
 F01:0045       
 F01:0046         .org $1006
 F01:0047       
@@ -3206,7 +3198,7 @@ F00:0106         ldx #<errormsg
 F00:0107         jsr w_acia_full
                S02:000019D9:  20 C5 12
 F00:0108         jsr error_sound
-               S02:000019DC:  20 1E 0F
+               S02:000019DC:  20 0D 0F
 F00:0109         jmp doneloop
                S02:000019DF:  4C 18 1A
 F00:0110       
@@ -3245,8 +3237,8 @@ F00:0137         ;bcs doneloop
 F00:0138       saveok:
 F00:0139       ; Now calculate file size and store it in fat32_bytesremaining.
 F00:0140       ; For now, just write it.
-F00:0141         lda #$02
-               S02:000019EF:  A9 02
+F00:0141         lda #$80
+               S02:000019EF:  A9 80
 F00:0142         sta fat32_bytesremaining+1
                S02:000019F1:  85 64
 F00:0143         lda #$00
@@ -3299,8 +3291,8 @@ F00:0180         lda #$00
                S02:00001A06:  A9 00
 F00:0181         sta fat32_address
                S02:00001A08:  85 5D
-F00:0182         lda #$09
-               S02:00001A0A:  A9 09
+F00:0182         lda #$c0
+               S02:00001A0A:  A9 C0
 F00:0183         sta fat32_address+1
                S02:00001A0C:  85 5E
 F00:0184         jsr fat32_file_write  ; Yes. It is finally time to save the file.
@@ -3577,15 +3569,14 @@ d412_sVoc3Control EXPR(47122=0xb812) EQU
 d40b_sVoc2Control EXPR(47115=0xb80b) EQU 
 d404_sVoc1Control EXPR(47108=0xb804) EQU 
 d400_sVoc1FreqLo EXPR(47104=0xb800) EQU 
-continue24542 EXPR(3924=0xf54) ABS 
-putbut EXPR(3928=0xf58) ABS 
+continue24542 EXPR(3907=0xf43) ABS 
+putbut EXPR(3911=0xf47) ABS 
 startupsoundloop EXPR(4655=0x122f) ABS 
-InitSid EXPR(3945=0xf69) ABS 
-irq EXPR(3906=0xf42) ABS 
-runthesound EXPR(3876=0xf24) UNUSED ABS 
-error_sound EXPR(3870=0xf1e) ABS 
+InitSid EXPR(3928=0xf58) ABS 
+irq EXPR(3889=0xf31) ABS 
+runthesound EXPR(3859=0xf13) UNUSED ABS 
+error_sound EXPR(3853=0xf0d) ABS 
 MEMORY_SAVE EXPR(6626=0x19e2) ABS 
-dummyloop EXPR(3852=0xf0c) ABS 
 fat32_lastfoundfreecluster EXPR(103=0x67) EQU 
 reset EXPR(3840=0xf00) UNUSED ABS 
 LF EXPR(10=0xa) EQU 
