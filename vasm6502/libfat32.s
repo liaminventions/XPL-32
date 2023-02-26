@@ -489,31 +489,10 @@ fat32_writenextsector:
   dey
   sta (zp_sd_address),y
 
-  ; Preserve the current sector
-  lda zp_sd_currentsector
-  pha 
-  lda zp_sd_currentsector+1
-  pha 
-  lda zp_sd_currentsector+2
-  pha 
-  lda zp_sd_currentsector+3
-  pha
-
-  ; Update the FAT, if needed.
-  jsr .sectorbounds
+  ; Update the FAT
+  jsr fat32_sectorbounds
 
   ; End of chain - finish up the remaining sectors
-
-  ; Pull back the current sector
-  pla
-  sta zp_sd_currentsector+3
-  pla
-  sta zp_sd_currentsector+2
-  pla
-  sta zp_sd_currentsector+1
-  pla
-  sta zp_sd_currentsector
-
   jmp .writesector
 
 .notlastcluster
@@ -556,28 +535,8 @@ fat32_writenextsector:
   sta fat32_lastcluster
   sta (zp_sd_address),y
 
-  ; Preserve the current sector
-  lda zp_sd_currentsector
-  pha 
-  lda zp_sd_currentsector+1
-  pha 
-  lda zp_sd_currentsector+2
-  pha 
-  lda zp_sd_currentsector+3
-  pha
-
-  ; Update the FAT, if needed.
-  jsr .sectorbounds
-
-  ; Pull back the current sector
-  pla
-  sta zp_sd_currentsector+3
-  pla
-  sta zp_sd_currentsector+2
-  pla
-  sta zp_sd_currentsector+1
-  pla
-  sta zp_sd_currentsector
+  ; Update the FAT
+  jsr fat32_sectorbounds
   
 .writesector:
   dec fat32_pendingsectors
@@ -605,12 +564,19 @@ fat32_writenextsector:
   clc
   rts
 
-.sectorbounds:
-  ; Have we passed over a sector while modifying the FAT?
-  ;lda fat32_newfatsector
-  ;beq .nopass
+fat32_sectorbounds:
 
-  ; Write the sector
+  ; Preserve the current sector
+  lda zp_sd_currentsector
+  pha 
+  lda zp_sd_currentsector+1
+  pha 
+  lda zp_sd_currentsector+2
+  pha 
+  lda zp_sd_currentsector+3
+  pha
+
+  ; Write FAT sector
   lda fat32_lastsector
   sta zp_sd_currentsector
   lda fat32_lastsector+1
@@ -629,8 +595,16 @@ fat32_writenextsector:
   ; Write the FAT sector
   jsr sd_writesector
 
-.nopass
-  ; We did not, return.
+  ; Pull back the current sector
+  pla
+  sta zp_sd_currentsector+3
+  pla
+  sta zp_sd_currentsector+2
+  pla
+  sta zp_sd_currentsector+1
+  pla
+  sta zp_sd_currentsector
+
   rts
 
 
@@ -1073,7 +1047,12 @@ fat32_deletefile:
   lda (zp_sd_address),y
   sta fat32_nextcluster+1
 
+  ; Write the FAT
+  jsr fat32_sectorbounds
+
   ; Now remove the cluster chain
+  ldy #0
+.chainloop
   ; Seek to cluster
   jsr fat32_seekcluster
 
@@ -1104,6 +1083,9 @@ fat32_deletefile:
   iny
   sta (zp_sd_address),y
 
+  ; Write the FAT
+  jsr fat32_sectorbounds
+
   ; And go again for another pass.
   jmp .chainloop
 
@@ -1119,6 +1101,9 @@ fat32_deletefile:
   sta (zp_sd_address),y
   iny
   sta (zp_sd_address),y
+
+  ; Write the FAT
+  jsr fat32_sectorbounds
 
   ; And we're done!
   clc
