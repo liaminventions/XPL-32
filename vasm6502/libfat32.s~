@@ -1060,22 +1060,28 @@ fat32_deletefile:
   lda fat32_nextcluster+3
   bmi .endofchain
 
-  ; No, store this cluster so we can go to the next one, and also zero it out...
+  ; No, store this cluster so we can go to the next one
   lda (zp_sd_address),y
   sta fat32_nextcluster+3
-  stz (zp_sd_address),y
   dey
   lda (zp_sd_address),y
   sta fat32_nextcluster+2
-  stz (zp_sd_address),y
   dey
   lda (zp_sd_address),y
   sta fat32_nextcluster+1
-  stz (zp_sd_address),y
   dey
   lda (zp_sd_address),y
   sta fat32_nextcluster
-  stz (zp_sd_address),y
+
+  ; Zero it out
+  lda #0
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
 
   ; Write the FAT
   jsr fat32_sectorbounds

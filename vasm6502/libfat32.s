@@ -1095,11 +1095,11 @@ fat32_deletefile:
   ; Just zero it out,
   lda #0
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
 
   ; Write the FAT
