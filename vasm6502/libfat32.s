@@ -870,7 +870,7 @@ fat32_writedirent:
   lda zp_sd_address+1
   cmp #>(fat32_readbuffer+$200)
   bcc .notoverbuffer
-  jsr .wr ; if so, write the current sector
+  jsr fat32_wrcurrent ; if so, write the current sector
   jsr fat32_readnextsector  ; then read the next one.
   bcs .dfail
   ldy #0
@@ -883,7 +883,7 @@ fat32_writedirent:
   lda #0
   sta (zp_sd_address),y
   ;jsr fat32_writenextsector ; write all the data...
-  jsr .wr
+  jsr fat32_wrcurrent
   clc
   rts
 
@@ -892,7 +892,7 @@ fat32_writedirent:
   sec
   rts
 
-.wr
+fat32_wrcurrent:
 
   ; fix thingy
   lda zp_sd_currentsector
@@ -1047,8 +1047,8 @@ fat32_deletefile:
   lda (zp_sd_address),y
   sta fat32_nextcluster+1
 
-  ; Write the FAT
-  jsr fat32_sectorbounds
+  ; Write the dirent
+  jsr fat32_wrcurrent
 
   ; Now remove the cluster chain
   ldy #0
