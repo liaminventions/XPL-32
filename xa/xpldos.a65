@@ -878,11 +878,9 @@ sg:
   jsr fat32_allocatecluster
   ; Refresh PATH
   jsr refreshpath
-  ; Put the filename at fat32_filenamepointer
-  lda savepoint
-  sta fat32_filenamepointer
-  lda savepoint+1
-  sta fat32_filenamepointer+1 
+  ; Open the filename
+  ldx savepoint
+  ldy savepoint+1
   ; Check if the file exists
   jsr fat32_finddirent
   bcs nf
@@ -907,6 +905,11 @@ nf:
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
+  ; Put the filename at fat32_filenamepointer
+  lda savepoint
+  sta fat32_filenamepointer
+  lda savepoint+1
+  sta fat32_filenamepointer+1 
   ; Calculate file size by subtracting the end address by the start address
   sec
   lda stackaccess
