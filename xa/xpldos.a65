@@ -883,7 +883,9 @@ sg:
   ldy savepoint+1
   ; Check if the file exists
   jsr fat32_finddirent
-  bcs nf
+  bcc fileexists
+  jmp nf
+fileexists:
   ; If so, ask the user if they would like to overwrite the file.
   ldx #<femsg
   ldy #>femsg
@@ -905,11 +907,6 @@ nf:
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
-  ; Put the filename at fat32_filenamepointer
-  lda savepoint
-  sta fat32_filenamepointer
-  lda savepoint+1
-  sta fat32_filenamepointer+1 
   ; Calculate file size by subtracting the end address by the start address
   sec
   lda stackaccess
@@ -918,6 +915,11 @@ nf:
   lda stackaccess+1
   sbc savestart+1
   sta fat32_bytesremaining+1
+  ; Put the filename at fat32_filenamepointer
+  lda savepoint
+  sta fat32_filenamepointer
+  lda savepoint+1
+  sta fat32_filenamepointer+1 
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...
