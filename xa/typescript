@@ -1,0 +1,55 @@
+Script started on 2023-02-26 18:09:13+00:00 [TERM="linux" TTY="/dev/tty1" COLUMNS="170" LINES="48"]
+[01;32mpi@raspberrypi[00m:[01;34m~/xpl/XPL-32/xa $[00m sudo reboot now[Ksudo reboot now[7Pusbmountsudo reboot now[K./make.sh 
+  lda zp_sd_currentsector+3   ; sector 24:31
+libsd.a65:line 307: d875:Syntax error
+  lda zp_sd_currentsector+2   ; sector 16:23
+libsd.a65:line 309: d87a:Syntax error
+  lda zp_sd_currentsector+1   ; sector 8:15
+libsd.a65:line 311: d87f:Syntax error
+  lda zp_sd_currentsector     ; sector 0:7
+libsd.a65:line 313: d884:Syntax error
+fat32_readbuffer = fat32_workspace
+libfat32.a65:line 10: d8f7:Label already defined error
+fat32_fatstart           = zp_fat32_variables + $00  ; 4 bytes
+libfat32.a65:line 13: d8f7:Label already defined error
+fat32_datastart          = zp_fat32_variables + $04  ; 4 bytes
+libfat32.a65:line 14: d8f7:Label already defined error
+fat32_rootcluster        = zp_fat32_variables + $08  ; 4 bytes
+libfat32.a65:line 15: d8f7:Label already defined error
+fat32_sectorspercluster  = zp_fat32_variables + $0c  ; 1 byte
+libfat32.a65:line 16: d8f7:Label already defined error
+fat32_pendingsectors     = zp_fat32_variables + $0d  ; 1 byte
+libfat32.a65:line 17: d8f7:Label already defined error
+fat32_address            = zp_fat32_variables + $0e  ; 2 bytes
+libfat32.a65:line 18: d8f7:Label already defined error
+fat32_nextcluster        = zp_fat32_variables + $10  ; 4 bytes
+libfat32.a65:line 19: d8f7:Label already defined error
+fat32_bytesremaining     = zp_fat32_variables + $14  ; 4 bytes    
+libfat32.a65:line 20: d8f7:Label already defined error
+fat32_filenamepointer        = zp_fat32_variables + $29  ; 2 bytes
+libfat32.a65:line 27: d8f7:Label already defined error
+fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
+libfat32.a65:line 29: d8f7:Label already defined error
+  beq done
+libfat32.a65:line 1220: de50:Branch out of range error
+done:
+libfat32.a65:line 1241: de62:Label already defined error
+mon11.a65:line 1050: ccef: Warning - Can't optimize forward-defined label; using absolute addressing
+mon11.a65:line 1052: ccf4: Warning - Can't optimize forward-defined label; using absolute addressing
+libfat32.a65:line 249: da2e:Label 'set' not defined
+Break after 18 errors
+cp: cannot stat 'xpl.BIN': No such file or directory
+cp: cannot stat 'xpl.BIN': No such file or directory
+Found TL866II+ 04.2.128 (0x280)
+Erasing... 0.02Sec OK
+Protect off...OK
+[KWriting  Code...   0%[KWriting  Code...   0%[KWriting  Code...   0%[KWriting  Code...   1%[KWriting  Code...   1%[KWriting  Code...   1%[KWriting  Code...   2%[KWriting  Code...   2%[KWriting  Code...   3%[KWriting  Code...   3%[KWriting  Code...   3%[KWriting  Code...   4%[KWriting  Code...   4%[KWriting  Code...   5%[KWriting  Code...   5%[KWriting  Code...   5%[KWriting  Code...   6%[KWriting  Code...   6%[KWriting  Code...   7%[KWriting  Code...   7%[KWriting  Code...   7%[KWriting  Code...   8%[KWriting  Code...   8%[KWriting  Code...   8%[KWriting  Code...   9%[KWriting  Code...   9%[KWriting  Code...  10%[KWriting  Code...  10%[KWriting  Code...  10%[KWriting  Code...  11%[KWriting  Code...  11%[KWriting  Code...  12%[KWriting  Code...  12%[KWriting  Code...  12%[KWriting  Code...  13%[KWriting  Code...  13%[KWriting  Code...  14%[KWriting  Code...  14%[KWriting  Code...  14%[KWriting  Code...  15%[KWriting  Code...  15%[KWriting  Code...  16%[KWriting  Code...  16%[KWriting  Code...  16%[KWriting  Code...  17%[KWriting  Code...  17%[KWriting  Code...  17%[KWriting  Code...  18%[KWriting  Code...  18%[KWriting  Code...  19%[KWriting  Code...  19%[KWriting  Code...  19%[KWriting  Code...  20%[KWriting  Code...  20%[KWriting  Code...  21%[KWriting  Code...  21%[KWriting  Code...  21%[KWriting  Code...  22%[KWriting  Code...  22%[KWriting  Code...  23%[KWriting  Code...  23%[KWriting  Code...  23%[KWriting  Code...  24%[KWriting  Code...  24%[KWriting  Code...  25%[KWriting  Code...  25%[KWriting  Code...  25%[KWriting  Code...  26%[KWriting  Code...  26%[KWriting  Code...  26%[KWriting  Code...  27%[KWriting  Code...  27%[KWriting  Code...  28%[KWriting  Code...  28%[KWriting  Code...  28%[KWriting  Code...  29%[KWriting  Code...  29%[KWriting  Code...  30%[KWriting  Code...  30%[KWriting  Code...  30%[KWriting  Code...  31%[KWriting  Code...  31%[KWriting  Code...  32%[KWriting  Code...  32%[KWriting  Code...  32%[KWriting  Code...  33%[KWriting  Code...  33%[KWriting  Code...  33%[KWriting  Code...  34%[KWriting  Code...  34%[KWriting  Code...  35%[KWriting  Code...  35%[KWriting  Code...  35%[KWriting  Code...  36%[KWriting  Code...  36%[KWriting  Code...  37%[KWriting  Code...  37%[KWriting  Code...  37%[KWriting  Code...  38%[KWriting  Code...  38%[KWriting  Code...  39%[KWriting  Code...  39%[KWriting  Code...  39%[KWriting  Code...  40%[KWriting  Code...  40%[KWriting  Code...  41%[KWriting  Code...  41%[KWriting  Code...  41%[KWriting  Code...  42%[KWriting  Code...  42%[KWriting  Code...  42%[KWriting  Code...  43%[KWriting  Code...  43%[KWriting  Code...  44%[KWriting  Code...  44%[KWriting  Code...  44%[KWriting  Code...  45%[KWriting  Code...  45%[KWriting  Code...  46%[KWriting  Code...  46%[KWriting  Code...  46%[KWriting  Code...  47%[KWriting  Code...  47%[KWriting  Code...  48%[KWriting  Code...  48%[KWriting  Code...  48%[KWriting  Code...  49%[KWriting  Code...  49%[KWriting  Code...  50%[KWriting  Code...  50%[KWriting  Code...  50%[KWriting  Code...  51%[KWriting  Code...  51%[KWriting  Code...  51%[KWriting  Code...  52%[KWriting  Code...  52%[KWriting  Code...  53%[KWriting  Code...  53%[KWriting  Code...  53%[KWriting  Code...  54%[KWriting  Code...  54%[KWriting  Code...  55%[KWriting  Code...  55%[KWriting  Code...  55%[KWriting  Code...  56%[KWriting  Code...  56%[KWriting  Code...  57%[KWriting  Code...  57%[KWriting  Code...  57%[KWriting  Code...  58%[KWriting  Code...  58%[KWriting  Code...  58%[KWriting  Code...  59%[KWriting  Code...  59%[KWriting  Code...  60%[KWriting  Code...  60%[KWriting  Code...  60%[KWriting  Code...  61%[KWriting  Code...  61%[KWriting  Code...  62%[KWriting  Code...  62%[KWriting  Code...  62%[KWriting  Code...  63%[KWriting  Code...  63%[KWriting  Code...  64%[KWriting  Code...  64%[KWriting  Code...  64%[KWriting  Code...  65%[KWriting  Code...  65%[KWriting  Code...  66%[KWriting  Code...  66%[KWriting  Code...  66%[KWriting  Code...  67%[KWriting  Code...  67%[KWriting  Code...  67%[KWriting  Code...  68%[KWriting  Code...  68%[KWriting  Code...  69%[KWriting  Code...  69%[KWriting  Code...  69%[KWriting  Code...  70%[KWriting  Code...  70%[KWriting  Code...  71%[KWriting  Code...  71%[KWriting  Code...  71%[KWriting  Code...  72%[KWriting  Code...  72%[KWriting  Code...  73%[KWriting  Code...  73%[KWriting  Code...  73%[KWriting  Code...  74%[KWriting  Code...  74%[KWriting  Code...  75%[KWriting  Code...  75%[KWriting  Code...  75%[KWriting  Code...  76%[KWriting  Code...  76%[KWriting  Code...  76%[KWriting  Code...  77%[KWriting  Code...  77%[KWriting  Code...  78%[KWriting  Code...  78%[KWriting  Code...  78%[KWriting  Code...  79%[KWriting  Code...  79%[KWriting  Code...  80%[KWriting  Code...  80%[KWriting  Code...  80%[KWriting  Code...  81%[KWriting  Code...  81%[KWriting  Code...  82%[KWriting  Code...  82%[KWriting  Code...  82%[KWriting  Code...  83%[KWriting  Code...  83%[KWriting  Code...  83%[KWriting  Code...  84%[KWriting  Code...  84%[KWriting  Code...  85%[KWriting  Code...  85%[KWriting  Code...  85%[KWriting  Code...  86%[KWriting  Code...  86%[KWriting  Code...  87%[KWriting  Code...  87%[KWriting  Code...  87%[KWriting  Code...  88%[KWriting  Code...  88%[KWriting  Code...  89%[KWriting  Code...  89%[KWriting  Code...  89%[KWriting  Code...  90%[KWriting  Code...  90%[KWriting  Code...  91%[KWriting  Code...  91%[KWriting  Code...  91%[KWriting  Code...  92%[KWriting  Code...  92%[KWriting  Code...  92%[KWriting  Code...  93%[KWriting  Code...  93%[KWriting  Code...  94%[KWriting  Code...  94%[KWriting  Code...  94%[KWriting  Code...  95%[KWriting  Code...  95%[KWriting  Code...  96%[KWriting  Code...  96%[KWriting  Code...  96%[KWriting  Code...  97%[KWriting  Code...  97%[KWriting  Code...  98%[KWriting  Code...  98%[KWriting  Code...  98%[KWriting  Code...  99%[KWriting  Code...  99%[KWriting Code...  7.00Sec  OK
+[KReading Code...   0%[KReading Code...   1%[KReading Code...   3%[KReading Code...   4%[KReading Code...   6%[KReading Code...   7%[KReading Code...   9%[KReading Code...  10%[KReading Code...  12%[KReading Code...  14%[KReading Code...  15%[KReading Code...  17%[KReading Code...  18%[KReading Code...  20%[KReading Code...  21%[KReading Code...  23%[KReading Code...  25%[KReading Code...  26%[KReading Code...  28%[KReading Code...  29%[KReading Code...  31%[KReading Code...  32%[KReading Code...  34%[KReading Code...  35%[KReading Code...  37%[KReading Code...  39%[KReading Code...  40%[KReading Code...  42%[KReading Code...  43%[KReading Code...  45%[KReading Code...  46%[KReading Code...  48%[KReading Code...  50%[KReading Code...  51%[KReading Code...  53%[KReading Code...  54%[KReading Code...  56%[KReading Code...  57%[KReading Code...  59%[KReading Code...  60%[KReading Code...  62%[KReading Code...  64%[KReading Code...  65%[KReading Code...  67%[KReading Code...  68%[KReading Code...  70%[KReading Code...  71%[KReading Code...  73%[KReading Code...  75%[KReading Code...  76%[KReading Code...  78%[KReading Code...  79%[KReading Code...  81%[KReading Code...  82%[KReading Code...  84%[KReading Code...  85%[KReading Code...  87%[KReading Code...  89%[KReading Code...  90%[KReading Code...  92%[KReading Code...  93%[KReading Code...  95%[KReading Code...  96%[KReading Code...  98%[KReading Code...  0.50Sec  OK
+Verification OK
+Protect on...OK
+Commit Message: 
+^C
+[01;32mpi@raspberrypi[00m:[01;34m~/xpl/XPL-32/xa $[00m s[Kexit
+exit
+
+Script done on 2023-02-26 18:09:32+00:00 [COMMAND_EXIT_CODE="130"]

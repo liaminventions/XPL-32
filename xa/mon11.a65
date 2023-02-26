@@ -120,21 +120,6 @@ vif_end		= $1e ; 2byt
 SEN		= $7ffd
 ;; after startup enable, there is a irq address.
 ;; BUG THERE IS NO NMI! this is due to there being no NMI on the XPL-32 PCB. (not yet implemented)
-
-fat32_readbuffer = fat32_workspace
-
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-
-fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
-fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
-
 ; 
 
 ;;;;;;;;;;;;;;;;;
@@ -2799,7 +2784,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 5869,$00
+  .dsb 5084,$00
 
 ; ----KERNAL----
 

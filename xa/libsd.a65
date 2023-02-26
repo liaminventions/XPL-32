@@ -304,13 +304,13 @@ sd_writesector:
   ; Command 24, arg is sector number, crc not checked
   lda #$58                    ; CMD24 - WRITE_BLOCK
   jsr sd_writebyte
-  lda zp_sd_currentsector+3   ; sector 24:31
+  lda zp_sd_currentsector+3   ; sector 24 to 31
   jsr sd_writebyte
-  lda zp_sd_currentsector+2   ; sector 16:23
+  lda zp_sd_currentsector+2   ; sector 16 to 23
   jsr sd_writebyte
-  lda zp_sd_currentsector+1   ; sector 8:15
+  lda zp_sd_currentsector+1   ; sector 8 to15
   jsr sd_writebyte
-  lda zp_sd_currentsector     ; sector 0:7
+  lda zp_sd_currentsector     ; sector 0 to 7
   jsr sd_writebyte
   lda #$01                    ; crc (not checked)
   jsr sd_writebyte
