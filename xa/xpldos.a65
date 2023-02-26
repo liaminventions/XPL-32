@@ -894,6 +894,17 @@ sg:
   sta fat32_filenamepointer
   lda savepoint+1
   sta fat32_filenamepointer+1 
+  ; See if the file exists
+  jsr fat32_finddirent
+  bcs nf
+  ldx #<femsg
+  ldy #>femsg
+  jsr w_acia_full
+  jsr rxpoll
+  lda $8000
+  cmp #'y'
+  bne saveexit
+nf:
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...
@@ -906,6 +917,7 @@ sg:
   ldx #<ends
   ldy #>ends
   jsr w_acia_full
+saveexit:
   plx
   rts
 .)
@@ -922,5 +934,6 @@ savemsg:
   .byte "Saving...", $00
 ends
   .byte "Done.", $0d, $0a, $00
-  
+femsg:
+  .byte "File exists. Overwrite? (y/n): ", $00  
 
