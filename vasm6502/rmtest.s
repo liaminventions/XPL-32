@@ -34,6 +34,10 @@ reset:
   sta fat32_lastfoundfreecluster+1
   sta fat32_lastfoundfreecluster+2
   sta fat32_lastfoundfreecluster+3
+  sta fat32_lastcluster
+  sta fat32_lastcluster+1
+  sta fat32_lastcluster+2
+  sta fat32_lastcluster+3
 
   ; Open the folder
   jsr rootsetup
