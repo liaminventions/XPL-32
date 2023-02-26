@@ -28,10 +28,6 @@ LF=10
   .org $0f00
 
 reset:
-  ldx #<delmsg
-  ldy #>delmsg
-  jsr w_acia_full
-
   ; Set the last found free cluster to 0.
   lda #0
   sta fat32_lastfoundfreecluster
@@ -42,11 +38,13 @@ reset:
   ; Open the folder
   jsr rootsetup
 
+  ldx #<delmsg
+  ldy #>delmsg
+  jsr w_acia_full
+
   ; Save filename pointer
-  lda #<sdbuffer
-  sta fat32_filenamepointer
-  lda #>sdbuffer
-  sta fat32_filenamepointer+1
+  ldx #<sdbuffer
+  ldy #>sdbuffer
 
   ; Find the file
   jsr fat32_finddirent
