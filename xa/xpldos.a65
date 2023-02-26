@@ -951,9 +951,7 @@ rm:
   cmp #2	       ; if there's two arguments, load the specified file
   beq proc
   jmp error
-proc:
-  ; path refresh
-  jsr refreshpath
+proc: 
   ; filename
   clc
   lda #<INPUT
@@ -963,8 +961,15 @@ proc:
   sta folderpointer+1
   ; convert it to SHORT
   jsr shortconvert
-  ldx folderpointer
-  ldy folderpointer+1
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; path refresh
+  jsr refreshpath
+  ; load
+  ldx savepoint
+  ldy savepoint+1
   ; find it
   jsr fat32_finddirent
   bcc foundfile
