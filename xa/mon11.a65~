@@ -2875,7 +2875,7 @@ KERNAL_sd_readsector:
 KERNAL_loadcmd:
   jmp loadone
 KERNAL_tsave:
-  jmp tsavecmd+36
+  jmp tsavecmd+94
 KERNAL_tload:
   jmp tload_kernal
 

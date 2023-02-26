@@ -2553,10 +2553,10 @@ via_init:
   rts
 
 ; sd
-#include "sd.a65"
+#include "libsd.a65"
 
 ; fat32
-#include "fat32.a65"
+#include "libfat32.a65"
 
 ; include ACIA library
 #include "acia.a65"
