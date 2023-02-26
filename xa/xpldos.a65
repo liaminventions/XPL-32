@@ -940,7 +940,7 @@ saveexit:
 rmcmd:
 .(
 ; Remove a file
-; BUG if it's the first file in the directory, it cannot be deleted!
+; BUG we cannot remove files not made on the xpl... FIXME
   phx
   lda path
   bne rm
