@@ -111,6 +111,7 @@ backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
 savestart	= $1a ; 2byt
+savepoint	= $1c ; 2byt
 ;; vi..?
 viaddr		= $1a ; 2byt
 cursor_x	= $1c ; 1byt
@@ -2790,7 +2791,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4883,$00
+  .dsb 4875,$00
 
 ; ----KERNAL----
 
