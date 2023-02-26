@@ -16,10 +16,10 @@
 ;; LOAD
 ;; CAT
 ;; SAVE
+;; RM
 ;; upcoming commands (TODO):
 ;; MKDIR
 ;; EDIT (or VI?)
-;; RM
 ;; CP
 ;; MV
 ;; TAR?
@@ -940,6 +940,7 @@ saveexit:
 rmcmd:
 .(
 ; Remove a file
+; BUG if it's the first file in the directory, it cannot be deleted!
   phx
   lda path
   bne rm
