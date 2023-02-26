@@ -816,6 +816,96 @@ foundsubdir
   ; Open subdirectory
   jmp fat32_opendirent
 
+savecmd:
+.(
+  ; Save a file.
+  phx
+  lda path
+  bne sv
+  jmp patherr
+sv:
+  lda ARGINDEX
+  cmp #4
+  beq proc
+  jmp error
+proc:
+  ; filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  ; put it at fat32_filenamepointer
+  lda folderpointer
+  sta fat32_filenamepointer
+  lda folderpointer+1
+  sta fat32_filenamepointer+1
+  ; second addr parameter
+  clc 
+  lda #<INPUT
+  adc ARGINDEX+3
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+  ; first address parameter
+  clc 
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+  ; stash them
+  jsr pop16
+  lda stackaccess
+  sta savestart
+  lda stackaccess+1
+  sta savestart+1
+  jsr pop16
+  jmp sg
+.)
+savekernal:
+  phx
+sg:
+.(
+  ; now lets begin
+  ldx #<savemsg
+  ldy #>savemsg
+  jsr w_acia_full
+  ; First, allocate a free cluster
+  jsr fat32_allocatecluster
+  ; Refresh PATH
+  jsr refreshpath
+  ; Calculate file size by subtracting the end address by the start address
+  sec
+  lda stackaccess
+  sbc savestart
+  sta fat32_bytesremaining
+  lda stackaccess+1
+  sbc savestart+1
+  sta fat32_bytesremaining+1
+  ; Write a directory entry for this file
+  jsr fat32_writedirent
+  ; Now, to actually write the file...
+  lda savestart
+  sta fat32_address
+  lda savestart+1
+  sta fat32_address+1
+  jsr fat32_file_write
+  ; All Done!
+  ldx #<ends
+  ldy #>ends
+  jsr w_acia_full
+  plx
+  rts
+.)
+
 submsg
   .byte "'folder' Not Found!", $00
 filmsg
@@ -824,6 +914,8 @@ filmsg2
   .byte "'code.xpl' Not Found!", $00
 lds
   .byte "Loading SD Handler...", $00
+savemsg:
+  .byte "Saving...", $00
 ends
   .byte "Done.", $0d, $0a, $00
   
