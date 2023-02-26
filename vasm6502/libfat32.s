@@ -1039,6 +1039,90 @@ fat32_finddirent:
   clc
   rts
 
+fat32_deletefile:
+  ; Removes the open file from the SD card.
+  ; The directory needs to be open and
+  ; zp_sd_address pointed to the first byte of the file entry.
+
+  ; We need to stash the first character at index 0x0D
+  ldy #$00
+  lda (zp_sd_address),y
+  ldy #$0d
+  sta (zp_sd_address),y
+
+  ; Now put 0xE5 at the first byte
+  ldy #$00
+  lda #$e5 
+  sta (zp_sd_address),y
+
+  ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
+
+  ; Get start cluster high word
+  ldy #$14
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+2
+  iny
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+3
+
+  ; And low word
+  ldy #$1a
+  lda (zp_sd_address),y
+  sta fat32_nextcluster
+  iny
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+1
+
+  ; Now remove the cluster chain
+  ; Seek to cluster
+  jsr fat32_seekcluster
+
+  ; Is this the end of the chain?
+  lda fat32_nextcluster+3
+  bmi .endofchain
+
+  ; No, store this cluster so we can go to the next one
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+3
+  dey
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+2
+  dey
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+1
+  dey
+  lda (zp_sd_address),y
+  sta fat32_nextcluster
+
+  ; Zero it out
+  lda #0
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+
+  ; And go again for another pass.
+  jmp .chainloop
+
+.endofchain
+  ; This is the last cluster in the chain.
+
+  ; Just zero it out,
+  lda #0
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+  iny
+  sta (zp_sd_address),y
+
+  ; And we're done!
+  clc
+  rts
 
 fat32_file_readbyte:
   ; Read a byte from an open file

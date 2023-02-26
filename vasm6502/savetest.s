@@ -138,7 +138,7 @@ MEMORY_SAVE:
 saveok:
 ; Now calculate file size and store it in fat32_bytesremaining.
 ; For now, just write it.
-  lda #$80
+  lda #$40
   sta fat32_bytesremaining+1
   lda #$00
   sta fat32_bytesremaining

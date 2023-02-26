@@ -3284,8 +3284,8 @@ F00:0137         ;bcs doneloop
 F00:0138       saveok:
 F00:0139       ; Now calculate file size and store it in fat32_bytesremaining.
 F00:0140       ; For now, just write it.
-F00:0141         lda #$80
-               S02:00001A12:  A9 80
+F00:0141         lda #$40
+               S02:00001A12:  A9 40
 F00:0142         sta fat32_bytesremaining+1
                S02:00001A14:  85 64
 F00:0143         lda #$00
