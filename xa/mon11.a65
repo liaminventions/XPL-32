@@ -2795,13 +2795,32 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4666,$00
+  .dsb 4642,$00
 
 ; ----KERNAL----
 
-* = $FFA6
+* = $FF8E
+
+; New SD/fat32 commands
+KERNAL_sd_writesector
+  jmp sd_writesector
+;fat
+KERNAL_fat32_writenextsector:
+  jsr fat32_writenextsector
+KERNAL_fat32_allocatecluster:
+  jsr fat32_allocatecluster
+KERNAL_fat32_findnextfreecluster:
+  jsr fat32_findnextfreecluster
+KERNAL_fat32_writedirent:
+  jsr fat32_writedirent
+KERNAL_fat32_deletefile:
+  jsr fat32_deletefile
+KERNAL_fat32_file_write:
+  jsr fat32_file_write
 
 ; DOS commands
+KERNAL_save:
+  jmp savekernal
 KERNAL_cd:
   jmp cdsub
 KERNAL_ls:
