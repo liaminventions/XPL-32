@@ -698,6 +698,21 @@ loadlc:
 .(
   ; convert string
   jsr shortconvert
+  ; is this a .XPL file?
+  ldy #$08
+  lda (folderpointer),y
+  cmp #'X'
+  bne ldp
+  iny
+  cmp #'P'
+  bne ldp
+  iny
+  cmp #'L'
+  bne ldp
+  lda #$ff
+  sta buffer+4
+ldp:
+  stz buffer+4
 .)
 loadpath:
 .(
@@ -723,7 +738,7 @@ loadpath:
 loadone:
 .(
   ; the user has not specified a filename, so load the SD card handeler program.
-  
+
   jsr loadf
 
   ; Find file by name
@@ -749,7 +764,9 @@ foundfile
   lda #>buffer
   sta fat32_address+1
 				
-  jsr fat32_file_read		
+  jsr fat32_file_read	
+
+  stz buffer+4	
 
   jsr loadf		; BUG really?
 
@@ -786,13 +803,15 @@ loadfoundcode
   ldx #<ends
   jsr w_acia_full
 
+  ; Is this a XPL file?
+  lda buffer+4
+  bne lo
+
   jmp (buffer+2)	; jump to start address from LOADADDR.SAR
 
 .)
 
 lo:
-  rts
-  rts
   rts
 
 loadf:
