@@ -937,6 +937,46 @@ saveexit:
   rts
 .)
 
+rmcmd:
+.(
+; Remove a file
+  phx
+  lda path
+  bne rm
+  jmp patherr
+rm:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, load the specified file
+  beq proc
+  jmp error
+proc:
+  ; path refresh
+  jsr refreshpath
+  ; filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  ldx folderpointer
+  ldy folderpointer+1
+  ; find it
+  jsr fat32_finddirent
+  bcc foundfile
+  jsr rlerror
+  plx
+  rts  
+foundfile: 
+  jsr fat32_deletefile
+  ; done
+  plx
+  rts
+.)
+
 submsg
   .byte "'folder' Not Found!", $00
 filmsg
@@ -951,4 +991,7 @@ ends
   .byte "Done.", $0d, $0a, $00
 femsg:
   .byte "File exists. Overwrite? (y/n): ", $00  
+foldermsg:
+  .byte "No such file or directory.", $0d, $0a, $00
+
 

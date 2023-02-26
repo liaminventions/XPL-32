@@ -2779,7 +2779,6 @@ loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 sd_error:	 .byte "SD Card failed to initialize", $0d, $0a, $00
 errormsg:	 .byte "Error!", $0d, $0a, $00
-foldermsg:	 .byte "No such file or directory.", $0d, $0a, $00
 
 rxpoll:
   lda ACIA_STATUS
@@ -2791,7 +2790,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4800,$00
+  .dsb 4746,$00
 
 ; ----KERNAL----
 
