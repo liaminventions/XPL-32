@@ -837,12 +837,7 @@ proc:
   lda #>INPUT
   sta folderpointer+1
   ; convert it to SHORT
-  jsr shortconvert
-  ; put it at fat32_filenamepointer
-  lda folderpointer
-  sta fat32_filenamepointer
-  lda folderpointer+1
-  sta fat32_filenamepointer+1
+  jsr shortconvert 
   ; second addr parameter
   clc 
   lda #<INPUT
@@ -890,6 +885,11 @@ sg:
   lda stackaccess+1
   sbc savestart+1
   sta fat32_bytesremaining+1
+  ; Put the filename at fat32_filenamepointer
+  lda folderpointer
+  sta fat32_filenamepointer
+  lda folderpointer+1
+  sta fat32_filenamepointer+1 
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...
