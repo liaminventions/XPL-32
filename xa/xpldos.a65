@@ -15,9 +15,9 @@
 ;; LS
 ;; LOAD
 ;; CAT
+;; SAVE
 ;; upcoming commands (TODO):
 ;; MKDIR
-;; SAVE
 ;; EDIT (or VI?)
 ;; RM
 ;; CP
@@ -878,6 +878,35 @@ sg:
   jsr fat32_allocatecluster
   ; Refresh PATH
   jsr refreshpath
+  ; Put the filename at fat32_filenamepointer
+  lda savepoint
+  sta fat32_filenamepointer
+  lda savepoint+1
+  sta fat32_filenamepointer+1 
+  ; Check if the file exists
+  jsr fat32_finddirent
+  bcs nf
+  ; If so, ask the user if they would like to overwrite the file.
+  ldx #<femsg
+  ldy #>femsg
+  jsr w_acia_full
+  jsr rxpoll
+  lda $8000
+  cmp #'y'  ; response = 'y'?
+  beq yes
+  jsr crlf  ; no, cancel save
+  plx
+  rts
+yes
+  ; we would like to overwrite the file.
+  jsr crlf
+  ; delete it to clean the FAT
+  jsr fat32_deletefile
+  jsr refreshpath
+nf:
+  ldx #<savemsg
+  ldy #>savemsg
+  jsr w_acia_full
   ; Calculate file size by subtracting the end address by the start address
   sec
   lda stackaccess
@@ -886,29 +915,6 @@ sg:
   lda stackaccess+1
   sbc savestart+1
   sta fat32_bytesremaining+1
-  ; Put the filename at fat32_filenamepointer
-  lda savepoint
-  sta fat32_filenamepointer
-  lda savepoint+1
-  sta fat32_filenamepointer+1 
-  ; See if the file exists
-  jsr fat32_finddirent
-  bcs nf
-  ldx #<femsg
-  ldy #>femsg
-  jsr w_acia_full
-  jsr rxpoll
-  lda $8000
-  cmp #'y'
-  bne saveexit
-  jsr crlf
-  ; delete that file
-  jsr fat32_deletefile
-  jsr refreshpath
-nf:
-  ldx #<savemsg
-  ldy #>savemsg
-  jsr w_acia_full
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...
@@ -922,7 +928,6 @@ nf:
   ldy #>ends
   jsr w_acia_full
 saveexit:
-  jsr crlf
   plx
   rts
 .)
