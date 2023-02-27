@@ -1074,6 +1074,7 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
+  jsr cdshort
   lda folderpointer
   sta savepoint
   lda folderpointer+1
