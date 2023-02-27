@@ -352,6 +352,7 @@ cdbb:
   rts
 
 cdshort:
+.(
   ; check for . or ..
   ldy #0
   lda (folderpointer),y
@@ -399,6 +400,7 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   rts
+.)
 
 fileerror
   ; no such folder
@@ -1049,15 +1051,15 @@ proc:
   jsr overf
   ; convert it to SHORT
   jsr shortconvert
-  lda folderpointer
-  sta savepoint
-  lda folderpointer+1
-  sta savepoint+1
+  ldx folderpointer
+  phx
+  ldy folderpointer+1
+  phy
   ; path refresh
   jsr refreshpath
   ; load
-  ldx savepoint
-  ldy savepoint+1
+  plx
+  ply
   ; find it
   jsr fat32_finddirent
   bcc gotit
@@ -1072,19 +1074,11 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
-<<<<<<< Updated upstream
-  jsr shortconvert
+  jsr cdshort
   ldx folderpointer
   phx
   ldy folderpointer+1
   phy
-=======
-  jsr cdshort
-  lda folderpointer
-  sta savepoint
-  lda folderpointer+1
-  sta savepoint+1
->>>>>>> Stashed changes
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1097,16 +1091,11 @@ stlp
   ; Now, mark it a deleted file
   jsr fat32_markdeleted
   ; Find the directory
-<<<<<<< Updated upstream
-  plx
-  ply
-=======
   lda backdir
   beq nono
 nono:
-  ldx savepoint
-  ldy savepoint+1
->>>>>>> Stashed changes
+  plx
+  ply
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
@@ -1142,16 +1131,15 @@ overf:
   ldy #0
 mvff
   lda (folderpointer),y
-  sta buffer+34,y
-  cmp #0
-  beq mvdn
+  sta buffer+32,y
   iny
-  jmp mvff
+  cpy #13
+  bne mvff
 mvdn:
   ; store location
-  lda #<buffer+34
+  lda #<buffer+32
   sta folderpointer
-  lda #>buffer+34
+  lda #>buffer+32
   sta folderpointer+1
   rts
 .)
