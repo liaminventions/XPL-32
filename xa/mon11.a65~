@@ -110,6 +110,8 @@ pathindex	= $16 ; 2byt
 backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
+savestart	= $1a ; 2byt
+savepoint	= $1c ; 2byt
 ;; vi..?
 viaddr		= $1a ; 2byt
 cursor_x	= $1c ; 1byt
@@ -120,21 +122,6 @@ vif_end		= $1e ; 2byt
 SEN		= $7ffd
 ;; after startup enable, there is a irq address.
 ;; BUG THERE IS NO NMI! this is due to there being no NMI on the XPL-32 PCB. (not yet implemented)
-
-fat32_readbuffer = fat32_workspace
-
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-
-fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
-fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
-
 ; 
 
 ;;;;;;;;;;;;;;;;;
@@ -238,6 +225,14 @@ table19
   .byte "clear", $00
   .word clearcmd
 table20
+  .word table21
+  .byte "save", $00
+  .word savecmd
+table21
+  .word table22
+  .byte "rm", $00
+  .word rmcmd
+table22
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
@@ -2553,10 +2548,10 @@ via_init:
   rts
 
 ; sd
-#include "sd.a65"
+#include "libsd.a65"
 
 ; fat32
-#include "fat32.a65"
+#include "libfat32.a65"
 
 ; include ACIA library
 #include "acia.a65"
@@ -2759,14 +2754,16 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "input", $09, " - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.", $0d, $0a
 		 .byte "memtest  - tests memory integrity", $0d, $0a
 		 ;.byte "receive  - like xreceive, but no protocol is used", $0d, $0a
+		 .byte "vi", $09, " - edits a file on the sd card (NOT DONE)", $0d, $0a
 		 .byte "load", $09, " - load a memory card's automatic loading system - also can load the specified file", $0d, $0a
-		 .byte "tload", $09, " - loads a file from the tape system", $0d, $0a
-		 .byte "tsave", $09, " - saves a file to the tape system", $0d, $0a
+		 .byte "save", $09, " - saves a file to the memory card", $0d, $0a
 		 .byte "ls", $09, " - list the current directory", $0d, $0a
 		 .byte "cd", $09, " - change to the specified directory", $0d, $0a
 		 .byte "cat", $09, " - dumps a file directly to the screen", $0d, $0a
+		 .byte "rm", $09, " - removes a file", $0d, $0a
 		 .byte "clear", $09, " - clears the screen", $0d, $0a
-		 .byte "vi", $09, " - edits a file on the sd card", $0d, $0a
+		 .byte "tload", $09, " - loads a file from the tape system", $0d, $0a
+		 .byte "tsave", $09, " - saves a file to the tape system", $0d, $0a
 		 .byte "rti", $09, " - return from any pending interuppts. warning-might crash", $0d, $0a
 helpstringend:   .byte $00
 nocmderrstr:	 .byte "Command not recognized", $0d, $0a, $00
@@ -2787,7 +2784,6 @@ loaddonestring:  .byte "Load Complete.", $0d, $0a, $00
 char:		 .byte "."
 sd_error:	 .byte "SD Card failed to initialize", $0d, $0a, $00
 errormsg:	 .byte "Error!", $0d, $0a, $00
-foldermsg:	 .byte "No such file or directory.", $0d, $0a, $00
 
 rxpoll:
   lda ACIA_STATUS
@@ -2799,13 +2795,32 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 5869,$00
+  .dsb 4642,$00
 
 ; ----KERNAL----
 
-* = $FFA6
+* = $FF8E
+
+; New SD/fat32 commands
+KERNAL_sd_writesector
+  jmp sd_writesector
+;fat
+KERNAL_fat32_writenextsector:
+  jsr fat32_writenextsector
+KERNAL_fat32_allocatecluster:
+  jsr fat32_allocatecluster
+KERNAL_fat32_findnextfreecluster:
+  jsr fat32_findnextfreecluster
+KERNAL_fat32_writedirent:
+  jsr fat32_writedirent
+KERNAL_fat32_deletefile:
+  jsr fat32_deletefile
+KERNAL_fat32_file_write:
+  jsr fat32_file_write
 
 ; DOS commands
+KERNAL_save:
+  jmp savekernal
 KERNAL_cd:
   jmp cdsub
 KERNAL_ls:

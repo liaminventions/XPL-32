@@ -17,11 +17,11 @@
 ;; CAT
 ;; SAVE
 ;; RM
+;; MV
 ;; upcoming commands (TODO):
 ;; MKDIR
 ;; EDIT (or VI?)
 ;; CP
-;; MV
 ;; TAR?
 ;; MAN?
 
@@ -468,8 +468,21 @@ shortlp:
   lda (folderpointer),y
   cmp #$2e		; find the dot	
   beq extst
+  cmp #0
+  beq nodot
   iny
   jmp shortlp
+nodot
+  ; no dot, this is a folder
+  ; empty out the extension
+  lda #$20
+  ldy #$19
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
+  jmp mvname  ; ok, go ahead and copy the name
 extst:
   sty sc		; now move the file extension
 ext:
@@ -492,6 +505,7 @@ extd:
   sta sc
   lda #11
   sta fileext
+mvname:
   ; move name
   ldy #0
   jmp mvlp+1
@@ -959,7 +973,6 @@ saveexit:
 rmcmd:
 .(
 ; Remove a file
-; BUG we cannot remove files not made on the xpl... FIXME
   phx
   lda path
   bne rm
@@ -974,7 +987,7 @@ proc:
   ; filename
   clc
   lda #<INPUT
-  adc ARGINDEX+4
+  adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
@@ -998,6 +1011,96 @@ proc:
 foundfile: 
   jsr fat32_deletefile
   ; done
+  plx
+  rts
+.)
+
+mvcmd:
+.(
+; Copy a file.
+  phx
+  lda path
+  bne mv
+  jmp patherr
+mv:
+; fetch first filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; path refresh
+  jsr refreshpath
+  ; load
+  ldx savepoint
+  ldy savepoint+1
+  ; find it
+  jsr fat32_finddirent
+  bcc gotit
+  jmp mvfail
+gotit:
+  ; carry already clear
+  ; get the folder to move it to
+  lda #<INPUT
+  adc ARGINDEX+3
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; Now, for the copy
+  ; Store the dirent temporaraly
+  ldy #0
+stlp
+  lda (zp_sd_address),y
+  sta buffer,y
+  iny
+  cpy #$20
+  bne stlp
+  ; Now, mark it a deleted file
+  jsr fat32_markdeleted
+  ; Find the directory
+  ldx savepoint
+  ldy savepoint+1
+  jsr fat32_finddirent
+  bcc mvgotdirent 
+mvfail
+  ; The directory was not found
+  jsr rlerror
+  plx
+  rts
+mvgotdirent
+  ; It was, open it.
+  jsr fat32_opendirent
+  ; Ok. now we need to find a free entry
+mvlp
+  jsr fat32_readdirent
+  bcc mvlp
+  ; Got it. now paste the file here
+  ldy #0
+.paste
+  lda buffer,y
+  sta (zp_sd_Address),y
+  iny
+  cpy #$20
+  bne .paste
+  ; Just to be sure, zero out the next entry.
+  lda #0
+  sta (zp_sd_address),y
+  ; Now write the sector
+  jsr fat32_wcurrent
+  ; Done!
   plx
   rts
 .)

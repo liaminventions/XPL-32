@@ -15,11 +15,11 @@
 ;; LS
 ;; LOAD
 ;; CAT
+;; SAVE
+;; RM
 ;; upcoming commands (TODO):
 ;; MKDIR
-;; SAVE
 ;; EDIT (or VI?)
-;; RM
 ;; CP
 ;; MV
 ;; TAR?
@@ -468,8 +468,21 @@ shortlp:
   lda (folderpointer),y
   cmp #$2e		; find the dot	
   beq extst
+  cmp #0
+  beq nodot
   iny
   jmp shortlp
+nodot
+  ; no dot, this is a folder
+  ; empty out the extension
+  lda #$20
+  ldy #$19
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
+  iny
+  sta (folderpointer),y
+  jmp mvname  ; ok, go ahead and copy the name
 extst:
   sty sc		; now move the file extension
 ext:
@@ -492,6 +505,7 @@ extd:
   sta sc
   lda #11
   sta fileext
+mvname:
   ; move name
   ldy #0
   jmp mvlp+1
@@ -677,27 +691,42 @@ cdf:
   ;; check arguments
   lda ARGINDEX
   cmp #2	       ; if there's two arguments, load the specified file
-  beq processparam
+  beq lprocessparam
   lda ARGINDEX
   cmp #1	       ; if there's only one argument, do a handeler load.
   beq loadone
+.)
 lderror:
   ldx #<foldermsg	; if it was not found, error and return.
   ldy #>foldermsg
   jsr w_acia_full
   rts
-processparam           ; the user specified a file, process the filename parameter.
+lprocessparam           ; the user specified a file, process the filename parameter.
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT		; argument buffer under 256 bytes, so no adc #0.
   sta folderpointer+1
-.)
 loadlc:
 .(
   ; convert string
   jsr shortconvert
+  ; is this a .XPL file?
+  ldy #$08
+  lda (folderpointer),y
+  cmp #'X'
+  bne ldp
+  iny
+  cmp #'P'
+  bne ldp
+  iny
+  cmp #'L'
+  bne ldp
+  lda #$ff
+  sta buffer+4
+ldp:
+  stz buffer+4
 .)
 loadpath:
 .(
@@ -723,7 +752,7 @@ loadpath:
 loadone:
 .(
   ; the user has not specified a filename, so load the SD card handeler program.
-  
+
   jsr loadf
 
   ; Find file by name
@@ -749,7 +778,9 @@ foundfile
   lda #>buffer
   sta fat32_address+1
 				
-  jsr fat32_file_read		
+  jsr fat32_file_read	
+
+  stz buffer+4	
 
   jsr loadf		; BUG really?
 
@@ -786,13 +817,15 @@ loadfoundcode
   ldx #<ends
   jsr w_acia_full
 
+  ; Is this a XPL file?
+  lda buffer+4
+  bne lo
+
   jmp (buffer+2)	; jump to start address from LOADADDR.SAR
 
 .)
 
 lo:
-  rts
-  rts
   rts
 
 loadf:
@@ -816,6 +849,262 @@ foundsubdir
   ; Open subdirectory
   jmp fat32_opendirent
 
+savecmd:
+.(
+  ; Save a file.
+  phx
+  lda path
+  bne sv
+  jmp patherr
+sv:
+  lda ARGINDEX
+  cmp #4
+  beq proc
+  jmp error
+proc:
+  ; filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+4
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint 
+  lda folderpointer+1
+  sta savepoint+1
+  ; second addr parameter
+  clc 
+  lda #<INPUT
+  adc ARGINDEX+3
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+  ; first address parameter
+  clc 
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta stackaccess
+  lda #>INPUT
+  sta stackaccess+1
+  jsr push16
+  jsr read16hex
+  ; stash them
+  jsr pop16
+  lda stackaccess
+  sta savestart
+  lda stackaccess+1
+  sta savestart+1
+  jsr pop16
+  jmp sg
+.)
+savekernal:
+  phx
+sg:
+.(
+  ; now lets begin 
+  ; First, allocate a free cluster
+  jsr fat32_allocatecluster
+  ; Refresh PATH
+  jsr refreshpath
+  ; Open the filename
+  ldx savepoint
+  ldy savepoint+1
+  ; Check if the file exists
+  jsr fat32_finddirent
+  bcc fileexists
+  jmp nf
+fileexists:
+  ; If so, ask the user if they would like to overwrite the file.
+  ldx #<femsg
+  ldy #>femsg
+  jsr w_acia_full
+  jsr rxpoll
+  lda $8000
+  cmp #'y'  ; response = 'y'?
+  beq yes
+  jsr crlf  ; no, cancel save
+  plx
+  rts
+yes
+  ; we would like to overwrite the file.
+  jsr crlf
+  ; delete it to clean the FAT
+  jsr fat32_deletefile
+nf:
+  jsr refreshpath
+  ldx #<savemsg
+  ldy #>savemsg
+  jsr w_acia_full
+  ; Calculate file size by subtracting the end address by the start address
+  sec
+  lda stackaccess
+  sbc savestart
+  sta fat32_bytesremaining
+  lda stackaccess+1
+  sbc savestart+1
+  sta fat32_bytesremaining+1
+  ; Put the filename at fat32_filenamepointer
+  lda savepoint
+  sta fat32_filenamepointer
+  lda savepoint+1
+  sta fat32_filenamepointer+1 
+  ; Write a directory entry for this file
+  jsr fat32_writedirent
+  ; Now, to actually write the file...
+  lda savestart
+  sta fat32_address
+  lda savestart+1
+  sta fat32_address+1
+  jsr fat32_file_write
+  ; All Done!
+  ldx #<ends
+  ldy #>ends
+  jsr w_acia_full
+saveexit:
+  plx
+  rts
+.)
+
+rmcmd:
+.(
+; Remove a file
+  phx
+  lda path
+  bne rm
+  jmp patherr
+rm:
+  ;; check arguments
+  lda ARGINDEX
+  cmp #2	       ; if there's two arguments, load the specified file
+  beq proc
+  jmp error
+proc: 
+  ; filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; path refresh
+  jsr refreshpath
+  ; load
+  ldx savepoint
+  ldy savepoint+1
+  ; find it
+  jsr fat32_finddirent
+  bcc foundfile
+  jsr rlerror
+  plx
+  rts  
+foundfile: 
+  jsr fat32_deletefile
+  ; done
+  plx
+  rts
+.)
+
+mvcmd:
+.(
+; Copy a file.
+  phx
+  lda path
+  bne mv
+  jmp patherr
+mv:
+; fetch first filename
+  clc
+  lda #<INPUT
+  adc ARGINDEX+2
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; path refresh
+  jsr refreshpath
+  ; load
+  ldx savepoint
+  ldy savepoint+1
+  ; find it
+  jsr fat32_finddirent
+  bcc gotit
+  jmp mvfail
+gotit:
+  ; carry already clear
+  ; get the folder to move it to
+  lda #<INPUT
+  adc ARGINDEX+3
+  sta folderpointer
+  lda #>INPUT
+  sta folderpointer+1
+  ; convert it to SHORT
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
+  ; Now, for the copy
+  ; Store the dirent temporaraly
+  ldy #0
+stlp
+  lda (zp_sd_address),y
+  sta buffer,y
+  iny
+  cpy #$20
+  bne stlp
+  ; Now, mark it a deleted file
+  jsr fat32_markdeleted
+  ; Find the directory
+  ldx savepoint
+  ldy savepoint+1
+  jsr fat32_finddirent
+  bcc mvgotdirent 
+mvfail
+  ; The directory was not found
+  jsr rlerror
+  plx
+  rts
+mvgotdirent
+  ; It was, open it.
+  jsr fat32_opendirent
+  ; Ok. now we need to find a free entry
+mvlp
+  jsr fat32_readdirent
+  bcc mvlp
+  ; Got it. now paste the file here
+  ldy #0
+.paste
+  lda buffer,y
+  sta (zp_sd_Address),y
+  iny
+  cpy #$20
+  bne .paste
+  ; Just to be sure, zero out the next entry.
+  lda #0
+  sta (zp_sd_address),y
+  ; Now write the sector
+  jsr fat32_wcurrent
+  ; Done!
+  plx
+  rts
+.)
+
 submsg
   .byte "'folder' Not Found!", $00
 filmsg
@@ -824,7 +1113,13 @@ filmsg2
   .byte "'code.xpl' Not Found!", $00
 lds
   .byte "Loading SD Handler...", $00
+savemsg:
+  .byte "Saving...", $00
 ends
   .byte "Done.", $0d, $0a, $00
-  
+femsg:
+  .byte "File exists. Overwrite? (y/n): ", $00  
+foldermsg:
+  .byte "No such file or directory.", $0d, $0a, $00
+
 

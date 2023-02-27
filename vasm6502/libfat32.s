@@ -19,16 +19,11 @@ fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
-fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
-;fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
-fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
-fat32_lastsector		= zp_fat32_variables + $23  ; 4 bytes
-fat32_newfatsector		= zp_fat32_variables + $28  ; 1 byte FLAG
-fat32_filenamepointer       	= zp_fat32_variables + $29  ; 2 bytes
+fat32_lastcluster		= zp_fat32_variables + $1c  ; 4 bytes
+fat32_lastsector		= zp_fat32_variables + $21  ; 4 bytes
+fat32_filenamepointer       	= zp_fat32_variables + $26  ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
-
-; TODO fix filesize stuff, saved files seem too long and pick up garbage from the RAM... (BUG)
 
 fat32_init:
   ; Initialize the module - read the MBR etc, find the partition,
@@ -136,13 +131,6 @@ fat32_init:
   lda fat32_readbuffer+12 ; high byte is 2 (512), 4, 8, or 16
   cmp #2
   bne .fail
-
-  ; Save sectors per FAT
-
-  lda fat32_readbuffer+22
-  sta fat32_sectorsperfat
-  lda fat32_readbuffer+23
-  sta fat32_sectorsperfat+1
 
   ; Calculate the starting sector of the FAT
   clc
@@ -276,9 +264,6 @@ fat32_seekcluster:
 
 .newsector
 
-;  lda #$ff
-;  sta fat32_newfatsector
-
   ; Read the sector from the FAT
   jsr sd_readsector
 
@@ -293,13 +278,7 @@ fat32_seekcluster:
   lda zp_sd_currentsector+3
   sta fat32_lastsector+3
 
-;  jmp .newc
-
 .notnew
-
-; stz fat32_newfatsector
-
-;.newc
 
   ; Before using this FAT data, set currentsector ready to read the cluster itself
   ; We need to multiply the cluster number minus two by the number of sectors per 
@@ -1019,11 +998,8 @@ fat32_finddirent:
   clc
   rts
 
-fat32_deletefile:
-  ; Removes the open file from the SD card.
-  ; The directory needs to be open and
-  ; zp_sd_address pointed to the first byte of the file entry.
-
+fat32_markdeleted:
+  ; Mark the file as deleted
   ; We need to stash the first character at index 0x0D
   ldy #$00
   lda (zp_sd_address),y
@@ -1034,6 +1010,21 @@ fat32_deletefile:
   ldy #$00
   lda #$e5 
   sta (zp_sd_address),y
+
+  ; Write the dirent
+  jsr fat32_wrcurrent
+
+  ; Done
+  clc
+  rts
+
+fat32_deletefile:
+  ; Removes the open file from the SD card.
+  ; The directory needs to be open and
+  ; zp_sd_address pointed to the first byte of the file entry.
+
+  ; Mark the file as "Removed"
+  jsr fat32_markdeleted
 
   ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
 
@@ -1052,10 +1043,7 @@ fat32_deletefile:
   iny
   lda (zp_sd_address),y
   sta fat32_nextcluster+1
-
-  ; Write the dirent
-  jsr fat32_wrcurrent
-
+  
   ; Now remove the cluster chain
   ldy #0
 .chainloop
@@ -1260,28 +1248,6 @@ fat32_file_write:
 
   bne .wholesectorwriteloop
 
-  ; Has fat32_writenextsector written the FAT table?
-  ;lda fat32_newfatsector
-  ;bne .fail  ; not a fail, just means its done.
-
-  ; No, write it here.
-  ;lda fat32_lastsector
-  ;sta zp_sd_currentsector
-  ;lda fat32_lastsector+1
-  ;sta zp_sd_currentsector+1
-  ;lda fat32_lastsector+2
-  ;sta zp_sd_currentsector+2
-  ;lda fat32_lastsector+3
-  ;sta zp_sd_currentsector+3
-
-  ; Target buffer
-  ;lda #<fat32_readbuffer
-  ;sta zp_sd_address
-  ;lda #>fat32_readbuffer
-  ;sta zp_sd_address+1
-
-  ; Write the FAT sector
-  ;jsr sd_writesector
-
+  ; Done!
 .fail
   rts
