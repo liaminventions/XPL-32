@@ -352,6 +352,7 @@ cdbb:
   rts
 
 cdshort:
+.(
   ; check for . or ..
   ldy #0
   lda (folderpointer),y
@@ -399,6 +400,7 @@ filllp:
   cpy #12 ; stop if index over 11
   bne filllp
   rts
+.)
 
 fileerror
   ; no such folder
