@@ -1068,7 +1068,7 @@ gotit:
   ldy #0
 stlp
   lda (zp_sd_address),y
-  sta buffer,y
+  sta INPUT,y
   iny
   cpy #$20
   bne stlp
@@ -1097,7 +1097,7 @@ mvlp
   ; Got it. now paste the file here
   ldy #0
 mvpaste
-  lda buffer,y
+  lda INPUT,y
   sta (zp_sd_address),y
   iny
   cpy #$20
