@@ -488,8 +488,10 @@ nodot
   ; no dot, this is a folder
   ; empty out the extension
   sty sc
+  lda #11
+  sta fileext
   lda #$20
-  ldy #$19
+  ldy #19
   sta (folderpointer),y
   iny
   sta (folderpointer),y
