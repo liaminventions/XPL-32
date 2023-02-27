@@ -1089,12 +1089,12 @@ mvlp
   bcc mvlp
   ; Got it. now paste the file here
   ldy #0
-.paste
+mvpaste
   lda buffer,y
   sta (zp_sd_Address),y
   iny
   cpy #$20
-  bne .paste
+  bne mvpaste
   ; Just to be sure, zero out the next entry.
   lda #0
   sta (zp_sd_address),y
