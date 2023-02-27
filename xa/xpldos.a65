@@ -318,6 +318,41 @@ cdd:
   ;jsr jmpdir 
   ;bcc cdbb
   ; check for . or ..
+  jsr cdshort
+  lda backdir
+  cmp #$55
+  beq cdbb
+  ; ok, that should do it.
+  ; Open root directory
+  ;jsr fat32_openroot	
+  ; Find the subdirectory by name
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
+  ; Open subdirectory
+  ;jsr fat32_opendirent	; open folder
+  jsr refreshpath
+.)
+cdsub:
+  ; check if the folder exists + get info
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs fileerror
+  ; ok, it exists, now cd
+  jsr fat32_opendirent
+  ; all done.
+  ; now add this to the current directory, only if no cd ..
+  lda backdir
+  beq cdbb
+  jsr addpath
+cdbb:
+  plx
+  rts
+
+cdshort:
+  ; check for . or ..
   ldy #0
   lda (folderpointer),y
   cmp #$2e
@@ -330,6 +365,8 @@ dotf:
   lda (folderpointer),y
   cmp #$2e
   beq backdire
+  lda #$55
+  sta backdir
   rts ; do nothing if "cd ."
 backdire:
   ; "cd .." means go back
@@ -361,33 +398,6 @@ filllp:
   iny
   cpy #12 ; stop if index over 11
   bne filllp
-  ; ok, that should do it.
-  ; Open root directory
-  ;jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ;ldx #<subdirname
-  ;ldy #>subdirname
-  ;jsr fat32_finddirent
-  ;bcs error
-  ; Open subdirectory
-  ;jsr fat32_opendirent	; open folder
-  jsr refreshpath
-.)
-cdsub:
-  ; check if the folder exists + get info
-  ldx folderpointer
-  ldy folderpointer+1
-  jsr fat32_finddirent
-  bcs fileerror
-  ; ok, it exists, now cd
-  jsr fat32_opendirent
-  ; all done.
-  ; now add this to the current directory, only if no cd ..
-  lda backdir
-  beq cdbb
-  jsr addpath
-cdbb:
-  plx
   rts
 
 fileerror
@@ -1062,7 +1072,7 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
-  jsr shortconvert
+  jsr cdshort
   ldx folderpointer
   phx
   ldy folderpointer+1
@@ -1079,6 +1089,9 @@ stlp
   ; Now, mark it a deleted file
   jsr fat32_markdeleted
   ; Find the directory
+  lda backdir
+  beq nono
+nono:
   plx
   ply
   jsr fat32_finddirent

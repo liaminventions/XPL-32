@@ -318,6 +318,41 @@ cdd:
   ;jsr jmpdir 
   ;bcc cdbb
   ; check for . or ..
+  jsr cdshort
+  lda backdir
+  cmp #$55
+  beq cdbb
+  ; ok, that should do it.
+  ; Open root directory
+  ;jsr fat32_openroot	
+  ; Find the subdirectory by name
+  ;ldx #<subdirname
+  ;ldy #>subdirname
+  ;jsr fat32_finddirent
+  ;bcs error
+  ; Open subdirectory
+  ;jsr fat32_opendirent	; open folder
+  jsr refreshpath
+.)
+cdsub:
+  ; check if the folder exists + get info
+  ldx folderpointer
+  ldy folderpointer+1
+  jsr fat32_finddirent
+  bcs fileerror
+  ; ok, it exists, now cd
+  jsr fat32_opendirent
+  ; all done.
+  ; now add this to the current directory, only if no cd ..
+  lda backdir
+  beq cdbb
+  jsr addpath
+cdbb:
+  plx
+  rts
+
+cdshort:
+  ; check for . or ..
   ldy #0
   lda (folderpointer),y
   cmp #$2e
@@ -330,6 +365,8 @@ dotf:
   lda (folderpointer),y
   cmp #$2e
   beq backdire
+  lda #$55
+  sta backdir
   rts ; do nothing if "cd ."
 backdire:
   ; "cd .." means go back
@@ -361,33 +398,6 @@ filllp:
   iny
   cpy #12 ; stop if index over 11
   bne filllp
-  ; ok, that should do it.
-  ; Open root directory
-  ;jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ;ldx #<subdirname
-  ;ldy #>subdirname
-  ;jsr fat32_finddirent
-  ;bcs error
-  ; Open subdirectory
-  ;jsr fat32_opendirent	; open folder
-  jsr refreshpath
-.)
-cdsub:
-  ; check if the folder exists + get info
-  ldx folderpointer
-  ldy folderpointer+1
-  jsr fat32_finddirent
-  bcs fileerror
-  ; ok, it exists, now cd
-  jsr fat32_opendirent
-  ; all done.
-  ; now add this to the current directory, only if no cd ..
-  lda backdir
-  beq cdbb
-  jsr addpath
-cdbb:
-  plx
   rts
 
 fileerror
@@ -1062,11 +1072,19 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
+<<<<<<< Updated upstream
   jsr shortconvert
+  ldx folderpointer
+  phx
+  ldy folderpointer+1
+  phy
+=======
+  jsr cdshort
   lda folderpointer
   sta savepoint
   lda folderpointer+1
   sta savepoint+1
+>>>>>>> Stashed changes
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1079,8 +1097,16 @@ stlp
   ; Now, mark it a deleted file
   jsr fat32_markdeleted
   ; Find the directory
+<<<<<<< Updated upstream
+  plx
+  ply
+=======
+  lda backdir
+  beq nono
+nono:
   ldx savepoint
   ldy savepoint+1
+>>>>>>> Stashed changes
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
@@ -1111,7 +1137,7 @@ mvpaste
   ; Done!
   plx
   rts
-overv:
+overf:
 ; copy it to the buffer so we don't overwrite the foldername
   ldy #0
 mvff
