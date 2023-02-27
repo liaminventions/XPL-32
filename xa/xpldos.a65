@@ -378,7 +378,6 @@ backdire:
 nopd:
   ; convert lowercase to uppercase
   ldy #0
-  ldx #$12
 cdlp:
   lda (folderpointer),y
   beq fill   ; if null, stop.
@@ -387,19 +386,18 @@ cdlp:
   cmp #$5f  ; if _ skip
   beq dont
   and #$df  ; otherwise convert to uppercase
-  sta (folderpointer),x
+  sta (folderpointer),y
 dont:
   iny
-  inx
   jmp cdlp
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
 fill:
   lda #$20
 filllp:
-  sta (folderpointer),x
+  sta (folderpointer),y
   inx
-  cpx #30 ; stop if index over 11
+  cpx #12 ; stop if index over 11
   bne filllp
   rts
 .)
@@ -489,6 +487,7 @@ shortlp:
 nodot
   ; no dot, this is a folder
   ; empty out the extension
+  sty sc
   lda #$20
   ldy #$19
   sta (folderpointer),y
@@ -522,9 +521,10 @@ extd:
 mvname:
   ; move name
   ldy #0
-  jmp mvlp+1
+  jmp mvlp2
 mvlp:
   iny
+mvlp2:
   lda (folderpointer),y
   phy
   ldy fileext
@@ -1076,7 +1076,11 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
-  jsr cdshort
+  jsr shortconvert
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1092,8 +1096,8 @@ stlp
   lda backdir
   beq nono
 nono:
-  ldx #<buffer+62
-  ldy #>buffer+62
+  ldx savepoint
+  ldy savepoint+1
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
