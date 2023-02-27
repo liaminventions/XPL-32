@@ -1091,7 +1091,7 @@ mvlp
   ldy #0
 mvpaste
   lda buffer,y
-  sta (zp_sd_Address),y
+  sta (zp_sd_address),y
   iny
   cpy #$20
   bne mvpaste
@@ -1099,7 +1099,7 @@ mvpaste
   lda #0
   sta (zp_sd_address),y
   ; Now write the sector
-  jsr fat32_wcurrent
+  jsr fat32_wrcurrent
   ; Done!
   plx
   rts
