@@ -318,7 +318,7 @@ cdd:
   ;jsr jmpdir 
   ;bcc cdbb
   ; check for . or ..
-  jsr cdshort
+  jsr shortconvert
   lda backdir
   cmp #$55
   beq cdbb
@@ -350,57 +350,6 @@ cdsub:
 cdbb:
   plx
   rts
-
-cdshort:
-.(
-  ; check for . or ..
-  ldy #0
-  lda (folderpointer),y
-  cmp #$2e
-  beq dotf
-  lda #$ff
-  sta backdir
-  jmp nopd
-dotf:
-  iny
-  lda (folderpointer),y
-  cmp #$2e
-  beq backdire
-  lda #$55
-  sta backdir
-  rts ; do nothing if "cd ."
-backdire:
-  ; "cd .." means go back
-  jsr backpath
-  stz backdir
-  ;jsr refreshpath
-  ;rts
-nopd:
-  ; convert lowercase to uppercase
-  ldy #0
-cdlp:
-  lda (folderpointer),y
-  beq fill   ; if null, stop.
-  cmp #$40  ; if numbers/symbols, skip.
-  bcc dont
-  cmp #$5f  ; if _ skip
-  beq dont
-  and #$df  ; otherwise convert to uppercase
-  sta (folderpointer),y
-dont:
-  iny
-  jmp cdlp
-  ; we need to loop through the null-terminated string
-  ; and convert it to SHORT format
-fill:
-  lda #$20
-filllp:
-  sta (folderpointer),y
-  inx
-  cpx #12 ; stop if index over 11
-  bne filllp
-  rts
-.)
 
 fileerror
   ; no such folder
@@ -470,6 +419,29 @@ shortconvert:
   ; loop through the null-terminated string at (folderpointer)
   ; and convert it to SHORT format.
   ; ex. "file.xpl",0 --> "FILE    XPL"
+  ; check for . or ..
+  ldy #0
+  lda (folderpointer),y
+  cmp #$2e
+  beq dotf
+  lda #$ff
+  sta backdir
+  jmp nopd
+dotf:
+  iny
+  lda (folderpointer),y
+  cmp #$2e
+  beq backdire
+  lda #$55
+  sta backdir
+  rts ; do nothing if "."
+backdire:
+  ; ".." means go back
+  jsr backpath
+  stz backdir
+  ;jsr refreshpath
+  rts
+nopd:
   ldy #22
   lda #0
   sta (folderpointer),y
