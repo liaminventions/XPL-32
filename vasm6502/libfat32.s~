@@ -19,10 +19,9 @@ fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
-fat32_movefolder		= zp_fat32_variables + $1c  ; 2 bytes
-fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
-fat32_lastsector		= zp_fat32_variables + $23  ; 4 bytes
-fat32_filenamepointer       	= zp_fat32_variables + $28  ; 2 bytes
+fat32_lastcluster		= zp_fat32_variables + $1c  ; 4 bytes
+fat32_lastsector		= zp_fat32_variables + $21  ; 4 bytes
+fat32_filenamepointer       	= zp_fat32_variables + $26  ; 2 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 

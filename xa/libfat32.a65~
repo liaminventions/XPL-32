@@ -260,9 +260,6 @@ fat32_seekcluster:
 
 newsector
 
-;  lda #$ff
-;  sta fat32_newfatsector
-
   ; Read the sector from the FAT
   jsr sd_readsector
 
@@ -277,13 +274,7 @@ newsector
   lda zp_sd_currentsector+3
   sta fat32_lastsector+3
 
-;  jmp .newc
-
 notnew
-
-; stz fat32_newfatsector
-
-;.newc
 
   ; Before using this FAT data, set currentsector ready to read the cluster itself
   ; We need to multiply the cluster number minus two by the number of sectors per 
@@ -1022,12 +1013,8 @@ comparenameloop:
   rts
 .)
 
-fat32_deletefile:
-.(
-  ; Removes the open file from the SD card.
-  ; The directory needs to be open and
-  ; zp_sd_address pointed to the first byte of the file entry.
-
+fat32_markdeleted:
+  ; Mark the file as deleted
   ; We need to stash the first character at index 0x0D
   ldy #$00
   lda (zp_sd_address),y
@@ -1038,8 +1025,6 @@ fat32_deletefile:
   ldy #$00
   lda #$e5 
   sta (zp_sd_address),y
-
-  ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
 
   ; Get start cluster high word
   ldy #$14
@@ -1060,7 +1045,19 @@ fat32_deletefile:
   ; Write the dirent
   jsr fat32_wrcurrent
 
-  ; Now remove the cluster chain
+  ; Done
+  rts
+
+fat32_deletefile:
+.(
+  ; Removes the open file from the SD card.
+  ; The directory needs to be open and
+  ; zp_sd_address pointed to the first byte of the file entry.
+
+  ; Mark the file as "Removed"
+  jsr fat32_markdeleted
+
+  ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
   ldy #0
 chainloop
   ; Seek to cluster

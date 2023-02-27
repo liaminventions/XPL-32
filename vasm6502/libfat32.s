@@ -1011,6 +1011,22 @@ fat32_markdeleted:
   lda #$e5 
   sta (zp_sd_address),y
 
+  ; Get start cluster high word
+  ldy #$14
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+2
+  iny
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+3
+
+  ; And low word
+  ldy #$1a
+  lda (zp_sd_address),y
+  sta fat32_nextcluster
+  iny
+  lda (zp_sd_address),y
+  sta fat32_nextcluster+1
+
   ; Write the dirent
   jsr fat32_wrcurrent
 
@@ -1027,24 +1043,6 @@ fat32_deletefile:
   jsr fat32_markdeleted
 
   ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
-
-  ; Get start cluster high word
-  ldy #$14
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+2
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+3
-
-  ; And low word
-  ldy #$1a
-  lda (zp_sd_address),y
-  sta fat32_nextcluster
-  iny
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+1
-  
-  ; Now remove the cluster chain
   ldy #0
 .chainloop
   ; Seek to cluster
