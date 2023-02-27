@@ -1036,6 +1036,20 @@ proc:
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  ; copy it to the buffer so we don't overwrite the foldername
+  ldy #0
+mvff
+  lda (folderpointer),y
+  sta buffer+34,y
+  beq mvdn
+  iny
+  jmp mvff
+mvdn:
+  ; store location
+  lda #<buffer+34
+  sta folderpointer
+  lda #>buffer+34
+  sta folderpointer+1
   ; convert it to SHORT
   jsr shortconvert
   lda folderpointer
