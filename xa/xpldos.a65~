@@ -1059,7 +1059,7 @@ proc:
   jsr refreshpath
   ; load
   ldx savepoint
-  ldy savepoint
+  ldy savepoint+1
   ; find it
   jsr fat32_finddirent
   bcc gotit
@@ -1074,6 +1074,7 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
+  jsr cdshort
   lda folderpointer
   sta savepoint
   lda folderpointer+1
@@ -1094,7 +1095,7 @@ stlp
   beq nono
 nono:
   ldx savepoint
-  ldy savepoint
+  ldy savepoint+1
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail

@@ -1059,7 +1059,7 @@ proc:
   jsr refreshpath
   ; load
   ldx savepoint
-  ldy savepoint
+  ldy savepoint+1
   ; find it
   jsr fat32_finddirent
   bcc gotit
@@ -1078,7 +1078,7 @@ gotit:
   lda folderpointer
   sta savepoint
   lda folderpointer+1
-  sta savepoint
+  sta savepoint+1
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1095,7 +1095,7 @@ stlp
   beq nono
 nono:
   ldx savepoint
-  ldy savepoint
+  ldy savepoint+1
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
