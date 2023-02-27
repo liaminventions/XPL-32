@@ -11,19 +11,39 @@ buffer = $700		    ; two pages
 endbuf = $900
 
 fat32_readbuffer = fat32_workspace
+fat32_fatbuffer = buffer
 
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
+fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
+fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
+fat32_rootcluster       	= zp_fat32_variables + $08  ; 4 bytes
+fat32_sectorspercluster 	= zp_fat32_variables + $0c  ; 1 byte
+fat32_pendingsectors    	= zp_fat32_variables + $0d  ; 1 byte
+fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
+fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
+fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
+fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
+fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
+;fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
+fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
+fat32_lastsector		= zp_fat32_variables + $23  ; 4 bytes
+fat32_newfatsector		= zp_fat32_variables + $28  ; 1 byte FLAG
+fat32_filenamepointer       	= zp_fat32_variables + $29  ; 2 bytes
 
-fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
-fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
-; ROUTINES
+fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
+
+;newer files
+sd_writesector = $ff8e
+fat32_writenextsector = $ff91
+fat32_allocatecluster = $ff94
+fat32_findnextfreecluster = $ff97
+fat32_writedirent = $ff9a
+fat32_deletefile = $ff9d
+fat32_file_write = $ffa0
+
+; xpldos
+savecmd = $ffa3
+cdcmd = $ffa6
+lscmd = $ffa9
 
 ; inits
 acia_init = $ffac		; initialize acia
@@ -49,16 +69,14 @@ fat32_readdirent = $ffdc	; read a directory entry from the open directory
 fat32_finddirent = $ffdf	; finds a particular directory entry. X,Y point to the 11-character filename to seek.
 fat32_file_readbyte = $ffe2	; read a byte from an open file
 fat32_file_read = $ffe5		; read a whole file into memory (assumes the file has just been opened and no data has been read yet)
-; TODO fat32_file_write, fat32_file_writebyte, fat32_writedirent, and fat32_writenextcluster COMING SOON
-; sd
+; TODO fat32_file_writebyte
 sd_readbyte = $ffe8		; read a byte from the sd card
 sd_sendcommand = $ffeb		; send a command to the sd card
 sd_readsector = $ffee		; read a sector from the sd card (512 bytes)
-; TODO sd_writesector and sd_writebyte COMING SOON
 ; load/save
 loadcmd = $fff1			; load /folder/code.xpl (with address at /folder/loadaddr.sar)
 tsave = $fff4			; save a file to tape. start address at cnt and end address at len (16-bit)
 tload = $fff7			; load a file from tape. the file location header is also loaded from tape
-; TODO loadpath, loadlc, savecmd, savepath, and savelc COMING SOON
+; TODO loadpath, loadlc, savepath, and savelc COMING SOON
 
 
