@@ -1111,7 +1111,7 @@ mvpaste
   ; Done!
   plx
   rts
-overv:
+overf:
 ; copy it to the buffer so we don't overwrite the foldername
   ldy #0
 mvff
