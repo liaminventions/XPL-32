@@ -17,11 +17,11 @@
 ;; CAT
 ;; SAVE
 ;; RM
+;; MV
 ;; upcoming commands (TODO):
 ;; MKDIR
 ;; EDIT (or VI?)
 ;; CP
-;; MV
 ;; TAR?
 ;; MAN?
 
@@ -1017,19 +1017,26 @@ foundfile:
 
 mvcmd:
 .(
-; Copy a file.
+; Move a file.
   phx
   lda path
   bne mv
   jmp patherr
 mv:
-; fetch first filename
+  ;; check arguments
+  lda ARGINDEX
+  cmp #3
+  beq proc
+  jmp error
+proc: 
+  ; fetch first filename
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  jsr overf
   ; convert it to SHORT
   jsr shortconvert
   lda folderpointer
@@ -1053,6 +1060,7 @@ gotit:
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
+  jsr overf
   ; convert it to SHORT
   jsr shortconvert
   lda folderpointer
@@ -1089,19 +1097,36 @@ mvlp
   bcc mvlp
   ; Got it. now paste the file here
   ldy #0
-.paste
+mvpaste
   lda buffer,y
-  sta (zp_sd_Address),y
+  sta (zp_sd_address),y
   iny
   cpy #$20
-  bne .paste
+  bne mvpaste
   ; Just to be sure, zero out the next entry.
   lda #0
   sta (zp_sd_address),y
   ; Now write the sector
-  jsr fat32_wcurrent
+  jsr fat32_wrcurrent
   ; Done!
   plx
+  rts
+overv:
+; copy it to the buffer so we don't overwrite the foldername
+  ldy #0
+mvff
+  lda (folderpointer),y
+  sta buffer+34,y
+  cmp #0
+  beq mvdn
+  iny
+  jmp mvff
+mvdn:
+  ; store location
+  lda #<buffer+34
+  sta folderpointer
+  lda #>buffer+34
+  sta folderpointer+1
   rts
 .)
 

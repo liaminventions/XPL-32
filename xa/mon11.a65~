@@ -233,6 +233,10 @@ table21
   .byte "rm", $00
   .word rmcmd
 table22
+  .word table23
+  .byte "mv", $00
+  .word mvcmd
+table23
   .word $0000            ; this signals it's the last entry in the table
   .byte "rti", $00
   .word rticmd
@@ -2761,6 +2765,7 @@ helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "cd", $09, " - change to the specified directory", $0d, $0a
 		 .byte "cat", $09, " - dumps a file directly to the screen", $0d, $0a
 		 .byte "rm", $09, " - removes a file", $0d, $0a
+		 .byte "mv", $09, " - moves a file", $0d, $0a
 		 .byte "clear", $09, " - clears the screen", $0d, $0a
 		 .byte "tload", $09, " - loads a file from the tape system", $0d, $0a
 		 .byte "tsave", $09, " - saves a file to the tape system", $0d, $0a
@@ -2795,7 +2800,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4642,$00
+  .dsb 4446,$00
 
 ; ----KERNAL----
 
