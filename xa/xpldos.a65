@@ -1023,7 +1023,13 @@ mvcmd:
   bne mv
   jmp patherr
 mv:
-; fetch first filename
+  ;; check arguments
+  lda ARGINDEX
+  cmp #3
+  beq proc
+  jmp error
+proc: 
+  ; fetch first filename
   clc
   lda #<INPUT
   adc ARGINDEX+2
