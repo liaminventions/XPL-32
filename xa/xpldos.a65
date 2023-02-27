@@ -1075,10 +1075,6 @@ gotit:
   jsr overf
   ; convert it to SHORT
   jsr cdshort
-  ldx folderpointer
-  phx
-  ldy folderpointer+1
-  phy
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1094,8 +1090,8 @@ stlp
   lda backdir
   beq nono
 nono:
-  ply
-  plx
+  ldx #<buffer+32
+  ldy #>buffer+32
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
