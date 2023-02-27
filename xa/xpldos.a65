@@ -1063,10 +1063,10 @@ gotit:
   jsr overf
   ; convert it to SHORT
   jsr shortconvert
-  lda folderpointer
-  sta savepoint
-  lda folderpointer+1
-  sta savepoint+1
+  ldx folderpointer
+  phx
+  ldy folderpointer+1
+  phy
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1079,8 +1079,8 @@ stlp
   ; Now, mark it a deleted file
   jsr fat32_markdeleted
   ; Find the directory
-  ldx savepoint
-  ldy savepoint+1
+  plx
+  ply
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
