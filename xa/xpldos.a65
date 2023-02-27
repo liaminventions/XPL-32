@@ -450,16 +450,19 @@ nopd:
   ldy #0
 shortlp:
   lda (folderpointer),y
-  cmp #$2e		; find the dot	
-  beq extst
-  cmp #0
   beq nodot
+  cmp #$2e		; find the dot	
+  beq extst 
   iny
   jmp shortlp
 nodot
   ; no dot, this is a folder
   ; empty out the extension
   sty sc
+  clc
+  lda sc
+  adc #11
+  sta sc
   lda #11
   sta fileext
   lda #$20
