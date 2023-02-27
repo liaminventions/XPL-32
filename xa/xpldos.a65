@@ -378,6 +378,7 @@ backdire:
 nopd:
   ; convert lowercase to uppercase
   ldy #0
+  ldx #$12
 cdlp:
   lda (folderpointer),y
   beq fill   ; if null, stop.
@@ -386,18 +387,19 @@ cdlp:
   cmp #$5f  ; if _ skip
   beq dont
   and #$df  ; otherwise convert to uppercase
-  sta (folderpointer),y
+  sta (folderpointer),x
 dont:
   iny
+  inx
   jmp cdlp
   ; we need to loop through the null-terminated string
   ; and convert it to SHORT format
 fill:
   lda #$20
 filllp:
-  sta (folderpointer),y
-  iny
-  cpy #12 ; stop if index over 11
+  sta (folderpointer),x
+  inx
+  cpx #30 ; stop if index over 11
   bne filllp
   rts
 .)
@@ -1084,14 +1086,14 @@ stlp
   iny
   cpy #$20
   bne stlp
-  ; Now, mark it a deleted file
+  ; Now, mark it as a deleted file
   jsr fat32_markdeleted
   ; Find the directory
   lda backdir
   beq nono
 nono:
-  ldx #<buffer+32
-  ldy #>buffer+32
+  ldx #<buffer+62
+  ldy #>buffer+62
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
