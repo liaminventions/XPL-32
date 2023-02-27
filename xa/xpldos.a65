@@ -320,6 +320,7 @@ cdd:
   ; check for . or ..
   jsr shortconvert
   lda backdir
+  beq notcd  
   cmp #$55
   beq cdbb
   ; ok, that should do it.
@@ -348,6 +349,10 @@ cdsub:
   beq cdbb
   jsr addpath
 cdbb:
+  plx
+  rts
+notcd:
+  jsr refreshpath
   plx
   rts
 
