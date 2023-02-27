@@ -1074,7 +1074,6 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
-  jsr cdshort
   ldx folderpointer
   phx
   ldy folderpointer+1

@@ -1051,15 +1051,15 @@ proc:
   jsr overf
   ; convert it to SHORT
   jsr shortconvert
-  ldx folderpointer
-  phx
-  ldy folderpointer+1
-  phy
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint+1
   ; path refresh
   jsr refreshpath
   ; load
-  plx
-  ply
+  ldx savepoint
+  ldy savepoint
   ; find it
   jsr fat32_finddirent
   bcc gotit
@@ -1074,10 +1074,10 @@ gotit:
   sta folderpointer+1
   jsr overf
   ; convert it to SHORT
-  ldx folderpointer
-  phx
-  ldy folderpointer+1
-  phy
+  lda folderpointer
+  sta savepoint
+  lda folderpointer+1
+  sta savepoint
   ; Now, for the copy
   ; Store the dirent temporaraly
   ldy #0
@@ -1093,8 +1093,8 @@ stlp
   lda backdir
   beq nono
 nono:
-  plx
-  ply
+  ldx savepoint
+  ldy savepoint
   jsr fat32_finddirent
   bcc mvgotdirent 
 mvfail
