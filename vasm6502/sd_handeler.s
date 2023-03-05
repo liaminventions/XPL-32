@@ -14,7 +14,7 @@ jumptoit:
   .include "kernal_def.s"
 
 dirname:
-  .asciiz "FOLDER     "	     ; standard directory name, SHORT format
+  .asciiz "ROOT       "	     ; standard directory name, SHORT format
 
 errormsg:
   .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg

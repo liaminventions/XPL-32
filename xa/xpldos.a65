@@ -20,7 +20,6 @@
 ;; MV
 ;; upcoming commands (TODO):
 ;; MKDIR
-;; EDIT (or VI?)
 ;; CP
 ;; TAR?
 ;; MAN?
@@ -193,6 +192,7 @@ rlerror:
   ldx #<foldermsg
   ldy #>foldermsg
   jsr w_acia_full
+  jsr error_sound
   sec
   rts
 
@@ -241,9 +241,11 @@ patherror:
   .byte "No Memory Card.", $0d, $0a, $00
 
 ;; print PATH
-;; prints the current directory, like linux/unix
-;; for example,
-;; /folder/test/>_
+;; prints the current directory, like unix
+;; for example:
+;; ~/test/ >_
+;; or:
+;; ~ >_
 ;;
 printpath:
 .(
@@ -253,10 +255,12 @@ printpath:
   sec
   rts
   ;jmp rlerror
+  lda #'~' ; root
+  jsr print_chara
 ppc:
   lda #'/'
   jsr print_chara
-  lda #1	     ; path+1 because path+0 is the path size variable
+  lda #12	     ; path+12 because we already showed the root
   sta pathindex
   lda #>path
   sta pathindex+1
@@ -284,6 +288,9 @@ notspace:
   beq ppdone
   jmp pplp	     ; no, print another folder name.
 ppdone:
+  ; Print a space for good spacing
+  lda #$20
+  jsr print_chara
   clc
   rts		     ; done!
 .)
@@ -410,11 +417,7 @@ redlp:
   jsr print_chara
   jmp redlp
 catd:
-  ; Dump to screen
-  ;ldx #<buffer
-  ;ldy #>buffer
-  ;jsr w_acia_full
-  ; CR LF
+  ; CR+LF
   jsr crlf
   rts
 .)
@@ -761,7 +764,7 @@ loadone:
   ldy #>filmsg
   ldx #<filmsg
   jsr w_acia_full
-  jmp lo
+  jmp error_sound
 
 foundfile
  
@@ -792,9 +795,7 @@ foundfile
   ldy #>filmsg2
   ldx #<filmsg2
   jsr w_acia_full
-  rts
-  rts
-  rts
+  jmp error_sound
 .)
 loadfoundcode
 .(
@@ -821,9 +822,6 @@ loadfoundcode
 
 .)
 
-lo:
-  rts
-
 loadf:
 ; Open root directory
   jsr fat32_openroot
@@ -838,7 +836,7 @@ loadf:
   ldy #>submsg
   ldx #<submsg
   jsr w_acia_full
-  jmp lo
+  jmp error_sound
 
 foundsubdir
 
@@ -1129,7 +1127,7 @@ mvdn:
 .)
 
 submsg
-  .byte "'folder' Not Found!", $00
+  .byte "Root Not Found!", $00
 filmsg
   .byte "'loadaddr.sar' Not Found!", $00
 filmsg2
@@ -1144,5 +1142,4 @@ femsg:
   .byte "File exists. Overwrite? (y/n): ", $00  
 foldermsg:
   .byte "No such file or directory.", $0d, $0a, $00
-
 

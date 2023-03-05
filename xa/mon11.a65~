@@ -73,6 +73,10 @@ ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
 PRINTVEC   = $0042  ; and $0043. for printing routine.
 ENTRY	   = $0044  ; and $0045
 MEMTESTBASE= $0046  ; and $0047
+; memory copy:
+mem_source = $42 ; and $43
+mem_copy = $46 ; and $47
+mem_end = $30 ; and $31
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
@@ -272,10 +276,7 @@ startup
 
 #include "init.a65"
 
-;; Startup sound
-;;
-
-#include "startupsound.a65"
+  jsr dostartupsound
 
 ;; Initialize the ACIA
 ;;
@@ -334,6 +335,7 @@ initerror
   lda #'!'
   jsr print_chara
   stz path
+  jsr error_sound
   jmp initf
 
 initdone
@@ -421,8 +423,10 @@ wait_txd_empty
   jsr matchcommand  ; match input command and execute
   jmp reploop       ; loop around
 
+;; Include Startup sound and sound effect engine
+;;
 
-
+#include "startupsound.a65"
 
 parseinput
   phx               ; preserve x, since it's our private stack pointer
@@ -2560,43 +2564,37 @@ via_init:
 ; include ACIA library
 #include "acia.a65"
 
-; !! BAD ERROR SOUND !!
+; error sound
 error_sound:
   jsr clear_sid
-  lda #$0f
-  sta $b818
-  lda #$e7
-  sta $b802
-  lda #$0f
-  sta $b805
-  lda #$f8
-  sta $b806
-  lda freq_table
-  sta $b800
-  lda freq_table+1
-  sta $b801
-  lda #$41
-  sta $b804
-
-outer
-  ldy #$ff
-inner
-  ldx #$ff
-
-innerloop
-  dex
-  bne innerloop
-
-  dey
-  beq ende
-  jmp inner
-ende
-  lda #$40
-  sta $b804
+  lda #$06
+  sta mem_copy
+  lda #$10
+  sta mem_copy+1
+  lda #<sounddata
+  sta mem_source
+  lda #>sounddata
+  sta mem_source+1
+  lda #$10
+  sta mem_end
+  lda #$11
+  sta mem_end
+  jsr memcopy
+  lda #$10
+  sta mem_copy
+  lda #$11
+  sta mem_copy+1
+  lda errordat
+  sta mem_source
+  lda errordat
+  sta mem_source+1
+  lda #$34
+  sta mem_end
+  lda #$12
+  sta mem_end
+  jsr memcopy
+  jsr runthesound
   rts
-	
-freq_table:
-  .byte $50, $50
 
 clear_sid
   ldx #$17
@@ -2606,8 +2604,30 @@ csid
   bne csid
   rts
 
+	  ; error sound
+errordat:
+          .BYTE $f0,$0f,$77,$11,$01,$00
+          .BYTE $12,$0d,$04,$05,$0b,$14,$08,$09,$07,$06,$0c,$03,$0e,$0f,$10,$11
+          .BYTE $17,$13,$0a,$15,$16,$18,$02,$00,$b6,$00,$6e,$b6,$01,$16,$ff,$3e
+          .BYTE $03,$20,$f0,$41,$08,$20,$ff,$f0,$00,$fd,$00,$00,$00,$07,$ff,$00
+          .BYTE $00,$fd,$07,$00,$00,$07,$1e,$00,$00,$0f,$fd,$06,$16,$6e,$06,$3e
+          .BYTE $03,$ff,$16,$6e,$08,$00,$08,$00,$08,$63,$00,$00,$00,$40,$00,$ff
+          .BYTE $3e,$03,$20,$f0,$41,$08,$20,$9f,$f0,$00,$fd,$00,$07,$bf,$00,$00
+          .BYTE $fd,$07,$00,$07,$0e,$00,$00,$0f,$11,$2d,$00,$fd,$11,$4a,$a0,$11
+          .BYTE $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+          .BYTE $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+          .BYTE $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+          .BYTE $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+          .BYTE $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+          .BYTE $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+          .BYTE $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+          .BYTE $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+          .BYTE $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+          .BYTE $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+          .BYTE $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a2,$00,$fe
+
 subdirname
-  .byte "FOLDER     "
+  .byte "ROOT       "
 filename
   .byte "CODE    XPL"
 loadname
@@ -2622,6 +2642,30 @@ fat_error
 ; goofy ahh fake vi
 
 #include "vi65s.a65"
+
+;; memory copy
+;; copies from (mem_source) to (mem_copy), all the way to (mem_end).
+memcopy:
+.(
+  ldy #0
+loopbring
+  lda (mem_source),y  
+  sta (mem_copy),y
+  inc mem_source
+  bne dontinc
+  inc mem_source+1
+dontinc
+  inc mem_copy
+  bne calc
+  inc mem_copy+1
+calc
+  lda mem_copy+1
+  cmp mem_end+1
+  bne loopbring
+  lda mem_copy
+  cmp mem_end
+  bne loopbring
+.)
 
 ;; memory test
 ;; the process is, for each page of memory (and MEMTESTBASE points
@@ -2800,7 +2844,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4425,$00
+  .dsb 4435,$00
 
 ; ----KERNAL----
 
