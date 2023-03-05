@@ -74,9 +74,9 @@ PRINTVEC   = $0042  ; and $0043. for printing routine.
 ENTRY	   = $0044  ; and $0045
 MEMTESTBASE= $0046  ; and $0047
 ; memory copy:
-mem_source = $32 ; and $33
-mem_copy = $34 ; and $35
-mem_end = $30 ; and $31
+mem_source = $10 ; and $11
+mem_copy = $12 ; and $13
+mem_end = $14 ; and $15
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
@@ -2580,7 +2580,7 @@ error_sound:
   lda #$10
   sta mem_end
   lda #$11
-  sta mem_end
+  sta mem_end+1
   jsr memcopy
   lda #$10
   sta mem_copy
@@ -2593,7 +2593,7 @@ error_sound:
   lda #$34
   sta mem_end
   lda #$12
-  sta mem_end
+  sta mem_end+1
   jsr memcopy
   lda #$55
   sta donefact
