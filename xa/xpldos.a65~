@@ -836,7 +836,7 @@ loadf:
   ldy #>submsg
   ldx #<submsg
   jsr w_acia_full
-  jmp lo
+  jmp error_sound
 
 foundsubdir
 

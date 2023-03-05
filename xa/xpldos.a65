@@ -820,6 +820,8 @@ loadfoundcode
 
   jmp (buffer+2)	; jump to start address from LOADADDR.SAR
 
+lo:
+  rts
 .)
 
 loadf:
