@@ -74,8 +74,8 @@ PRINTVEC   = $0042  ; and $0043. for printing routine.
 ENTRY	   = $0044  ; and $0045
 MEMTESTBASE= $0046  ; and $0047
 ; memory copy:
-mem_source = $42 ; and $43
-mem_copy = $46 ; and $47
+mem_source = $32 ; and $33
+mem_copy = $34 ; and $35
 mem_end = $30 ; and $31
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
@@ -277,6 +277,12 @@ startup
 #include "init.a65"
 
   jsr dostartupsound
+  jmp init_acia
+
+;; Include Startup sound and sound effect engine
+;;
+
+#include "startupsound.a65"
 
 ;; Initialize the ACIA
 ;;
@@ -423,10 +429,6 @@ wait_txd_empty
   jsr matchcommand  ; match input command and execute
   jmp reploop       ; loop around
 
-;; Include Startup sound and sound effect engine
-;;
-
-#include "startupsound.a65"
 
 parseinput
   phx               ; preserve x, since it's our private stack pointer
@@ -2844,7 +2846,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4091,$00
+  .dsb 4088,$00
 
 ; ----KERNAL----
 
