@@ -245,17 +245,19 @@ patherror:
 ;; for example:
 ;; ~/test/ >_
 ;; or:
-;; ~ >_
+;; ~/ >_
 ;;
 printpath:
 .(
   ; No memory card?
   lda path
-  bne ppc
+  bne ppb
   sec
   rts
   ;jmp rlerror
-  lda #'~' ; root
+ppb
+  ; sould this be $fb? (square root symbol)
+  lda #$7e ; root
   jsr print_chara
 ppc:
   lda #'/'
