@@ -1129,11 +1129,11 @@ mvdn:
 .)
 
 submsg
-  .byte "Root Not Found!", $00
+  .byte "Root Not Found!", $0d, $0a, $00
 filmsg
-  .byte "'loadaddr.sar' Not Found!", $00
+  .byte "'loadaddr.sar' Not Found!", $0d, $0a, $00
 filmsg2
-  .byte "'code.xpl' Not Found!", $00
+  .byte "'code.xpl' Not Found!", $0d, $0a, $00
 lds
   .byte "Loading SD Handler...", $00
 savemsg:
