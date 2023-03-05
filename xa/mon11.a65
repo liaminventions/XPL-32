@@ -2595,6 +2595,11 @@ error_sound:
   lda #$12
   sta mem_end
   jsr memcopy
+  lda #$55
+  sta donefact
+  stz irqcount
+  lda #$0f
+  sta $b818
   jsr runthesound
   rts
 
@@ -2667,6 +2672,7 @@ calc
   lda mem_copy
   cmp mem_end
   bne loopbring
+  rts
 .)
 
 ;; memory test
@@ -2846,7 +2852,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 4088,$00
+  .dsb 4076,$00
 
 ; ----KERNAL----
 
