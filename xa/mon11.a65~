@@ -2586,9 +2586,9 @@ error_sound:
   sta mem_copy
   lda #$11
   sta mem_copy+1
-  lda errordat
+  lda #<errordat
   sta mem_source
-  lda errordat
+  lda #>errordat
   sta mem_source+1
   lda #$34
   sta mem_end

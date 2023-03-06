@@ -2577,12 +2577,12 @@ error_sound:
   sta mem_source
   lda #>sounddata
   sta mem_source+1
-  lda #$10
+  lda #$0a
   sta mem_end
   lda #$11
   sta mem_end+1
   jsr memcopy
-  lda #$10
+  lda #$0a
   sta mem_copy
   lda #$11
   sta mem_copy+1
@@ -2590,7 +2590,7 @@ error_sound:
   sta mem_source
   lda #>errordat
   sta mem_source+1
-  lda #$34
+  lda #$2e
   sta mem_end
   lda #$12
   sta mem_end+1
