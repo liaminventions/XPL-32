@@ -257,8 +257,10 @@ printpath:
   ;jmp rlerror
 ppb
   ; sould this be $fb? (square root symbol)
+  ; for now it's ~
   lda #$7e ; root
   jsr print_chara
+  jmp ppdone
 ppc:
   lda #'/'
   jsr print_chara
