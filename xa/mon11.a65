@@ -76,7 +76,7 @@ MEMTESTBASE= $0046  ; and $0047
 ; memory copy:
 mem_source = $10 ; and $11
 mem_copy = $12 ; and $13
-mem_end = $14 ; and $15
+mem_end = $1a ; and $1v
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
@@ -105,8 +105,7 @@ cnt    		= $12 ; 2byt
 len    		= $14 ; 2byt
 cnt2		= $15 ; 2byt
 tapespeed	= $17 ; 1byt
-;; xplDOS:
-lix		= $13 ; 1byt
+;; xplDOS
 fileext		= $14 ; 1byt
 filetype	= $15 ; 1byt
 folderpointer   = $11 ; 2byt
