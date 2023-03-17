@@ -24,8 +24,6 @@ d416_sFiltFreqHi = $b816
 d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
-poll = $8001
-
   .org $0f00
 init:
   sei
@@ -33,33 +31,32 @@ init:
   sta $7ffe
   lda #>irq
   sta $7fff
-  lda #$90
+  lda #$c0
   sta $b00e
-  stz $b00c
   lda #0 ; Song Number
   jsr InitSid
+  lda #$40
+  sta $b00d
   cli
   nop
   jmp reset
 irq:
-  pha
-  phx
   phy
-  ; IRQ code goes here
-  lda #$10
-  sta $b00d
+  phx
+  pha
+  jsr putbut
 check:
   sei
-  lda poll
+  lda $8001
   and #$08
   beq cont
   jmp clear
 cont:
   jsr PlaySid
-  ply
-  plx
-  pla
   cli
+  pla
+  plx
+  ply
   rti
 clear:
   ldx #$18
@@ -72,421 +69,440 @@ cloop:
 end:
   jmp ($fffc)
 
-	.byte "How is this so smol ;-;"
+putbut              ldx #$1e
+                    stx $b004
+                    stx $b006
+                    ldx #$4e	;50Hz IRQ
+                    stx $b005
+                    stx $b007
+                    rts
+
+InitSid             jsr putbut
+                    jmp InitSid2
 
 	.org $1000
-
-InitSid             jmp L1104
+InitSid2            jmp L10d6
                     
-PlaySid             jmp L110c
+PlaySid             jmp L10da
                     
-L1006               jmp L1108
-
-	.binary "mar_a.bin"
+S1006               lda $15c6,y
+                    jmp L1013
                     
-S1040               lda $1614,y
-                    jmp L104d
-                    
-L1046               tay
+L100c               tay
                     lda #$00
-                    sta $140e,x
+                    sta $13ff,x
                     tya
-L104d               sta $13e5,x
-                    lda $13d4,x
-                    sta $13e4,x
+L1013               sta $13d6,x
+                    lda $13c5,x
+                    sta $13d5,x
                     rts
                     
-L1057               sta $1424,x
+L101d               sta $1419,x
                     rts
                     
-L105b               sta $13e7,x
+L1021               sta $141a,x
+                    rts
+                    
+L1025               sta $13d9,x
+                    rts
+                    
+L1029               sta $13d8,x
                     lda #$00
-                    sta $1410,x
+                    sta $1401,x
                     rts
                     
-L1064               ldy #$00
-                    sty $1147
-L1069               sta L1142 + 1
-                    rts
-                    
-L106d               sta $1191
-                    beq L1069
-                    rts
-                    
-L1073               sta L118b + 1
-                    rts
-                    
-L1077               sta $13fb
-                    sta $1402
-                    sta $1409
-                    rts
-                    
-L1081               dec $140f,x
-L1084               jmp L12df
-                    
-L1087               beq L1084
-                    lda $140f,x
-                    bne L1081
+L1032               sta $13da,x
                     lda #$00
-                    sta $fd
-                    lda $140e,x
-                    bmi L10a0
-                    cmp $171d,y
-                    bcc L10a1
-                    beq L10a0
+                    sta $13db,x
+                    rts
+                    
+L103b               ldy #$00
+                    sty $1122
+L1040               sta L111d + 1
+                    rts
+                    
+L1044               sta $116c
+                    beq L1040
+                    rts
+                    
+L104a               sta $13ec
+                    sta $13f3
+                    sta $13fa
+                    rts
+                    
+L1054               dec $1400,x
+L1057               jmp L12b0
+                    
+L105a               beq L1057
+                    lda $1400,x
+                    bne L1054
+                    lda #$00
+                    sta $fc
+                    lda $13ff,x
+                    bmi L1073
+                    cmp $17c5,y
+                    bcc L1074
+                    beq L1073
                     eor #$ff
-L10a0               clc
-L10a1               adc #$02
-                    sta $140e,x
+L1073               clc
+L1074               adc #$02
+                    sta $13ff,x
                     lsr a
-                    bcc L10d7
-                    bcs L10ee
+                    bcc L10a9
+                    bcs L10c0
                     tya
-                    beq L10fe
-                    lda $171d,y
-                    sta $fd
-                    lda $13e4,x
+                    beq L10d0
+                    lda $17c5,y
+                    sta $fc
+                    lda #$00
                     cmp #$02
-                    bcc L10d7
-                    beq L10ee
-                    ldy $13fd,x
-                    lda $1411,x
-                    sbc $1436,y
+                    bcc L10a9
+                    beq L10c0
+                    ldy $13ee,x
+                    lda $1414,x
+                    sbc $1425,y
                     pha
-                    lda $1412,x
-                    sbc $1496,y
+                    lda $1415,x
+                    sbc $147d,y
                     tay
                     pla
-                    bcs L10e7
-                    adc $fc
+                    bcs L10b9
+                    adc $fb
                     tya
-                    adc $fd
-                    bpl L10fe
-L10d7               lda $1411,x
                     adc $fc
-                    sta $1411,x
-                    lda $1412,x
-                    adc $fd
-                    jmp L12dc
+                    bpl L10d0
+L10a9               lda $1414,x
+                    adc $fb
+                    sta $1414,x
+                    lda $1415,x
+                    adc $fc
+                    jmp L12ad
                     
-L10e7               sbc $fc
+L10b9               sbc $fb
                     tya
-                    sbc $fd
-                    bmi L10fe
-L10ee               lda $1411,x
                     sbc $fc
-                    sta $1411,x
-                    lda $1412,x
-                    sbc $fd
-                    jmp L12dc
+                    bmi L10d0
+L10c0               lda $1414,x
+                    sbc $fb
+                    sta $1414,x
+                    lda $1415,x
+                    sbc $fc
+                    jmp L12ad
                     
-L10fe               ldy $13fd,x
-                    jmp L12ce
+L10d0               ldy $13ee,x
+                    jmp L129f
                     
-L1104               sta $110f
+L10d6               sta $10ea
                     rts
                     
-L1108               sta $1198
-                    rts
-                    
-L110c               ldx #$00
+L10da               ldx #$00
+L10dc               lda $1414,x
+                    sta d400_sVoc1FreqLo,x
+                    inx
+                    cpx #$19
+                    bne L10dc
+                    ldx #$00
                     ldy #$00
-                    bmi L1142
+                    bmi L111d
                     txa
                     ldx #$29
-L1115               sta $13cf,x
+L10f0               sta $13c0,x
                     dex
-                    bpl L1115
-                    sta d415_sFiltFreqLo
-                    sta $1191
-                    sta L1142 + 1
-                    stx $110f
+                    bpl L10f0
+                    sta $1429
+                    sta $116c
+                    sta L111d + 1
+                    stx $10ea
                     tax
-                    jsr S1132
+                    jsr S110d
                     ldx #$07
-                    jsr S1132
+                    jsr S110d
                     ldx #$0e
-S1132               lda #$05
-                    sta $13fb,x
+S110d               lda #$05
+                    sta $13ec,x
                     lda #$01
-                    sta $13fc,x
-                    sta $13fe,x
-                    jmp L13c5
+                    sta $13ed,x
+                    sta $13ef,x
+                    jmp L1376
                     
-L1142               ldy #$00
-                    beq L118b
+L111d               ldy #$00
+                    beq L1166
                     lda #$00
-                    bne L116d
-                    lda $16b8,y
-                    beq L1161
-                    bpl L116a
+                    bne L1148
+                    lda $1778,y
+                    beq L113c
+                    bpl L1145
                     asl a
-                    sta $1196
-                    lda $16ea,y
-                    sta $1191
-                    lda $16b9,y
-                    bne L117f
+                    sta $1171
+                    lda $179e,y
+                    sta $116c
+                    lda $1779,y
+                    bne L115a
                     iny
-L1161               lda $16ea,y
-                    sta L118b + 1
-                    jmp L117c
+L113c               lda $179e,y
+                    sta L1166 + 1
+                    jmp L1157
                     
-L116a               sta $1147
-L116d               lda $16ea,y
+L1145               sta $1122
+L1148               lda $179e,y
                     clc
-                    adc L118b + 1
-                    sta L118b + 1
-                    dec $1147
-                    bne L118d
-L117c               lda $16b9,y
-L117f               cmp #$ff
+                    adc L1166 + 1
+                    sta L1166 + 1
+                    dec $1122
+                    bne L1168
+L1157               lda $1779,y
+L115a               cmp #$ff
                     iny
                     tya
-                    bcc L1188
-                    lda $16ea,y
-L1188               sta L1142 + 1
-L118b               lda #$00
-L118d               sta d416_sFiltFreqHi
+                    bcc L1163
+                    lda $179e,y
+L1163               sta L111d + 1
+L1166               lda #$00
+L1168               sta $142a
                     lda #$00
-                    sta d417_sFiltControl
+                    sta $142b
                     lda #$00
                     ora #$0f
-                    sta d418_sFiltMode
-                    jsr S11a6
+                    sta $142c
+                    jsr S1181
                     ldx #$07
-                    jsr S11a6
+                    jsr S1181
                     ldx #$0e
-S11a6               dec $13fc,x
-                    beq L11c7
-                    bpl L11b3
-                    lda $13fb,x
-                    sta $13fc,x
-L11b3               jmp L1278
+S1181               dec $13ed,x
+                    beq L1191
+                    bpl L118e
+                    lda $13ec,x
+                    sta $13ed,x
+L118e               jmp L1241
                     
-L11b6               sbc #$d0
-                    inc $13d1,x
-                    cmp $13d1,x
-                    bne L120c
-                    lda #$00
-                    sta $13d1,x
-                    beq L1207
-L11c7               ldy $13d4,x
-                    lda $1009,y
-                    sta $126d
-                    sta $1276
-                    lda $13d2,x
-                    bne L120c
-                    ldy $13f9,x
-                    lda $14f6,y
+L1191               ldy $13c5,x
+                    lda $13ab,y
+                    sta $1233
+                    sta $123f
+                    lda $13c3,x
+                    bne L11d2
+                    ldy $13ea,x
+                    lda $14dd,y
+                    sta $fb
+                    lda $14e0,y
                     sta $fc
-                    lda $14f9,y
-                    sta $fd
-                    ldy $13cf,x
-                    lda ($fc),y
+                    ldy $13c0,x
+                    lda ($fb),y
                     cmp #$ff
-                    bcc L11f4
+                    bcc L11be
                     iny
-                    lda ($fc),y
+                    lda ($fb),y
                     tay
-                    lda ($fc),y
-L11f4               cmp #$e0
-                    bcc L1200
+                    lda ($fb),y
+L11be               cmp #$e0
+                    bcc L11ca
                     sbc #$f0
-                    sta $13d0,x
+                    sta $13c1,x
                     iny
-                    lda ($fc),y
-L1200               cmp #$d0
-                    bcs L11b6
-                    sta $13fa,x
-L1207               iny
+                    lda ($fb),y
+L11ca               sta $13eb,x
+                    iny
                     tya
-                    sta $13cf,x
-L120c               ldy $13fe,x
-                    lda $13e6,x
-                    beq L1272
+                    sta $13c0,x
+L11d2               ldy $13ef,x
+                    lda $13d7,x
+                    beq L123b
                     sec
                     sbc #$60
-                    sta $13fd,x
+                    sta $13ee,x
                     lda #$00
-                    sta $13e4,x
-                    sta $13e6,x
-                    lda $1629,y
-                    sta $140f,x
-                    lda $1614,y
-                    sta $13e5,x
-                    lda $13d4,x
-                    cmp #$03
-                    beq L1272
-                    lda $15ab,y
-                    sta $1423,x
-                    lda $15c0,y
-                    sta $1424,x
-                    lda $15ea,y
-                    beq L124e
-                    sta $13e9,x
-                    lda #$00
-                    sta $13ea,x
-L124e               lda $15ff,y
-                    beq L125b
-                    sta L1142 + 1
-                    lda #$00
-                    sta $1147
-L125b               lda #$09
-                    sta $13e8,x
-                    inc $13ff,x
-                    lda $15d5,y
-                    sta $13e7,x
-                    lda $13d5,x
-                    jsr S1040
-                    jmp L13a4
-                    
-L1272               lda $13d5,x
-                    jsr S1040
-L1278               ldy $13e7,x
-                    beq L12ad
-                    lda $163e,y
-                    cmp #$10
-                    bcs L128e
-                    cmp $1410,x
-                    beq L1293
-                    inc $1410,x
-                    bne L12ad
-L128e               sbc #$10
-                    sta $13e8,x
-L1293               lda $163f,y
-                    cmp #$ff
-                    iny
-                    tya
-                    bcc L12a0
-                    clc
-                    lda $166f,y
-L12a0               sta $13e7,x
-                    lda #$00
-                    sta $1410,x
-                    lda $166e,y
-                    bne L12c6
-L12ad               lda $13fc,x
-                    beq L12e2
-                    ldy $13e4,x
-                    lda $1019,y
-                    sta $12c4
-                    ldy $13e5,x
-                    lda $1723,y
-                    sta $fc
-                    jmp L1087
-                    
-L12c6               bpl L12cd
-                    adc $13fd,x
-                    and #$7f
-L12cd               tay
-L12ce               lda #$00
-                    sta $140e,x
-                    lda $1436,y
-                    sta $1411,x
-                    lda $1496,y
-L12dc               sta $1412,x
-L12df               lda $13fc,x
-L12e2               cmp #$02
-                    beq L1329
-                    ldy $13e9,x
-                    beq L1326
-                    ora $13d2,x
-                    beq L1326
-                    lda $13ea,x
-                    bne L1306
-                    lda $16a0,y
-                    bpl L1303
-                    lda $16ac,y
-                    sta $1413,x
-                    jmp L1317
-                    
-L1303               sta $13ea,x
-L1306               lda $1413,x
-                    clc
-                    adc $16ac,y
-                    adc #$00
-                    sta $1413,x
-                    dec $13ea,x
-                    bne L1326
-L1317               lda $16a1,y
-                    cmp #$ff
-                    iny
-                    tya
-                    bcc L1323
-                    lda $16ac,y
-L1323               sta $13e9,x
-L1326               jmp L13a4
-                    
-L1329               ldy $13fa,x
-                    lda $14fc,y
-                    sta $fc
-                    lda $1554,y
-                    sta $fd
-                    ldy $13d2,x
-                    lda ($fc),y
-                    cmp #$40
-                    bcc L1357
-                    cmp #$60
-                    bcc L1361
-                    cmp #$c0
-                    bcc L1375
-                    lda $13d3,x
-                    bne L134e
-                    lda ($fc),y
-L134e               adc #$00
-                    sta $13d3,x
-                    beq L139b
-                    bne L13a4
-L1357               sta $13fe,x
-                    iny
-                    lda ($fc),y
-                    cmp #$60
-                    bcs L1375
-L1361               cmp #$50
-                    and #$0f
-                    sta $13d4,x
-                    beq L1370
-                    iny
-                    lda ($fc),y
                     sta $13d5,x
-L1370               bcs L139b
-                    iny
-                    lda ($fc),y
-L1375               cmp #$bd
-                    bcc L137f
-                    beq L139b
-                    ora #$f0
-                    bne L1398
-L137f               adc $13d0,x
-                    sta $13e6,x
-                    lda $13d4,x
+                    sta $13d7,x
+                    lda $15e0,y
+                    sta $1400,x
+                    lda $15c6,y
+                    sta $13d6,x
+                    lda $13c5,x
                     cmp #$03
-                    beq L139b
-                    lda #$0f
-                    sta $1423,x
+                    beq L123b
+                    lda #$09
+                    sta $13d9,x
+                    inc $13f0,x
+                    lda $1578,y
+                    sta $13d8,x
+                    lda $1592,y
+                    beq L1216
+                    sta $13da,x
                     lda #$00
-                    sta $1424,x
-                    lda #$fe
-L1398               sta $13ff,x
-L139b               iny
-                    lda ($fc),y
-                    beq L13a1
+                    sta $13db,x
+L1216               lda $15ac,y
+                    beq L1223
+                    sta L111d + 1
+                    lda #$00
+                    sta $1122
+L1223               lda $1544,y
+                    sta $1419,x
+                    lda $155e,y
+                    sta $141a,x
+                    lda $13c6,x
+                    jsr S1006
+                    jmp L1376
+                    
+L1238               jmp L1380
+                    
+L123b               lda $13c6,x
+                    jsr S1006
+L1241               ldy $13d8,x
+                    beq L1280
+                    lda $15fa,y
+                    cmp #$10
+                    bcs L1257
+                    cmp $1401,x
+                    beq L1260
+                    inc $1401,x
+                    bne L1280
+L1257               sbc #$10
+                    cmp #$e0
+                    bcs L1260
+                    sta $13d9,x
+L1260               lda $15fb,y
+                    cmp #$ff
+                    iny
                     tya
-L13a1               sta $13d2,x
-L13a4               lda $1423,x
-                    sta d405_sVoc1AttDec,x
-                    lda $1424,x
-                    sta d406_sVoc1SusRel,x
-                    lda $1413,x
-                    sta d402_sVoc1PWidthLo,x
-                    sta d403_sVoc1PWidthHi,x
-                    lda $1411,x
-                    sta d400_sVoc1FreqLo,x
-                    lda $1412,x
-                    sta d401_sVoc1FreqHi,x
-L13c5               lda $13e8,x
-                    and $13ff,x
-                    sta d404_sVoc1Control,x
+                    bcc L126c
+                    lda $169f,y
+L126c               sta $13d8,x
+                    lda #$00
+                    sta $1401,x
+                    lda $15f9,y
+                    cmp #$e0
+                    bcs L1238
+                    lda $169e,y
+                    bne L1297
+L1280               ldy $13d5,x
+                    sty $1087
+                    lda $13bb,y
+                    sta $1295
+                    ldy $13d6,x
+L128f               lda $17cf,y
+                    sta $fb
+                    jmp L105a
+                    
+L1297               bpl L129e
+                    adc $13ee,x
+                    and #$7f
+L129e               tay
+L129f               lda #$00
+                    sta $13ff,x
+                    lda $1425,y
+                    sta $1414,x
+                    lda $147d,y
+L12ad               sta $1415,x
+L12b0               ldy $13da,x
+                    beq L12f1
+                    lda $13db,x
+                    bne L12ce
+                    lda $1744,y
+                    bpl L12cb
+                    lda $175e,y
+                    sta $1416,x
+                    sta $1417,x
+                    jmp L12e2
+                    
+L12cb               sta $13db,x
+L12ce               lda $1416,x
+                    clc
+                    adc $175e,y
+                    adc #$00
+                    sta $1416,x
+                    sta $1417,x
+                    dec $13db,x
+                    bne L12f1
+L12e2               lda $1745,y
+                    cmp #$ff
+                    iny
+                    tya
+                    bcc L12ee
+                    lda $175e,y
+L12ee               sta $13da,x
+L12f1               lda $13ed,x
+                    cmp #$02
+                    beq L12fb
+                    jmp L1376
+                    
+L12fb               ldy $13eb,x
+                    lda $14e3,y
+                    sta $fb
+                    lda $1514,y
+                    sta $fc
+                    ldy $13c3,x
+                    lda ($fb),y
+                    cmp #$40
+                    bcc L1329
+                    cmp #$60
+                    bcc L1333
+                    cmp #$c0
+                    bcc L1347
+                    lda $13c4,x
+                    bne L1320
+                    lda ($fb),y
+L1320               adc #$00
+                    sta $13c4,x
+                    beq L136d
+                    bne L1376
+L1329               sta $13ef,x
+                    iny
+                    lda ($fb),y
+                    cmp #$60
+                    bcs L1347
+L1333               cmp #$50
+                    and #$0f
+                    sta $13c5,x
+                    beq L1342
+                    iny
+                    lda ($fb),y
+                    sta $13c6,x
+L1342               bcs L136d
+                    iny
+                    lda ($fb),y
+L1347               cmp #$bd
+                    bcc L1351
+                    beq L136d
+                    ora #$f0
+                    bne L136a
+L1351               adc $13c1,x
+                    sta $13d7,x
+                    lda $13c5,x
+                    cmp #$03
+                    beq L136d
+                    lda #$ff
+                    sta $1419,x
+                    lda #$00
+                    sta $141a,x
+                    lda #$fe
+L136a               sta $13f0,x
+L136d               iny
+                    lda ($fb),y
+                    beq L1373
+                    tya
+L1373               sta $13c3,x
+L1376               lda $13d9,x
+                    and $13f0,x
+                    sta $1418,x
                     rts
+                    
+L1380               and #$0f
+                    sta $fb
+                    lda $169e,y
+                    sta $fc
+                    ldy $fb
+                    cpy #$05
+                    bcs L139d
+                    sty $1087
+                    lda $13bb,y
+                    sta $1295
+                    ldy $fc
+                    jmp L128f
+                    
+L139d               lda $13ab,y
+                    sta $13a6
+                    lda $fc
+                    jsr S1006
+                    jmp L12b0
 
-	.binary "mar_data.bin"
+	.binary "mded.bin"
