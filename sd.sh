@@ -1,3 +1,3 @@
 #!/bin/bash
-cp -r /mnt/usb/folder/* sd\ card\ contents/folder
+cp -r /run/media/$USER/XPL/* sd\ card\ contents/
 
