@@ -24,7 +24,6 @@ d416_sFiltFreqHi = $b816
 d417_sFiltControl = $b817
 d418_sFiltMode = $b818
 
-  .org $0f00
 init:
   sei
   lda #<irq
