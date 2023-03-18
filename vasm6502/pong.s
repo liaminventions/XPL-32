@@ -13,7 +13,7 @@ VDP_COLOR_TABLE_BASE = $2000
 VDP_NAME_TABLE_BASE = $0400
 VDP_SPR_ATT_TABLE_BASE = $0700
 
-TEXT_LOC		= VDP_NAME_TABLE_BASE
+TEXT_LOC		= VDP_NAME_TABLE_BASE+15
 
 ; zero page addresses
 VDP_PATTERN_INIT    	= $30
@@ -136,16 +136,16 @@ vdp_put_spr:
 
 vdp_spr:
   ; ball
-  ; Y=0x5f, X=0x7f, NAME=4, COL=White
-  .byte $5f,$7f,$04,$0f
+  ; Y=0x5f, X=0x77, NAME=4, COL=White
+  .byte $5f,$77,$04,$0f
   ; left paddle
   .byte $6f,$00,$00,$0f
   .byte $5f,$00,$00,$0f
   .byte $4f,$00,$00,$0f
   ; right paddle
-  .byte $6f,$df,$00,$0f
-  .byte $5f,$df,$00,$0f
-  .byte $4f,$df,$00,$0f
+  .byte $6f,$f1,$00,$0f
+  .byte $5f,$f1,$00,$0f
+  .byte $4f,$f1,$00,$0f
   ; end (Y=0xD0 means last entry)
   .byte $d0
 
@@ -243,14 +243,34 @@ vdp_write_name_table:
   pha
   phx
   vdp_write_vram TEXT_LOC
-  ldx #0
-.loop:
-  lda text_vdp,x
-  beq end_write
+  ;ldx #0
+;.loop:
+  ;lda text_vdp,x
+  ;beq end_write
+  ;sta VDP_VRAM
+  ;inx
+  ;jmp .loop
+  
+  ; make dotted vertical line
+  lda #<TEXT_LOC
+  sta VDP_PATTERN_INIT
+  lda #>TEXT_LOC
+  sta VDP_PATTERN_INIT_HI
+.lp
+  lda #$01 ; vertical line
   sta VDP_VRAM
-  inx
-  jmp .loop
-end_write:
+  lda VDP_PATTERN_INIT
+  adc #64 ; 64 cuz dotted
+  sta VDP_PATTERN_INIT
+  sta VDP_REG ; low
+  adc #0 ; carry
+  sta VDP_PATTERN_INIT_HI
+  cmp #$03 ; done?
+  beq .done
+  ora VDP_WRITE_VRAM_BIT ; send vram
+  sta VDP_REG
+  jmp .lp
+.done
   plx
   pla
   rts 
