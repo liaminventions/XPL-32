@@ -97,21 +97,21 @@ vdp_setup:
   jsr vdp_initialize_color_table
   jsr vdp_write_name_table
   jsr vdp_initialize_pattern_table
-  jsr vdp_copysprite
-  jsr vdp_putball
+  jsr vdp_copysprites
+  jsr vdp_put_spr
   jsr vdp_enable_display
   rts
 
-vdp_copysprite:
+vdp_copysprites:
   pha
   phx
   vdp_write_vram VDP_SPRITE_PATTERN_TABLE_BASE
   ldx #0
 .loop:
-  lda vdp_ball,x
+  lda vdp_block,x
   sta VDP_VRAM
   inx
-  cpx #32
+  cpx #64 ; also copy the ball sprite
   bne .loop
   lda #$d0
   sta VDP_VRAM
@@ -119,24 +119,35 @@ vdp_copysprite:
   pla
   rts
 
-vdp_putball:
+vdp_put_spr:
   pha
   phx
-  vdp_write_vram VDP_SPR_ATT_TABLE_BASE
-  ; Y=0xDF, X=0x80, NAME=0, COL=WHITE
-  lda #$5f
+  vdp_write_vram VDP_SPR_ATT_TABLE_BASE 
+  ldx #0
+.loop
+  lda vdp_spr,x
   sta VDP_VRAM
-  lda #$7f 
-  sta VDP_VRAM
-  stz VDP_VRAM
-  lda #$0f
-  sta VDP_VRAM  
-  ; Y=0xD0 means empty entry
-  lda #$d0
-  sta VDP_VRAM
+  inx
+  cpx #$1d
+  bne .loop
   plx 
   pla
   rts
+
+vdp_spr:
+  ; ball
+  ; Y=0x5f, X=0x7f, NAME=1, COL=White
+  .byte $5f,$7f,$01,$0f
+  ; left paddle
+  .byte $7f,$00,$00,$0f
+  .byte $5f,$00,$00,$0f
+  .byte $3f,$00,$00,$0f
+  ; right paddle
+  .byte $7f,$df,$00,$0f
+  .byte $5f,$df,$00,$0f
+  .byte $3f,$df,$00,$0f
+  ; end (Y=0xD0 means last entry)
+  .byte $d0
 
 ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
 
