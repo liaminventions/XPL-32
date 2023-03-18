@@ -136,16 +136,16 @@ vdp_put_spr:
 
 vdp_spr:
   ; ball
-  ; Y=0x5f, X=0x7f, NAME=1, COL=White
-  .byte $5f,$7f,$01,$0f
+  ; Y=0x5f, X=0x7f, NAME=4, COL=White
+  .byte $5f,$7f,$04,$0f
   ; left paddle
-  .byte $7f,$00,$00,$0f
+  .byte $6f,$00,$00,$0f
   .byte $5f,$00,$00,$0f
-  .byte $3f,$00,$00,$0f
+  .byte $4f,$00,$00,$0f
   ; right paddle
-  .byte $7f,$df,$00,$0f
+  .byte $6f,$df,$00,$0f
   .byte $5f,$df,$00,$0f
-  .byte $3f,$df,$00,$0f
+  .byte $4f,$df,$00,$0f
   ; end (Y=0xD0 means last entry)
   .byte $d0
 
