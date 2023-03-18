@@ -97,7 +97,45 @@ vdp_setup:
   jsr vdp_initialize_color_table
   jsr vdp_write_name_table
   jsr vdp_initialize_pattern_table
+  jsr vdp_copysprite
+  jsr vdp_putball
   jsr vdp_enable_display
+  rts
+
+vdp_copysprite:
+  pha
+  phx
+  vdp_write_vram VDP_SPRITE_PATTERN_TABLE_BASE
+  ldx #0
+.loop:
+  lda vdp_ball,x
+  sta VDP_VRAM
+  inx
+  cpx #32
+  bne .loop
+  lda #$d0
+  sta VDP_VRAM
+  plx
+  pla
+  rts
+
+vdp_putball:
+  pha
+  phx
+  vdp_write_vram VDP_SPR_ATT_TABLE_BASE
+  ; Y=0xDF, X=0x80, NAME=0, COL=WHITE
+  lda #$df
+  sta VDP_VRAM
+  lda #$80 
+  sta VDP_VRAM
+  stz VDP_VRAM
+  lda #$0f
+  sta VDP_VRAM  
+  ; Y=0xD0 means empty entry
+  lda #$d0
+  sta VDP_VRAM
+  plx 
+  pla
   rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -290,7 +328,7 @@ vdp_enable_display:
 
 text_vdp:
   ;.byte "Hello, World!", $00
-  .byte "SCORE: ", $00
+  .byte "SCORE", $3a, " 0", $00
 
 
 vdp_register_inits:
@@ -304,6 +342,17 @@ vdp_register_6: .byte $00       ; Sprite pattern generator = $0000
 vdp_register_7: .byte $01       ; FG/BG. 1=>Black, F=>White
 vdp_end_register_inits:
 
+;;;;;;;;;;;;;;;;;;; vdp_sprpatterns ;;;;;;;;;;;;;;;;;;;;;
+vdp_block: ; (0x00)
+  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+vdp_ball: ; (0x04)
+  .byte $07,$1f,$3f,$7f,$7f,$ff,$ff,$ff
+  .byte $ff,$ff,$ff,$7f,$7f,$3f,$1f,$07
+  .byte $e0,$f8,$fc,$fe,$fe,$ff,$ff,$ff
+  .byte $ff,$ff,$ff,$fe,$fe,$fc,$f8,$e0
 
 ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
 ;  .align 8
