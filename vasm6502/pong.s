@@ -6,6 +6,7 @@ VDP_REG                = $8801		; address to set MODE high for a video register 
 VDP_WRITE_VRAM_BIT     = %01000000  	; pattern of second vram address write: 01AAAAAA
 VDP_REGISTER_BITS      = %10000000  	; pattern of second register write: 10000RRR
 
+VDP_RAM_START = $0000
 VDP_PATTERN_TABLE_BASE = $0800
 VDP_SPRITE_PATTERN_TABLE_BASE = $0000
 VDP_COLOR_TABLE_BASE = $2000
@@ -91,6 +92,7 @@ col:
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
 vdp_setup:
+  jsr vdp_zapram
   jsr vdp_initialize_name_table
   jsr vdp_initialize_color_table
   jsr vdp_write_name_table
@@ -114,6 +116,28 @@ vdp_set_registers:
   cpx #8
   bne .loop
   plx
+  pla
+  rts
+
+vdp_zapram:
+  pha
+  phy
+  phx
+  ldy #$40
+  lda #0
+  sta VDP_REG
+  sty VDP_REG
+  ldx #$c0
+nexf:
+  ldy #0
+zapf:
+  sta VDP_VRAM
+  iny
+  bne zapf
+  inx
+  bne nexf
+  plx
+  ply
   pla
   rts
 
