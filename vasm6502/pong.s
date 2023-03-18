@@ -355,10 +355,10 @@ vdp_end_register_inits:
 
 ;;;;;;;;;;;;;;;;;;; vdp_sprpatterns ;;;;;;;;;;;;;;;;;;;;;
 vdp_block: ; (0x00)
-  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-  .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+  .byte $00,$00,$00,$00,$00,$00,$00,$00
+  .byte $00,$00,$00,$00,$00,$00,$00,$00
+  .byte $00,$00,$00,$00,$00,$00,$00,$00
+  .byte $00,$00,$00,$00,$00,$00,$00,$00
 vdp_ball: ; (0x04)
   .byte $07,$1f,$3f,$7f,$7f,$ff,$ff,$ff
   .byte $ff,$ff,$ff,$7f,$7f,$3f,$1f,$07
