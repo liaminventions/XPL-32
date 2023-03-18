@@ -314,7 +314,7 @@ Source: "pong.s"
 00:1043 8500            	   264:   sta $00
 00:1045 8D0188          	   265:   sta VDP_REG ; low
 00:1048 6900            	   266:   adc #0 ; carry
-00:104A 8500            	   267:   sta $00
+00:104A 8501            	   267:   sta $01
 00:104C C903            	   268:   cmp #$03 ; done?
 00:104E F008            	   269:   beq .done
 00:1050 0940            	   270:   ora #VDP_WRITE_VRAM_BIT ; send vram

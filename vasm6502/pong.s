@@ -264,7 +264,7 @@ vdp_write_name_table:
   sta $00
   sta VDP_REG ; low
   adc #0 ; carry
-  sta $00
+  sta $01
   cmp #$03 ; done?
   beq .done
   ora #VDP_WRITE_VRAM_BIT ; send vram
