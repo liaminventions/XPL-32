@@ -141,9 +141,9 @@ Source: "pong.s"
 00:0F77 8D0188          	     5M   sta VDP_REG
 00:0F7A 68              	     6M   pla
                         	   126:   ; Y=0xDF, X=0x80, NAME=0, COL=WHITE
-00:0F7B A9DF            	   127:   lda #$df
+00:0F7B A95F            	   127:   lda #$5f
 00:0F7D 8D0088          	   128:   sta VDP_VRAM
-00:0F80 A980            	   129:   lda #$80 
+00:0F80 A97F            	   129:   lda #$7f 
 00:0F82 8D0088          	   130:   sta VDP_VRAM
 00:0F85 9C0088          	   131:   stz VDP_VRAM
 00:0F88 A90F            	   132:   lda #$0f

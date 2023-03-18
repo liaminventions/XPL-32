@@ -124,9 +124,9 @@ vdp_putball:
   phx
   vdp_write_vram VDP_SPR_ATT_TABLE_BASE
   ; Y=0xDF, X=0x80, NAME=0, COL=WHITE
-  lda #$df
+  lda #$5f
   sta VDP_VRAM
-  lda #$80 
+  lda #$7f 
   sta VDP_VRAM
   stz VDP_VRAM
   lda #$0f
