@@ -20,6 +20,8 @@ VDP_PATTERN_INIT_HI 	= $31
 
 VDP_NAME_POINTER        = $32
 
+fc = $34
+
   .org $0f00
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
   pha
@@ -37,10 +39,10 @@ reset:
 
   sei
   ; store irq location
-  lda #<vdp_irq
-  sta $7ffe
-  lda #>vdp_irq
-  sta $7fff
+  ;lda #<vdp_irq
+  ;sta $7ffe
+  ;lda #>vdp_irq
+  ;sta $7fff
   stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
 
   jsr vdp_set_registers
@@ -50,12 +52,14 @@ reset:
   sta $b000
   ;lda #0
   ;jsr InitSid
-  cli
+  lda #16
+  sta fc
+  ;cli
 holding:
   ;;jsr changecolor
-  ;lda VDP_REG
-  ;and #$80
-  ;beq holding
+  lda VDP_REG
+  and #$80
+  beq holding
 ;  lda #$0e
 ;  sta VDP_REG
 ;  lda #$87
@@ -65,15 +69,24 @@ holding:
 ;  sta VDP_REG
 ;  lda #$87
 ;  sta VDP_REG
-  jmp holding
-vdp_irq:
+  ;jmp holding
+;vdp_irq:
   lda VDP_REG
-  and #%00100000
-  bne collision
-  rti
-collision:
+  ;and #%00100000
+  ;bne collision
+  ;rti
+;collision:
+  inc fc
+  beq col
   ; do nothing yet
-  rti
+  ;rti
+  jmp holding
+col:
+  lda #16
+  sta fc
+  jsr changecolor
+  ;rti
+  jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
@@ -244,7 +257,7 @@ vdpclp:
 
 vdp_enable_display:
   pha
-  lda #%11000010			; select 16k bytes of vram, enable the active display, enable vdp interrupt, set gfx mode 1
+  lda #%11100010			; select 16k bytes of vram, enable the active display, enable vdp interrupt, set gfx mode 1
   sta VDP_REG
   lda #(VDP_REGISTER_BITS | 1)
   sta VDP_REG
