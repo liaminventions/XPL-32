@@ -277,8 +277,8 @@ vdp_end_register_inits:
 
 ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
 
-;  .align 8
-;vdp_pattern:
+  .align 8
+vdp_pattern:
 ;  .binary "???.TIAP"
 ; line drawing
   .byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
