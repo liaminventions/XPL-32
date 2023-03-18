@@ -303,21 +303,21 @@ Source: "pong.s"
                         	   253:   
                         	   254:   ; make dotted vertical line
 00:1032 A90F            	   255:   lda #<TEXT_LOC
-00:1034 8530            	   256:   sta VDP_PATTERN_INIT
+00:1034 8500            	   256:   sta $00
 00:1036 A904            	   257:   lda #>TEXT_LOC
-00:1038 8531            	   258:   sta VDP_PATTERN_INIT_HI
+00:1038 8501            	   258:   sta $01
                         	   259: .lp
 00:103A A901            	   260:   lda #$01 ; vertical line
 00:103C 8D0088          	   261:   sta VDP_VRAM
-00:103F A530            	   262:   lda VDP_PATTERN_INIT
+00:103F A500            	   262:   lda $00
 00:1041 6940            	   263:   adc #64 ; 64 cuz dotted
-00:1043 8530            	   264:   sta VDP_PATTERN_INIT
+00:1043 8500            	   264:   sta $00
 00:1045 8D0188          	   265:   sta VDP_REG ; low
 00:1048 6900            	   266:   adc #0 ; carry
-00:104A 8531            	   267:   sta VDP_PATTERN_INIT_HI
+00:104A 8500            	   267:   sta $00
 00:104C C903            	   268:   cmp #$03 ; done?
 00:104E F008            	   269:   beq .done
-00:1050 0540            	   270:   ora VDP_WRITE_VRAM_BIT ; send vram
+00:1050 0940            	   270:   ora #VDP_WRITE_VRAM_BIT ; send vram
 00:1052 8D0188          	   271:   sta VDP_REG
 00:1055 4C3A10          	   272:   jmp .lp
                         	   273: .done

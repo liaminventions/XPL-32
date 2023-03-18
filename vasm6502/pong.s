@@ -253,21 +253,21 @@ vdp_write_name_table:
   
   ; make dotted vertical line
   lda #<TEXT_LOC
-  sta VDP_PATTERN_INIT
+  sta $00
   lda #>TEXT_LOC
-  sta VDP_PATTERN_INIT_HI
+  sta $01
 .lp
   lda #$01 ; vertical line
   sta VDP_VRAM
-  lda VDP_PATTERN_INIT
+  lda $00
   adc #64 ; 64 cuz dotted
-  sta VDP_PATTERN_INIT
+  sta $00
   sta VDP_REG ; low
   adc #0 ; carry
-  sta VDP_PATTERN_INIT_HI
+  sta $00
   cmp #$03 ; done?
   beq .done
-  ora VDP_WRITE_VRAM_BIT ; send vram
+  ora #VDP_WRITE_VRAM_BIT ; send vram
   sta VDP_REG
   jmp .lp
 .done
