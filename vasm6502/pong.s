@@ -87,7 +87,7 @@ holding:
   ;jmp holding
 ;vdp_irq:
   lda P1_PADDLE
-  sbc #64
+  asl
   asl
   sta P1_PAD
   ldx #0
@@ -109,17 +109,17 @@ p1cp:
   ;bne collision
   ;rti
 ;collision:
-  inc fc
-  beq col
+  ;inc fc
+  ;beq col
   ; do nothing yet
   ;rti
   jmp holding
-col:
-  lda #16
-  sta fc
-  jsr changecolor
+;col:
+  ;lda #16
+  ;sta fc
+  ;jsr changecolor
   ;rti
-  jmp holding
+  ;jmp holding
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
