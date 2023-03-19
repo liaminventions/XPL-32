@@ -87,7 +87,8 @@ holding:
   ;jmp holding
 ;vdp_irq:
   lda P1_PADDLE
-  adc #$10
+  lsr
+  lsr
   sta P1_PAD
   ldx #0
 p1cp: 
