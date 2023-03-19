@@ -14,6 +14,8 @@ VDP_NAME_TABLE_BASE = $0400
 VDP_SPR_ATT_TABLE_BASE = $0700
 
 TEXT_LOC		= VDP_NAME_TABLE_BASE+15
+P2_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+4 
+P1_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+16
 
 ; zero page addresses
 VDP_PATTERN_INIT    	= $30
@@ -22,6 +24,15 @@ VDP_PATTERN_INIT_HI 	= $31
 VDP_NAME_POINTER        = $32
 
 fc = $34
+
+p1dex = $35
+p2dex = $37
+
+P1_PAD = $39
+P2_PAD = $3a
+
+P1_PADDLE = $b819
+P2_PADDLE = $b81a
 
   .org $0f00
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
@@ -55,6 +66,9 @@ reset:
   ;jsr InitSid
   lda #16
   sta fc
+  lda #4
+  sta p1dex
+  sta p2dex
   ;cli
 holding:
   ;;jsr changecolor
@@ -72,7 +86,27 @@ holding:
 ;  sta VDP_REG
   ;jmp holding
 ;vdp_irq:
+  lda P1_PADDLE
+  sta P1_PAD
+  vdp_write_vram P1_PADDLE_SPR
+  ldx #4
+p1cp: 
+  lda P1_PAD
+  adc #$20
+  sta VDP_VRAM
   lda VDP_REG
+  lda #<P1_PADDLE_SPR
+  adc p1dex
+  sta VDP_REG
+  lda #>P1_PADDLE_SPR
+  ora #VDP_WRITE_VRAM_BIT
+  sta VDP_REG
+  lda p1dex
+  adc #4
+  sta p1dex
+  dex
+  bne p1cp
+ 
   ;and #%00100000
   ;bne collision
   ;rti
@@ -243,34 +277,35 @@ vdp_write_name_table:
   pha
   phx
   vdp_write_vram TEXT_LOC
-  ;ldx #0
-;.loop:
-  ;lda text_vdp,x
-  ;beq end_write
-  ;sta VDP_VRAM
-  ;inx
-  ;jmp .loop
-  
-  ; make dotted vertical line
-  lda #<TEXT_LOC
-  sta $00
-  lda #>TEXT_LOC
-  sta $01
-.lp
-  lda #$01 ; vertical line
+  ldx #0
+.loop:
+  lda text_vdp,x
+  beq end_write
   sta VDP_VRAM
-  lda $00
-  adc #64 ; 64 cuz dotted
-  sta $00
-  sta VDP_REG ; low
-  adc #0 ; carry
-  sta $01
-  cmp #$03 ; done?
-  beq .done
-  ora #VDP_WRITE_VRAM_BIT ; send vram
-  sta VDP_REG
-  jmp .lp
-.done
+  inx
+  jmp .loop
+end_write:  
+
+  ; make dotted vertical line
+;  lda #<TEXT_LOC
+;  sta $00
+;  lda #>TEXT_LOC
+;  sta $01
+;.lp
+;  lda #$01 ; vertical line
+;  sta VDP_VRAM
+;  lda $00
+;  adc #64 ; 64 cuz dotted
+;  sta $00
+;  sta VDP_REG ; low
+;  adc #0 ; carry
+;  sta $01
+;  cmp #$03 ; done?
+;  beq .done
+;  ora #VDP_WRITE_VRAM_BIT ; send vram
+;  sta VDP_REG
+;  jmp .lp
+;.done
   plx
   pla
   rts 
