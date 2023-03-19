@@ -87,6 +87,8 @@ holding:
   ;jmp holding
 ;vdp_irq:
   lda P1_PADDLE
+  sbc #64
+  asl
   sta P1_PAD
   ldx #0
 p1cp: 
