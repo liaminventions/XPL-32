@@ -87,25 +87,22 @@ holding:
   ;jmp holding
 ;vdp_irq:
   lda P1_PADDLE
+  adc #$10
   sta P1_PAD
-  vdp_write_vram P1_PADDLE_SPR
-  ldx #4
+  ldx #0
 p1cp: 
   lda P1_PAD
-  adc #$20
-  sta VDP_VRAM
-  lda VDP_REG
-  lda #<P1_PADDLE_SPR
-  adc p1dex
-  sta VDP_REG
-  lda #>P1_PADDLE_SPR
-  ora #VDP_WRITE_VRAM_BIT
-  sta VDP_REG
-  lda p1dex
-  adc #4
-  sta p1dex
-  dex
+  sta vdp_spr+16,x
+  adc #$10
+  sta P1_PAD
+  inx
+  inx
+  inx
+  inx
+  cpx #28
   bne p1cp
+
+  jsr vdp_put_spr
  
   ;and #%00100000
   ;bne collision
