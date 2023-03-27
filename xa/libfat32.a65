@@ -428,10 +428,10 @@ endofchain:
 fat32_writenextsector:
 .(
   ; Writes the next sector into the buffer at fat32_address.
-  ; 
-  ; Also looks for new clusters and stores them in the FAT.
   ;
   ; On return, carry is set if its the end of the chain.
+
+  ; TODO/BUG THIS IS NOT FUNTIONAL IN THIS FILE YET! I am creating sectors BEFORE writing them now!
 
   ; Are there any pending sectors in the current cluster
   lda fat32_pendingsectors
@@ -475,7 +475,7 @@ lastcluster
   sta (zp_sd_address),y
 
   ; Update the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
 
   ; End of chain - finish up the remaining sectors
   jmp writesector
@@ -521,7 +521,7 @@ notlastcluster
   sta (zp_sd_address),y
 
   ; Update the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
   
 writesector:
   dec fat32_pendingsectors
@@ -550,7 +550,7 @@ nextsectorincrementdone:
   rts
 .)
 
-fat32_sectorbounds:
+fat32_updatefat:
 .(
   ; Preserve the current sector
   lda zp_sd_currentsector
@@ -675,10 +675,17 @@ fat32_allocatefile:
   ; No data?
   beq fail
 
-  ; Store sector count - not a byte count anymore.
+  ; Divide by sectors per cluster (power of 2)
+  ldx fat32_sectorspercluster
+divlp:
+  lsr
+  dex
+  bne divlp
+
+  ; Store cluster count - not a byte or sector count anymore.
   sta fat32_bytesremaining
 
-  ; We will be making a new cluster the first time around
+  ; We will be making a new cluster every time
   stz fat32_pendingsectors
 
   ; Find free clusters and allocate them for use for this file.
@@ -688,8 +695,8 @@ allocatelp
 
   ; Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
-  cmp fat32_sectorspercluster
-  bcs notlastcluster	 ; sectorsremaining >= sectorspercluster?
+  cmp #1		 ; FIXME! is 1 the right amound for this?
+  bcc notlastcluster	 ; clustersremaining <=1?
 
   ; It is the last one.
 
@@ -721,8 +728,8 @@ lastcluster
   ; Update the FAT
   jsr fat32_updatefat
 
-  ; End of chain - finish up the remaining sectors
-  jmp writesector
+  ; End of chain - exit
+  jmp done
 
 notlastcluster
   ; Wait! Are there enough sectors left to fit exactly in one cluster?
@@ -765,7 +772,7 @@ notlastcluster
   sta (zp_sd_address),y
 
   ; Update the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
 
   ldx fat32_bytesremaining    ; note - actually loads sectors remaining
   dex
@@ -1231,7 +1238,7 @@ chainloop
   sta (zp_sd_address),y
 
   ; Write the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
 
   ; And go again for another pass.
   jmp chainloop
@@ -1250,7 +1257,7 @@ endofchain
   sta (zp_sd_address),y
 
   ; Write the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
 
   ; And we're done!
   clc
