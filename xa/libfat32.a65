@@ -1,3 +1,5 @@
+; !! THIS IS A PROTOTYPE VERSION THAT SAVES 512 BYTES !!
+;
 ; FAT32/SD interface library
 ;
 ; This module requires some RAM workspace to be defined elsewhere:
@@ -6,7 +8,6 @@
 ; zp_fat32_variables - 24 bytes of zero-page storage for variables etc
 
 fat32_readbuffer = fat32_workspace
-fat32_fatbuffer = buffer
 
 fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
 fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
@@ -211,9 +212,9 @@ fat32_seekcluster:
   ; Gets ready to read fat32_nextcluster, and advances it according to the FAT
 
   ; Target buffer
-  lda #<fat32_fatbuffer
+  lda #<fat32_readbuffer
   sta zp_sd_address
-  lda #>fat32_fatbuffer
+  lda #>fat32_readbuffer
   sta zp_sd_address+1
   
   ; FAT sector = (cluster*4) / 512 = (cluster*2) / 256
@@ -572,9 +573,9 @@ fat32_sectorbounds:
   sta zp_sd_currentsector+3
 
   ; Target buffer
-  lda #<fat32_fatbuffer
+  lda #<fat32_readbuffer
   sta zp_sd_address
-  lda #>fat32_fatbuffer
+  lda #>fat32_readbuffer
   sta zp_sd_address+1
 
   ; Write the FAT sector
@@ -656,6 +657,12 @@ fat32_allocatefile:
   lda #0
   sta fat32_bytesremaining+2
   sta fat32_bytesremaining+3
+
+  ; Stash filesize, as we will be clobbering it here
+  lda fat32_bytesremaining
+  pha
+  lda fat32_bytesremaining+1
+  pha
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining
@@ -768,6 +775,11 @@ notlastcluster
 
   ; Done!
 fail
+  ; Pull the filesize back from the stack
+  pla
+  sta fat32_bytesremaining+1
+  pla
+  sta fat32_bytesremaining 
   rts
 
 .)
