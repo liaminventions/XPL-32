@@ -682,7 +682,7 @@ fat32_allocatefile:
   stz fat32_pendingsectors
 
   ; Find free clusters and allocate them for use for this file.
-allocatelp:
+allocatelp
   ; We first need to find a free cluster.
   jsr fat32_findnextfreecluster
 
@@ -719,7 +719,7 @@ lastcluster
   sta (zp_sd_address),y
 
   ; Update the FAT
-  jsr fat32_sectorbounds
+  jsr fat32_updatefat
 
   ; End of chain - finish up the remaining sectors
   jmp writesector
@@ -771,7 +771,7 @@ notlastcluster
   dex
   stx fat32_bytesremaining    ; note - actually stores sectors remaining
 
-  bne wholesectorwriteloop
+  bne allocatelp
 
   ; Done!
 fail
