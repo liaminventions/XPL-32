@@ -468,6 +468,11 @@ nextsectorincrementdone:
   ; Success - clear carry and return
   clc
   rts
+
+endofchain:
+  ; End of chain - set carry and return
+  sec
+  rts
 .)
 
 fat32_updatefat:
