@@ -6,6 +6,7 @@
 ; zp_fat32_variables - 24 bytes of zero-page storage for variables etc
 
 fat32_readbuffer = fat32_workspace
+fat32_fatbuffer = buffer
 
 fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
 fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
@@ -618,7 +619,7 @@ fat32_openroot:
 fat32_allocatecluster:
 .(
   ; Allocate a cluster to store a file at.
-  ; Must be done BEFORE running fat32_opendirent.
+  ; Must be done BEFORE running fat32_writedirent.
 
   ; Find a free cluster
   jsr fat32_findnextfreecluster
@@ -633,11 +634,142 @@ fat32_allocatecluster:
   lda fat32_lastfoundfreecluster+3
   sta fat32_lastcluster+3
 
-  ; Add marker for new routines, so we don't think this is free.
+  ; Add marker for the following routines, so we don't think this is free.
   lda #$0f
   sta (zp_sd_address),y
 
   rts
+.)
+
+fat32_allocatefile:
+.(
+  ; Allocate an entire file in the FAT.
+  ; the file's size will be in fat32_bytesremaining
+
+  ; BUG if we have a FAT enty at the end of a sector, it may be ignored!
+
+  ; Allocate the first cluster.
+  jsr fat32_allocatecluster
+
+  ; We don't properly support 64k+ files, as it's unnecessary complication given
+  ; the 6502's small address space. So we'll just empty out the top two bytes.
+  lda #0
+  sta fat32_bytesremaining+2
+  sta fat32_bytesremaining+3
+
+  ; Round the size up to the next whole sector
+  lda fat32_bytesremaining
+  cmp #1                      ; set carry if bottom 8 bits not zero
+  lda fat32_bytesremaining+1
+  adc #0                      ; add carry, if any
+  lsr                         ; divide by 2
+  adc #0                      ; round up
+
+  ; No data?
+  beq fail
+
+  ; Store sector count - not a byte count anymore.
+  sta fat32_bytesremaining
+
+  ; We will be making a new cluster the first time around
+  stz fat32_pendingsectors
+
+  ; Find free clusters and allocate them for use for this file.
+allocatelp:
+  ; We first need to find a free cluster.
+  jsr fat32_findnextfreecluster
+
+  ; Check if it's the last cluster in the chain 
+  lda fat32_bytesremaining
+  cmp fat32_sectorspercluster
+  bcs notlastcluster	 ; sectorsremaining >= sectorspercluster?
+
+  ; It is the last one.
+
+lastcluster
+
+; go back the previous one
+  lda fat32_lastcluster
+  sta fat32_nextcluster
+  lda fat32_lastcluster+1
+  sta fat32_nextcluster+1
+  lda fat32_lastcluster+2
+  sta fat32_nextcluster+2
+  lda fat32_lastcluster+3
+  sta fat32_nextcluster+3
+
+  jsr fat32_seekcluster
+
+  ; Write 0x0FFFFFFF (EOC)
+  lda #$0f
+  sta (zp_sd_address),y
+  dey
+  lda #$ff
+  sta (zp_sd_address),y
+  dey
+  sta (zp_sd_address),y
+  dey
+  sta (zp_sd_address),y
+
+  ; Update the FAT
+  jsr fat32_sectorbounds
+
+  ; End of chain - finish up the remaining sectors
+  jmp writesector
+
+notlastcluster
+  ; Wait! Are there enough sectors left to fit exactly in one cluster?
+  beq lastcluster
+
+  ; Find the next cluster
+  jsr fat32_findnextfreecluster
+
+  ; Add marker so we don't think this is free.
+  lda #$0f
+  sta (zp_sd_address),y
+
+  ; Seek to the previous cluster
+  lda fat32_lastcluster
+  sta fat32_nextcluster
+  lda fat32_lastcluster+1
+  sta fat32_nextcluster+1
+  lda fat32_lastcluster+2
+  sta fat32_nextcluster+2
+  lda fat32_lastcluster+3
+  sta fat32_nextcluster+3
+
+  jsr fat32_seekcluster
+
+  ; Enter the address of the next one into the FAT
+  lda fat32_lastfoundfreecluster+3
+  sta fat32_lastcluster+3
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster+2
+  sta fat32_lastcluster+2
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster+1
+  sta fat32_lastcluster+1
+  sta (zp_sd_address),y
+  dey
+  lda fat32_lastfoundfreecluster
+  sta fat32_lastcluster
+  sta (zp_sd_address),y
+
+  ; Update the FAT
+  jsr fat32_sectorbounds
+
+  ldx fat32_bytesremaining    ; note - actually loads sectors remaining
+  dex
+  stx fat32_bytesremaining    ; note - actually stores sectors remaining
+
+  bne wholesectorwriteloop
+
+  ; Done!
+fail
+  rts
+
 .)
 
 fat32_findnextfreecluster:
@@ -752,10 +884,6 @@ fat32_writedirent:
   ; Write a directory entry from the open directory
   ; requires:
   ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
-  ;   and the processes of:
-  ;     fat32_finddirent
-  ;     fat32_findnextfreecluster
-  ; BUG fix windows-specific stuff so i can read a written file on my pc
 
   ; Increment pointer by 32 to point to next entry
   clc
@@ -1225,12 +1353,6 @@ fat32_file_write:
 .(
   ; Write a whole file from memory.  It's assumed the file has just been opened 
   ; and no data has been written yet.
-
-  ; We don't properly support 64k+ files, as it's unnecessary complication given
-  ; the 6502's small address space, so we'll just empty out the top two bytes.
-  lda #0
-  sta fat32_bytesremaining+2
-  sta fat32_bytesremaining+3
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining
