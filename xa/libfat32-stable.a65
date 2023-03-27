@@ -1,11 +1,14 @@
+; -----------------------------------------------------------------------
+; !!NOTE!! This version requires another 512 byte buffer to store the FAT!
+; -----------------------------------------------------------------------
+;
 ; FAT32/SD interface library
 ;
 ; This module requires some RAM workspace to be defined elsewhere:
 ; 
 ; fat32_workspace    - a large page-aligned 512-byte workspace
+; buffer             - another 512-byte area, fore storing the FAT.
 ; zp_fat32_variables - 24 bytes of zero-page storage for variables etc
-
-; FIXME once we have more flags, please incorporate all of them into one byte! (flags have two states)
 
 fat32_readbuffer = fat32_workspace
 fat32_fatbuffer = buffer
