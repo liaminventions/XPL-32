@@ -732,7 +732,7 @@ lastcluster
   jmp done
 
 notlastcluster
-  ; Wait! Are there enough sectors left to fit exactly in one cluster?
+  ; Wait! Is there exactly 1 cluster left? FIXME continued
   beq lastcluster
 
   ; Find the next cluster
