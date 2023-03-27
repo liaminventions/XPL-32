@@ -22,6 +22,7 @@ fat32_lastcluster		= zp_fat32_variables + $1c  ; 4 bytes
 fat32_lastsector		= zp_fat32_variables + $21  ; 4 bytes
 fat32_filenamepointer       	= zp_fat32_variables + $26  ; 2 bytes
 fat32_numfats			= zp_fat32_variables + $28  ; 1 byte
+fat32_filecluster		= zp_fat32_variables + $29  ; 4 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_fatindex              = fat32_filenamepointer ; only used during fat32_writenextsector
@@ -544,8 +545,7 @@ fat32_openroot:
 
 fat32_allocatecluster:
 .(
-  ; Allocate a cluster to store a file at.
-  ; Must be done BEFORE running fat32_writedirent.
+  ; Allocate the first cluster to store a file at.
 
   ; Find a free cluster
   jsr fat32_findnextfreecluster
@@ -553,12 +553,16 @@ fat32_allocatecluster:
   ; Cache the value so we can add the address of the next one later, if any
   lda fat32_lastfoundfreecluster
   sta fat32_lastcluster
+  sta fat32_filecluster	
   lda fat32_lastfoundfreecluster+1
   sta fat32_lastcluster+1
+  sta fat32_filecluster+1	
   lda fat32_lastfoundfreecluster+2
   sta fat32_lastcluster+2
+  sta fat32_filecluster+2	
   lda fat32_lastfoundfreecluster+3
   sta fat32_lastcluster+3
+  sta fat32_filecluster+3	
 
   ; Add marker for the following routines, so we don't think this is free.
   lda #$0f
@@ -569,8 +573,8 @@ fat32_allocatecluster:
 
 fat32_allocatefile:
 .(
-  ; Allocate an entire file in the FAT.
-  ; the file's size will be in fat32_bytesremaining
+  ; Allocate an entire file in the FAT, with the
+  ; file's size in fat32_bytesremaining
 
   ; BUG if we have a FAT enty at the end of a sector, it may be ignored!
 
@@ -915,10 +919,10 @@ empty
   iny
   sta (zp_sd_address),y
   iny ; 0x1a-0x1b - File start cluster (low word)
-  lda fat32_lastfoundfreecluster
+  lda fat32_filecluster
   sta (zp_sd_address),y
   iny
-  lda fat32_lastfoundfreecluster+1
+  lda fat32_filecluster+1
   sta (zp_sd_address),y
   iny ; 0x1c-0x1f File size in bytes
   lda fat32_bytesremaining
@@ -928,7 +932,7 @@ empty
   sta (zp_sd_address),y
   iny
   lda #0
-  sta (zp_sd_address),y ; Not bigger that 64k
+  sta (zp_sd_address),y ; No bigger that 64k
   iny
   sta (zp_sd_address),y
   iny
@@ -1297,6 +1301,16 @@ fat32_file_write:
 .(
   ; Write a whole file from memory.  It's assumed the file has just been opened 
   ; and no data has been written yet.
+
+  ; Start at the first cluster for this file
+  lda fat32_filecluster	
+  sta fat32_lastcluster
+  lda fat32_filecluster+1	
+  sta fat32_lastcluster+1
+  lda fat32_filecluster+2
+  sta fat32_lastcluster+2
+  lda fat32_filecluster+3
+  sta fat32_lastcluster+3
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining
