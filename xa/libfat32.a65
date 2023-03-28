@@ -662,7 +662,7 @@ lastcluster
   jsr fat32_updatefat
 
   ; End of chain - exit
-  jmp done
+  jmp fail
 
 notlastcluster
   ; Wait! Is there exactly 1 cluster left? CHECK
