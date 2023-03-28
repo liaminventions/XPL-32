@@ -435,7 +435,7 @@ fat32_writenextsector:
 
   ; Maybe there are pending sectors in the current cluster
   lda fat32_pendingsectors
-  bne writesector
+  bne wr
 
   ; No pending sectors, check for end of cluster chain
   lda fat32_nextcluster+3
@@ -443,7 +443,20 @@ fat32_writenextsector:
 
   ; Prepare to read the next cluster
   jsr fat32_seekcluster
- 
+
+wr:
+  jsr writesector
+
+  ; Success - clear carry and return
+  clc
+  rts
+
+endofchain:
+  ; End of chain - set carry and return
+  jsr writesector
+  sec
+  rts
+
 writesector:
   dec fat32_pendingsectors
 
@@ -465,15 +478,8 @@ writesector:
   bne nextsectorincrementdone
   inc zp_sd_currentsector+3
 nextsectorincrementdone:
-
-  ; Success - clear carry and return
-  clc
   rts
 
-endofchain:
-  ; End of chain - set carry and return
-  sec
-  rts
 .)
 
 fat32_updatefat:
@@ -1355,7 +1361,7 @@ fat32_file_write:
 wholesectorwriteloop:
   ; Write a sector from fat32_address
   jsr fat32_writenextsector
-  bcs fail	; this shouldn't happen
+  ;bcs fail	; this shouldn't happen
 
   ; Advance fat32_address by 512 bytes
   lda fat32_address+1
