@@ -1,12 +1,14 @@
 ; XPL-32 <FOLDER> type loading code
 ; (c) 2022-2023 Waverider
+; !WARNING! - this is kind of deprecated, please use xplDOS instead.
+; for now this is a code.xpl autoloader example (load command)
 
-charbuffer = $601            ; 1 byte
+charbuffer = $700            ; 1 byte
 seed = $01
 donefact = $02		     ; vars
 irqcount = $03
 
-  .org $0900
+  .org $0701
 jumptoit:
   jmp sdstart
 

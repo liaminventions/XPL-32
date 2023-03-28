@@ -3,35 +3,32 @@
 ; SD VARIABLES & LOCATIONS
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
-zp_fat32_variables = $4f    ; 24 bytes
+zp_fat32_variables = $4f    ; 49 bytes
 
 path = $400		    ; page
 fat32_workspace = $500      ; two pages
-buffer = $700		    ; two pages
-endbuf = $900
 
 fat32_readbuffer = fat32_workspace
-fat32_fatbuffer = buffer
 
-fat32_fatstart          	= zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         	= zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       	= zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster 	= zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    	= zp_fat32_variables + $0d  ; 1 byte
-fat32_address           	= zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       	= zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    	= zp_fat32_variables + $14  ; 4 bytes   	
-fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
-fat32_sectorsperfat		= zp_fat32_variables + $1c  ; 2 bytes
-;fat32_fsinfosector		= zp_fat32_variables + $1e  ; 2 bytes
-fat32_lastcluster		= zp_fat32_variables + $1e  ; 4 bytes
-fat32_lastsector		= zp_fat32_variables + $23  ; 4 bytes
-fat32_newfatsector		= zp_fat32_variables + $28  ; 1 byte FLAG
-fat32_filenamepointer       	= zp_fat32_variables + $29  ; 2 bytes
+fat32_fatstart                  = zp_fat32_variables + $00  ; 4 bytes
+fat32_datastart                 = zp_fat32_variables + $04  ; 4 bytes
+fat32_rootcluster               = zp_fat32_variables + $08  ; 4 bytes
+fat32_sectorspercluster         = zp_fat32_variables + $0c  ; 1 byte
+fat32_pendingsectors            = zp_fat32_variables + $0d  ; 1 byte
+fat32_address                   = zp_fat32_variables + $0e  ; 2 bytes
+fat32_nextcluster               = zp_fat32_variables + $10  ; 4 bytes
+fat32_bytesremaining            = zp_fat32_variables + $14  ; 4 bytes           
+fat32_lastfoundfreecluster      = zp_fat32_variables + $18  ; 4 bytes
+fat32_lastcluster               = zp_fat32_variables + $1c  ; 4 bytes
+fat32_lastsector                = zp_fat32_variables + $21  ; 4 bytes
+fat32_filenamepointer           = zp_fat32_variables + $26  ; 2 bytes
+fat32_numfats                   = zp_fat32_variables + $28  ; 1 byte
+fat32_filecluster               = zp_fat32_variables + $29  ; 4 bytes
+fat32_sectorsperfat             = zp_fat32_variables + $2d  ; 4 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 
-;newer files
+;newer routines
 sd_writesector = $ff8e
 fat32_writenextsector = $ff91
 fat32_allocatecluster = $ff94

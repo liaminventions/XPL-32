@@ -1,1703 +1,883 @@
 Sections:
-00: "segf00" (F00-1601)
+00: "seg701" (701-955)
+01: "seg1006" (1006-1252)
 
 
-Source: "pong.s"
-                        	     1: ; [PONG]
-                        	     2: 
-                        	     3: ; TMS9918A
-                        	     4: VDP_VRAM               = $8800		; address to set MODE low for a video ram operation on the TMS9918A Video Display Proce
-                        	     5: VDP_REG                = $8801		; address to set MODE high for a video register operation on the TMS9918A Video Display
-                        	     6: VDP_WRITE_VRAM_BIT     = %01000000  	; pattern of second vram address write: 01AAAAAA
-                        	     7: VDP_REGISTER_BITS      = %10000000  	; pattern of second register write: 10000RRR
-                        	     8: 
-                        	     9: VDP_RAM_START = $0000
-                        	    10: VDP_PATTERN_TABLE_BASE = $0800
-                        	    11: VDP_SPRITE_PATTERN_TABLE_BASE = $0000
-                        	    12: VDP_COLOR_TABLE_BASE = $2000
-                        	    13: VDP_NAME_TABLE_BASE = $0400
-                        	    14: VDP_SPR_ATT_TABLE_BASE = $0700
-                        	    15: 
-                        	    16: TEXT_LOC		= VDP_NAME_TABLE_BASE+15
-                        	    17: P2_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+4 
-                        	    18: P1_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+16
-                        	    19: 
-                        	    20: ; zero page addresses
-                        	    21: VDP_PATTERN_INIT    	= $30
-                        	    22: VDP_PATTERN_INIT_HI 	= $31
+Source: "sd_handeler.s"
+                        	     1: ; XPL-32 <FOLDER> type loading code
+                        	     2: ; (c) 2022-2023 Waverider
+                        	     3: ; !WARNING! - this is kind of deprecated, please use xplDOS instead.
+                        	     4: ; for now this is a code.xpl autoloader example (load command)
+                        	     5: 
+                        	     6: charbuffer = $700            ; 1 byte
+                        	     7: seed = $01
+                        	     8: donefact = $02		     ; vars
+                        	     9: irqcount = $03
+                        	    10: 
+                        	    11:   .org $0701
+                        	    12: jumptoit:
+00:0701 4C2607          	    13:   jmp sdstart
+                        	    14: 
+                        	    15:   .include "hwconfig.s"
+
+Source: "hwconfig.s"
+                        	     1: PORTB = $b000
+                        	     2: PORTA = $b001
+                        	     3: DDRB = $b002
+                        	     4: DDRA = $b003
+                        	     5: 
+                        	     6: LCD_E  = %10000000
+                        	     7: LCD_RW = %01000000
+                        	     8: LCD_RS = %00100000
+                        	     9: 
+                        	    10: SD_CS   = %00010000
+                        	    11: SD_SCK  = %00001000
+                        	    12: SD_MOSI = %00000100
+                        	    13: SD_MISO = %00000010
+                        	    14: 
+                        	    15: PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
+                        	    16: 
+                        	    17: via_init:
+00:0704 A9FF            	    18:   lda #%11111111          ; Set all pins on port B to output
+00:0706 8D02B0          	    19:   sta DDRB
+00:0709 A9FC            	    20:   lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
+00:070B 8D03B0          	    21:   sta DDRA
+00:070E 60              	    22:   rts
                         	    23: 
-                        	    24: VDP_NAME_POINTER        = $32
-                        	    25: 
-                        	    26: fc = $34
-                        	    27: 
-                        	    28: p1dex = $35
-                        	    29: p2dex = $37
+                        	    24: 
+
+Source: "sd_handeler.s"
+                        	    16:   .include "kernal_def.s"
+
+Source: "kernal_def.s"
+                        	     1: ; kernal def
+                        	     2: 
+                        	     3: ; SD VARIABLES & LOCATIONS
+                        	     4: zp_sd_address = $48         ; 2 bytes
+                        	     5: zp_sd_currentsector = $4a   ; 4 bytes
+                        	     6: zp_fat32_variables = $4f    ; 49 bytes
+                        	     7: 
+                        	     8: path = $400		    ; page
+                        	     9: fat32_workspace = $500      ; two pages
+                        	    10: 
+                        	    11: fat32_readbuffer = fat32_workspace
+                        	    12: 
+                        	    13: fat32_fatstart                  = zp_fat32_variables + $00  ; 4 bytes
+                        	    14: fat32_datastart                 = zp_fat32_variables + $04  ; 4 bytes
+                        	    15: fat32_rootcluster               = zp_fat32_variables + $08  ; 4 bytes
+                        	    16: fat32_sectorspercluster         = zp_fat32_variables + $0c  ; 1 byte
+                        	    17: fat32_pendingsectors            = zp_fat32_variables + $0d  ; 1 byte
+                        	    18: fat32_address                   = zp_fat32_variables + $0e  ; 2 bytes
+                        	    19: fat32_nextcluster               = zp_fat32_variables + $10  ; 4 bytes
+                        	    20: fat32_bytesremaining            = zp_fat32_variables + $14  ; 4 bytes           
+                        	    21: fat32_lastfoundfreecluster      = zp_fat32_variables + $18  ; 4 bytes
+                        	    22: fat32_lastcluster               = zp_fat32_variables + $1c  ; 4 bytes
+                        	    23: fat32_lastsector                = zp_fat32_variables + $21  ; 4 bytes
+                        	    24: fat32_filenamepointer           = zp_fat32_variables + $26  ; 2 bytes
+                        	    25: fat32_numfats                   = zp_fat32_variables + $28  ; 1 byte
+                        	    26: fat32_filecluster               = zp_fat32_variables + $29  ; 4 bytes
+                        	    27: fat32_sectorsperfat             = zp_fat32_variables + $2d  ; 4 bytes
+                        	    28: 
+                        	    29: fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
                         	    30: 
-                        	    31: P1_PAD = $39
-                        	    32: P2_PAD = $3a
-                        	    33: 
-                        	    34: P1_PADDLE = $b819
-                        	    35: P2_PADDLE = $b81a
-                        	    36: 
-                        	    37:   .org $0f00
-                        	    38:   .macro vdp_write_vram			; macro to store address in vdp_reg for write
-                        	    39:   pha
-                        	    40:   lda #<(\1)
-                        	    41:   sta VDP_REG
-                        	    42:   lda #(VDP_WRITE_VRAM_BIT | >\1)
-                        	    43:   sta VDP_REG
-                        	    44:   pla
-                        	    45:   .endm
-                        	    46: ;;;;;;;;;;;;;;;;;;; reset ;;;;;;;;;;;;;;;;;;;
-                        	    47: 
-                        	    48: reset:
+                        	    31: ;newer routines
+                        	    32: sd_writesector = $ff8e
+                        	    33: fat32_writenextsector = $ff91
+                        	    34: fat32_allocatecluster = $ff94
+                        	    35: fat32_findnextfreecluster = $ff97
+                        	    36: fat32_writedirent = $ff9a
+                        	    37: fat32_deletefile = $ff9d
+                        	    38: fat32_file_write = $ffa0
+                        	    39: 
+                        	    40: ; xpldos
+                        	    41: savecmd = $ffa3
+                        	    42: cdcmd = $ffa6
+                        	    43: lscmd = $ffa9
+                        	    44: 
+                        	    45: ; inits
+                        	    46: acia_init = $ffac		; initialize acia
+                        	    47: stock_via = $ffaf		; default via initialization
+                        	    48: sd_init = $ffb2			; initialize sd card
+                        	    49: fat32_init = $ffb5		; initialize fat32 (requires sd init)
+                        	    50: ; acia
+                        	    51: print_hex_acia = $ffb8		; prints a hex byte in A
+                        	    52: crlf = $ffbb			; prints CR+LF
+                        	    53: cleardisplay = $ffbe		; clears the screen
+                        	    54: rxpoll = $ffc1			; return if a key pressed
+                        	    55: txpoll = $ffc4			; check if we can write to the screen (automaticlly done in all acia routunes)
+                        	    56: print_chara = $ffc7		; print one char from A
+                        	    57: print_char_acia = $ffc7		; same as print_chara
+                        	    58: ascii_home = $ffca		; home the cursor
+                        	    59: w_acia_full = $ffcd		; print a null-terminated string, #< in x and #> in y
+                        	    60: ; fat32
+                        	    61: fat32_seekcluster = $ffd0	; gets ready to read the next cluster, and advances it according to the FAT
+                        	    62: fat32_readnextcluster = $ffd3	; reads the next sector from a cluster chain into the buffer at fat32_address.
+                        	    63: fat32_openroot = $ffd6		; prepare to read the root directory
+                        	    64: fat32_opendirent = $ffd9	; prepare to read a file or directory based on a dirent
+                        	    65: fat32_readdirent = $ffdc	; read a directory entry from the open directory
+                        	    66: fat32_finddirent = $ffdf	; finds a particular directory entry. X,Y point to the 11-character filename to seek.
+                        	    67: fat32_file_readbyte = $ffe2	; read a byte from an open file
+                        	    68: fat32_file_read = $ffe5		; read a whole file into memory (assumes the file has just been opened and no data has been re
+                        	    69: ; TODO fat32_file_writebyte
+                        	    70: sd_readbyte = $ffe8		; read a byte from the sd card
+                        	    71: sd_sendcommand = $ffeb		; send a command to the sd card
+                        	    72: sd_readsector = $ffee		; read a sector from the sd card (512 bytes)
+                        	    73: ; load/save
+                        	    74: loadcmd = $fff1			; load /folder/code.xpl (with address at /folder/loadaddr.sar)
+                        	    75: tsave = $fff4			; save a file to tape. start address at cnt and end address at len (16-bit)
+                        	    76: tload = $fff7			; load a file from tape. the file location header is also loaded from tape
+                        	    77: ; TODO loadpath, loadlc, savepath, and savelc COMING SOON
+                        	    78: 
+                        	    79: 
+                        	    80: 
+
+Source: "sd_handeler.s"
+                        	    17: 
+                        	    18: dirname:
+00:070F 524F4F5420202020	    19:   .asciiz "ROOT       "	     ; standard directory name, SHORT format
+00:0717 202020
+00:071A 00
+                        	    20: 
+                        	    21: errormsg:
+00:071B 0D              	    22:   .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
+00:071C 0A
+00:071D 4552524F5221
+00:0723 0D
+00:0724 0A
+00:0725 00
+                        	    23: 
+                        	    24: sdstart:
+00:0726 6400            	    25:   stz $00		; 0
+                        	    26: 
+00:0728 A955            	    27:   lda #$55		; shftable value
+00:072A 8501            	    28:   sta seed
+                        	    29: 	
+00:072C 20BEFF          	    30:   jsr cleardisplay	; clear display
+                        	    31: 
+00:072F A29B            	    32:   ldx  #<loadmsg	; title screen
+00:0731 A007            	    33:   ldy  #>loadmsg
+00:0733 20CDFF          	    34:   jsr  w_acia_full
+                        	    35: 
+00:0736 A2C8            	    36:   ldx  #<lodmm
+00:0738 A007            	    37:   ldy  #>lodmm
+00:073A 20CDFF          	    38:   jsr  w_acia_full
+                        	    39: 
+00:073D 204307          	    40:   jsr rootsetup		; setup sd card
+                        	    41: 
+                        	    42: findrau:
+00:0740 4C6707          	    43:   jmp type		; start "type" program
+                        	    44: 
+                        	    45: rootsetup:		; setup <ROOT>
+00:0743 48              	    46:   pha
+00:0744 DA              	    47:   phx
+00:0745 5A              	    48:   phy
                         	    49: 
-                        	    50: ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
-                        	    51: 
-00:0F00 78              	    52:   sei
-                        	    53:   ; store irq location
-                        	    54:   ;lda #<vdp_irq
-                        	    55:   ;sta $7ffe
-                        	    56:   ;lda #>vdp_irq
-                        	    57:   ;sta $7fff
-00:0F01 9C0EB0          	    58:   stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
-                        	    59: 
-00:0F04 20BA0F          	    60:   jsr vdp_set_registers
-00:0F07 20430F          	    61:   jsr vdp_setup
-00:0F0A A9FF            	    62:   lda #$ff	; activate display
-00:0F0C 8D02B0          	    63:   sta $b002
-00:0F0F 8D00B0          	    64:   sta $b000
-                        	    65:   ;lda #0
-                        	    66:   ;jsr InitSid
-00:0F12 A910            	    67:   lda #16
-00:0F14 8534            	    68:   sta fc
-00:0F16 A904            	    69:   lda #4
-00:0F18 8535            	    70:   sta p1dex
-00:0F1A 8537            	    71:   sta p2dex
-                        	    72:   ;cli
-                        	    73: holding:
-                        	    74:   ;;jsr changecolor
-00:0F1C AD0188          	    75:   lda VDP_REG
-00:0F1F 2980            	    76:   and #$80
-00:0F21 F0F9            	    77:   beq holding
-                        	    78: ;  lda #$0e
-                        	    79: ;  sta VDP_REG
-                        	    80: ;  lda #$87
-                        	    81: ;  sta VDP_REG
-                        	    82: ;  jsr PlaySid
-                        	    83: ;  lda #$00
-                        	    84: ;  sta VDP_REG
-                        	    85: ;  lda #$87
-                        	    86: ;  sta VDP_REG
-                        	    87:   ;jmp holding
-                        	    88: ;vdp_irq:
-00:0F23 AD19B8          	    89:   lda P1_PADDLE
-00:0F26 0A              	    90:   asl
-00:0F27 0A              	    91:   asl
-00:0F28 8539            	    92:   sta P1_PAD
-00:0F2A A200            	    93:   ldx #0
-                        	    94: p1cp: 
-00:0F2C A539            	    95:   lda P1_PAD
-00:0F2E 9DAD0F          	    96:   sta vdp_spr+16,x
-00:0F31 6910            	    97:   adc #$10
-00:0F33 8539            	    98:   sta P1_PAD
-00:0F35 E8              	    99:   inx
-00:0F36 E8              	   100:   inx
-00:0F37 E8              	   101:   inx
-00:0F38 E8              	   102:   inx
-00:0F39 E01C            	   103:   cpx #28
-00:0F3B D0EF            	   104:   bne p1cp
-                        	   105: 
-00:0F3D 207F0F          	   106:   jsr vdp_put_spr
-                        	   107:  
-                        	   108:   ;and #%00100000
-                        	   109:   ;bne collision
-                        	   110:   ;rti
-                        	   111: ;collision:
-                        	   112:   ;inc fc
-                        	   113:   ;beq col
-                        	   114:   ; do nothing yet
-                        	   115:   ;rti
-00:0F40 4C1C0F          	   116:   jmp holding
-                        	   117: ;col:
-                        	   118:   ;lda #16
-                        	   119:   ;sta fc
-                        	   120:   ;jsr changecolor
-                        	   121:   ;rti
-                        	   122:   ;jmp holding
-                        	   123: 
-                        	   124: ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
-                        	   125: 
-                        	   126: vdp_setup:
-00:0F43 20D20F          	   127:   jsr vdp_zapram
-00:0F46 200F10          	   128:   jsr vdp_initialize_name_table
-00:0F49 208710          	   129:   jsr vdp_initialize_color_table
-00:0F4C 203610          	   130:   jsr vdp_write_name_table
-00:0F4F 205510          	   131:   jsr vdp_initialize_pattern_table
-00:0F52 205C0F          	   132:   jsr vdp_copysprites
-00:0F55 207F0F          	   133:   jsr vdp_put_spr
-00:0F58 20A410          	   134:   jsr vdp_enable_display
-00:0F5B 60              	   135:   rts
-                        	   136: 
-                        	   137: vdp_copysprites:
-00:0F5C 48              	   138:   pha
-00:0F5D DA              	   139:   phx
-                        	   140:   vdp_write_vram VDP_SPRITE_PATTERN_TABLE_BASE
-00:0F5E 48              	     1M   pha
-00:0F5F A900            	     2M   lda #<(VDP_SPRITE_PATTERN_TABLE_BASE)
-00:0F61 8D0188          	     3M   sta VDP_REG
-00:0F64 A940            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPRITE_PATTERN_TABLE_BASE)
-00:0F66 8D0188          	     5M   sta VDP_REG
-00:0F69 68              	     6M   pla
-00:0F6A A200            	   141:   ldx #0
-                        	   142: .loop:
-00:0F6C BDC210          	   143:   lda vdp_block,x
-00:0F6F 8D0088          	   144:   sta VDP_VRAM
-00:0F72 E8              	   145:   inx
-00:0F73 E040            	   146:   cpx #64 ; also copy the ball sprite
-00:0F75 D0F5            	   147:   bne .loop
-00:0F77 A9D0            	   148:   lda #$d0
-00:0F79 8D0088          	   149:   sta VDP_VRAM
-00:0F7C FA              	   150:   plx
-00:0F7D 68              	   151:   pla
-00:0F7E 60              	   152:   rts
-                        	   153: 
-                        	   154: vdp_put_spr:
-00:0F7F 48              	   155:   pha
-00:0F80 DA              	   156:   phx
-                        	   157:   vdp_write_vram VDP_SPR_ATT_TABLE_BASE 
-00:0F81 48              	     1M   pha
-00:0F82 A900            	     2M   lda #<(VDP_SPR_ATT_TABLE_BASE )
-00:0F84 8D0188          	     3M   sta VDP_REG
-00:0F87 A947            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPR_ATT_TABLE_BASE )
-00:0F89 8D0188          	     5M   sta VDP_REG
-00:0F8C 68              	     6M   pla
-00:0F8D A200            	   158:   ldx #0
-                        	   159: .loop
-00:0F8F BD9D0F          	   160:   lda vdp_spr,x
-00:0F92 8D0088          	   161:   sta VDP_VRAM
-00:0F95 E8              	   162:   inx
-00:0F96 E01D            	   163:   cpx #$1d
-00:0F98 D0F5            	   164:   bne .loop
-00:0F9A FA              	   165:   plx 
-00:0F9B 68              	   166:   pla
-00:0F9C 60              	   167:   rts
-                        	   168: 
-                        	   169: vdp_spr:
-                        	   170:   ; ball
-                        	   171:   ; Y=0x5f, X=0x77, NAME=4, COL=White
-00:0F9D 5F              	   172:   .byte $5f,$77,$04,$0f
-00:0F9E 77
-00:0F9F 04
-00:0FA0 0F
-                        	   173:   ; left paddle
-00:0FA1 6F              	   174:   .byte $6f,$00,$00,$0f
-00:0FA2 00
-00:0FA3 00
-00:0FA4 0F
-00:0FA5 5F              	   175:   .byte $5f,$00,$00,$0f
-00:0FA6 00
-00:0FA7 00
-00:0FA8 0F
-00:0FA9 4F              	   176:   .byte $4f,$00,$00,$0f
-00:0FAA 00
-00:0FAB 00
-00:0FAC 0F
-                        	   177:   ; right paddle
-00:0FAD 6F              	   178:   .byte $6f,$f1,$00,$0f
-00:0FAE F1
-00:0FAF 00
-00:0FB0 0F
-00:0FB1 5F              	   179:   .byte $5f,$f1,$00,$0f
-00:0FB2 F1
-00:0FB3 00
-00:0FB4 0F
-00:0FB5 4F              	   180:   .byte $4f,$f1,$00,$0f
-00:0FB6 F1
-00:0FB7 00
-00:0FB8 0F
-                        	   181:   ; end (Y=0xD0 means last entry)
-00:0FB9 D0              	   182:   .byte $d0
-                        	   183: 
-                        	   184: ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
-                        	   185: 
-                        	   186: vdp_set_registers:
-00:0FBA 48              	   187:   pha
-00:0FBB DA              	   188:   phx
-00:0FBC A200            	   189:   ldx #0
-                        	   190: .loop:
-00:0FBE BDBA10          	   191:   lda vdp_register_inits,x
-00:0FC1 8D0188          	   192:   sta VDP_REG
-00:0FC4 8A              	   193:   txa
-00:0FC5 0980            	   194:   ora #VDP_REGISTER_BITS 				; combine the register number with the second write pattern
-00:0FC7 8D0188          	   195:   sta VDP_REG
-00:0FCA E8              	   196:   inx
-00:0FCB E008            	   197:   cpx #8
-00:0FCD D0EF            	   198:   bne .loop
-00:0FCF FA              	   199:   plx
-00:0FD0 68              	   200:   pla
-00:0FD1 60              	   201:   rts
-                        	   202: 
-                        	   203: vdp_zapram:
-00:0FD2 48              	   204:   pha
-00:0FD3 5A              	   205:   phy
-00:0FD4 DA              	   206:   phx
-00:0FD5 A040            	   207:   ldy #$40
-00:0FD7 A900            	   208:   lda #0
-00:0FD9 8D0188          	   209:   sta VDP_REG
-00:0FDC 8C0188          	   210:   sty VDP_REG
-00:0FDF A2C0            	   211:   ldx #$c0
-                        	   212: nexf:
-00:0FE1 A000            	   213:   ldy #0
-                        	   214: zapf:
-00:0FE3 8D0088          	   215:   sta VDP_VRAM
-00:0FE6 C8              	   216:   iny
-00:0FE7 D0FA            	   217:   bne zapf
-00:0FE9 E8              	   218:   inx
-00:0FEA D0F5            	   219:   bne nexf
-00:0FEC FA              	   220:   plx
-00:0FED 7A              	   221:   ply
-00:0FEE 68              	   222:   pla
-00:0FEF 60              	   223:   rts
-                        	   224: 
-                        	   225: wait:
-00:0FF0 DA              	   226: 	phx
-00:0FF1 5A              	   227: 	phy
-00:0FF2 A8              	   228:         tay          ; load secondary loop cycle count (A reg)
-00:0FF3 A2FF            	   229:         ldx  #$ff
-00:0FF5 CA              	   230: delay   dex          ; (2 cycles)
-00:0FF6 D0FD            	   231:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
-00:0FF8 88              	   232:         dey          ; (2 cycles)
-00:0FF9 D0FA            	   233:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
-00:0FFB 7A              	   234: 	ply
-00:0FFC FA              	   235: 	plx
-00:0FFD 60              	   236: 	rts
-                        	   237: 
-                        	   238: changecolor:
-00:0FFE 48              	   239:   pha
-00:0FFF EEC110          	   240:   inc vdp_register_7
-00:1002 ADC110          	   241:   lda vdp_register_7
-00:1005 8D0188          	   242:   sta VDP_REG
-00:1008 A987            	   243:   lda #$87
-00:100A 8D0188          	   244:   sta VDP_REG
-00:100D 68              	   245:   pla
-00:100E 60              	   246:   rts
-                        	   247: 
-                        	   248: ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
-                        	   249: 
-                        	   250: vdp_initialize_name_table:
-00:100F 48              	   251:   pha
-00:1010 DA              	   252:   phx
-00:1011 5A              	   253:   phy
-                        	   254:   vdp_write_vram VDP_NAME_TABLE_BASE
-00:1012 48              	     1M   pha
-00:1013 A900            	     2M   lda #<(VDP_NAME_TABLE_BASE)
-00:1015 8D0188          	     3M   sta VDP_REG
-00:1018 A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_NAME_TABLE_BASE)
-00:101A 8D0188          	     5M   sta VDP_REG
-00:101D 68              	     6M   pla
-00:101E 6432            	   255:   stz VDP_NAME_POINTER
-00:1020 A920            	   256:   lda #$20
-00:1022 A000            	   257:   ldy #0
-                        	   258: vdp_name_table_loop:
-                        	   259:   ;sty VDP_VRAM
-00:1024 8D0088          	   260:   sta VDP_VRAM
-00:1027 C8              	   261:   iny
-00:1028 D0FA            	   262:   bne vdp_name_table_loop
-                        	   263: 
-00:102A E632            	   264:   inc VDP_NAME_POINTER
-00:102C A632            	   265:   ldx VDP_NAME_POINTER
-00:102E E003            	   266:   cpx #3
-00:1030 D0F2            	   267:   bne vdp_name_table_loop
-                        	   268:   
-00:1032 7A              	   269:   ply
-00:1033 FA              	   270:   plx
-00:1034 68              	   271:   pla
-00:1035 60              	   272:   rts
-                        	   273: 
-                        	   274: vdp_write_name_table:
-00:1036 48              	   275:   pha
-00:1037 DA              	   276:   phx
-                        	   277:   vdp_write_vram TEXT_LOC
-00:1038 48              	     1M   pha
-00:1039 A90F            	     2M   lda #<(TEXT_LOC)
-00:103B 8D0188          	     3M   sta VDP_REG
-00:103E A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >TEXT_LOC)
-00:1040 8D0188          	     5M   sta VDP_REG
-00:1043 68              	     6M   pla
-00:1044 A200            	   278:   ldx #0
-                        	   279: .loop:
-00:1046 BDB110          	   280:   lda text_vdp,x
-00:1049 F007            	   281:   beq end_write
-00:104B 8D0088          	   282:   sta VDP_VRAM
-00:104E E8              	   283:   inx
-00:104F 4C4610          	   284:   jmp .loop
-                        	   285: end_write:  
-                        	   286: 
-                        	   287:   ; make dotted vertical line
-                        	   288: ;  lda #<TEXT_LOC
-                        	   289: ;  sta $00
-                        	   290: ;  lda #>TEXT_LOC
-                        	   291: ;  sta $01
-                        	   292: ;.lp
-                        	   293: ;  lda #$01 ; vertical line
-                        	   294: ;  sta VDP_VRAM
-                        	   295: ;  lda $00
-                        	   296: ;  adc #64 ; 64 cuz dotted
-                        	   297: ;  sta $00
-                        	   298: ;  sta VDP_REG ; low
-                        	   299: ;  adc #0 ; carry
-                        	   300: ;  sta $01
-                        	   301: ;  cmp #$03 ; done?
-                        	   302: ;  beq .done
-                        	   303: ;  ora #VDP_WRITE_VRAM_BIT ; send vram
-                        	   304: ;  sta VDP_REG
-                        	   305: ;  jmp .lp
-                        	   306: ;.done
-00:1052 FA              	   307:   plx
-00:1053 68              	   308:   pla
-00:1054 60              	   309:   rts 
-                        	   310: 
-                        	   311: ;  .include "wavid.s"
-                        	   312: 
-                        	   313: ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
-                        	   314: 
-                        	   315: vdp_initialize_pattern_table:
-00:1055 48              	   316:   pha
-00:1056 DA              	   317:   phx
-                        	   318:   vdp_write_vram VDP_PATTERN_TABLE_BASE
-00:1057 48              	     1M   pha
-00:1058 A900            	     2M   lda #<(VDP_PATTERN_TABLE_BASE)
-00:105A 8D0188          	     3M   sta VDP_REG
-00:105D A948            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_PATTERN_TABLE_BASE)
-00:105F 8D0188          	     5M   sta VDP_REG
-00:1062 68              	     6M   pla
-00:1063 A900            	   319:   lda #<vdp_pattern                         ; load the start address of the patterns to zero page
-00:1065 8530            	   320:   sta VDP_PATTERN_INIT
-00:1067 A912            	   321:   lda #>vdp_pattern
-00:1069 8531            	   322:   sta VDP_PATTERN_INIT_HI
-                        	   323: vdp_pattern_table_loop:
-00:106B B230            	   324:   lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-00:106D 8D0088          	   325:   sta VDP_VRAM                            ; and store it to VRAM
-00:1070 E630            	   326:   inc VDP_PATTERN_INIT
-00:1072 A530            	   327:   lda VDP_PATTERN_INIT
-00:1074 D002            	   328:   bne wopeee
-00:1076 E631            	   329:   inc VDP_PATTERN_INIT_HI
-                        	   330: wopeee:
-00:1078 A530            	   331:   lda VDP_PATTERN_INIT
-00:107A C900            	   332:   cmp #<vdp_pattern_end
-00:107C D0ED            	   333:   bne vdp_pattern_table_loop
-00:107E A531            	   334:   lda VDP_PATTERN_INIT_HI
-00:1080 C916            	   335:   cmp #>vdp_pattern_end
-00:1082 D0E7            	   336:   bne vdp_pattern_table_loop
-00:1084 FA              	   337:   plx
-00:1085 68              	   338:   pla
-00:1086 60              	   339:   rts
-                        	   340: 
-                        	   341: ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
-                        	   342: 
-                        	   343: vdp_initialize_color_table:
-                        	   344: ;  pha
-                        	   345: ;  phx
-                        	   346: ;  vdp_write_vram VDP_COLOR_TABLE_BASE
-                        	   347: ;  lda #<vdp_color                         ; load the start address of the patterns to zero page
-                        	   348: ;  sta VDP_PATTERN_INIT
-                        	   349: ;  lda #>vdp_color
-                        	   350: ;  sta VDP_PATTERN_INIT_HI
-                        	   351: ;vdp_color_table_loop:
-                        	   352: ;  lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-                        	   353: ;  sta VDP_VRAM                            ; and store it to VRAM
-                        	   354: ;  inc VDP_PATTERN_INIT
-                        	   355: ;  lda VDP_PATTERN_INIT
-                        	   356: ;  bne wopee
-                        	   357: ;  inc VDP_PATTERN_INIT_HI
-                        	   358: ;wopee:
-                        	   359: ;  lda VDP_PATTERN_INIT
-                        	   360: ;  cmp #<vdp_color_end
-                        	   361: ;  bne vdp_color_table_loop
-                        	   362: ;  lda VDP_PATTERN_INIT_HI
-                        	   363: ;  cmp #>vdp_color_end
-                        	   364: ;  bne vdp_color_table_loop
-                        	   365: ;  plx
-                        	   366: ;  pla
-                        	   367: ;  rts
-00:1087 48              	   368:   pha
-00:1088 DA              	   369:   phx
-                        	   370:   vdp_write_vram VDP_COLOR_TABLE_BASE
-00:1089 48              	     1M   pha
-00:108A A900            	     2M   lda #<(VDP_COLOR_TABLE_BASE)
-00:108C 8D0188          	     3M   sta VDP_REG
-00:108F A960            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_COLOR_TABLE_BASE)
-00:1091 8D0188          	     5M   sta VDP_REG
-00:1094 68              	     6M   pla
-00:1095 A200            	   371:   ldx #0
-                        	   372: vdpclp:
-00:1097 A9F0            	   373:   lda #$f0
-00:1099 8D0088          	   374:   sta VDP_VRAM
-00:109C E8              	   375:   inx
-00:109D E020            	   376:   cpx #32
-00:109F D0F6            	   377:   bne vdpclp
-00:10A1 FA              	   378:   plx
-00:10A2 68              	   379:   pla
-00:10A3 60              	   380:   rts
-                        	   381: 
-                        	   382: ;;;;;;;;;;;;;;;;;;; vdp_enable_display ;;;;;;;;;;;;;;;;;;;;;;;;;
-                        	   383: 
-                        	   384: vdp_enable_display:
-00:10A4 48              	   385:   pha
-00:10A5 A9E2            	   386:   lda #%11100010			; select 16k bytes of vram, enable the active display, enable vdp interrupt, set gfx mode 1
-00:10A7 8D0188          	   387:   sta VDP_REG
-00:10AA A981            	   388:   lda #(VDP_REGISTER_BITS | 1)
-00:10AC 8D0188          	   389:   sta VDP_REG
-00:10AF 68              	   390:   pla
-00:10B0 60              	   391:   rts
-                        	   392: 
-                        	   393: text_vdp:
-                        	   394:   ;.byte "Hello, World!", $00
-00:10B1 53434F5245      	   395:   .byte "SCORE", $3a, " 0", $00
-00:10B6 3A
-00:10B7 2030
-00:10B9 00
-                        	   396: 
-                        	   397: 
-                        	   398: vdp_register_inits:
-00:10BA 00              	   399: vdp_register_0: .byte %00000000 ; 0  0  0  0  0  0  M3 EXTVDP
-00:10BB 82              	   400: vdp_register_1: .byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
-00:10BC 01              	   401: vdp_register_2: .byte $01       ; Name table base / $400. $01 = $0400
-00:10BD 80              	   402: vdp_register_3: .byte $80       ; Color table base = $2000
-00:10BE 01              	   403: vdp_register_4: .byte $01       ; Pattern table base / $800. $01 = $0800
-00:10BF 0E              	   404: vdp_register_5: .byte $0e       ; Sprite attribute table base = $0700
-00:10C0 00              	   405: vdp_register_6: .byte $00       ; Sprite pattern generator = $0000
-00:10C1 01              	   406: vdp_register_7: .byte $01       ; FG/BG. 1=>Black, F=>White
-                        	   407: vdp_end_register_inits:
-                        	   408: 
-                        	   409: ;;;;;;;;;;;;;;;;;;; vdp_sprpatterns ;;;;;;;;;;;;;;;;;;;;;
-                        	   410: vdp_block: ; (0x00)
-00:10C2 FF              	   411:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-00:10C3 FF
-00:10C4 FF
-00:10C5 FF
-00:10C6 FF
-00:10C7 FF
-00:10C8 FF
-00:10C9 FF
-00:10CA FF              	   412:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-00:10CB FF
-00:10CC FF
-00:10CD FF
-00:10CE FF
-00:10CF FF
-00:10D0 FF
-00:10D1 FF
-00:10D2 FF              	   413:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-00:10D3 FF
-00:10D4 FF
-00:10D5 FF
-00:10D6 FF
-00:10D7 FF
-00:10D8 FF
-00:10D9 FF
-00:10DA FF              	   414:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-00:10DB FF
-00:10DC FF
-00:10DD FF
-00:10DE FF
-00:10DF FF
-00:10E0 FF
-00:10E1 FF
-                        	   415: vdp_ball: ; (0x04)
-00:10E2 07              	   416:   .byte $07,$1f,$3f,$7f,$7f,$ff,$ff,$ff
-00:10E3 1F
-00:10E4 3F
-00:10E5 7F
-00:10E6 7F
-00:10E7 FF
-00:10E8 FF
-00:10E9 FF
-00:10EA FF              	   417:   .byte $ff,$ff,$ff,$7f,$7f,$3f,$1f,$07
-00:10EB FF
-00:10EC FF
-00:10ED 7F
-00:10EE 7F
-00:10EF 3F
-00:10F0 1F
-00:10F1 07
-00:10F2 E0              	   418:   .byte $e0,$f8,$fc,$fe,$fe,$ff,$ff,$ff
-00:10F3 F8
-00:10F4 FC
-00:10F5 FE
-00:10F6 FE
-00:10F7 FF
-00:10F8 FF
-00:10F9 FF
-00:10FA FF              	   419:   .byte $ff,$ff,$ff,$fe,$fe,$fc,$f8,$e0
-00:10FB FF
-00:10FC FF
-00:10FD FE
-00:10FE FE
-00:10FF FC
-00:1100 F8
-00:1101 E0
-                        	   420: 
-                        	   421: ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
-                        	   422: ;  .align 8
-                        	   423: ;vdp_color:
-                        	   424: ;  .binary "???.TIAC"
-                        	   425: ;vdp_color_end:
-                        	   426: ;  .byte $00
-                        	   427: 
-                        	   428: ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
-                        	   429: 
-                        	   430:   .align 8
-                        	   431: vdp_pattern:
-                        	   432: ;  .binary "???.TIAP"
-                        	   433: ; line drawing
-00:1200 00              	   434:   .byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
-00:1201 00
-00:1202 00
-00:1203 FF
-00:1204 FF
-00:1205 00
-00:1206 00
-00:1207 00
-00:1208 18              	   435:   .byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud
-00:1209 18
-00:120A 18
-00:120B 18
-00:120C 18
-00:120D 18
-00:120E 18
-00:120F 18
-00:1210 00              	   436:   .byte $00,$00,$00,$F8,$F8,$18,$18,$18 ; ld
-00:1211 00
-00:1212 00
-00:1213 F8
-00:1214 F8
-00:1215 18
-00:1216 18
-00:1217 18
-00:1218 00              	   437:   .byte $00,$00,$00,$1F,$1F,$18,$18,$18 ; rd
-00:1219 00
-00:121A 00
-00:121B 1F
-00:121C 1F
-00:121D 18
-00:121E 18
-00:121F 18
-00:1220 18              	   438:   .byte $18,$18,$18,$F8,$F8,$00,$00,$00 ; lu
-00:1221 18
-00:1222 18
-00:1223 F8
-00:1224 F8
-00:1225 00
-00:1226 00
-00:1227 00
-00:1228 18              	   439:   .byte $18,$18,$18,$1F,$1F,$00,$00,$00 ; ur
-00:1229 18
-00:122A 18
-00:122B 1F
-00:122C 1F
-00:122D 00
-00:122E 00
-00:122F 00
-00:1230 18              	   440:   .byte $18,$18,$18,$FF,$FF,$18,$18,$18 ; lurd
-00:1231 18
-00:1232 18
-00:1233 FF
-00:1234 FF
-00:1235 18
-00:1236 18
-00:1237 18
-                        	   441: ; <nonsense for debug>
-00:1238 07              	   442:   .byte $07,$07,$07,$07,$07,$07,$07,$00 ; 07
-00:1239 07
-00:123A 07
-00:123B 07
-00:123C 07
-00:123D 07
-00:123E 07
-00:123F 00
-00:1240 08              	   443:   .byte $08,$08,$08,$08,$08,$08,$08,$00 ; 08
-00:1241 08
-00:1242 08
-00:1243 08
-00:1244 08
-00:1245 08
-00:1246 08
-00:1247 00
-00:1248 09              	   444:   .byte $09,$09,$09,$09,$09,$09,$09,$00 ; 09
-00:1249 09
-00:124A 09
-00:124B 09
-00:124C 09
-00:124D 09
-00:124E 09
-00:124F 00
-00:1250 0A              	   445:   .byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$00 ; 0A
-00:1251 0A
-00:1252 0A
-00:1253 0A
-00:1254 0A
-00:1255 0A
-00:1256 0A
-00:1257 00
-00:1258 0B              	   446:   .byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$00 ; 0B
-00:1259 0B
-00:125A 0B
-00:125B 0B
-00:125C 0B
-00:125D 0B
-00:125E 0B
-00:125F 00
-00:1260 0C              	   447:   .byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$00 ; 0C
-00:1261 0C
-00:1262 0C
-00:1263 0C
-00:1264 0C
-00:1265 0C
-00:1266 0C
-00:1267 00
-00:1268 0D              	   448:   .byte $0D,$0D,$0D,$0D,$0D,$0D,$0D,$00 ; 0D
-00:1269 0D
-00:126A 0D
-00:126B 0D
-00:126C 0D
-00:126D 0D
-00:126E 0D
-00:126F 00
-00:1270 0E              	   449:   .byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$00 ; 0E
-00:1271 0E
-00:1272 0E
-00:1273 0E
-00:1274 0E
-00:1275 0E
-00:1276 0E
-00:1277 00
-00:1278 0F              	   450:   .byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$00 ; 0F
-00:1279 0F
-00:127A 0F
-00:127B 0F
-00:127C 0F
-00:127D 0F
-00:127E 0F
-00:127F 00
-00:1280 10              	   451:   .byte $10,$10,$10,$10,$10,$10,$10,$00 ; 10
-00:1281 10
-00:1282 10
-00:1283 10
-00:1284 10
-00:1285 10
-00:1286 10
-00:1287 00
-00:1288 11              	   452:   .byte $11,$11,$11,$11,$11,$11,$11,$00 ; 11
-00:1289 11
-00:128A 11
-00:128B 11
-00:128C 11
-00:128D 11
-00:128E 11
-00:128F 00
-00:1290 12              	   453:   .byte $12,$12,$12,$12,$12,$12,$12,$00 ; 12
-00:1291 12
-00:1292 12
-00:1293 12
-00:1294 12
-00:1295 12
-00:1296 12
-00:1297 00
-00:1298 13              	   454:   .byte $13,$13,$13,$13,$13,$13,$13,$00 ; 13
-00:1299 13
-00:129A 13
-00:129B 13
-00:129C 13
-00:129D 13
-00:129E 13
-00:129F 00
-00:12A0 14              	   455:   .byte $14,$14,$14,$14,$14,$14,$14,$00 ; 14
-00:12A1 14
-00:12A2 14
-00:12A3 14
-00:12A4 14
-00:12A5 14
-00:12A6 14
-00:12A7 00
-00:12A8 15              	   456:   .byte $15,$15,$15,$15,$15,$15,$15,$00 ; 15
-00:12A9 15
-00:12AA 15
-00:12AB 15
-00:12AC 15
-00:12AD 15
-00:12AE 15
-00:12AF 00
-00:12B0 16              	   457:   .byte $16,$16,$16,$16,$16,$16,$16,$00 ; 16
-00:12B1 16
-00:12B2 16
-00:12B3 16
-00:12B4 16
-00:12B5 16
-00:12B6 16
-00:12B7 00
-00:12B8 17              	   458:   .byte $17,$17,$17,$17,$17,$17,$17,$00 ; 17
-00:12B9 17
-00:12BA 17
-00:12BB 17
-00:12BC 17
-00:12BD 17
-00:12BE 17
-00:12BF 00
-00:12C0 18              	   459:   .byte $18,$18,$18,$18,$18,$18,$18,$00 ; 18
-00:12C1 18
-00:12C2 18
-00:12C3 18
-00:12C4 18
-00:12C5 18
-00:12C6 18
-00:12C7 00
-00:12C8 19              	   460:   .byte $19,$19,$19,$19,$19,$19,$19,$00 ; 19
-00:12C9 19
-00:12CA 19
-00:12CB 19
-00:12CC 19
-00:12CD 19
-00:12CE 19
-00:12CF 00
-00:12D0 1A              	   461:   .byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$00 ; 1A
-00:12D1 1A
-00:12D2 1A
-00:12D3 1A
-00:12D4 1A
-00:12D5 1A
-00:12D6 1A
-00:12D7 00
-00:12D8 1B              	   462:   .byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$00 ; 1B
-00:12D9 1B
-00:12DA 1B
-00:12DB 1B
-00:12DC 1B
-00:12DD 1B
-00:12DE 1B
-00:12DF 00
-00:12E0 1C              	   463:   .byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$00 ; 1C
-00:12E1 1C
-00:12E2 1C
-00:12E3 1C
-00:12E4 1C
-00:12E5 1C
-00:12E6 1C
-00:12E7 00
-00:12E8 1D              	   464:   .byte $1D,$1D,$1D,$1D,$1D,$1D,$1D,$00 ; 1D
-00:12E9 1D
-00:12EA 1D
-00:12EB 1D
-00:12EC 1D
-00:12ED 1D
-00:12EE 1D
-00:12EF 00
-00:12F0 1E              	   465:   .byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$00 ; 1E
-00:12F1 1E
-00:12F2 1E
-00:12F3 1E
-00:12F4 1E
-00:12F5 1E
-00:12F6 1E
-00:12F7 00
-00:12F8 1F              	   466:   .byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$00 ; 1F
-00:12F9 1F
-00:12FA 1F
-00:12FB 1F
-00:12FC 1F
-00:12FD 1F
-00:12FE 1F
-00:12FF 00
-                        	   467: ; </nonsense>
-00:1300 00              	   468:   .byte $00,$00,$00,$00,$00,$00,$00,$00 ; ' '
-00:1301 00
-00:1302 00
-00:1303 00
-00:1304 00
-00:1305 00
-00:1306 00
-00:1307 00
-00:1308 20              	   469:   .byte $20,$20,$20,$00,$20,$20,$00,$00 ; !
-00:1309 20
-00:130A 20
-00:130B 00
-00:130C 20
-00:130D 20
-00:130E 00
-00:130F 00
-00:1310 50              	   470:   .byte $50,$50,$50,$00,$00,$00,$00,$00 ; "
-00:1311 50
-00:1312 50
-00:1313 00
-00:1314 00
-00:1315 00
-00:1316 00
-00:1317 00
-00:1318 50              	   471:   .byte $50,$50,$F8,$50,$F8,$50,$50,$00 ; #
-00:1319 50
-00:131A F8
-00:131B 50
-00:131C F8
-00:131D 50
-00:131E 50
-00:131F 00
-00:1320 20              	   472:   .byte $20,$78,$A0,$70,$28,$F0,$20,$00 ; $
-00:1321 78
-00:1322 A0
-00:1323 70
-00:1324 28
-00:1325 F0
-00:1326 20
-00:1327 00
-00:1328 C0              	   473:   .byte $C0,$C8,$10,$20,$40,$98,$18,$00 ; %
-00:1329 C8
-00:132A 10
-00:132B 20
-00:132C 40
-00:132D 98
-00:132E 18
-00:132F 00
-00:1330 40              	   474:   .byte $40,$A0,$A0,$40,$A8,$90,$68,$00 ; &
-00:1331 A0
-00:1332 A0
-00:1333 40
-00:1334 A8
-00:1335 90
-00:1336 68
-00:1337 00
-00:1338 20              	   475:   .byte $20,$20,$40,$00,$00,$00,$00,$00 ; '
-00:1339 20
-00:133A 40
-00:133B 00
-00:133C 00
-00:133D 00
-00:133E 00
-00:133F 00
-00:1340 20              	   476:   .byte $20,$40,$80,$80,$80,$40,$20,$00 ; (
-00:1341 40
-00:1342 80
-00:1343 80
-00:1344 80
-00:1345 40
-00:1346 20
-00:1347 00
-00:1348 20              	   477:   .byte $20,$10,$08,$08,$08,$10,$20,$00 ; )
-00:1349 10
-00:134A 08
-00:134B 08
-00:134C 08
-00:134D 10
-00:134E 20
-00:134F 00
-00:1350 20              	   478:   .byte $20,$A8,$70,$20,$70,$A8,$20,$00 ; *
-00:1351 A8
-00:1352 70
-00:1353 20
-00:1354 70
-00:1355 A8
-00:1356 20
-00:1357 00
-00:1358 00              	   479:   .byte $00,$20,$20,$F8,$20,$20,$00,$00 ; +
-00:1359 20
-00:135A 20
-00:135B F8
-00:135C 20
-00:135D 20
-00:135E 00
-00:135F 00
-00:1360 00              	   480:   .byte $00,$00,$00,$00,$20,$20,$40,$00 ; ,
-00:1361 00
-00:1362 00
-00:1363 00
-00:1364 20
-00:1365 20
-00:1366 40
-00:1367 00
-00:1368 00              	   481:   .byte $00,$00,$00,$F8,$00,$00,$00,$00 ; -
-00:1369 00
-00:136A 00
-00:136B F8
-00:136C 00
-00:136D 00
-00:136E 00
-00:136F 00
-00:1370 00              	   482:   .byte $00,$00,$00,$00,$20,$20,$00,$00 ; .
-00:1371 00
-00:1372 00
-00:1373 00
-00:1374 20
-00:1375 20
-00:1376 00
-00:1377 00
-00:1378 00              	   483:   .byte $00,$08,$10,$20,$40,$80,$00,$00 ; /
-00:1379 08
-00:137A 10
-00:137B 20
-00:137C 40
-00:137D 80
-00:137E 00
-00:137F 00
-00:1380 70              	   484:   .byte $70,$88,$98,$A8,$C8,$88,$70,$00 ; 0
-00:1381 88
-00:1382 98
-00:1383 A8
-00:1384 C8
-00:1385 88
-00:1386 70
-00:1387 00
-00:1388 20              	   485:   .byte $20,$60,$20,$20,$20,$20,$70,$00 ; 1
-00:1389 60
-00:138A 20
-00:138B 20
-00:138C 20
-00:138D 20
-00:138E 70
-00:138F 00
-00:1390 70              	   486:   .byte $70,$88,$08,$30,$40,$80,$F8,$00 ; 2
-00:1391 88
-00:1392 08
-00:1393 30
-00:1394 40
-00:1395 80
-00:1396 F8
-00:1397 00
-00:1398 F8              	   487:   .byte $F8,$08,$10,$30,$08,$88,$70,$00 ; 3
-00:1399 08
-00:139A 10
-00:139B 30
-00:139C 08
-00:139D 88
-00:139E 70
-00:139F 00
-00:13A0 10              	   488:   .byte $10,$30,$50,$90,$F8,$10,$10,$00 ; 4
-00:13A1 30
-00:13A2 50
-00:13A3 90
-00:13A4 F8
-00:13A5 10
-00:13A6 10
-00:13A7 00
-00:13A8 F8              	   489:   .byte $F8,$80,$F0,$08,$08,$88,$70,$00 ; 5
-00:13A9 80
-00:13AA F0
-00:13AB 08
-00:13AC 08
-00:13AD 88
-00:13AE 70
-00:13AF 00
-00:13B0 38              	   490:   .byte $38,$40,$80,$F0,$88,$88,$70,$00 ; 6
-00:13B1 40
-00:13B2 80
-00:13B3 F0
-00:13B4 88
-00:13B5 88
-00:13B6 70
-00:13B7 00
-00:13B8 F8              	   491:   .byte $F8,$08,$10,$20,$40,$40,$40,$00 ; 7
-00:13B9 08
-00:13BA 10
-00:13BB 20
-00:13BC 40
-00:13BD 40
-00:13BE 40
-00:13BF 00
-00:13C0 70              	   492:   .byte $70,$88,$88,$70,$88,$88,$70,$00 ; 8
-00:13C1 88
-00:13C2 88
-00:13C3 70
-00:13C4 88
-00:13C5 88
-00:13C6 70
-00:13C7 00
-00:13C8 70              	   493:   .byte $70,$88,$88,$78,$08,$10,$E0,$00 ; 9
-00:13C9 88
-00:13CA 88
-00:13CB 78
-00:13CC 08
-00:13CD 10
-00:13CE E0
-00:13CF 00
-00:13D0 00              	   494:   .byte $00,$00,$20,$00,$20,$00,$00,$00 ; :
-00:13D1 00
-00:13D2 20
-00:13D3 00
-00:13D4 20
-00:13D5 00
-00:13D6 00
-00:13D7 00
-00:13D8 00              	   495:   .byte $00,$00,$20,$00,$20,$20,$40,$00 ; ;
-00:13D9 00
-00:13DA 20
-00:13DB 00
-00:13DC 20
-00:13DD 20
-00:13DE 40
-00:13DF 00
-00:13E0 10              	   496:   .byte $10,$20,$40,$80,$40,$20,$10,$00 ; <
-00:13E1 20
-00:13E2 40
-00:13E3 80
-00:13E4 40
-00:13E5 20
-00:13E6 10
-00:13E7 00
-00:13E8 00              	   497:   .byte $00,$00,$F8,$00,$F8,$00,$00,$00 ; =
-00:13E9 00
-00:13EA F8
-00:13EB 00
-00:13EC F8
-00:13ED 00
-00:13EE 00
-00:13EF 00
-00:13F0 40              	   498:   .byte $40,$20,$10,$08,$10,$20,$40,$00 ; >
-00:13F1 20
-00:13F2 10
-00:13F3 08
-00:13F4 10
-00:13F5 20
-00:13F6 40
-00:13F7 00
-00:13F8 70              	   499:   .byte $70,$88,$10,$20,$20,$00,$20,$00 ; ?
-00:13F9 88
-00:13FA 10
-00:13FB 20
-00:13FC 20
-00:13FD 00
-00:13FE 20
-00:13FF 00
-00:1400 70              	   500:   .byte $70,$88,$A8,$B8,$B0,$80,$78,$00 ; @
-00:1401 88
-00:1402 A8
-00:1403 B8
-00:1404 B0
-00:1405 80
-00:1406 78
-00:1407 00
-00:1408 20              	   501:   .byte $20,$50,$88,$88,$F8,$88,$88,$00 ; A
-00:1409 50
-00:140A 88
-00:140B 88
-00:140C F8
-00:140D 88
-00:140E 88
-00:140F 00
-00:1410 F0              	   502:   .byte $F0,$88,$88,$F0,$88,$88,$F0,$00 ; B
-00:1411 88
-00:1412 88
-00:1413 F0
-00:1414 88
-00:1415 88
-00:1416 F0
-00:1417 00
-00:1418 70              	   503:   .byte $70,$88,$80,$80,$80,$88,$70,$00 ; C
-00:1419 88
-00:141A 80
-00:141B 80
-00:141C 80
-00:141D 88
-00:141E 70
-00:141F 00
-00:1420 F0              	   504:   .byte $F0,$88,$88,$88,$88,$88,$F0,$00 ; D
-00:1421 88
-00:1422 88
-00:1423 88
-00:1424 88
-00:1425 88
-00:1426 F0
-00:1427 00
-00:1428 F8              	   505:   .byte $F8,$80,$80,$F0,$80,$80,$F8,$00 ; E
-00:1429 80
-00:142A 80
-00:142B F0
-00:142C 80
-00:142D 80
-00:142E F8
-00:142F 00
-00:1430 F8              	   506:   .byte $F8,$80,$80,$F0,$80,$80,$80,$00 ; F
-00:1431 80
-00:1432 80
-00:1433 F0
-00:1434 80
-00:1435 80
-00:1436 80
-00:1437 00
-00:1438 78              	   507:   .byte $78,$80,$80,$80,$98,$88,$78,$00 ; G
-00:1439 80
-00:143A 80
-00:143B 80
-00:143C 98
-00:143D 88
-00:143E 78
-00:143F 00
-00:1440 88              	   508:   .byte $88,$88,$88,$F8,$88,$88,$88,$00 ; H
-00:1441 88
-00:1442 88
-00:1443 F8
-00:1444 88
-00:1445 88
-00:1446 88
-00:1447 00
-00:1448 70              	   509:   .byte $70,$20,$20,$20,$20,$20,$70,$00 ; I
-00:1449 20
-00:144A 20
-00:144B 20
-00:144C 20
-00:144D 20
-00:144E 70
-00:144F 00
-00:1450 08              	   510:   .byte $08,$08,$08,$08,$08,$88,$70,$00 ; J
-00:1451 08
-00:1452 08
-00:1453 08
-00:1454 08
-00:1455 88
-00:1456 70
-00:1457 00
-00:1458 88              	   511:   .byte $88,$90,$A0,$C0,$A0,$90,$88,$00 ; K
-00:1459 90
-00:145A A0
-00:145B C0
-00:145C A0
-00:145D 90
-00:145E 88
-00:145F 00
-00:1460 80              	   512:   .byte $80,$80,$80,$80,$80,$80,$F8,$00 ; L
-00:1461 80
-00:1462 80
-00:1463 80
-00:1464 80
-00:1465 80
-00:1466 F8
-00:1467 00
-00:1468 88              	   513:   .byte $88,$D8,$A8,$A8,$88,$88,$88,$00 ; M
-00:1469 D8
-00:146A A8
-00:146B A8
-00:146C 88
-00:146D 88
-00:146E 88
-00:146F 00
-00:1470 88              	   514:   .byte $88,$88,$C8,$A8,$98,$88,$88,$00 ; N
-00:1471 88
-00:1472 C8
-00:1473 A8
-00:1474 98
-00:1475 88
-00:1476 88
-00:1477 00
-00:1478 70              	   515:   .byte $70,$88,$88,$88,$88,$88,$70,$00 ; O
-00:1479 88
-00:147A 88
-00:147B 88
-00:147C 88
-00:147D 88
-00:147E 70
-00:147F 00
-00:1480 F0              	   516:   .byte $F0,$88,$88,$F0,$80,$80,$80,$00 ; P
-00:1481 88
-00:1482 88
-00:1483 F0
-00:1484 80
-00:1485 80
-00:1486 80
-00:1487 00
-00:1488 70              	   517:   .byte $70,$88,$88,$88,$A8,$90,$68,$00 ; Q
-00:1489 88
-00:148A 88
-00:148B 88
-00:148C A8
-00:148D 90
-00:148E 68
-00:148F 00
-00:1490 F0              	   518:   .byte $F0,$88,$88,$F0,$A0,$90,$88,$00 ; R
-00:1491 88
-00:1492 88
-00:1493 F0
-00:1494 A0
-00:1495 90
-00:1496 88
-00:1497 00
-00:1498 70              	   519:   .byte $70,$88,$80,$70,$08,$88,$70,$00 ; S
-00:1499 88
-00:149A 80
-00:149B 70
-00:149C 08
-00:149D 88
-00:149E 70
-00:149F 00
-00:14A0 F8              	   520:   .byte $F8,$20,$20,$20,$20,$20,$20,$00 ; T
-00:14A1 20
-00:14A2 20
-00:14A3 20
-00:14A4 20
-00:14A5 20
-00:14A6 20
-00:14A7 00
-00:14A8 88              	   521:   .byte $88,$88,$88,$88,$88,$88,$70,$00 ; U
-00:14A9 88
-00:14AA 88
-00:14AB 88
-00:14AC 88
-00:14AD 88
-00:14AE 70
-00:14AF 00
-00:14B0 88              	   522:   .byte $88,$88,$88,$88,$50,$50,$20,$00 ; V
-00:14B1 88
-00:14B2 88
-00:14B3 88
-00:14B4 50
-00:14B5 50
-00:14B6 20
-00:14B7 00
-00:14B8 88              	   523:   .byte $88,$88,$88,$A8,$A8,$D8,$88,$00 ; W
-00:14B9 88
-00:14BA 88
-00:14BB A8
-00:14BC A8
-00:14BD D8
-00:14BE 88
-00:14BF 00
-00:14C0 88              	   524:   .byte $88,$88,$50,$20,$50,$88,$88,$00 ; X
-00:14C1 88
-00:14C2 50
-00:14C3 20
-00:14C4 50
-00:14C5 88
-00:14C6 88
-00:14C7 00
-00:14C8 88              	   525:   .byte $88,$88,$50,$20,$20,$20,$20,$00 ; Y
-00:14C9 88
-00:14CA 50
-00:14CB 20
-00:14CC 20
-00:14CD 20
-00:14CE 20
-00:14CF 00
-00:14D0 F8              	   526:   .byte $F8,$08,$10,$20,$40,$80,$F8,$00 ; Z
-00:14D1 08
-00:14D2 10
-00:14D3 20
-00:14D4 40
-00:14D5 80
-00:14D6 F8
-00:14D7 00
-00:14D8 F8              	   527:   .byte $F8,$C0,$C0,$C0,$C0,$C0,$F8,$00 ; [
-00:14D9 C0
-00:14DA C0
-00:14DB C0
-00:14DC C0
-00:14DD C0
-00:14DE F8
-00:14DF 00
-00:14E0 00              	   528:   .byte $00,$80,$40,$20,$10,$08,$00,$00 ; \
-00:14E1 80
-00:14E2 40
-00:14E3 20
-00:14E4 10
-00:14E5 08
-00:14E6 00
-00:14E7 00
-00:14E8 F8              	   529:   .byte $F8,$18,$18,$18,$18,$18,$F8,$00 ; ]
-00:14E9 18
-00:14EA 18
-00:14EB 18
-00:14EC 18
-00:14ED 18
-00:14EE F8
-00:14EF 00
-00:14F0 00              	   530:   .byte $00,$00,$20,$50,$88,$00,$00,$00 ; ^
-00:14F1 00
-00:14F2 20
-00:14F3 50
-00:14F4 88
-00:14F5 00
-00:14F6 00
-00:14F7 00
-00:14F8 00              	   531:   .byte $00,$00,$00,$00,$00,$00,$F8,$00 ; _
-00:14F9 00
-00:14FA 00
-00:14FB 00
-00:14FC 00
-00:14FD 00
-00:14FE F8
-00:14FF 00
-00:1500 40              	   532:   .byte $40,$20,$10,$00,$00,$00,$00,$00 ; `
-00:1501 20
-00:1502 10
-00:1503 00
-00:1504 00
-00:1505 00
-00:1506 00
-00:1507 00
-00:1508 00              	   533:   .byte $00,$00,$70,$88,$88,$98,$68,$00 ; a
-00:1509 00
-00:150A 70
-00:150B 88
-00:150C 88
-00:150D 98
-00:150E 68
-00:150F 00
-00:1510 80              	   534:   .byte $80,$80,$F0,$88,$88,$88,$F0,$00 ; b
-00:1511 80
-00:1512 F0
-00:1513 88
-00:1514 88
-00:1515 88
-00:1516 F0
-00:1517 00
-00:1518 00              	   535:   .byte $00,$00,$78,$80,$80,$80,$78,$00 ; c
-00:1519 00
-00:151A 78
-00:151B 80
-00:151C 80
-00:151D 80
-00:151E 78
-00:151F 00
-00:1520 08              	   536:   .byte $08,$08,$78,$88,$88,$88,$78,$00 ; d
-00:1521 08
-00:1522 78
-00:1523 88
-00:1524 88
-00:1525 88
-00:1526 78
-00:1527 00
-00:1528 00              	   537:   .byte $00,$00,$70,$88,$F8,$80,$78,$00 ; e
-00:1529 00
-00:152A 70
-00:152B 88
-00:152C F8
-00:152D 80
-00:152E 78
-00:152F 00
-00:1530 30              	   538:   .byte $30,$40,$E0,$40,$40,$40,$40,$00 ; f
-00:1531 40
-00:1532 E0
-00:1533 40
-00:1534 40
-00:1535 40
-00:1536 40
-00:1537 00
-00:1538 00              	   539:   .byte $00,$00,$70,$88,$F8,$08,$F0,$00 ; g
-00:1539 00
-00:153A 70
-00:153B 88
-00:153C F8
-00:153D 08
-00:153E F0
-00:153F 00
-00:1540 80              	   540:   .byte $80,$80,$F0,$88,$88,$88,$88,$00 ; h
-00:1541 80
-00:1542 F0
-00:1543 88
-00:1544 88
-00:1545 88
-00:1546 88
-00:1547 00
-00:1548 00              	   541:   .byte $00,$40,$00,$40,$40,$40,$40,$00 ; i
-00:1549 40
-00:154A 00
-00:154B 40
-00:154C 40
-00:154D 40
-00:154E 40
-00:154F 00
-00:1550 00              	   542:   .byte $00,$20,$00,$20,$20,$A0,$60,$00 ; j
-00:1551 20
-00:1552 00
-00:1553 20
-00:1554 20
-00:1555 A0
-00:1556 60
-00:1557 00
-00:1558 00              	   543:   .byte $00,$80,$80,$A0,$C0,$A0,$90,$00 ; k
-00:1559 80
-00:155A 80
-00:155B A0
-00:155C C0
-00:155D A0
-00:155E 90
-00:155F 00
-00:1560 C0              	   544:   .byte $C0,$40,$40,$40,$40,$40,$60,$00 ; l
-00:1561 40
-00:1562 40
-00:1563 40
-00:1564 40
-00:1565 40
-00:1566 60
-00:1567 00
-00:1568 00              	   545:   .byte $00,$00,$D8,$A8,$A8,$A8,$A8,$00 ; m
-00:1569 00
-00:156A D8
-00:156B A8
-00:156C A8
-00:156D A8
-00:156E A8
-00:156F 00
-00:1570 00              	   546:   .byte $00,$00,$F0,$88,$88,$88,$88,$00 ; n
-00:1571 00
-00:1572 F0
-00:1573 88
-00:1574 88
-00:1575 88
-00:1576 88
-00:1577 00
-00:1578 00              	   547:   .byte $00,$00,$70,$88,$88,$88,$70,$00 ; o
-00:1579 00
-00:157A 70
-00:157B 88
-00:157C 88
-00:157D 88
-00:157E 70
-00:157F 00
-00:1580 00              	   548:   .byte $00,$00,$70,$88,$F0,$80,$80,$00 ; p
-00:1581 00
-00:1582 70
-00:1583 88
-00:1584 F0
-00:1585 80
-00:1586 80
-00:1587 00
-00:1588 00              	   549:   .byte $00,$00,$F0,$88,$78,$08,$08,$00 ; q
-00:1589 00
-00:158A F0
-00:158B 88
-00:158C 78
-00:158D 08
-00:158E 08
-00:158F 00
-00:1590 00              	   550:   .byte $00,$00,$70,$88,$80,$80,$80,$00 ; r
-00:1591 00
-00:1592 70
-00:1593 88
-00:1594 80
-00:1595 80
-00:1596 80
-00:1597 00
-00:1598 00              	   551:   .byte $00,$00,$78,$80,$70,$08,$F0,$00 ; s
-00:1599 00
-00:159A 78
-00:159B 80
-00:159C 70
-00:159D 08
-00:159E F0
-00:159F 00
-00:15A0 40              	   552:   .byte $40,$40,$F0,$40,$40,$40,$30,$00 ; t
-00:15A1 40
-00:15A2 F0
-00:15A3 40
-00:15A4 40
-00:15A5 40
-00:15A6 30
-00:15A7 00
-00:15A8 00              	   553:   .byte $00,$00,$88,$88,$88,$88,$78,$00 ; u
-00:15A9 00
-00:15AA 88
-00:15AB 88
-00:15AC 88
-00:15AD 88
-00:15AE 78
-00:15AF 00
-00:15B0 00              	   554:   .byte $00,$00,$88,$88,$90,$A0,$40,$00 ; v
-00:15B1 00
-00:15B2 88
-00:15B3 88
-00:15B4 90
-00:15B5 A0
-00:15B6 40
-00:15B7 00
-00:15B8 00              	   555:   .byte $00,$00,$88,$88,$88,$A8,$D8,$00 ; w
-00:15B9 00
-00:15BA 88
-00:15BB 88
-00:15BC 88
-00:15BD A8
-00:15BE D8
-00:15BF 00
-00:15C0 00              	   556:   .byte $00,$00,$88,$50,$20,$50,$88,$00 ; x
-00:15C1 00
-00:15C2 88
-00:15C3 50
-00:15C4 20
-00:15C5 50
-00:15C6 88
-00:15C7 00
-00:15C8 00              	   557:   .byte $00,$00,$88,$88,$78,$08,$F0,$00 ; y
-00:15C9 00
-00:15CA 88
-00:15CB 88
-00:15CC 78
-00:15CD 08
-00:15CE F0
-00:15CF 00
-00:15D0 00              	   558:   .byte $00,$00,$F8,$10,$20,$40,$F8,$00 ; z
-00:15D1 00
-00:15D2 F8
-00:15D3 10
-00:15D4 20
-00:15D5 40
-00:15D6 F8
-00:15D7 00
-00:15D8 38              	   559:   .byte $38,$40,$20,$C0,$20,$40,$38,$00 ; {
-00:15D9 40
-00:15DA 20
-00:15DB C0
-00:15DC 20
-00:15DD 40
-00:15DE 38
-00:15DF 00
-00:15E0 40              	   560:   .byte $40,$40,$40,$00,$40,$40,$40,$00 ; |
-00:15E1 40
-00:15E2 40
-00:15E3 00
-00:15E4 40
-00:15E5 40
-00:15E6 40
-00:15E7 00
-00:15E8 E0              	   561:   .byte $E0,$10,$20,$18,$20,$10,$E0,$00 ; }
-00:15E9 10
-00:15EA 20
-00:15EB 18
-00:15EC 20
-00:15ED 10
-00:15EE E0
-00:15EF 00
-00:15F0 40              	   562:   .byte $40,$A8,$10,$00,$00,$00,$00,$00 ; ~
-00:15F1 A8
-00:15F2 10
-00:15F3 00
-00:15F4 00
-00:15F5 00
-00:15F6 00
-00:15F7 00
-00:15F8 A8              	   563:   .byte $A8,$50,$A8,$50,$A8,$50,$A8,$00 ; checkerboard
-00:15F9 50
-00:15FA A8
-00:15FB 50
-00:15FC A8
-00:15FD 50
-00:15FE A8
-00:15FF 00
-                        	   564: vdp_pattern_end:
-                        	   565: 
-00:1600 00              	   566:   .byte $00
-                        	   567: 
+                        	    50:   ; Open root directory
+00:0746 20D6FF          	    51:   jsr fat32_openroot
+                        	    52: 
+                        	    53:   ; Find the subdirectory by name
+00:0749 A20F            	    54:   ldx #<dirname
+00:074B A007            	    55:   ldy #>dirname
+00:074D 20DFFF          	    56:   jsr fat32_finddirent
+00:0750 900E            	    57:   bcc foundsubdir
+                        	    58: 
+                        	    59: error:
+                        	    60: 
+                        	    61:   ; Subdirectory not found
+00:0752 A007            	    62:   ldy #>errormsg
+00:0754 A21B            	    63:   ldx #<errormsg
+00:0756 20CDFF          	    64:   jsr w_acia_full
+00:0759 200409          	    65:   jsr error_sound
+00:075C 60              	    66:   rts
+00:075D 60              	    67:   rts
+00:075E 60              	    68:   rts
+00:075F 60              	    69:   rts
+                        	    70: 
+                        	    71: foundsubdir
+                        	    72: 
+                        	    73:   ; Open subdirectory
+00:0760 20D9FF          	    74:   jsr fat32_opendirent	; open folder
+                        	    75: 
+00:0763 7A              	    76:   ply
+00:0764 FA              	    77:   plx 
+00:0765 68              	    78:   pla
+00:0766 60              	    79:   rts
+                        	    80: 
+                        	    81: 
+                        	    82: type:			; typing a filename
+00:0767 A2F7            	    83:   ldx #<typemsg		; Filename:_
+00:0769 A007            	    84:   ldy #>typemsg
+00:076B 20CDFF          	    85:   jsr w_acia_full
+00:076E A200            	    86:   ldx #0
+00:0770 A920            	    87:   lda #' '
+00:0772 8504            	    88:   sta $04		; I frogor
+00:0774 4CAB08          	    89:   jmp typeloop		; start loop
+                        	    90: 
+                        	    91: rxpol:
+00:0777 AD0180          	    92:   lda $8001
+00:077A 2908            	    93:   and #$08		; non-irq rx polling code
+00:077C F0F9            	    94:   beq rxpol
+00:077E 60              	    95:   rts
+                        	    96: 
+                        	    97: rxput:
+00:077F AD0180          	    98:   lda $8001
+00:0782 2908            	    99:   and #$08		; it loops
+00:0784 F001            	   100:   beq typelop
+00:0786 60              	   101:   rts
+                        	   102: typelop:
+00:0787 4CAB08          	   103:   jmp typeloop
+                        	   104: 
+                        	   105: lodmsg:
+00:078A 0D              	   106:   .byte $0d, $0a, "Loading...", $0d, $0a, $00
+00:078B 0A
+00:078C 4C6F6164696E672E
+00:0794 2E2E
+00:0796 0D
+00:0797 0A
+00:0798 00
+                        	   107: donemsg:
+00:0799 0C              	   108:   .byte $0c, $00
+00:079A 00
+                        	   109: 
+                        	   110: loadmsg:
+00:079B 2020202020202020	   111:   .byte "          -------- SD Loader --------     ", $0d, $0a, $00
+00:07A3 20202D2D2D2D2D2D
+00:07AB 2D2D205344204C6F
+00:07B3 61646572202D2D2D
+00:07BB 2D2D2D2D2D202020
+00:07C3 2020
+00:07C5 0D
+00:07C6 0A
+00:07C7 00
+                        	   112: lodmm:
+00:07C8 2020202020202020	   113:   .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
+00:07D0 2020507265737320
+00:07D8 286C2920746F206C
+00:07E0 697374203C464F4C
+00:07E8 4445523E20202020
+00:07F0 2020
+00:07F2 0D
+00:07F3 0A
+00:07F4 0D
+00:07F5 0A
+00:07F6 00
+                        	   114: 
+                        	   115: typemsg:
+00:07F7 5479706520746865	   116:   .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: "
+00:07FF 2066696C656E616D
+00:0807 6520696E20616C6C
+00:080F 20636170732E
+00:0815 0D
+00:0816 0A
+00:0817 5468652066696C65
+00:081F 6E616D6520697320
+00:0827 757020746F203820
+00:082F 6368617261637465
+00:0837 7273206C6F6E672E
+00:083F 0D
+00:0840 0A
+00:0841 2046696C656E616D
+00:0849 653A20
+00:084C 02
+00:084D 5F
+00:084E 00
+                        	   117: 
+                        	   118: loadbuf:
+00:084F 20              	   119:   .byte $20, $20, $20, $20, $20, $20, $20, $20
+00:0850 20
+00:0851 20
+00:0852 20
+00:0853 20
+00:0854 20
+00:0855 20
+00:0856 20
+00:0857 58504C          	   120:   .byte "XPL"
+                        	   121: 
+                        	   122: other:
+00:085A 20C4FF          	   123:   jsr txpoll		; Write a letter of the filename currently being read
+00:085D B148            	   124:   lda (zp_sd_address),y
+00:085F 8D0080          	   125:   sta $8000
+00:0862 C8              	   126:   iny
+00:0863 60              	   127:   rts
+                        	   128: 
+                        	   129: list:			; list file dir
+00:0864 20DCFF          	   130:   jsr fat32_readdirent	; files?
+00:0867 B036            	   131:   bcs nofiles
+00:0869 2940            	   132:   and #$40
+00:086B F005            	   133:   beq arc
+                        	   134: dir:
+00:086D A944            	   135:   lda #'D'		; directorys show up as 
+00:086F 4C7408          	   136:   jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
+                        	   137: arc:
+00:0872 A946            	   138:   lda #'F'		; files show up as
+                        	   139: ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
+00:0874 20C7FF          	   140:   jsr print_chara	; f or d
+00:0877 A920            	   141:   lda #$20		; space
+00:0879 20C7FF          	   142:   jsr print_chara
+                        	   143:   ; At this point, we know that there are no files, files, or a suddir
+                        	   144:   ; Now for the name
+00:087C A000            	   145:   ldy #0
+                        	   146: nameloop:
+00:087E C008            	   147:   cpy #8
+00:0880 F006            	   148:   beq dot
+00:0882 205A08          	   149:   jsr other
+00:0885 4C7E08          	   150:   jmp nameloop
+                        	   151: dot:
+00:0888 A92E            	   152:   lda #'.'		; shows a file extention
+00:088A 20C7FF          	   153:   jsr print_chara
+                        	   154: lopii:
+00:088D C00B            	   155:   cpy #11
+00:088F F006            	   156:   beq endthat		; print 3-letter file extention
+00:0891 205A08          	   157:   jsr other
+00:0894 4C8D08          	   158:   jmp lopii
+                        	   159: endthat:
+00:0897 A909            	   160:   lda #$09 ; Tab
+00:0899 20C7FF          	   161:   jsr print_chara	; tab
+00:089C 4C6408          	   162:   jmp list ; go again	; next file if there are any left
+                        	   163: nofiles:		; if not,
+                        	   164: endlist:		; exit listing code
+00:089F 20BBFF          	   165:   jsr crlf
+00:08A2 4C6707          	   166:   jmp type
+                        	   167: 
+                        	   168: jumptolist:
+00:08A5 20BBFF          	   169:   jsr crlf
+00:08A8 4C6408          	   170:   jmp list
+                        	   171: 
+                        	   172: typeloop:		; loop to type filenames
+                        	   173: 
+00:08AB 207707          	   174:   jsr rxpol		; read a charactor
+00:08AE AD0080          	   175:   lda $8000
+00:08B1 8D0007          	   176:   sta charbuffer
+                        	   177: 
+00:08B4 C90D            	   178:   cmp #$0d		; enter?
+00:08B6 F017            	   179:   beq exitloop		; if so, load
+                        	   180: 			; if not...
+00:08B8 AD0007          	   181:   lda charbuffer	
+00:08BB C96C            	   182:   cmp #'l'		; check if it's "l"
+00:08BD F0E6            	   183:   beq jumptolist	; if so, list files
+                        	   184: 			; if not,
+00:08BF AD0007          	   185:   lda charbuffer	; echo back
+00:08C2 8D0080          	   186:   sta $8000
+                        	   187: 
+00:08C5 AD0007          	   188:   lda charbuffer	; and store it in the filename buffer
+00:08C8 9D4F08          	   189:   sta loadbuf,x
+00:08CB E8              	   190:   inx
+00:08CC 4CAB08          	   191:   jmp typeloop
+                        	   192: 
+                        	   193: exitloop:
+                        	   194: 
+00:08CF 20BBFF          	   195:   jsr crlf
+00:08D2 204307          	   196:   jsr rootsetup
+                        	   197:   
+00:08D5 A008            	   198:   ldy #>loadbuf
+00:08D7 A24F            	   199:   ldx #<loadbuf
+00:08D9 20DFFF          	   200:   jsr fat32_finddirent
+00:08DC 9003            	   201:   bcc foundfile
+                        	   202:   
+                        	   203:   ; File not found
+00:08DE 4C5207          	   204:   jmp error
+                        	   205: 
+                        	   206: foundfile
+                        	   207:  
+                        	   208:   ; Open file
+00:08E1 20D9FF          	   209:   jsr fat32_opendirent
+                        	   210: 
+00:08E4 A28A            	   211:   ldx #<lodmsg
+00:08E6 A007            	   212:   ldy #>lodmsg
+00:08E8 20CDFF          	   213:   jsr w_acia_full
+                        	   214: 
+00:08EB A900            	   215:   lda #$00
+00:08ED 855D            	   216:   sta fat32_address
+00:08EF A90F            	   217:   lda #$0f
+00:08F1 855E            	   218:   sta fat32_address+1
+                        	   219: 
+00:08F3 20E5FF          	   220:   jsr fat32_file_read  ; Yes. It is finally time to read the file.
+                        	   221: 
+                        	   222: end:
+00:08F6 A299            	   223:   ldx #<donemsg
+00:08F8 A007            	   224:   ldy #>donemsg
+00:08FA 20CDFF          	   225:   jsr w_acia_full
+00:08FD 20000F          	   226:   jsr $0f00
+00:0900 60              	   227:   rts
+00:0901 60              	   228:   rts
+00:0902 60              	   229:   rts
+00:0903 60              	   230:   rts
+                        	   231: 
+                        	   232: ;clear_sid
+                        	   233: ;  ldx #$18
+                        	   234: ;csid
+                        	   235: ;  stz $b800,x
+                        	   236: ;  dex
+                        	   237: ;  bne csid
+                        	   238: ;  rts
+                        	   239: 
+                        	   240:   .include "errors.s"
+
+Source: "errors.s"
+                        	     1: error_sound:
+00:0904 A955            	     2:   lda #$55
+00:0906 8502            	     3:   sta donefact
+00:0908 6403            	     4:   stz irqcount	; reset irq count
+                        	     5: 
+                        	     6: runthesound:
+00:090A 78              	     7:   sei		; turn off irqs
+00:090B A928            	     8:   lda #<irq
+00:090D 8DFE7F          	     9:   sta $7ffe
+00:0910 A909            	    10:   lda #>irq
+00:0912 8DFF7F          	    11:   sta $7fff	; store vectors
+00:0915 A9C0            	    12:   lda #$c0
+00:0917 8D0EB0          	    13:   sta $b00e	
+00:091A A900            	    14:   lda #0 ; Song Number
+00:091C 204F09          	    15:   jsr InitSid
+00:091F A940            	    16:   lda #$40
+00:0921 8D0DB0          	    17:   sta $b00d
+00:0924 58              	    18:   cli
+00:0925 4C2F12          	    19:   jmp startupsoundloop
+                        	    20: 
+                        	    21: irq:
+00:0928 A940            	    22:   lda #$40
+00:092A 8D0DB0          	    23:   sta $b00d
+00:092D 203E09          	    24:   jsr putbut		; refresh timers
+00:0930 E603            	    25:   inc irqcount		; a irq has occurred
+00:0932 A503            	    26:   lda irqcount
+00:0934 C940            	    27:   cmp #$40		; if $32 irqs (end of the error sound)
+00:0936 D002            	    28:   bne continue24542 	; end the stream
+00:0938 6402            	    29:   stz donefact		; its done, tell the loop
+                        	    30: continue24542:
+00:093A 200610          	    31:   jsr $1006
+00:093D 40              	    32:   rti			; exit
+                        	    33: 
+                        	    34: putbut:
+00:093E A29E            	    35:   ldx #$9e
+00:0940 8E04B0          	    36:   stx $b004
+00:0943 8E06B0          	    37:   stx $b006
+00:0946 A20F            	    38:   ldx #$0f  ; 250Hz IRQ
+00:0948 8E05B0          	    39:   stx $b005
+00:094B 8E07B0          	    40:   stx $b007
+00:094E 60              	    41:   rts
+                        	    42: InitSid:
+00:094F 203E09          	    43:   jsr putbut
+00:0952 4C0311          	    44:   jmp $1103
+                        	    45: 
+                        	    46:   .org $1006
+                        	    47: 
+                        	    48:   .include "errorsound.s"
+
+Source: "errorsound.s"
+                        	     1: d400_sVoc1FreqLo = $b800
+                        	     2: d404_sVoc1Control = $b804
+                        	     3: d40b_sVoc2Control = $b80b
+                        	     4: d412_sVoc3Control = $b812
+                        	     5: 
+                        	     6:   .org $1006
+                        	     7: 
+01:1006 A218            	     8: PlaySid             ldx #$18
+01:1008 B504            	     9: L1008               lda $04,x
+01:100A 9D00B8          	    10:                     sta d400_sVoc1FreqLo,x
+01:100D CA              	    11:                     dex
+01:100E 10F8            	    12:                     bpl L1008
+01:1010 C602            	    13:                     dec $02
+01:1012 3001            	    14:                     bmi L1015
+01:1014 60              	    15:                     rts
+                        	    16:                     
+01:1015 8602            	    17: L1015               stx $02
+01:1017 A503            	    18:                     lda $03
+01:1019 D018            	    19:                     bne L1033
+01:101B 201F00          	    20:                     jsr $001f
+01:101E F018            	    21:                     beq L1038
+01:1020 C9A0            	    22:                     cmp #$a0
+01:1022 B00A            	    23:                     bcs L102e
+01:1024 852A            	    24:                     sta $2a
+01:1026 201F00          	    25:                     jsr $001f
+01:1029 8529            	    26:                     sta $29
+01:102B 4C7610          	    27:                     jmp L1076
+                        	    28:                     
+01:102E 38              	    29: L102e               sec
+01:102F E99F            	    30:                     sbc #$9f
+01:1031 8503            	    31:                     sta $03
+01:1033 C603            	    32: L1033               dec $03
+01:1035 4C7610          	    33:                     jmp L1076
+                        	    34:                     
+01:1038 201F00          	    35: L1038               jsr $001f
+01:103B C9FD            	    36:                     cmp #$fd
+01:103D F02C            	    37:                     beq L106b
+01:103F C9FE            	    38:                     cmp #$fe
+01:1041 F01D            	    39:                     beq L1060
+01:1043 C9FF            	    40:                     cmp #$ff
+01:1045 F003            	    41:                     beq L104a
+01:1047 8502            	    42:                     sta $02
+01:1049 60              	    43:                     rts
+                        	    44:                     
+01:104A A900            	    45: L104a               lda #$00
+01:104C 8D04B8          	    46:                     sta d404_sVoc1Control
+01:104F 8D0BB8          	    47:                     sta d40b_sVoc2Control
+01:1052 8D12B8          	    48:                     sta d412_sVoc3Control
+01:1055 A95E            	    49:                     lda #$5e
+01:1057 8526            	    50:                     sta $26
+01:1059 A910            	    51:                     lda #$10
+01:105B 8527            	    52:                     sta $27
+01:105D 60              	    53:                     rts
+                        	    54:                     
+01:105E FF              	    55:                       .byte $ff, $00 
+01:105F 00
+01:1060 A51D            	    56: L1060               lda $1d
+01:1062 8526            	    57:                     sta $26
+01:1064 A51E            	    58:                     lda $1e
+01:1066 8527            	    59:                     sta $27
+01:1068 4C1510          	    60:                     jmp L1015
+                        	    61:                     
+01:106B A526            	    62: L106b               lda $26
+01:106D 851D            	    63:                     sta $1d
+01:106F A527            	    64:                     lda $27
+01:1071 851E            	    65:                     sta $1e
+01:1073 4C1510          	    66:                     jmp L1015
+                        	    67:                     
+01:1076 20A110          	    68: L1076               jsr S10a1
+01:1079 A9F8            	    69:                     lda #$f8
+01:107B 18              	    70: L107b               clc
+01:107C 6907            	    71:                     adc #$07
+01:107E 48              	    72:                     pha
+01:107F AA              	    73:                     tax
+01:1080 201F00          	    74:                     jsr $001f
+01:1083 4A              	    75:                     lsr a
+01:1084 08              	    76:                     php
+01:1085 E8              	    77: L1085               inx
+01:1086 4A              	    78:                     lsr a
+01:1087 B00A            	    79:                     bcs L1093
+01:1089 D0FA            	    80:                     bne L1085
+01:108B 28              	    81:                     plp
+01:108C 68              	    82:                     pla
+01:108D B0EC            	    83:                     bcs L107b
+01:108F 20A110          	    84:                     jsr S10a1
+01:1092 60              	    85:                     rts
+                        	    86:                     
+01:1093 48              	    87: L1093               pha
+01:1094 BCFFFF          	    88:                     ldy $ffff,x
+01:1097 201F00          	    89:                     jsr $001f
+01:109A 990400          	    90:                     sta $0004,y
+01:109D 68              	    91:                     pla
+01:109E 4C8510          	    92:                     jmp L1085
+                        	    93:                     
+01:10A1 A426            	    94: S10a1               ldy $26
+01:10A3 A629            	    95:                     ldx $29
+01:10A5 8429            	    96:                     sty $29
+01:10A7 8626            	    97:                     stx $26
+01:10A9 A427            	    98:                     ldy $27
+01:10AB A62A            	    99:                     ldx $2a
+01:10AD 842A            	   100:                     sty $2a
+01:10AF 8627            	   101:                     stx $27
+01:10B1 60              	   102:                     rts
+                        	   103:                     
+01:10B2 8426            	   104: L10b2               sty $26
+01:10B4 8627            	   105:                     stx $27
+01:10B6 A206            	   106:                     ldx #$06
+01:10B8 BDC610          	   107: L10b8               lda $10c6,x
+01:10BB 951F            	   108:                     sta $1f,x
+01:10BD CA              	   109:                     dex
+01:10BE 10F8            	   110:                     bpl L10b8
+01:10C0 A960            	   111:                     lda #$60
+01:10C2 8528            	   112:                     sta $28
+01:10C4 D00A            	   113:                     bne L10d0
+01:10C6 E626            	   114:                     inc $26
+01:10C8 D002            	   115:                     bne L10cc
+01:10CA E627            	   116:                     inc $27
+01:10CC ADFFFF          	   117: L10cc               lda $ffff
+01:10CF 60              	   118:                     rts
+                        	   119:                     
+01:10D0 201F00          	   120: L10d0               jsr $001f
+01:10D3 8D04DC          	   121:                     sta $dc04
+01:10D6 201F00          	   122:                     jsr $001f
+01:10D9 8D05DC          	   123:                     sta $dc05
+01:10DC 201F00          	   124:                     jsr $001f
+01:10DF 8529            	   125:                     sta $29
+01:10E1 201F00          	   126:                     jsr $001f
+01:10E4 852A            	   127:                     sta $2a
+01:10E6 E626            	   128:                     inc $26
+01:10E8 D002            	   129:                     bne L10ec
+01:10EA E627            	   130:                     inc $27
+01:10EC A526            	   131: L10ec               lda $26
+01:10EE 8D9510          	   132:                     sta $1095
+01:10F1 A527            	   133:                     lda $27
+01:10F3 8D9610          	   134:                     sta $1096
+01:10F6 A21C            	   135:                     ldx #$1c
+01:10F8 A900            	   136:                     lda #$00
+01:10FA 9502            	   137: L10fa               sta $02,x
+01:10FC CA              	   138:                     dex
+01:10FD 10FB            	   139:                     bpl L10fa
+01:10FF 20A110          	   140:                     jsr S10a1
+01:1102 60              	   141:                     rts
+                        	   142:                     
+01:1103 A009            	   143: InitSid2            ldy #$09
+01:1105 A211            	   144:                     ldx #$11
+01:1107 4CB210          	   145:                     jmp L10b2
+                        	   146: 
+01:110A F00F77110100120D	   147:   .binary "errorsound.bin"
+01:1112 04050B1408090706
+01:111A 0C030E0F10111713
+01:1122 0A1516180200B600
+01:112A 6EB60116FF3E0320
+01:1132 F0410820FFF000FD
+01:113A 00000007FF0000FD
+01:1142 070000071E00000F
+01:114A FD06166E063E03FF
+01:1152 166E080008000863
+01:115A 0000004000FF3E03
+01:1162 20F04108209FF000
+01:116A FD0007BF0000FD07
+01:1172 00070E00000F112D
+01:117A 00FD114AA0114AA0
+01:1182 114AA0114AA0114A
+01:118A A0114AA0114AA011
+01:1192 4AA0114AA0114AA0
+01:119A 114AA0114AA0114A
+01:11A2 A0114AA0114AA011
+01:11AA 4AA0114AA0114AA0
+01:11B2 114AA0114AA0114A
+01:11BA A0114AA0114AA011
+01:11C2 4AA0114AA0114AA0
+01:11CA 114AA0114AA0114A
+01:11D2 A0114AA0114AA011
+01:11DA 4AA0114AA0114AA0
+01:11E2 114AA0114AA0114A
+01:11EA A0114AA0114AA011
+01:11F2 4AA0114AA0114AA0
+01:11FA 114AA0114AA0114A
+01:1202 A0114AA0114AA011
+01:120A 4AA0114AA0114AA0
+01:1212 114AA0114AA0114A
+01:121A A0114AA0114AA011
+01:1222 4AA0114AA0114AA0
+01:122A 114AA200FE
+                        	   148: ;          ^^^^^^^^^^^
+                        	   149: ; put your data file here.
+                        	   150: 
+                        	   151: 
+
+Source: "errors.s"
+                        	    49: 
+                        	    50: startupsoundloop:	
+01:122F A502            	    51:   lda donefact		; loop only if the sound is not done
+01:1231 D0FC            	    52:   bne startupsoundloop
+01:1233 9C0EB0          	    53:   stz $b00e		; if done disable irqs
+01:1236 9C0DB0          	    54:   stz $b00d
+01:1239 78              	    55:   sei
+01:123A A5C0            	    56:   lda $c0		; clear irq vectors
+01:123C 8DFF7F          	    57:   sta $7fff
+01:123F 9CFE7F          	    58:   stz $7ffe
+01:1242 204912          	    59:   jsr clear_sid
+01:1245 60              	    60:   rts
+01:1246 60              	    61:   rts
+01:1247 60              	    62:   rts
+01:1248 60              	    63:   rts
+                        	    64: 
+                        	    65: clear_sid
+01:1249 A217            	    66:   ldx #$17 ; 17 cuz no pop
+                        	    67: csid
+01:124B 9E00B8          	    68:   stz $b800,x
+01:124E CA              	    69:   dex
+01:124F D0FA            	    70:   bne csid
+01:1251 60              	    71:   rts
+                        	    72: 
+                        	    73: 
+
+Source: "sd_handeler.s"
+                        	   241: 
 
 
 Symbols by name:
-P1_PAD                           E:0039
-P1_PADDLE                        E:B819
-TEXT_LOC                         E:040F
-VDP_COLOR_TABLE_BASE             E:2000
-VDP_NAME_POINTER                 E:0032
-VDP_NAME_TABLE_BASE              E:0400
-VDP_PATTERN_INIT                 E:0030
-VDP_PATTERN_INIT_HI              E:0031
-VDP_PATTERN_TABLE_BASE           E:0800
-VDP_REG                          E:8801
-VDP_REGISTER_BITS                E:0080
-VDP_SPRITE_PATTERN_TABLE_BASE    E:0000
-VDP_SPR_ATT_TABLE_BASE           E:0700
-VDP_VRAM                         E:8800
-VDP_WRITE_VRAM_BIT               E:0040
-changecolor                      A:0FFE
-delay                            A:0FF5
-end_write                        A:1052
-fc                               E:0034
-holding                          A:0F1C
-nexf                             A:0FE1
-p1cp                             A:0F2C
-p1dex                            E:0035
-p2dex                            E:0037
-reset                            A:0F00
-text_vdp                         A:10B1
-vdp_ball                         A:10E2
-vdp_block                        A:10C2
-vdp_copysprites                  A:0F5C
-vdp_enable_display               A:10A4
-vdp_end_register_inits           A:10C2
-vdp_initialize_color_table       A:1087
-vdp_initialize_name_table        A:100F
-vdp_initialize_pattern_table     A:1055
-vdp_name_table_loop              A:1024
-vdp_pattern                      A:1200
-vdp_pattern_end                  A:1600
-vdp_pattern_table_loop           A:106B
-vdp_put_spr                      A:0F7F
-vdp_register_0                   A:10BA
-vdp_register_1                   A:10BB
-vdp_register_2                   A:10BC
-vdp_register_3                   A:10BD
-vdp_register_4                   A:10BE
-vdp_register_5                   A:10BF
-vdp_register_6                   A:10C0
-vdp_register_7                   A:10C1
-vdp_register_inits               A:10BA
-vdp_set_registers                A:0FBA
-vdp_setup                        A:0F43
-vdp_spr                          A:0F9D
-vdp_write_name_table             A:1036
-vdp_zapram                       A:0FD2
-vdpclp                           A:1097
-wait                             A:0FF0
-wopeee                           A:1078
-zapf                             A:0FE3
+DDRA                             E:B003
+DDRB                             E:B002
+InitSid                          A:094F
+InitSid2                         A:1103
+L1008                            A:1008
+L1015                            A:1015
+L102e                            A:102E
+L1033                            A:1033
+L1038                            A:1038
+L104a                            A:104A
+L1060                            A:1060
+L106b                            A:106B
+L1076                            A:1076
+L107b                            A:107B
+L1085                            A:1085
+L1093                            A:1093
+L10b2                            A:10B2
+L10b8                            A:10B8
+L10cc                            A:10CC
+L10d0                            A:10D0
+L10ec                            A:10EC
+L10fa                            A:10FA
+LCD_E                            E:0080
+LCD_RS                           E:0020
+LCD_RW                           E:0040
+PORTA_OUTPUTPINS                 E:00FC
+PlaySid                          A:1006
+S10a1                            A:10A1
+SD_CS                            E:0010
+SD_MOSI                          E:0004
+SD_SCK                           E:0008
+arc                              A:0872
+charbuffer                       E:0700
+clear_sid                        A:1249
+cleardisplay                     E:FFBE
+continue24542                    A:093A
+crlf                             E:FFBB
+csid                             A:124B
+d400_sVoc1FreqLo                 E:B800
+d404_sVoc1Control                E:B804
+d40b_sVoc2Control                E:B80B
+d412_sVoc3Control                E:B812
+dir                              A:086D
+dirname                          A:070F
+donefact                         E:0002
+donemsg                          A:0799
+dot                              A:0888
+ebut                             A:0874
+end                              A:08F6
+endlist                          A:089F
+endthat                          A:0897
+error                            A:0752
+error_sound                      A:0904
+errormsg                         A:071B
+exitloop                         A:08CF
+fat32_address                    E:005D
+fat32_bytesremaining             E:0063
+fat32_file_read                  E:FFE5
+fat32_finddirent                 E:FFDF
+fat32_opendirent                 E:FFD9
+fat32_openroot                   E:FFD6
+fat32_readdirent                 E:FFDC
+fat32_workspace                  E:0500
+findrau                          A:0740
+foundfile                        A:08E1
+foundsubdir                      A:0760
+irq                              A:0928
+irqcount                         E:0003
+jumptoit                         A:0701
+jumptolist                       A:08A5
+list                             A:0864
+loadbuf                          A:084F
+loadmsg                          A:079B
+lodmm                            A:07C8
+lodmsg                           A:078A
+lopii                            A:088D
+nameloop                         A:087E
+nofiles                          A:089F
+other                            A:085A
+print_chara                      E:FFC7
+putbut                           A:093E
+rootsetup                        A:0743
+runthesound                      A:090A
+rxpol                            A:0777
+rxput                            A:077F
+sdstart                          A:0726
+seed                             E:0001
+startupsoundloop                 A:122F
+txpoll                           E:FFC4
+type                             A:0767
+typeloop                         A:08AB
+typelop                          A:0787
+typemsg                          A:07F7
+via_init                         A:0704
+w_acia_full                      E:FFCD
+zp_fat32_variables               E:004F
+zp_sd_address                    E:0048
 
 Symbols by value:
-0000 VDP_SPRITE_PATTERN_TABLE_BASE
-0030 VDP_PATTERN_INIT
-0031 VDP_PATTERN_INIT_HI
-0032 VDP_NAME_POINTER
-0034 fc
-0035 p1dex
-0037 p2dex
-0039 P1_PAD
-0040 VDP_WRITE_VRAM_BIT
-0080 VDP_REGISTER_BITS
-0400 VDP_NAME_TABLE_BASE
-040F TEXT_LOC
-0700 VDP_SPR_ATT_TABLE_BASE
-0800 VDP_PATTERN_TABLE_BASE
-0F00 reset
-0F1C holding
-0F2C p1cp
-0F43 vdp_setup
-0F5C vdp_copysprites
-0F7F vdp_put_spr
-0F9D vdp_spr
-0FBA vdp_set_registers
-0FD2 vdp_zapram
-0FE1 nexf
-0FE3 zapf
-0FF0 wait
-0FF5 delay
-0FFE changecolor
-100F vdp_initialize_name_table
-1024 vdp_name_table_loop
-1036 vdp_write_name_table
-1052 end_write
-1055 vdp_initialize_pattern_table
-106B vdp_pattern_table_loop
-1078 wopeee
-1087 vdp_initialize_color_table
-1097 vdpclp
-10A4 vdp_enable_display
-10B1 text_vdp
-10BA vdp_register_0
-10BA vdp_register_inits
-10BB vdp_register_1
-10BC vdp_register_2
-10BD vdp_register_3
-10BE vdp_register_4
-10BF vdp_register_5
-10C0 vdp_register_6
-10C1 vdp_register_7
-10C2 vdp_block
-10C2 vdp_end_register_inits
-10E2 vdp_ball
-1200 vdp_pattern
-1600 vdp_pattern_end
-2000 VDP_COLOR_TABLE_BASE
-8800 VDP_VRAM
-8801 VDP_REG
-B819 P1_PADDLE
+0001 seed
+0002 donefact
+0003 irqcount
+0004 SD_MOSI
+0008 SD_SCK
+0010 SD_CS
+0020 LCD_RS
+0040 LCD_RW
+0048 zp_sd_address
+004F zp_fat32_variables
+005D fat32_address
+0063 fat32_bytesremaining
+0080 LCD_E
+00FC PORTA_OUTPUTPINS
+0500 fat32_workspace
+0700 charbuffer
+0701 jumptoit
+0704 via_init
+070F dirname
+071B errormsg
+0726 sdstart
+0740 findrau
+0743 rootsetup
+0752 error
+0760 foundsubdir
+0767 type
+0777 rxpol
+077F rxput
+0787 typelop
+078A lodmsg
+0799 donemsg
+079B loadmsg
+07C8 lodmm
+07F7 typemsg
+084F loadbuf
+085A other
+0864 list
+086D dir
+0872 arc
+0874 ebut
+087E nameloop
+0888 dot
+088D lopii
+0897 endthat
+089F endlist
+089F nofiles
+08A5 jumptolist
+08AB typeloop
+08CF exitloop
+08E1 foundfile
+08F6 end
+0904 error_sound
+090A runthesound
+0928 irq
+093A continue24542
+093E putbut
+094F InitSid
+1006 PlaySid
+1008 L1008
+1015 L1015
+102E L102e
+1033 L1033
+1038 L1038
+104A L104a
+1060 L1060
+106B L106b
+1076 L1076
+107B L107b
+1085 L1085
+1093 L1093
+10A1 S10a1
+10B2 L10b2
+10B8 L10b8
+10CC L10cc
+10D0 L10d0
+10EC L10ec
+10FA L10fa
+1103 InitSid2
+122F startupsoundloop
+1249 clear_sid
+124B csid
+B002 DDRB
+B003 DDRA
+B800 d400_sVoc1FreqLo
+B804 d404_sVoc1Control
+B80B d40b_sVoc2Control
+B812 d412_sVoc3Control
+FFBB crlf
+FFBE cleardisplay
+FFC4 txpoll
+FFC7 print_chara
+FFCD w_acia_full
+FFD6 fat32_openroot
+FFD9 fat32_opendirent
+FFDC fat32_readdirent
+FFDF fat32_finddirent
+FFE5 fat32_file_read

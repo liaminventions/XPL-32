@@ -3,25 +3,7 @@ scrollinc = $01
 sco = $02
 count = $03
 
-zp_sd_address = $40 ; 2
-zp_sd_currentsector = $42 ; 4
-zp_fat32_variables = $46 ; 24
-
-fat32_workspace = $200
-
-fat32_readbuffer = fat32_workspace
-
-fat32_fatstart          = zp_fat32_variables + $00  ; 4 bytes
-fat32_datastart         = zp_fat32_variables + $04  ; 4 bytes
-fat32_rootcluster       = zp_fat32_variables + $08  ; 4 bytes
-fat32_sectorspercluster = zp_fat32_variables + $0c  ; 1 byte
-fat32_pendingsectors    = zp_fat32_variables + $0d  ; 1 byte
-fat32_address           = zp_fat32_variables + $0e  ; 2 bytes
-fat32_nextcluster       = zp_fat32_variables + $10  ; 4 bytes
-fat32_bytesremaining    = zp_fat32_variables + $14  ; 4 bytes 
-
-fat32_errorstage        = fat32_bytesremaining  ; only used during initialization
-fat32_filenamepointer   = fat32_bytesremaining  ; only used when searching for a file
+  .include "kernal_def.s"
 
 buffer = $400
 endbuf = $600
@@ -73,5 +55,3 @@ reset:
 scrollmsg:
 
   .byte "6502 Power! I know that the graphics look simple, but under the hood, it is crazy. Just wait till you see the color video part a bit later...           A retro laptop with 4 expansion slots       just like PCI slots!", $00
-
-  .include "kernal_def.s"
