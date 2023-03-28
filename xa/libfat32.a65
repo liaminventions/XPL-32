@@ -606,22 +606,18 @@ fat32_allocatefile:
   jmp fail
 
 nofail:
-  tay
+  sta fat32_bytesremaining
 
   ; Divide by sectors per cluster (power of 2)
   lda fat32_sectorspercluster
   lsr
-  tax
 cl
-  tya ; pop a
-  lsr ; shift
-  tay ; stash a
-  txa
-  lsr ; shift x right
-  bcc cl ; is x 
+  lsr fat32_bytesremaining
+  lsr
+  bcc cl
   tya
 
-  ; Store cluster count - not a byte or sector count anymore.
+  ; Store final cluster count - not a byte or sector count anymore.
   sta fat32_bytesremaining
 
   ; We will be making a new cluster every time
