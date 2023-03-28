@@ -950,6 +950,8 @@ nf:
   sta fat32_bytesremaining+1
   ; Allocate all the clusters for this file
   jsr fat32_allocatefile
+  ; Refresh
+  jsr refreshpath
   ; Put the filename at fat32_filenamepointer
   lda savepoint
   sta fat32_filenamepointer

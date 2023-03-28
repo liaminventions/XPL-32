@@ -1,6 +1,6 @@
 [General]
 decode_signals=0
-meta_objs=2
+meta_objs=1
 views=1
 
 [0]
@@ -295,9 +295,11 @@ name=SD card (SPI mode)
 
 [meta_obj0]
 assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 2 75924013 9142502 75487301 28466175 63912882 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 2 75788067 90410863 25687512 55462885 52062473 0 0 0 6
 text=Saving...
 time=22 serialization::archive 19 0 0 0 0 2 17818867 22966289 56527137 99606384 20983183 0 0 0 6
-type=time_marker
+type=selection
 
 [meta_obj1]
 assoc_view=0
@@ -358,9 +360,9 @@ type=time_marker
 7\trace_height=36
 8\trace_height=36
 9\trace_height=36
-offset=22 serialization::archive 19 0 0 0 0 2 13471108 50644527 56555437 52620427 19499174 0 0 0 6
-scale=7.168604654934246e-05
+offset=22 serialization::archive 19 0 0 0 0 2 75516177 52947584 24786892 48758044 75153568 0 0 0 6
+scale=7.117549074156809e-06
 segment_display_mode=3
 splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\x3\xc9\x1\0\0\0\x1\x1\0\0\0\x1\0)
-v_offset=-24
+v_offset=102
 zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6
