@@ -1,85 +1,109 @@
-AAAE : 00 AA    : BRK #AA        : A=?? X=?? Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-60E8 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60EA : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60ED : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60EF : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F2 : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F5 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F7 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F8 : F0 01    : BEQ 60FB       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60FA : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60FB : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60FC : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FD : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FE : B0 E8    : BCS 60E8       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60E8 : 04 8D    : TSB 8D         : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60EA : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EC : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EF : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F2 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F4 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F5 : F0 01    : BEQ 60F8       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F7 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F8 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60F9 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FA : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FB : B0 E8    : BCS 60E5       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60E5 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60E7 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EA : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EC : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EF : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F2 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F4 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F5 : F0 01    : BEQ 60F8       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F7 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F8 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60F9 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FA : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FB : B0 E8    : BCS 60E5       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60E5 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60E7 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EA : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EC : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EF : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F2 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F4 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F5 : F0 01    : BEQ 60F8       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F7 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F8 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60F9 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FA : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FB : B0 E8    : BCS 60E5       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60E5 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60E7 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EA : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EC : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60EF : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F2 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F4 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F5 : F0 01    : BEQ 60F8       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-60F7 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
-60F8 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60F9 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FA : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60FB : B0 E8    : BCS 60E5       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
-60E5 : A2 D7    : LDX #D7        : A=?? X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
-60E7 : D2 D8    : CMP (D8)       : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60E9 : D0 F9    : BNE 60E4       : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=0 C=?
-60E4 : 14 8D    : TRB 8D         : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
-60E6 : 60       : RTS            : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+04A7 : 00 B0    : BRK #B0        : A=?? X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+018D : B0 0C    : BCS 019B       : A=?? X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A9 04    : LDA #04        : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0187 : 8D 01 B0 : STA B001       : A=04 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018A : A9 0C    : LDA #0C        : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018C : 8D 01 B0 : STA B001       : A=0C X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+018F : AD 01 B0 : LDA B001       : A=0E X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0192 : 29 02    : AND #02        : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0194 : 18       : CLC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0195 : F0 01    : BEQ 0198       : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+0197 : 38       : SEC            : A=02 X=?? Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+0198 : 8A       : TXA            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0199 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019A : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+019B : B0 E8    : BCS 0185       : A=?? X=?? Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=1
+0185 : A2 D7    : LDX #D7        : A=?? X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+0187 : D2 D8    : CMP (D8)       : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+0189 : D0 F9    : BNE 0184       : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=0 C=?
+0184 : 14 8D    : TRB 8D         : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
+0186 : 60       : RTS            : A=?? X=D7 Y=?? SP=?? N=? V=0 D=0 I=1 Z=? C=?
 DD99 : E6 4A    : INC 4A         : A=?? X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=?
 DD9B : D0 0A    : BNE DDA7       : A=?? X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=?
 DDA7 : 60       : RTS            : A=?? X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=?
 DD7A : 18       : CLC            : A=?? X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
 DD7B : 60       : RTS            : A=?? X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-writedirent done
-E562 : A5 1A    : LDA 1A         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-E564 : 85 5D    : STA 5D         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-E566 : A5 1B    : LDA 1B         : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-E568 : 85 5E    : STA 5E         : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-E56A : 20 CB DE : JSR DECB       : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-file_write:
+here:
+E56A : A5 1A    : LDA 1A         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+E56C : 85 5D    : STA 5D         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+E56E : A5 1B    : LDA 1B         : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+E570 : 85 5E    : STA 5E         : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+E572 : 20 CB DE : JSR DECB       : A=C0 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+fat32_file_write
 DECB : A5 78    : LDA 78         : A=0F X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
 DECD : 85 6B    : STA 6B         : A=0F X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
 DECF : A5 79    : LDA 79         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
@@ -88,89 +112,91 @@ DED3 : A5 7A    : LDA 7A         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
 DED5 : 85 6D    : STA 6D         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
 DED7 : A5 7B    : LDA 7B         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
 DED9 : 85 6E    : STA 6E         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEDB : A5 63    : LDA 63         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEDD : C9 01    : CMP #01        : A=00 X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DEDF : A5 64    : LDA 64         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEE1 : 69 00    : ADC #00        : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEE3 : 4A       : LSR A          : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEE4 : 69 00    : ADC #00        : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEE6 : F0 16    : BEQ DEFE       : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DEFE : 60       : RTS            : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-wait, no... we are'nt done. WHY ARE YOU SAYING "DONE!" ??!??!?
-E56D : A2 BF    : LDX #BF        : A=00 X=BF Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-E56F : A0 E6    : LDY #E6        : A=00 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-E571 : 20 47 DF : JSR DF47       : A=00 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF47 : 48       : PHA            : A=00 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF48 : A5 FF    : LDA FF         : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF4A : 48       : PHA            : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF4B : A5 FE    : LDA FE         : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF4D : 48       : PHA            : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF4E : 84 FF    : STY FF         : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF50 : 86 FE    : STX FE         : A=C0 X=BF Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-DF52 : A0 00    : LDY #00        : A=C0 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF54 : 20 2E DF : JSR DF2E       : A=C0 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=10 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF31 : 29 10    : AND #10        : A=10 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=10 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF35 : 60       : RTS            : A=10 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF57 : B1 FE    : LDA (FE),Y     : A=44 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF59 : 8D 00 80 : STA 8000       : A=44 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5C : F0 04    : BEQ DF62       : A=44 X=BF Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5E : C8       : INY            : A=44 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5F : 4C 54 DF : JMP DF54       : A=44 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF54 : 20 2E DF : JSR DF2E       : A=44 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF2E : AD 01 80 : LDA 8001       : A=10 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF31 : 29 10    : AND #10        : A=10 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=10 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF35 : 60       : RTS            : A=10 X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF57 : B1 FE    : LDA (FE),Y     : A=6F X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF59 : 8D 00 80 : STA 8000       : A=6F X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5C : F0 04    : BEQ DF62       : A=6F X=BF Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5E : C8       : INY            : A=6F X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF5F : 4C 54 DF : JMP DF54       : A=6F X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF54 : 20 2E DF : JSR DF2E       : A=6F X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF2E : AD 01 80 : LDA 8001       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF31 : 29 10    : AND #10        : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-DF33 : F0 F9    : BEQ DF2E       : A=00 X=BF Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+DEDB : A5 63    : LDA 63         : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+DEDD : C9 01    : CMP #01        : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DEDF : A5 64    : LDA 64         : A=3F X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DEE1 : 69 00    : ADC #00        : A=40 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEE3 : 4A       : LSR A          : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEE4 : 69 00    : ADC #00        : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEE6 : F0 16    : BEQ DEFE       : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEE8 : 85 63    : STA 63         : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEEA : 64 5C    : STZ 5C         : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DEEC : 20 30 DB : JSR DB30       : A=20 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
+DB30 : A5 5C    : LDA 5C         : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+DB32 : D0 07    : BNE DB3B       : A=00 X=D7 Y=?? SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+DB34 : A5 62    : LDA 62         : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+DB36 : 30 20    : BMI DB58       : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
+DB58 : 38       : SEC            : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DB59 : 60       : RTS            : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DEEF : B0 0D    : BCS DEFE       : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DEFE : 60       : RTS            : A=FF X=D7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+E575 : A2 C7    : LDX #C7        : A=FF X=C7 Y=?? SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+E577 : A0 E6    : LDY #E6        : A=FF X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+E579 : 20 47 DF : JSR DF47       : A=FF X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF47 : 48       : PHA            : A=FF X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF48 : A5 FF    : LDA FF         : A=FF X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF4A : 48       : PHA            : A=FF X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF4B : A5 FE    : LDA FE         : A=C0 X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF4D : 48       : PHA            : A=C0 X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF4E : 84 FF    : STY FF         : A=C0 X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF50 : 86 FE    : STX FE         : A=C0 X=C7 Y=E6 SP=?? N=1 V=0 D=0 I=1 Z=0 C=1
+DF52 : A0 00    : LDY #00        : A=C0 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF54 : 20 2E DF : JSR DF2E       : A=C0 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=10 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF31 : 29 10    : AND #10        : A=10 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=10 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF35 : 60       : RTS            : A=10 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF57 : B1 FE    : LDA (FE),Y     : A=44 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF59 : 8D 00 80 : STA 8000       : A=44 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5C : F0 04    : BEQ DF62       : A=44 X=C7 Y=00 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5E : C8       : INY            : A=44 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5F : 4C 54 DF : JMP DF54       : A=44 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF54 : 20 2E DF : JSR DF2E       : A=44 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF2E : AD 01 80 : LDA 8001       : A=10 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF31 : 29 10    : AND #10        : A=10 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=10 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF35 : 60       : RTS            : A=10 X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF57 : B1 FE    : LDA (FE),Y     : A=6F X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF59 : 8D 00 80 : STA 8000       : A=6F X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5C : F0 04    : BEQ DF62       : A=6F X=C7 Y=01 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5E : C8       : INY            : A=6F X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF5F : 4C 54 DF : JMP DF54       : A=6F X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF54 : 20 2E DF : JSR DF2E       : A=6F X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=0 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF33 : F0 F9    : BEQ DF2E       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF2E : AD 01 80 : LDA 8001       : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1
+DF31 : 29 10    : AND #10        : A=00 X=C7 Y=02 SP=?? N=0 V=0 D=0 I=1 Z=1 C=1

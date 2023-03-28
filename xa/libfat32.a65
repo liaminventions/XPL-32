@@ -958,6 +958,24 @@ notoverbuffer
   sta (zp_sd_address),y
   ;jsr fat32_writenextsector ; write all the data...
   jsr fat32_wrcurrent
+
+  ; Great, lets get this ready for other code to read in.
+  ; Seek to first cluster
+  lda fat32_filecluster
+  sta fat32_nextcluster
+  lda fat32_filecluster+1
+  sta fat32_nextcluster+1
+  lda fat32_filecluster+2
+  sta fat32_nextcluster+2
+  lda fat32_filecluster+3
+  sta fat32_nextcluster+3
+
+  jsr fat32_seekcluster
+
+  ; Set the pointer to a large value so we always read a sector the first time through
+  lda #$ff
+  sta zp_sd_address+1
+
   clc
   rts
 
