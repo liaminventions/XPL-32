@@ -940,18 +940,15 @@ nf:
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
-  ; Calculate file size (end-start+1)
+  ; Calculate file size (end-start)
   sec
   lda stackaccess
   sbc savestart
   sta fat32_bytesremaining 
+  pha
   lda stackaccess+1
   sbc savestart+1
   sta fat32_bytesremaining+1
-  pha
-  lda fat32_bytesremaining
-  adc #1
-  sta fat32_bytesremaining
   pha
   ; Allocate all the clusters for this file
   jsr fat32_allocatefile
@@ -963,9 +960,9 @@ nf:
   lda savepoint+1
   sta fat32_filenamepointer+1 
   pla
-  sta fat32_bytesremaining
-  pla
   sta fat32_bytesremaining+1
+  pla
+  sta fat32_bytesremaining
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...

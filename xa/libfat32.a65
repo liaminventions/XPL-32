@@ -23,6 +23,7 @@ fat32_lastsector		= zp_fat32_variables + $21  ; 4 bytes
 fat32_filenamepointer       	= zp_fat32_variables + $26  ; 2 bytes
 fat32_numfats			= zp_fat32_variables + $28  ; 1 byte
 fat32_filecluster		= zp_fat32_variables + $29  ; 4 bytes
+fat32_sectorsperfat		= zp_fat32_variables + $2d  ; 4 bytes
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 fat32_fatindex              = fat32_filenamepointer ; only used during fat32_writenextsector
@@ -187,6 +188,16 @@ skipfatsloop:
   sta fat32_rootcluster+2
   lda fat32_readbuffer+47
   sta fat32_rootcluster+3
+
+  ; Save Sectors Per FAT
+  lda fat32_readbuffer+36
+  sta fat32_sectorsperfat
+  lda fat32_readbuffer+37
+  sta fat32_sectorsperfat+1
+  lda fat32_readbuffer+38
+  sta fat32_sectorsperfat+2
+  lda fat32_readbuffer+39 
+  sta fat32_sectorsperfat+3
 
   ; Set the last found free cluster to 0.
   lda #0
@@ -513,6 +524,26 @@ fat32_updatefat:
   ; Write the FAT sector
   jsr sd_writesector
 
+  ; Check if FAT mirroring is enabled
+  lda fat32_numfats
+  cmp #2
+  bne onefat
+
+  ; Ass the last sector to the amount of sectors per FAT
+  ; (to get the second fat location)
+  lda fat32_lastsector
+  adc fat32_sectorsperfat
+  lda fat32_lastsector+1
+  adc fat32_sectorsperfat+1
+  lda fat32_lastsector+2
+  adc fat32_sectorsperfat+2
+  lda fat32_lastsector+3
+  adc fat32_sectorsperfat+3
+
+  ; Write the FAT sector
+  jsr sd_writesector
+
+onefat:
   ; Pull back the current sector
   pla
   sta zp_sd_currentsector+3
