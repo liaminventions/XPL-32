@@ -602,14 +602,24 @@ fat32_allocatefile:
   adc #0                      ; round up
 
   ; No data?
-  beq fail
+  bne nofail
+  jmp fail
+
+nofail:
+  tay
 
   ; Divide by sectors per cluster (power of 2)
-  ldx fat32_sectorspercluster
-divlp:
+  lda fat32_sectorspercluster
   lsr
-  dex
-  bne divlp
+  tax
+cl
+  tya ; pop a
+  lsr ; shift
+  tay ; stash a
+  txa
+  lsr ; shift x right
+  bcc cl ; is x 
+  tya
 
   ; Store cluster count - not a byte or sector count anymore.
   sta fat32_bytesremaining
@@ -624,6 +634,7 @@ allocatelp
 
   ; Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
+  beq lastcluster
   cmp #1		 ; CHECK! is 1 the right amound for this?
   bcc notlastcluster	 ; clustersremaining <=1?
 
