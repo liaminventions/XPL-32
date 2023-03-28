@@ -1,6 +1,6 @@
 [General]
 decode_signals=0
-meta_objs=1
+meta_objs=2
 views=1
 
 [0]
@@ -298,16 +298,16 @@ assoc_view=0
 end_time=22 serialization::archive 19 0 0 0 0 2 67438824 91311221 52926979 3512553 72687742 0 0 0 6
 start_time=22 serialization::archive 19 0 0 0 0 2 66652159 99999998 25314489 49885088 95039558 0 0 0 6
 text=Saving...
-time=22 serialization::archive 19 0 0 0 0 2 27026640 7076786 48118467 23513757 98467973 0 0 0 6
-type=selection
+time=22 serialization::archive 19 0 0 0 0 2 14364970 55440611 80980736 81828286 13373641 0 0 0 6
+type=time_marker
 
 [meta_obj1]
 assoc_view=0
-end_time=22 serialization::archive 19 0 0 0 0 1 6311246 22946992 12034824 76827478 59081789 0 0 0 6
-start_time=22 serialization::archive 19 0 0 0 0 1 6139840 0 75138473 22115907 44554996 0 0 0 6
+end_time=22 serialization::archive 19 0 0 0 0 2 52777121 86398625 87866033 89273148 91516559 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 2 52678309 91015738 38377792 10159022 60587879 0 0 0 6
 text=ROM data
 time=22 serialization::archive 19 0 0 0 0 4 89341858 89016798 83007991 37854971 15604102 0 0 0 6
-type=time_marker
+type=selection
 
 [meta_obj2]
 assoc_view=0
@@ -376,9 +376,9 @@ type=selection
 7\trace_height=36
 8\trace_height=36
 9\trace_height=36
-offset=22 serialization::archive 19 0 0 0 0 2 60261201 55274902 35858524 5338037 47556672 0 0 0 6
-scale=0.00012526393299063163
+offset=22 serialization::archive 19 0 0 0 0 2 52480686 249963 38967627 65031349 80994489 0 0 0 6
+scale=5.173400724024867e-06
 segment_display_mode=3
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\x3\xd3\x1\0\0\0\x1\x1\0\0\0\x1\0)
-v_offset=7
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\x3\xc9\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=200
 zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6
