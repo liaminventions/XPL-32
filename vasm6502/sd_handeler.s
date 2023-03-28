@@ -3,12 +3,12 @@
 ; !WARNING! - this is kind of deprecated, please use xplDOS instead.
 ; for now this is a code.xpl autoloader example (load command)
 
-charbuffer = $700            ; 1 byte
+charbuffer = $705            ; 1 byte
 seed = $01
 donefact = $02		     ; vars
 irqcount = $03
 
-  .org $0701
+  .org $0706
 jumptoit:
   jmp sdstart
 
