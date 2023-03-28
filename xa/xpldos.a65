@@ -936,7 +936,7 @@ yes
   ; delete it to clean the FAT
   jsr fat32_deletefile
 nf:
-  jsr refreshpath
+  ;jsr refreshpath
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
