@@ -1,0 +1,242 @@
+[General]
+decode_signals=1
+meta_objs=9
+views=1
+
+[0]
+color=4279638298
+conv_options=0
+conversion_type=0
+enabled=true
+name=0
+
+[1]
+color=4287582722
+conv_options=0
+conversion_type=0
+enabled=true
+name=1
+
+[10]
+color=4279638298
+conv_options=0
+conversion_type=0
+enabled=true
+name=10
+
+[11]
+color=4287582722
+conv_options=0
+conversion_type=0
+enabled=true
+name=11
+
+[12]
+color=4291559424
+conv_options=0
+conversion_type=0
+enabled=true
+name=12
+
+[13]
+color=4294277376
+conv_options=0
+conversion_type=0
+enabled=true
+name=13
+
+[14]
+color=4293776384
+conv_options=0
+conversion_type=0
+enabled=true
+name=14
+
+[15]
+color=4285780502
+conv_options=0
+conversion_type=0
+enabled=true
+name=15
+
+[2]
+color=4291559424
+conv_options=0
+conversion_type=0
+enabled=true
+name=2
+
+[3]
+color=4294277376
+conv_options=0
+conversion_type=0
+enabled=true
+name=3
+
+[4]
+color=4293776384
+conv_options=0
+conversion_type=0
+enabled=true
+name=4
+
+[5]
+color=4285780502
+conv_options=0
+conversion_type=0
+enabled=true
+name=5
+
+[6]
+color=4281623972
+conv_options=0
+conversion_type=0
+enabled=true
+name=6
+
+[7]
+color=4285878395
+conv_options=0
+conversion_type=0
+enabled=true
+name=7
+
+[8]
+color=4287138437
+conv_options=0
+conversion_type=0
+enabled=true
+name=8
+
+[9]
+color=4293848812
+conv_options=0
+conversion_type=0
+enabled=true
+name=9
+
+[decode_signal0]
+channel0\assigned_signal_name=12
+channel0\initial_pin_state=2
+channel0\name=CLK
+channel1\assigned_signal_name=15
+channel1\initial_pin_state=2
+channel1\name=MISO
+channel2\assigned_signal_name=10
+channel2\initial_pin_state=2
+channel2\name=MOSI
+channel3\assigned_signal_name=13
+channel3\initial_pin_state=2
+channel3\name=CS#
+channels=4
+color=4281510450
+conv_options=0
+conversion_type=0
+decoder0\ann_class0\visible=true
+decoder0\ann_class1\visible=true
+decoder0\ann_class2\visible=true
+decoder0\ann_class3\visible=true
+decoder0\ann_class4\visible=true
+decoder0\ann_class5\visible=true
+decoder0\ann_class6\visible=true
+decoder0\id=spi
+decoder0\options=0
+decoder0\row0\visible=true
+decoder0\row1\visible=true
+decoder0\row2\visible=true
+decoder0\row3\visible=true
+decoder0\row4\visible=true
+decoder0\row5\visible=true
+decoder0\row6\visible=true
+decoder0\visible=true
+decoders=1
+enabled=true
+name=SD card (SPI mode)
+
+[meta_obj0]
+assoc_view=0
+text=This block loads in the FAT in refreshpath
+time=22 serialization::archive 19 0 0 0 0 1 7997919 99999999 17025661 48887854 6947135 0 0 0 6
+type=time_marker
+
+[meta_obj1]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 1 6311246 22946992 12034824 76827478 59081789 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 1 6139840 0 75138473 22115907 44554996 0 0 0 6
+text=WHAT ARE THOSE???
+time=22 serialization::archive 19 0 0 0 0 1 13620693 91423515 1367581 40806480 3690682 0 0 0 6
+type=time_marker
+
+[meta_obj2]
+assoc_view=0
+text="Anyway, This is reading in the dirent table"
+time=22 serialization::archive 19 0 0 0 0 1 26043417 18010570 60360702 46416895 14147337 0 0 0 6
+type=time_marker
+
+[meta_obj3]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 1 21066349 99999998 92509094 93421204 38814163 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 1 21007451 81736090 89115233 70398408 42643335 0 0 0 6
+text=still not sure what those are...
+time=22 serialization::archive 19 0 0 0 0 2 17311115 37248248 18548796 14688814 5005511 0 0 0 6
+type=time_marker
+
+[meta_obj4]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 2 9912799 99999998 82874135 43730508 53610038 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 2 9745120 0 71099748 31109866 49990081 0 0 0 6
+text=Saving...
+time=22 serialization::archive 19 0 0 0 0 2 24865438 98749907 90156281 29447468 92940881 0 0 0 6
+type=time_marker
+
+[meta_obj5]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 2 25167386 77965363 2755946 40423833 14679615 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 2 24703667 20946581 15035722 37044181 92371964 0 0 0 6
+text=this scans for an empty cluster... can be sped up with a free FAT hint.
+time=22 serialization::archive 19 0 0 0 0 2 40671190 13396774 92983115 8919296 82089850 0 0 0 6
+type=time_marker
+
+[meta_obj6]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 2 55312375 27695619 52784914 44174797 71312924 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 2 55186532 42810452 81421630 19229606 89502202 0 0 0 6
+text="Good, I think... the pojnter (0x0000006A) probably is pointing to the next sector"
+time=22 serialization::archive 19 0 0 0 0 2 63512497 64569489 25019230 51180498 73016276 0 0 0 6
+type=time_marker
+
+[meta_obj7]
+assoc_view=0
+text=FAILED!
+time=22 serialization::archive 19 0 0 0 0 4 47271353 73450571 6041411 51189658 49190411 0 0 0 6
+type=time_marker
+
+[meta_obj8]
+assoc_view=0
+end_time=22 serialization::archive 19 0 0 0 0 4 47253051 73304248 57205442 30621091 10489679 0 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 4 47223681 59506320 81256121 71273492 25322383 0 0 0 6
+type=selection
+
+[view0]
+0\trace_height=36
+1\trace_height=36
+10\trace_height=36
+11\trace_height=36
+12\trace_height=36
+13\trace_height=36
+14\trace_height=36
+15\trace_height=36
+2\trace_height=36
+3\trace_height=36
+4\trace_height=36
+5\trace_height=36
+6\trace_height=36
+7\trace_height=36
+8\trace_height=36
+9\trace_height=36
+offset=22 serialization::archive 19 0 0 0 0 4 47164941 31910465 29249060 30853439 50553785 0 0 0 6
+scale=1.6612068992804073e-06
+segment_display_mode=3
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x95\0\0\x2\x33\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=188
+zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6

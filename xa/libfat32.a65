@@ -620,7 +620,7 @@ divlp:
   ; Find free clusters and allocate them for use for this file.
 allocatelp
   ; We first need to find a free cluster.
-  jsr fat32_findnextfreecluster
+  ;jsr fat32_findnextfreecluster
 
   ; Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
