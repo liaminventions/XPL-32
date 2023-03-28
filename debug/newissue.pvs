@@ -1,6 +1,6 @@
 [General]
-decode_signals=1
-meta_objs=8
+decode_signals=0
+meta_objs=0
 views=1
 
 [0]
@@ -358,9 +358,9 @@ type=time_marker
 7\trace_height=36
 8\trace_height=36
 9\trace_height=36
-offset=22 serialization::archive 19 0 0 0 0 4 45717572 9350419 68825035 85779696 53004089 0 0 0 6
-scale=3.535454926961771e-05
-segment_display_mode=3
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x95\0\0\x2\x33\x1\0\0\0\x1\x1\0\0\0\x1\0)
-v_offset=188
+offset=22 serialization::archive 19 0 0 0 0 1 40546828 59733816 64666348 45619410 4320278 0 1 0 6
+scale=0.011151384102339817
+segment_display_mode=1
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\x3\xd3\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=-24
 zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6
