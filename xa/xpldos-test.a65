@@ -907,34 +907,37 @@ savekernal:
 sg:
 .(
   ; now lets begin 
+;  ; First, allocate a free cluster
+;  jsr fat32_allocatecluster
   ; Refresh PATH
-  jsr refreshpath
+;  jsr refreshpath
   ; Open the filename
-  ldx savepoint
-  ldy savepoint+1
+;  ldx savepoint
+;  ldy savepoint+1
   ; Check if the file exists
-  jsr fat32_finddirent
-  bcc fileexists
-  jmp nf
-fileexists:
+;  jsr fat32_finddirent
+;  bcc fileexists
+;  jmp nf
+;fileexists:
   ; If so, ask the user if they would like to overwrite the file.
-  ldx #<femsg
-  ldy #>femsg
-  jsr w_acia_full
-  jsr rxpoll
-  lda $8000
-  cmp #'y'  ; response = 'y'?
-  beq yes
-  jsr crlf  ; no, cancel save
-  plx
-  rts
+;  ldx #<femsg
+;  ldy #>femsg
+;  jsr w_acia_full
+;  jsr rxpoll
+;  lda $8000
+;  cmp #'y'  ; response = 'y'?
+;  beq yes
+;  jsr crlf  ; no, cancel save
+;  plx
+;  rts
 yes
   ; we would like to overwrite the file.
-  jsr crlf
+;  jsr crlf
   ; delete it to clean the FAT
-  jsr fat32_deletefile
-  jsr refreshpath
+;  jsr fat32_deletefile
+;  jsr refreshpath
 nf:
+  ;jsr refreshpath
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
