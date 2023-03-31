@@ -611,6 +611,7 @@ fat32_allocatefile:
   ; file's size in fat32_bytesremaining
 
   ; BUG if we have a FAT enty at the end of a sector, it may be ignored! 
+
   ; Allocate the first cluster.
   jsr fat32_allocatecluster
 
