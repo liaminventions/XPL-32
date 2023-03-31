@@ -611,6 +611,9 @@ fat32_allocatefile:
   ; file's size in fat32_bytesremaining
 
   ; BUG if we have a FAT enty at the end of a sector, it may be ignored! 
+  ; Allocate the first cluster.
+  jsr fat32_allocatecluster
+
 
   ; We don't properly support 64k+ files, as it's unnecessary complication given
   ; the 6502's small address space. So we'll just empty out the top two bytes.
@@ -623,9 +626,6 @@ fat32_allocatefile:
   pha
   lda fat32_bytesremaining+1
   pha
-
-  ; Allocate the first cluster.
-  jsr fat32_allocatecluster
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining
