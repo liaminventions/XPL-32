@@ -203,11 +203,15 @@ skipfatsloop:
   sta fat32_lastfoundfreecluster+2
   sta fat32_lastfoundfreecluster+3
 
-  ; As well as the last read cluster
+  ; As well as the last read clusters and sectors
   sta fat32_lastcluster
   sta fat32_lastcluster+1
   sta fat32_lastcluster+2
   sta fat32_lastcluster+3
+  sta fat32_lastsector
+  sta fat32_lastsector+1
+  sta fat32_lastsector+2
+  sta fat32_lastsector+3
 
   clc
   rts
@@ -530,12 +534,16 @@ fat32_updatefat:
   ; (to get the second fat location)
   lda fat32_lastsector
   adc fat32_sectorsperfat
+  sta zp_sd_currentsector
   lda fat32_lastsector+1
   adc fat32_sectorsperfat+1
+  sta zp_sd_currentsector+1
   lda fat32_lastsector+2
   adc fat32_sectorsperfat+2
+  sta zp_sd_currentsector+2
   lda fat32_lastsector+3
   adc fat32_sectorsperfat+3
+  sta zp_sd_currentsector+3
 
   ; Write the FAT sector
   jsr sd_writesector
