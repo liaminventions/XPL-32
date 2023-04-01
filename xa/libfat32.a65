@@ -619,10 +619,10 @@ fat32_allocatefile:
   ; file's size in fat32_bytesremaining
 
   ; We will read a new sector the first time around
-  sta fat32_lastsector
-  sta fat32_lastsector+1
-  sta fat32_lastsector+2
-  sta fat32_lastsector+3
+  stz fat32_lastsector
+  stz fat32_lastsector+1
+  stz fat32_lastsector+2
+  stz fat32_lastsector+3
 
   ; BUG if we have a FAT enty at the end of a sector, it may be ignored! 
 
