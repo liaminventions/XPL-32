@@ -224,6 +224,8 @@ error:
 fat32_seekcluster:
 .(
   ; Gets ready to read fat32_nextcluster, and advances it according to the FAT
+  ; Before calling, set carry to compare the current FAT sector with lastsector.
+  ; Otherwize, clear carry to force reading the FAT.
 
   php
 
@@ -538,7 +540,7 @@ fat32_updatefat:
   cmp #2
   bne onefat
 
-  ; Ass the last sector to the amount of sectors per FAT
+  ; Add the last sector to the amount of sectors per FAT
   ; (to get the second fat location)
   lda fat32_lastsector
   adc fat32_sectorsperfat
@@ -680,9 +682,6 @@ cl
 
   ; Find free clusters and allocate them for use for this file.
 allocatelp
-  ; We first need to find a free cluster.
-  ;jsr fat32_findnextfreecluster
-
   ; Check if it's the last cluster in the chain 
   lda fat32_bytesremaining
   beq lastcluster
@@ -724,7 +723,7 @@ lastcluster
   jmp fail
 
 notlastcluster
-  ; Wait! Is there exactly 1 cluster left? CHECK
+  ; Wait! Is there exactly 1 cluster left?
   beq lastcluster
 
   ; Find the next cluster
