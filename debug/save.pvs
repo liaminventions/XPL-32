@@ -1,5 +1,5 @@
 [General]
-decode_signals=1
+decode_signals=0
 meta_objs=0
 views=1
 
@@ -310,9 +310,9 @@ name=SD card (SPI mode)
 7\trace_height=36
 8\trace_height=36
 9\trace_height=36
-offset=22 serialization::archive 19 0 0 0 0 16306518 32024220 41066094 51715829 27125291 0 -8 1 0 6
-scale=0.0016752859885694755
+offset=22 serialization::archive 19 0 0 0 0 2 65756572 28517092 69156095 23888406 32878928 0 1 0 6
+scale=0.005678812892344557
 segment_display_mode=1
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x95\0\0\x5\xa1\x1\0\0\0\x1\x1\0\0\0\x1\0)
-v_offset=208
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\a7\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=-31
 zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6
