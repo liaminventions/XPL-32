@@ -264,7 +264,7 @@ fat32_seekcluster:
 
   ; Branch if we don't need to check
   lda fat32_enablechecking
-  bne newsector
+  beq newsector
 
   ; Check if this sector is the same as the last one
   lda fat32_lastsector
@@ -1248,27 +1248,14 @@ chainloop
   lda fat32_nextcluster+3
   bmi endofchain
 
-  ; No, store this cluster so we can go to the next one
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+3
-  dey
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+2
-  dey
-  lda (zp_sd_address),y
-  sta fat32_nextcluster+1
-  dey
-  lda (zp_sd_address),y
-  sta fat32_nextcluster
-
   ; Zero it out
   lda #0
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
-  iny
+  dey
   sta (zp_sd_address),y
 
   ; Write the FAT
