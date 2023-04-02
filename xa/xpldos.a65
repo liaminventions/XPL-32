@@ -1086,6 +1086,7 @@ stlp
   bne stlp
   ; Now, mark it as a deleted file
   jsr fat32_markdeleted
+  jsr refreshpath
   ; Find the directory
   lda backdir
   beq nono ;TODO CHECK
