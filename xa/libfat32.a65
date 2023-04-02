@@ -906,6 +906,12 @@ fat32_writedirent:
   ; requires:
   ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
 
+  ; Copy filesize to bytesremaining to make sure that we know the file's size in other routines.
+  lda fat32_filesize
+  sta fat32_bytesremaining 
+  lda fat32_filesize+1
+  sta fat32_bytesremaining+1
+
   ; Increment pointer by 32 to point to next entry
   clc
   lda zp_sd_address
