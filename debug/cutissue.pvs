@@ -295,8 +295,8 @@ name=SD card (SPI mode)
 
 [meta_obj0]
 assoc_view=0
-end_time=22 serialization::archive 19 0 0 0 0 2 36261489 9921143 26239026 91078921 67240435 0 0 0 6
-start_time=22 serialization::archive 19 0 0 0 0 2 36125864 53733682 70265080 30373531 29339691 0 0 0 6
+end_time=22 serialization::archive 19 0 0 0 0 9655416 4005676 43092570 40495042 60546476 50561117 -8 0 0 6
+start_time=22 serialization::archive 19 0 0 0 0 9494688 10517018 65160516 53840024 88644276 50561117 -8 0 0 6
 text=whar?
 time=22 serialization::archive 19 0 0 0 0 93406452 77887344 25563492 87593038 72294571 0 -8 0 0 6
 type=selection
@@ -324,9 +324,9 @@ type=selection
 7\trace_height=36
 8\trace_height=36
 9\trace_height=36
-offset=22 serialization::archive 19 0 0 0 0 2 35854615 41358761 58317187 8962750 53538203 0 0 0 6
-scale=3.6995243282762027e-06
+offset=22 serialization::archive 19 0 0 0 0 9173232 23539703 7561685 32932308 73895758 50561117 -8 0 0 6
+scale=8.41507512495172e-06
 segment_display_mode=3
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\x3\t\x1\0\0\0\x1\x1\0\0\0\x1\0)
-v_offset=-31
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x44\0\0\a7\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=0
 zero_offset=22 serialization::archive 19 0 0 0 0 0 0 0 0 0 0 0 0 0 6

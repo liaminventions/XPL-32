@@ -1,380 +1,517 @@
-???? : 22 2A    : NOP #2A        : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-???? : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-???? : B0 B0    : BCS pc-80      : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-???? : 60       : RTS            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-018E : 04 A9    : TSB A9         : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-0190 : B0 0C    : BCS 019E       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-019E : 01 B0    : ORA (B0,X)     : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-01A0 : F0 F0    : BEQ 0192       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=1
-0192 : 38       : SEC            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=1
-0193 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-0194 : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-0195 : B0 B0    : BCS 0147       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-0147 : 60       : RTS            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-018E : 04 A9    : TSB A9         : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-0190 : B0 0C    : BCS 019E       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-019E : 01 B0    : ORA (B0,X)     : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-01A0 : F0 F0    : BEQ 0192       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=1
-0192 : 38       : SEC            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=1 C=1
-0193 : 2A       : ROL A          : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-0194 : AA       : TAX            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
-0195 : B0 B0    : BCS 0147       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-0147 : 60       : RTS            : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-D888 : 91 48    : STA (48),Y     : A=00 X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-D88A : C8       : INY            : A=00 X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=1
-D88B : D0 F8    : BNE D885       : A=00 X=?? Y=?? SP=?? N=? V=? D=? I=? Z=0 C=1
-D885 : A9 D8    : LDA #D8        : A=D8 X=?? Y=?? SP=?? N=1 V=? D=? I=? Z=0 C=1
-D887 : 70 D8    : BVS D861       : A=D8 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=1
-D861 : C6 49    : DEC 49         : A=D8 X=?? Y=?? SP=?? N=0 V=1 D=? I=? Z=0 C=1
-D863 : A9 14    : LDA #14        : A=14 X=?? Y=?? SP=?? N=0 V=1 D=? I=? Z=0 C=1
-D865 : 8D 01 B0 : STA B001       : A=14 X=?? Y=?? SP=?? N=0 V=1 D=? I=? Z=0 C=1
-D868 : 60       : RTS            : A=14 X=?? Y=?? SP=?? N=0 V=1 D=? I=? Z=0 C=1
-DB44 : E6 4A    : INC 4A         : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=1
-DB46 : D0 0A    : BNE DB52       : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=1
-DB52 : 18       : CLC            : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DB53 : 60       : RTS            : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD65 : 90 02    : BCC DD69       : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=14 X=?? Y=?? SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=14 X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=2E X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=2E X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=2E X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=00 X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=1 C=0
-DD4C : 69 20    : ADC #20        : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=2E X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=2E X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=2E X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=54 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=54 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=54 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=80 X=?? Y=00 SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=80 X=?? Y=00 SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=80 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=A0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=A0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=57 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=57 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=57 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=A0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=C0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=C0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=C0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=E0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=E0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=05 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=43 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=43 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=43 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=E0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=00 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD4E : 85 48    : STA 48         : A=00 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD50 : A5 49    : LDA 49         : A=05 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=41 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=00 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD4C : 69 20    : ADC #20        : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=58 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=58 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=58 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=20 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=45 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=45 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=45 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=40 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=52 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=52 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=52 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=60 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=80 X=?? Y=00 SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=80 X=?? Y=00 SP=?? N=1 V=1 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=06 X=?? Y=00 SP=?? N=0 V=1 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=47 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD6E : D0 D9    : BNE DD49       : A=47 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD49 : 18       : CLC            : A=47 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD4A : A5 48    : LDA 48         : A=80 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4C : 69 20    : ADC #20        : A=A0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD4E : 85 48    : STA 48         : A=A0 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD50 : A5 49    : LDA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD52 : 69 00    : ADC #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD54 : 85 49    : STA 49         : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD56 : C9 07    : CMP #07        : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD58 : 90 0F    : BCC DD69       : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD69 : 18       : CLC            : A=06 X=?? Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD6A : A0 00    : LDY #00        : A=06 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6C : B1 48    : LDA (48),Y     : A=00 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD6E : D0 D9    : BNE DD49       : A=00 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DD70 : B1 75    : LDA (75),Y     : A=47 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=47 X=?? Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=47 X=?? Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=47 X=?? Y=01 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=47 X=?? Y=01 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=47 X=?? Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=47 X=?? Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=47 X=?? Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=47 X=?? Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=47 X=?? Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=04 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=04 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=20 X=?? Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=20 X=?? Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=20 X=?? Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=20 X=?? Y=08 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=20 X=?? Y=08 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=42 X=?? Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=42 X=?? Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=42 X=?? Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=42 X=?? Y=09 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=42 X=?? Y=09 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=49 X=?? Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=49 X=?? Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=49 X=?? Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=49 X=?? Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD77 : D0 F7    : BNE DD70       : A=49 X=?? Y=0A SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD70 : B1 75    : LDA (75),Y     : A=4E X=?? Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD72 : 91 48    : STA (48),Y     : A=4E X=?? Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD74 : C8       : INY            : A=4E X=?? Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD75 : C0 0B    : CPY #0B        : A=4E X=?? Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD77 : D0 F7    : BNE DD70       : A=4E X=?? Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD79 : A9 20    : LDA #20        : A=20 X=?? Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD7B : 91 48    : STA (48),Y     : A=20 X=?? Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD7D : C8       : INY            : A=20 X=?? Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD7E : A9 10    : LDA #10        : A=10 X=?? Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD80 : 91 48    : STA (48),Y     : A=10 X=?? Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD82 : C8       : INY            : A=10 X=?? Y=0D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD83 : A9 7D    : LDA #7D        : A=7D X=?? Y=0D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD85 : 91 48    : STA (48),Y     : A=7D X=?? Y=0D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD87 : C8       : INY            : A=7D X=?? Y=0E SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD88 : A9 00    : LDA #00        : A=00 X=?? Y=0E SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=0E SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD8C : C8       : INY            : A=00 X=?? Y=0F SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8C : C8       : INY            : A=00 X=?? Y=10 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8C : C8       : INY            : A=00 X=?? Y=11 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8C : C8       : INY            : A=00 X=?? Y=12 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8C : C8       : INY            : A=00 X=?? Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=13 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=13 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8A : 91 48    : STA (48),Y     : A=00 X=?? Y=13 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DD8C : C8       : INY            : A=00 X=?? Y=14 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DD8D : C0 14    : CPY #14        : A=00 X=?? Y=14 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD8F : D0 F9    : BNE DD8A       : A=00 X=?? Y=14 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD91 : A5 69    : LDA 69         : A=00 X=?? Y=14 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD93 : 91 48    : STA (48),Y     : A=00 X=?? Y=14 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD95 : C8       : INY            : A=00 X=?? Y=15 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD96 : A5 6A    : LDA 6A         : A=00 X=?? Y=15 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD98 : 91 48    : STA (48),Y     : A=00 X=?? Y=15 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD9A : C8       : INY            : A=00 X=?? Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DD9B : A9 00    : LDA #00        : A=00 X=?? Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD9D : 91 48    : STA (48),Y     : A=00 X=?? Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DD9F : C8       : INY            : A=00 X=?? Y=17 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA0 : 91 48    : STA (48),Y     : A=00 X=?? Y=17 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA2 : C8       : INY            : A=00 X=?? Y=18 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA3 : 91 48    : STA (48),Y     : A=00 X=?? Y=18 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA5 : C8       : INY            : A=00 X=?? Y=19 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA6 : 91 48    : STA (48),Y     : A=00 X=?? Y=19 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA8 : C8       : INY            : A=00 X=?? Y=1A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDA9 : A5 78    : LDA 78         : A=1F X=?? Y=1A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDAB : 91 48    : STA (48),Y     : A=1F X=?? Y=1A SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDAD : C8       : INY            : A=1F X=?? Y=1B SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDAE : A5 79    : LDA 79         : A=00 X=?? Y=1B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDB0 : 91 48    : STA (48),Y     : A=00 X=?? Y=1B SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDB2 : C8       : INY            : A=00 X=?? Y=1C SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDB3 : A5 63    : LDA 63         : A=00 X=?? Y=1C SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDB5 : 91 48    : STA (48),Y     : A=00 X=?? Y=1C SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDB7 : C8       : INY            : A=00 X=?? Y=1D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDB8 : A5 64    : LDA 64         : A=3F X=?? Y=1D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDBA : 91 48    : STA (48),Y     : A=3F X=?? Y=1D SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDBC : C8       : INY            : A=3F X=?? Y=1E SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDBD : A9 00    : LDA #00        : A=00 X=?? Y=1E SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDBF : 91 48    : STA (48),Y     : A=00 X=?? Y=1E SP=?? N=0 V=0 D=? I=? Z=1 C=1
-DDC1 : C8       : INY            : A=00 X=?? Y=1F SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDC2 : 91 48    : STA (48),Y     : A=00 X=?? Y=1F SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDC4 : C8       : INY            : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDC5 : A5 49    : LDA 49         : A=06 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-DDC7 : C9 07    : CMP #07        : A=06 X=?? Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DDC9 : 90 12    : BCC DDDD       : A=06 X=?? Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DDDD : A9 00    : LDA #00        : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DDDF : 91 48    : STA (48),Y     : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DDE1 : 20 09 DE : JSR DE09       : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DE09 : A5 4A    : LDA 4A         : A=C1 X=?? Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DE0B : D0 0A    : BNE DE17       : A=C1 X=?? Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DE17 : C6 4A    : DEC 4A         : A=C1 X=?? Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-DE19 : A5 5D    : LDA 5D         : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DE1B : 85 48    : STA 48         : A=00 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-DE1D : A5 5E    : LDA 5E         : A=05 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DE1F : 85 49    : STA 49         : A=05 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-DE21 : 20 8E D8 : JSR D88E       : A=05 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D88E : A9 04    : LDA #04        : A=04 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D890 : 8D 01 B0 : STA B001       : A=04 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D893 : A9 58    : LDA #58        : A=58 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D895 : 20 D6 D7 : JSR D7D6       : A=58 X=?? Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D7D6 : A2 08    : LDX #08        : A=58 X=08 Y=20 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D7D8 : 0A       : ASL A          : A=B0 X=08 Y=20 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-D7D9 : A8       : TAY            : A=B0 X=08 Y=B0 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-D7DA : A9 00    : LDA #00        : A=00 X=08 Y=B0 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-D7DC : 90 02    : BCC D7E0       : A=00 X=08 Y=B0 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-D7E0 : 8D 01 B0 : STA B001       : A=00 X=08 Y=B0 SP=?? N=0 V=0 D=? I=? Z=1 C=0
-D7E3 : 49 08    : EOR #08        : A=08 X=08 Y=B0 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D7E5 : 8D 01 B0 : STA B001       : A=0C X=08 Y=B0 SP=?? N=0 V=0 D=? I=? Z=0 C=0 prediction failed
-D7E8 : 98       : TYA            : A=B0 X=08 Y=B0 SP=?? N=1 V=0 D=? I=? Z=0 C=0
-D7E9 : CA       : DEX            : A=B0 X=07 Y=B0 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D7EA : D0 EC    : BNE D7D8       : A=B0 X=07 Y=B0 SP=?? N=0 V=0 D=? I=? Z=0 C=0
-D7D8 : 0A       : ASL A          : A=60 X=07 Y=B0 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-D7D9 : A8       : TAY            : A=60 X=07 Y=60 SP=?? N=0 V=0 D=? I=? Z=0 C=1
-D7DA : A9 00    : LDA #00        : A=00 X=07 Y=60 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-D7DC : 90 02    : BCC D7E0       : A=00 X=07 Y=60 SP=?? N=0 V=0 D=? I=? Z=1 C=1
-D7DE : 09 8D    : ORA #8D        : A=8D X=07 Y=60 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-D7E0 : 01 B0    : ORA (B0,X)     : A=8D X=07 Y=60 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-D7E2 : 01 B0    : ORA (B0,X)     : A=CF X=07 Y=60 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-D7E4 : D0 D0    : BNE D7B6       : A=CF X=07 Y=60 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-D7B6 : 60       : RTS            : A=CF X=07 Y=60 SP=?? N=1 V=0 D=? I=? Z=0 C=1
-pc: prediction failed at 0207 old pc was A9A9
-0207 : 00 90    : BRK #90        : A=CF X=07 Y=60 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0 prediction failed
-018D : B0 04    : BCS 0193       : A=CF X=07 Y=60 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-018F : 49 08    : EOR #08        : A=C7 X=07 Y=60 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-0191 : 8D 01 B0 : STA B001       : A=0C X=07 Y=60 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0 prediction failed
-0194 : 98       : TYA            : A=60 X=07 Y=60 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-0195 : CA       : DEX            : A=60 X=06 Y=60 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-0196 : D0 EC    : BNE 0184       : A=60 X=06 Y=60 SP=?? N=0 V=0 D=0 I=1 Z=0 C=0
-0184 : 0A       : ASL A          : A=C0 X=06 Y=60 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-0185 : A8       : TAY            : A=C0 X=06 Y=C0 SP=?? N=1 V=0 D=0 I=1 Z=0 C=0
-0186 : A9 00    : LDA #00        : A=00 X=06 Y=C0 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
-0188 : 90 02    : BCC 018C       : A=00 X=06 Y=C0 SP=?? N=0 V=0 D=0 I=1 Z=1 C=0
+???? : 44 AF    : NOP AF         : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
+???? : 11 C0    : ORA (C0),Y     : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
+???? : 05 10    : ORA 10         : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=? C=?
+???? : F0 03    : BEQ pc+3       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=0 C=?
+???? : 4C 7A C7 : JMP C77A       : A=?? X=?? Y=?? SP=?? N=? V=? D=? I=? Z=0 C=?
+C77A : A0 00    : LDY #00        : A=?? X=?? Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=?
+C77C : B1 44    : LDA (44),Y     : A=B9 X=?? Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=?
+C77E : 85 10    : STA 10         : A=B9 X=?? Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=?
+C780 : C8       : INY            : A=B9 X=?? Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=?
+C781 : B1 44    : LDA (44),Y     : A=C0 X=?? Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=?
+C783 : 85 11    : STA 11         : A=C0 X=?? Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=?
+C785 : C8       : INY            : A=C0 X=?? Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=?
+C786 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=?
+C788 : BD 00 02 : LDA 0200,X     : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=?
+C78B : F0 09    : BEQ C796       : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=?
+C78D : D1 44    : CMP (44),Y     : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78F : D0 1B    : BNE C7AC       : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C7AC : A5 10    : LDA 10         : A=B9 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7AE : 85 44    : STA 44         : A=B9 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7B0 : A5 11    : LDA 11         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7B2 : 85 45    : STA 45         : A=C0 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7B4 : 05 10    : ORA 10         : A=F9 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7B6 : F0 03    : BEQ C7BB       : A=F9 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7B8 : 4C 7A C7 : JMP C77A       : A=F9 X=00 Y=02 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C77A : A0 00    : LDY #00        : A=F9 X=00 Y=00 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C77C : B1 44    : LDA (44),Y     : A=C2 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C77E : 85 10    : STA 10         : A=C2 X=00 Y=00 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C780 : C8       : INY            : A=C2 X=00 Y=01 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C781 : B1 44    : LDA (44),Y     : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C783 : 85 11    : STA 11         : A=C0 X=00 Y=01 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C785 : C8       : INY            : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C786 : A2 00    : LDX #00        : A=C0 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C788 : BD 00 02 : LDA 0200,X     : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78B : F0 09    : BEQ C796       : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78D : D1 44    : CMP (44),Y     : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C78F : D0 1B    : BNE C7AC       : A=73 X=00 Y=02 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C791 : E8       : INX            : A=73 X=01 Y=02 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C792 : C8       : INY            : A=73 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C793 : 4C 88 C7 : JMP C788       : A=73 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C788 : BD 00 02 : LDA 0200,X     : A=61 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78B : F0 09    : BEQ C796       : A=61 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78D : D1 44    : CMP (44),Y     : A=61 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C78F : D0 1B    : BNE C7AC       : A=61 X=01 Y=03 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C791 : E8       : INX            : A=61 X=02 Y=03 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C792 : C8       : INY            : A=61 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C793 : 4C 88 C7 : JMP C788       : A=61 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C788 : BD 00 02 : LDA 0200,X     : A=76 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78B : F0 09    : BEQ C796       : A=76 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78D : D1 44    : CMP (44),Y     : A=76 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C78F : D0 1B    : BNE C7AC       : A=76 X=02 Y=04 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C791 : E8       : INX            : A=76 X=03 Y=04 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C792 : C8       : INY            : A=76 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C793 : 4C 88 C7 : JMP C788       : A=76 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C788 : BD 00 02 : LDA 0200,X     : A=65 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78B : F0 09    : BEQ C796       : A=65 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C78D : D1 44    : CMP (44),Y     : A=65 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C78F : D0 1B    : BNE C7AC       : A=65 X=03 Y=05 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C791 : E8       : INX            : A=65 X=04 Y=05 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C792 : C8       : INY            : A=65 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C793 : 4C 88 C7 : JMP C788       : A=65 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C788 : BD 00 02 : LDA 0200,X     : A=00 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C78B : F0 09    : BEQ C796       : A=00 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C796 : B1 44    : LDA (44),Y     : A=00 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C798 : F0 03    : BEQ C79D       : A=00 X=04 Y=06 SP=?? N=0 V=? D=? I=? Z=1 C=1
+C79D : C8       : INY            : A=00 X=04 Y=07 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C79E : B1 44    : LDA (44),Y     : A=2D X=04 Y=07 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C7A0 : 85 12    : STA 12         : A=2D X=04 Y=07 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C7A2 : C8       : INY            : A=2D X=04 Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C7A3 : B1 44    : LDA (44),Y     : A=E5 X=04 Y=08 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7A5 : 85 13    : STA 13         : A=E5 X=04 Y=08 SP=?? N=1 V=? D=? I=? Z=0 C=1
+C7A7 : FA       : PLX            : A=E5 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+C7A8 : 6C 12 00 : JMP (0012)     : A=E5 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+E52D : DA       : PHX            : A=E5 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+E52E : AD 00 04 : LDA 0400       : A=17 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+E531 : D0 03    : BNE E536       : A=17 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+E536 : A5 20    : LDA 20         : A=04 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=0 C=1
+E538 : C9 04    : CMP #04        : A=04 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=1 C=1
+E53A : F0 03    : BEQ E53F       : A=04 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=1 C=1
+E53F : 18       : CLC            : A=04 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=1 C=0
+E540 : A9 00    : LDA #00        : A=00 X=0F Y=08 SP=?? N=0 V=? D=? I=? Z=1 C=0
+E542 : 65 24    : ADC 24         : A=0F X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E544 : 85 11    : STA 11         : A=0F X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E546 : A9 02    : LDA #02        : A=02 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E548 : 85 12    : STA 12         : A=02 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E54A : 20 F4 E2 : JSR E2F4       : A=02 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E2F4 : A0 00    : LDY #00        : A=02 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E2F6 : B1 11    : LDA (11),Y     : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E2F8 : C9 2E    : CMP #2E        : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E2FA : F0 07    : BEQ E303       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E2FC : A9 FF    : LDA #FF        : A=FF X=0F Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=1
+E2FE : 85 18    : STA 18         : A=FF X=0F Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=1
+E300 : 4C 15 E3 : JMP E315       : A=FF X=0F Y=00 SP=?? N=1 V=0 D=? I=? Z=0 C=1
+E315 : A0 16    : LDY #16        : A=FF X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E317 : A9 00    : LDA #00        : A=00 X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E319 : 91 11    : STA (11),Y     : A=00 X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E31B : A9 13    : LDA #13        : A=13 X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E31D : 85 14    : STA 14         : A=13 X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E31F : A0 00    : LDY #00        : A=13 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E321 : B1 11    : LDA (11),Y     : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E323 : F0 08    : BEQ E32D       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E325 : C9 2E    : CMP #2E        : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E327 : F0 20    : BEQ E349       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E329 : C8       : INY            : A=65 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E32A : 4C 21 E3 : JMP E321       : A=65 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E321 : B1 11    : LDA (11),Y     : A=2E X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E323 : F0 08    : BEQ E32D       : A=2E X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E325 : C9 2E    : CMP #2E        : A=2E X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E327 : F0 20    : BEQ E349       : A=2E X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E349 : 84 19    : STY 19         : A=2E X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E34B : C8       : INY            : A=2E X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E34C : B1 11    : LDA (11),Y     : A=62 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E34E : 5A       : PHY            : A=62 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E34F : A4 14    : LDY 14         : A=62 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E351 : 91 11    : STA (11),Y     : A=62 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E353 : C8       : INY            : A=62 X=0F Y=14 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E354 : 84 14    : STY 14         : A=62 X=0F Y=14 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E356 : C0 16    : CPY #16        : A=62 X=0F Y=14 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E358 : F0 04    : BEQ E35E       : A=62 X=0F Y=14 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E35A : 7A       : PLY            : A=62 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E35B : 4C 4B E3 : JMP E34B       : A=62 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34B : C8       : INY            : A=62 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34C : B1 11    : LDA (11),Y     : A=69 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34E : 5A       : PHY            : A=69 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34F : A4 14    : LDY 14         : A=69 X=0F Y=14 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E351 : 91 11    : STA (11),Y     : A=69 X=0F Y=14 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E353 : C8       : INY            : A=69 X=0F Y=15 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E354 : 84 14    : STY 14         : A=69 X=0F Y=15 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E356 : C0 16    : CPY #16        : A=69 X=0F Y=15 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E358 : F0 04    : BEQ E35E       : A=69 X=0F Y=15 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E35A : 7A       : PLY            : A=69 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E35B : 4C 4B E3 : JMP E34B       : A=69 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34B : C8       : INY            : A=69 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34C : B1 11    : LDA (11),Y     : A=6E X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34E : 5A       : PHY            : A=6E X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E34F : A4 14    : LDY 14         : A=6E X=0F Y=15 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E351 : 91 11    : STA (11),Y     : A=6E X=0F Y=15 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E353 : C8       : INY            : A=6E X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E354 : 84 14    : STY 14         : A=6E X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E356 : C0 16    : CPY #16        : A=6E X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E358 : F0 04    : BEQ E35E       : A=6E X=0F Y=16 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E35E : 7A       : PLY            : A=6E X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E35F : 18       : CLC            : A=6E X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E360 : A5 19    : LDA 19         : A=01 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E362 : 69 0B    : ADC #0B        : A=0C X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E364 : 85 19    : STA 19         : A=0C X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E366 : A9 0B    : LDA #0B        : A=0B X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E368 : 85 14    : STA 14         : A=0B X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E36A : A0 00    : LDY #00        : A=0B X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E36C : 4C 70 E3 : JMP E370       : A=0B X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E370 : B1 11    : LDA (11),Y     : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E372 : 5A       : PHY            : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E373 : A4 14    : LDY 14         : A=65 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E375 : 91 11    : STA (11),Y     : A=65 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E377 : C8       : INY            : A=65 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E378 : 84 14    : STY 14         : A=65 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E37A : C4 19    : CPY 19         : A=65 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E37C : F0 04    : BEQ E382       : A=65 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E382 : 7A       : PLY            : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E383 : A4 19    : LDY 19         : A=65 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E385 : A9 20    : LDA #20        : A=20 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=0C SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E389 : C8       : INY            : A=20 X=0F Y=0D SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=0D SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=0D SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=0D SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=0E SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=0E SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=0E SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=0E SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=0F SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=0F SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=10 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=10 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=11 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=11 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=12 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E387 : 91 11    : STA (11),Y     : A=20 X=0F Y=12 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E389 : C8       : INY            : A=20 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E38A : C0 13    : CPY #13        : A=20 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E38C : D0 F9    : BNE E387       : A=20 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E38E : 18       : CLC            : A=20 X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E38F : A5 11    : LDA 11         : A=0F X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E391 : 69 0B    : ADC #0B        : A=1A X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E393 : 85 11    : STA 11         : A=1A X=0F Y=13 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E395 : A0 00    : LDY #00        : A=1A X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E397 : B1 11    : LDA (11),Y     : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39D : 90 08    : BCC E3A7       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39F : C9 5F    : CMP #5F        : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A1 : F0 04    : BEQ E3A7       : A=65 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A3 : 29 DF    : AND #DF        : A=45 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A5 : 91 11    : STA (11),Y     : A=45 X=0F Y=00 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A7 : C8       : INY            : A=45 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A8 : 4C 97 E3 : JMP E397       : A=45 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=01 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=01 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=01 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=02 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=02 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=03 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=03 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=04 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=04 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=04 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=05 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=05 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=06 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=06 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=20 X=0F Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=20 X=0F Y=07 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=20 X=0F Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E39D : 90 08    : BCC E3A7       : A=20 X=0F Y=07 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E3A7 : C8       : INY            : A=20 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E3A8 : 4C 97 E3 : JMP E397       : A=20 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E397 : B1 11    : LDA (11),Y     : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E399 : F0 10    : BEQ E3AB       : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E39B : C9 40    : CMP #40        : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39D : 90 08    : BCC E3A7       : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39F : C9 5F    : CMP #5F        : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A1 : F0 04    : BEQ E3A7       : A=62 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A3 : 29 DF    : AND #DF        : A=42 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A5 : 91 11    : STA (11),Y     : A=42 X=0F Y=08 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A7 : C8       : INY            : A=42 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A8 : 4C 97 E3 : JMP E397       : A=42 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E397 : B1 11    : LDA (11),Y     : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E399 : F0 10    : BEQ E3AB       : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39B : C9 40    : CMP #40        : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39D : 90 08    : BCC E3A7       : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39F : C9 5F    : CMP #5F        : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A1 : F0 04    : BEQ E3A7       : A=69 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A3 : 29 DF    : AND #DF        : A=49 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A5 : 91 11    : STA (11),Y     : A=49 X=0F Y=09 SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A7 : C8       : INY            : A=49 X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A8 : 4C 97 E3 : JMP E397       : A=49 X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E397 : B1 11    : LDA (11),Y     : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E399 : F0 10    : BEQ E3AB       : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39B : C9 40    : CMP #40        : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39D : 90 08    : BCC E3A7       : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E39F : C9 5F    : CMP #5F        : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A1 : F0 04    : BEQ E3A7       : A=6E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A3 : 29 DF    : AND #DF        : A=4E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A5 : 91 11    : STA (11),Y     : A=4E X=0F Y=0A SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A7 : C8       : INY            : A=4E X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E3A8 : 4C 97 E3 : JMP E397       : A=4E X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E397 : B1 11    : LDA (11),Y     : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E399 : F0 10    : BEQ E3AB       : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E3AB : 60       : RTS            : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+E54D : A5 11    : LDA 11         : A=1A X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E54F : 85 1C    : STA 1C         : A=1A X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E551 : A5 12    : LDA 12         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E553 : 85 1D    : STA 1D         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+E555 : 18       : CLC            : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E556 : A9 00    : LDA #00        : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E558 : 65 23    : ADC 23         : A=0A X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E55A : 85 80    : STA 80         : A=0A X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E55C : A9 02    : LDA #02        : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E55E : 85 81    : STA 81         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E560 : 20 DB C0 : JSR C0DB       : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DB : A5 81    : LDA 81         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DD : 95 00    : STA 00,X       : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DF : CA       : DEX            : A=02 X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E0 : A5 80    : LDA 80         : A=0A X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E2 : 95 00    : STA 00,X       : A=0A X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E4 : CA       : DEX            : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E5 : 60       : RTS            : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E563 : 20 76 C2 : JSR C276       : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C276 : 20 E6 C0 : JSR C0E6       : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E6 : B5 01    : LDA 01,X       : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E8 : 85 80    : STA 80         : A=0A X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EA : E8       : INX            : A=0A X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EB : B5 01    : LDA 01,X       : A=02 X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0ED : 85 81    : STA 81         : A=02 X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EF : E8       : INX            : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0F0 : 60       : RTS            : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C279 : B2 80    : LDA (80)       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C27B : C9 60    : CMP #60        : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C27D : 90 05    : BCC C284       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C27F : 38       : SEC            : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C280 : E9 57    : SBC #57        : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C282 : 80 0C    : BRA C290       : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C290 : 0A       : ASL A          : A=1E X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C291 : 0A       : ASL A          : A=3C X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C292 : 0A       : ASL A          : A=78 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C293 : 0A       : ASL A          : A=F0 X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C294 : 85 13    : STA 13         : A=F0 X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C296 : E6 80    : INC 80         : A=F0 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C298 : B2 80    : LDA (80)       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C29A : C9 60    : CMP #60        : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C29C : 90 05    : BCC C2A3       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C29E : 38       : SEC            : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C29F : E9 57    : SBC #57        : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2A1 : 80 0C    : BRA C2AF       : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2AF : 18       : CLC            : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2B0 : 65 13    : ADC 13         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2B2 : 85 13    : STA 13         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2B4 : E6 80    : INC 80         : A=FF X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2B6 : B2 80    : LDA (80)       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2B8 : C9 60    : CMP #60        : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2BA : 90 05    : BCC C2C1       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2BC : 38       : SEC            : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2BD : E9 57    : SBC #57        : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2BF : 80 0C    : BRA C2CD       : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2CD : 0A       : ASL A          : A=1E X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2CE : 0A       : ASL A          : A=3C X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2CF : 0A       : ASL A          : A=78 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2D0 : 0A       : ASL A          : A=F0 X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2D1 : 85 12    : STA 12         : A=F0 X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2D3 : E6 80    : INC 80         : A=F0 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2D5 : B2 80    : LDA (80)       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2D7 : C9 60    : CMP #60        : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2D9 : 90 05    : BCC C2E0       : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2DB : 38       : SEC            : A=66 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2DC : E9 57    : SBC #57        : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2DE : 80 0C    : BRA C2EC       : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C2EC : 18       : CLC            : A=0F X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2ED : 65 12    : ADC 12         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2EF : 85 12    : STA 12         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F1 : 85 80    : STA 80         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F3 : A5 13    : LDA 13         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F5 : 85 81    : STA 81         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F7 : 20 DB C0 : JSR C0DB       : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DB : A5 81    : LDA 81         : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DD : 95 00    : STA 00,X       : A=FF X=0F Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DF : CA       : DEX            : A=FF X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E0 : A5 80    : LDA 80         : A=FF X=0E Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0E2 : 95 00    : STA 00,X       : A=FF X=0E Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0E4 : CA       : DEX            : A=FF X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E5 : 60       : RTS            : A=FF X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2FA : 60       : RTS            : A=FF X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E566 : 18       : CLC            : A=FF X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E567 : A9 00    : LDA #00        : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E569 : 65 22    : ADC 22         : A=05 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E56B : 85 80    : STA 80         : A=05 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E56D : A9 02    : LDA #02        : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E56F : 85 81    : STA 81         : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E571 : 20 DB C0 : JSR C0DB       : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DB : A5 81    : LDA 81         : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DD : 95 00    : STA 00,X       : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0DF : CA       : DEX            : A=02 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E0 : A5 80    : LDA 80         : A=05 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E2 : 95 00    : STA 00,X       : A=05 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E4 : CA       : DEX            : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E5 : 60       : RTS            : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E574 : 20 76 C2 : JSR C276       : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C276 : 20 E6 C0 : JSR C0E6       : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E6 : B5 01    : LDA 01,X       : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E8 : 85 80    : STA 80         : A=05 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EA : E8       : INX            : A=05 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EB : B5 01    : LDA 01,X       : A=02 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0ED : 85 81    : STA 81         : A=02 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EF : E8       : INX            : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0F0 : 60       : RTS            : A=02 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C279 : B2 80    : LDA (80)       : A=63 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C27B : C9 60    : CMP #60        : A=63 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C27D : 90 05    : BCC C284       : A=63 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C27F : 38       : SEC            : A=63 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C280 : E9 57    : SBC #57        : A=0C X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C282 : 80 0C    : BRA C290       : A=0C X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=1
+C290 : 0A       : ASL A          : A=18 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C291 : 0A       : ASL A          : A=30 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C292 : 0A       : ASL A          : A=60 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C293 : 0A       : ASL A          : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C294 : 85 13    : STA 13         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C296 : E6 80    : INC 80         : A=C0 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C298 : B2 80    : LDA (80)       : A=30 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C29A : C9 60    : CMP #60        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C29C : 90 05    : BCC C2A3       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2A3 : C9 40    : CMP #40        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2A5 : 90 05    : BCC C2AC       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2AC : 38       : SEC            : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=1
+C2AD : E9 30    : SBC #30        : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C2AF : 18       : CLC            : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2B0 : 65 13    : ADC 13         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2B2 : 85 13    : STA 13         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2B4 : E6 80    : INC 80         : A=C0 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2B6 : B2 80    : LDA (80)       : A=30 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2B8 : C9 60    : CMP #60        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2BA : 90 05    : BCC C2C1       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2C1 : C9 40    : CMP #40        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2C3 : 90 05    : BCC C2CA       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2CA : 38       : SEC            : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=1
+C2CB : E9 30    : SBC #30        : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C2CD : 0A       : ASL A          : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2CE : 0A       : ASL A          : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2CF : 0A       : ASL A          : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2D0 : 0A       : ASL A          : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2D1 : 85 12    : STA 12         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2D3 : E6 80    : INC 80         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2D5 : B2 80    : LDA (80)       : A=30 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2D7 : C9 60    : CMP #60        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2D9 : 90 05    : BCC C2E0       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E0 : C9 40    : CMP #40        : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E2 : 90 05    : BCC C2E9       : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2E9 : 38       : SEC            : A=30 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=1
+C2EA : E9 30    : SBC #30        : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=1
+C2EC : 18       : CLC            : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2ED : 65 12    : ADC 12         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2EF : 85 12    : STA 12         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2F1 : 85 80    : STA 80         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C2F3 : A5 13    : LDA 13         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F5 : 85 81    : STA 81         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C2F7 : 20 DB C0 : JSR C0DB       : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DB : A5 81    : LDA 81         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DD : 95 00    : STA 00,X       : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0DF : CA       : DEX            : A=C0 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E0 : A5 80    : LDA 80         : A=00 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C0E2 : 95 00    : STA 00,X       : A=00 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C0E4 : CA       : DEX            : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E5 : 60       : RTS            : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C2FA : 60       : RTS            : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E577 : 20 E6 C0 : JSR C0E6       : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0E6 : B5 01    : LDA 01,X       : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C0E8 : 85 80    : STA 80         : A=00 X=0B Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+C0EA : E8       : INX            : A=00 X=0C Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EB : B5 01    : LDA 01,X       : A=C0 X=0C Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0ED : 85 81    : STA 81         : A=C0 X=0C Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0EF : E8       : INX            : A=C0 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0F0 : 60       : RTS            : A=C0 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E57A : A5 80    : LDA 80         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E57C : 85 1A    : STA 1A         : A=00 X=0D Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+E57E : A5 81    : LDA 81         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E580 : 85 1B    : STA 1B         : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+E582 : 20 E6 C0 : JSR C0E6       : A=C0 X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0E6 : B5 01    : LDA 01,X       : A=FF X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0E8 : 85 80    : STA 80         : A=FF X=0D Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0EA : E8       : INX            : A=FF X=0E Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0EB : B5 01    : LDA 01,X       : A=FF X=0E Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0ED : 85 81    : STA 81         : A=FF X=0E Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+C0EF : E8       : INX            : A=FF X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+C0F0 : 60       : RTS            : A=FF X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E585 : 4C 89 E5 : JMP E589       : A=FF X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E589 : 20 91 E1 : JSR E191       : A=FF X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E191 : AD 00 04 : LDA 0400       : A=17 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E194 : F0 26    : BEQ E1BC       : A=17 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E196 : A9 01    : LDA #01        : A=01 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E198 : 85 16    : STA 16         : A=01 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+E19A : 20 E0 DB : JSR DBE0       : A=01 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DBE0 : A5 57    : LDA 57         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DBE2 : 85 5F    : STA 5F         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DBE4 : A5 58    : LDA 58         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBE6 : 85 60    : STA 60         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBE8 : A5 59    : LDA 59         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBEA : 85 61    : STA 61         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBEC : A5 5A    : LDA 5A         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBEE : 85 62    : STA 62         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBF0 : 64 80    : STZ 80         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DBF2 : 20 4C DA : JSR DA4C       : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA4C : A9 00    : LDA #00        : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA4E : 85 48    : STA 48         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA50 : A9 05    : LDA #05        : A=05 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA52 : 85 49    : STA 49         : A=05 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA54 : A5 5F    : LDA 5F         : A=02 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA56 : 0A       : ASL A          : A=04 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA57 : A5 60    : LDA 60         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA59 : 2A       : ROL A          : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA5A : 85 4A    : STA 4A         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA5C : A5 61    : LDA 61         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA5E : 2A       : ROL A          : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA5F : 85 4B    : STA 4B         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA61 : A5 62    : LDA 62         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA63 : 2A       : ROL A          : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA64 : 85 4C    : STA 4C         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA66 : A5 4A    : LDA 4A         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA68 : 65 4F    : ADC 4F         : A=20 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA6A : 85 4A    : STA 4A         : A=20 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA6C : A5 4B    : LDA 4B         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA6E : 65 50    : ADC 50         : A=08 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA70 : 85 4B    : STA 4B         : A=08 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+DA72 : A5 4C    : LDA 4C         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA74 : 65 51    : ADC 51         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA76 : 85 4C    : STA 4C         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA78 : A9 00    : LDA #00        : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA7A : 65 52    : ADC 52         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA7C : 85 4D    : STA 4D         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA7E : A5 80    : LDA 80         : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA80 : F0 18    : BEQ DA9A       : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+DA9A : 20 38 D8 : JSR D838       : A=00 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=1 C=0
+D838 : A9 04    : LDA #04        : A=04 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+D83A : 8D 01 B0 : STA B001       : A=04 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+D83D : A9 51    : LDA #51        : A=51 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+D83F : 20 D6 D7 : JSR D7D6       : A=51 X=0F Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+D7D6 : A2 08    : LDX #08        : A=51 X=08 Y=0B SP=?? N=0 V=0 D=? I=? Z=0 C=0
+D7D8 : 0A       : ASL A          : A=A2 X=08 Y=0B SP=?? N=1 V=0 D=? I=? Z=0 C=0
+D7D9 : A8       : TAY            : A=A2 X=08 Y=A2 SP=?? N=1 V=0 D=? I=? Z=0 C=0
+D7DA : A9 00    : LDA #00        : A=00 X=08 Y=A2 SP=?? N=0 V=0 D=? I=? Z=1 C=0
+D7DC : 90 02    : BCC D7E0       : A=00 X=08 Y=A2 SP=?? N=0 V=0 D=? I=? Z=1 C=0

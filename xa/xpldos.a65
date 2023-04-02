@@ -958,9 +958,9 @@ nf:
   lda savepoint+1
   sta fat32_filenamepointer+1 
   pla
-  sta fat32_filesize+1
+  sta fat32_bytesremaining+1
   pla
-  sta fat32_filesize
+  sta fat32_bytesremaining
   ; Write a directory entry for this file
   jsr fat32_writedirent
   ; Now, to actually write the file...
