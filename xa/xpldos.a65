@@ -1088,7 +1088,7 @@ stlp
   jsr fat32_markdeleted
   ; Find the directory
   lda backdir
-  beq nono
+  beq nono ;TODO CHECK
 nono:
   ldx savepoint
   ldy savepoint+1
