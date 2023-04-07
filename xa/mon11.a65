@@ -33,6 +33,8 @@
 ;;; So, everything starts at $C000.
 ;;;
 
+;; TODO NEW COMMAND IDEA! Inputting ascii chars at an address (prototype text editing)
+
 * = $C000
 
 LCD_E  = %10000000
