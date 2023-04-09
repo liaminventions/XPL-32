@@ -24,6 +24,9 @@ init:
 loop:
   jmp loop
 irq:
+  pha
+  phx
+  phy
   jsr putbut
 check:
   sei
@@ -34,6 +37,9 @@ check:
 cont:
   jsr PlaySid
   cli
+  ply
+  plx
+  pla
   rti
 clear:
   ldx #$18
@@ -44,7 +50,10 @@ cloop:
   beq end
   jmp cloop
 end:
-  jmp ($fffc)
+  ply
+  plx
+  pla
+  rts
 
 putbut              ldx #$1e
                     stx $b004

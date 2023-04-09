@@ -1,53 +1,41 @@
 Sections:
-00: "seg706" (706-95A)
-01: "seg1006" (1006-1252)
+00: "segf7e" (F7E-1001)
+01: "seg1001" (1001-11F9)
 
 
-Source: "sd_handeler.s"
-                        	     1: ; XPL-32 <FOLDER> type loading code
-                        	     2: ; (c) 2022-2023 Waverider
-                        	     3: ; !WARNING! - this is kind of deprecated, please use xplDOS instead.
-                        	     4: ; for now this is a code.xpl autoloader example (load command)
-                        	     5: 
-                        	     6: charbuffer = $705            ; 1 byte
-                        	     7: seed = $01
-                        	     8: donefact = $02		     ; vars
-                        	     9: irqcount = $03
-                        	    10: 
-                        	    11:   .org $0706
-                        	    12: jumptoit:
-00:0706 4C2B07          	    13:   jmp sdstart
-                        	    14: 
-                        	    15:   .include "hwconfig.s"
-
-Source: "hwconfig.s"
-                        	     1: PORTB = $b000
-                        	     2: PORTA = $b001
-                        	     3: DDRB = $b002
-                        	     4: DDRA = $b003
-                        	     5: 
-                        	     6: LCD_E  = %10000000
-                        	     7: LCD_RW = %01000000
-                        	     8: LCD_RS = %00100000
-                        	     9: 
-                        	    10: SD_CS   = %00010000
-                        	    11: SD_SCK  = %00001000
-                        	    12: SD_MOSI = %00000100
-                        	    13: SD_MISO = %00000010
-                        	    14: 
-                        	    15: PORTA_OUTPUTPINS = LCD_E | LCD_RW | LCD_RS | SD_CS | SD_SCK | SD_MOSI
-                        	    16: 
-                        	    17: via_init:
-00:0709 A9FF            	    18:   lda #%11111111          ; Set all pins on port B to output
-00:070B 8D02B0          	    19:   sta DDRB
-00:070E A9FC            	    20:   lda #PORTA_OUTPUTPINS   ; Set various pins on port A to output
-00:0710 8D03B0          	    21:   sta DDRA
-00:0713 60              	    22:   rts
-                        	    23: 
-                        	    24: 
-
-Source: "sd_handeler.s"
-                        	    16:   .include "kernal_def.s"
+Source: "empty.s"
+                        	     1: d400_sVoc1FreqLo = $b800
+                        	     2: d401_sVoc1FreqHi = $b801
+                        	     3: d402_sVoc1PWidthLo = $b802
+                        	     4: d403_sVoc1PWidthHi = $b803
+                        	     5: d404_sVoc1Control = $b804
+                        	     6: d405_sVoc1AttDec = $b805
+                        	     7: d406_sVoc1SusRel = $b806
+                        	     8: d407_sVoc2FreqLo = $b807
+                        	     9: d408_sVoc2FreqHi = $b808
+                        	    10: d409_sVoc2PWidthLo = $b809
+                        	    11: d40a_sVoc2PWidthHi = $b80a
+                        	    12: d40b_sVoc2Control = $b80b
+                        	    13: d40c_sVoc2AttDec = $b80c
+                        	    14: d40d_sVoc2SusRel = $b80d
+                        	    15: d40e_sVoc3FreqLo = $b80e
+                        	    16: d40f_sVoc3FreqHi = $b80f
+                        	    17: d410_sVoc3PWidthLo = $b810
+                        	    18: d411_sVoc3PWidthHi = $b811
+                        	    19: d412_sVoc3Control = $b812
+                        	    20: d413_sVoc3AttDec = $b813
+                        	    21: d414_sVoc3SusRel = $b814
+                        	    22: d415_sFiltFreqLo = $b815
+                        	    23: d416_sFiltFreqHi = $b816
+                        	    24: d417_sFiltControl = $b817
+                        	    25: d418_sFiltMode = $b818
+                        	    26: 
+                        	    27:   .org $0f7e
+00:0F7E 82              	    28:   .byte $82, $0f, $01, $12
+00:0F7F 0F
+00:0F80 01
+00:0F81 12
+                        	    29:   .include "kernal_def.s"
 
 Source: "kernal_def.s"
                         	     1: ; kernal def
@@ -131,753 +119,478 @@ Source: "kernal_def.s"
                         	    79: 
                         	    80: 
 
-Source: "sd_handeler.s"
-                        	    17: 
-                        	    18: dirname:
-00:0714 524F4F5420202020	    19:   .asciiz "ROOT       "	     ; standard directory name, SHORT format
-00:071C 202020
-00:071F 00
-                        	    20: 
-                        	    21: errormsg:
-00:0720 0D              	    22:   .byte $0d, $0a, "ERROR!", $0d, $0a, $00	; error msg
-00:0721 0A
-00:0722 4552524F5221
-00:0728 0D
-00:0729 0A
-00:072A 00
-                        	    23: 
-                        	    24: sdstart:
-00:072B 6400            	    25:   stz $00		; 0
-                        	    26: 
-00:072D A955            	    27:   lda #$55		; shftable value
-00:072F 8501            	    28:   sta seed
-                        	    29: 	
-00:0731 20BEFF          	    30:   jsr cleardisplay	; clear display
-                        	    31: 
-00:0734 A2A0            	    32:   ldx  #<loadmsg	; title screen
-00:0736 A007            	    33:   ldy  #>loadmsg
-00:0738 20CDFF          	    34:   jsr  w_acia_full
-                        	    35: 
-00:073B A2CD            	    36:   ldx  #<lodmm
-00:073D A007            	    37:   ldy  #>lodmm
-00:073F 20CDFF          	    38:   jsr  w_acia_full
-                        	    39: 
-00:0742 204807          	    40:   jsr rootsetup		; setup sd card
-                        	    41: 
-                        	    42: findrau:
-00:0745 4C6C07          	    43:   jmp type		; start "type" program
-                        	    44: 
-                        	    45: rootsetup:		; setup <ROOT>
-00:0748 48              	    46:   pha
-00:0749 DA              	    47:   phx
-00:074A 5A              	    48:   phy
-                        	    49: 
-                        	    50:   ; Open root directory
-00:074B 20D6FF          	    51:   jsr fat32_openroot
-                        	    52: 
-                        	    53:   ; Find the subdirectory by name
-00:074E A214            	    54:   ldx #<dirname
-00:0750 A007            	    55:   ldy #>dirname
-00:0752 20DFFF          	    56:   jsr fat32_finddirent
-00:0755 900E            	    57:   bcc foundsubdir
-                        	    58: 
-                        	    59: error:
-                        	    60: 
-                        	    61:   ; Subdirectory not found
-00:0757 A007            	    62:   ldy #>errormsg
-00:0759 A220            	    63:   ldx #<errormsg
-00:075B 20CDFF          	    64:   jsr w_acia_full
-00:075E 200909          	    65:   jsr error_sound
-00:0761 60              	    66:   rts
-00:0762 60              	    67:   rts
-00:0763 60              	    68:   rts
-00:0764 60              	    69:   rts
-                        	    70: 
-                        	    71: foundsubdir
-                        	    72: 
-                        	    73:   ; Open subdirectory
-00:0765 20D9FF          	    74:   jsr fat32_opendirent	; open folder
-                        	    75: 
-00:0768 7A              	    76:   ply
-00:0769 FA              	    77:   plx 
-00:076A 68              	    78:   pla
-00:076B 60              	    79:   rts
-                        	    80: 
-                        	    81: 
-                        	    82: type:			; typing a filename
-00:076C A2FC            	    83:   ldx #<typemsg		; Filename:_
-00:076E A007            	    84:   ldy #>typemsg
-00:0770 20CDFF          	    85:   jsr w_acia_full
-00:0773 A200            	    86:   ldx #0
-00:0775 A920            	    87:   lda #' '
-00:0777 8504            	    88:   sta $04		; I frogor
-00:0779 4CB008          	    89:   jmp typeloop		; start loop
-                        	    90: 
-                        	    91: rxpol:
-00:077C AD0180          	    92:   lda $8001
-00:077F 2908            	    93:   and #$08		; non-irq rx polling code
-00:0781 F0F9            	    94:   beq rxpol
-00:0783 60              	    95:   rts
-                        	    96: 
-                        	    97: rxput:
-00:0784 AD0180          	    98:   lda $8001
-00:0787 2908            	    99:   and #$08		; it loops
-00:0789 F001            	   100:   beq typelop
-00:078B 60              	   101:   rts
-                        	   102: typelop:
-00:078C 4CB008          	   103:   jmp typeloop
-                        	   104: 
-                        	   105: lodmsg:
-00:078F 0D              	   106:   .byte $0d, $0a, "Loading...", $0d, $0a, $00
-00:0790 0A
-00:0791 4C6F6164696E672E
-00:0799 2E2E
-00:079B 0D
-00:079C 0A
-00:079D 00
-                        	   107: donemsg:
-00:079E 0C              	   108:   .byte $0c, $00
-00:079F 00
-                        	   109: 
-                        	   110: loadmsg:
-00:07A0 2020202020202020	   111:   .byte "          -------- SD Loader --------     ", $0d, $0a, $00
-00:07A8 20202D2D2D2D2D2D
-00:07B0 2D2D205344204C6F
-00:07B8 61646572202D2D2D
-00:07C0 2D2D2D2D2D202020
-00:07C8 2020
-00:07CA 0D
-00:07CB 0A
-00:07CC 00
-                        	   112: lodmm:
-00:07CD 2020202020202020	   113:   .byte "          Press (l) to list <FOLDER>      ", $0d, $0a, $0d, $0a, $00
-00:07D5 2020507265737320
-00:07DD 286C2920746F206C
-00:07E5 697374203C464F4C
-00:07ED 4445523E20202020
-00:07F5 2020
-00:07F7 0D
-00:07F8 0A
-00:07F9 0D
-00:07FA 0A
-00:07FB 00
-                        	   114: 
-                        	   115: typemsg:
-00:07FC 5479706520746865	   116:   .byte "Type the filename in all caps.", $0d, $0a, "The filename is up to 8 characters long.", $0d, $0a, " Filename: "
-00:0804 2066696C656E616D
-00:080C 6520696E20616C6C
-00:0814 20636170732E
-00:081A 0D
-00:081B 0A
-00:081C 5468652066696C65
-00:0824 6E616D6520697320
-00:082C 757020746F203820
-00:0834 6368617261637465
-00:083C 7273206C6F6E672E
-00:0844 0D
-00:0845 0A
-00:0846 2046696C656E616D
-00:084E 653A20
-00:0851 02
-00:0852 5F
-00:0853 00
-                        	   117: 
-                        	   118: loadbuf:
-00:0854 20              	   119:   .byte $20, $20, $20, $20, $20, $20, $20, $20
-00:0855 20
-00:0856 20
-00:0857 20
-00:0858 20
-00:0859 20
-00:085A 20
-00:085B 20
-00:085C 58504C          	   120:   .byte "XPL"
-                        	   121: 
-                        	   122: other:
-00:085F 20C4FF          	   123:   jsr txpoll		; Write a letter of the filename currently being read
-00:0862 B148            	   124:   lda (zp_sd_address),y
-00:0864 8D0080          	   125:   sta $8000
-00:0867 C8              	   126:   iny
-00:0868 60              	   127:   rts
-                        	   128: 
-                        	   129: list:			; list file dir
-00:0869 20DCFF          	   130:   jsr fat32_readdirent	; files?
-00:086C B036            	   131:   bcs nofiles
-00:086E 2940            	   132:   and #$40
-00:0870 F005            	   133:   beq arc
-                        	   134: dir:
-00:0872 A944            	   135:   lda #'D'		; directorys show up as 
-00:0874 4C7908          	   136:   jmp ebut		; D YOURFILENAME     D TEST      D FOLDER  ...Etc
-                        	   137: arc:
-00:0877 A946            	   138:   lda #'F'		; files show up as
-                        	   139: ebut:			; F TEST.XPL         F MUSIC.XPL        F FILE.BIN  ...Etc
-00:0879 20C7FF          	   140:   jsr print_chara	; f or d
-00:087C A920            	   141:   lda #$20		; space
-00:087E 20C7FF          	   142:   jsr print_chara
-                        	   143:   ; At this point, we know that there are no files, files, or a suddir
-                        	   144:   ; Now for the name
-00:0881 A000            	   145:   ldy #0
-                        	   146: nameloop:
-00:0883 C008            	   147:   cpy #8
-00:0885 F006            	   148:   beq dot
-00:0887 205F08          	   149:   jsr other
-00:088A 4C8308          	   150:   jmp nameloop
-                        	   151: dot:
-00:088D A92E            	   152:   lda #'.'		; shows a file extention
-00:088F 20C7FF          	   153:   jsr print_chara
-                        	   154: lopii:
-00:0892 C00B            	   155:   cpy #11
-00:0894 F006            	   156:   beq endthat		; print 3-letter file extention
-00:0896 205F08          	   157:   jsr other
-00:0899 4C9208          	   158:   jmp lopii
-                        	   159: endthat:
-00:089C A909            	   160:   lda #$09 ; Tab
-00:089E 20C7FF          	   161:   jsr print_chara	; tab
-00:08A1 4C6908          	   162:   jmp list ; go again	; next file if there are any left
-                        	   163: nofiles:		; if not,
-                        	   164: endlist:		; exit listing code
-00:08A4 20BBFF          	   165:   jsr crlf
-00:08A7 4C6C07          	   166:   jmp type
-                        	   167: 
-                        	   168: jumptolist:
-00:08AA 20BBFF          	   169:   jsr crlf
-00:08AD 4C6908          	   170:   jmp list
-                        	   171: 
-                        	   172: typeloop:		; loop to type filenames
-                        	   173: 
-00:08B0 207C07          	   174:   jsr rxpol		; read a charactor
-00:08B3 AD0080          	   175:   lda $8000
-00:08B6 8D0507          	   176:   sta charbuffer
-                        	   177: 
-00:08B9 C90D            	   178:   cmp #$0d		; enter?
-00:08BB F017            	   179:   beq exitloop		; if so, load
-                        	   180: 			; if not...
-00:08BD AD0507          	   181:   lda charbuffer	
-00:08C0 C96C            	   182:   cmp #'l'		; check if it's "l"
-00:08C2 F0E6            	   183:   beq jumptolist	; if so, list files
-                        	   184: 			; if not,
-00:08C4 AD0507          	   185:   lda charbuffer	; echo back
-00:08C7 8D0080          	   186:   sta $8000
-                        	   187: 
-00:08CA AD0507          	   188:   lda charbuffer	; and store it in the filename buffer
-00:08CD 9D5408          	   189:   sta loadbuf,x
-00:08D0 E8              	   190:   inx
-00:08D1 4CB008          	   191:   jmp typeloop
-                        	   192: 
-                        	   193: exitloop:
-                        	   194: 
-00:08D4 20BBFF          	   195:   jsr crlf
-00:08D7 204807          	   196:   jsr rootsetup
-                        	   197:   
-00:08DA A008            	   198:   ldy #>loadbuf
-00:08DC A254            	   199:   ldx #<loadbuf
-00:08DE 20DFFF          	   200:   jsr fat32_finddirent
-00:08E1 9003            	   201:   bcc foundfile
-                        	   202:   
-                        	   203:   ; File not found
-00:08E3 4C5707          	   204:   jmp error
-                        	   205: 
-                        	   206: foundfile
-                        	   207:  
-                        	   208:   ; Open file
-00:08E6 20D9FF          	   209:   jsr fat32_opendirent
-                        	   210: 
-00:08E9 A28F            	   211:   ldx #<lodmsg
-00:08EB A007            	   212:   ldy #>lodmsg
-00:08ED 20CDFF          	   213:   jsr w_acia_full
-                        	   214: 
-00:08F0 A900            	   215:   lda #$00
-00:08F2 855D            	   216:   sta fat32_address
-00:08F4 A90F            	   217:   lda #$0f
-00:08F6 855E            	   218:   sta fat32_address+1
-                        	   219: 
-00:08F8 20E5FF          	   220:   jsr fat32_file_read  ; Yes. It is finally time to read the file.
-                        	   221: 
-                        	   222: end:
-00:08FB A29E            	   223:   ldx #<donemsg
-00:08FD A007            	   224:   ldy #>donemsg
-00:08FF 20CDFF          	   225:   jsr w_acia_full
-00:0902 20000F          	   226:   jsr $0f00
-00:0905 60              	   227:   rts
-00:0906 60              	   228:   rts
-00:0907 60              	   229:   rts
-00:0908 60              	   230:   rts
-                        	   231: 
-                        	   232: ;clear_sid
-                        	   233: ;  ldx #$18
-                        	   234: ;csid
-                        	   235: ;  stz $b800,x
-                        	   236: ;  dex
-                        	   237: ;  bne csid
-                        	   238: ;  rts
-                        	   239: 
-                        	   240:   .include "errors.s"
-
-Source: "errors.s"
-                        	     1: error_sound:
-00:0909 A955            	     2:   lda #$55
-00:090B 8502            	     3:   sta donefact
-00:090D 6403            	     4:   stz irqcount	; reset irq count
-                        	     5: 
-                        	     6: runthesound:
-00:090F 78              	     7:   sei		; turn off irqs
-00:0910 A92D            	     8:   lda #<irq
-00:0912 8DFE7F          	     9:   sta $7ffe
-00:0915 A909            	    10:   lda #>irq
-00:0917 8DFF7F          	    11:   sta $7fff	; store vectors
-00:091A A9C0            	    12:   lda #$c0
-00:091C 8D0EB0          	    13:   sta $b00e	
-00:091F A900            	    14:   lda #0 ; Song Number
-00:0921 205409          	    15:   jsr InitSid
-00:0924 A940            	    16:   lda #$40
-00:0926 8D0DB0          	    17:   sta $b00d
-00:0929 58              	    18:   cli
-00:092A 4C2F12          	    19:   jmp startupsoundloop
-                        	    20: 
-                        	    21: irq:
-00:092D A940            	    22:   lda #$40
-00:092F 8D0DB0          	    23:   sta $b00d
-00:0932 204309          	    24:   jsr putbut		; refresh timers
-00:0935 E603            	    25:   inc irqcount		; a irq has occurred
-00:0937 A503            	    26:   lda irqcount
-00:0939 C940            	    27:   cmp #$40		; if $32 irqs (end of the error sound)
-00:093B D002            	    28:   bne continue24542 	; end the stream
-00:093D 6402            	    29:   stz donefact		; its done, tell the loop
-                        	    30: continue24542:
-00:093F 200610          	    31:   jsr $1006
-00:0942 40              	    32:   rti			; exit
-                        	    33: 
-                        	    34: putbut:
-00:0943 A29E            	    35:   ldx #$9e
-00:0945 8E04B0          	    36:   stx $b004
-00:0948 8E06B0          	    37:   stx $b006
-00:094B A20F            	    38:   ldx #$0f  ; 250Hz IRQ
-00:094D 8E05B0          	    39:   stx $b005
-00:0950 8E07B0          	    40:   stx $b007
-00:0953 60              	    41:   rts
-                        	    42: InitSid:
-00:0954 204309          	    43:   jsr putbut
-00:0957 4C0311          	    44:   jmp $1103
-                        	    45: 
-                        	    46:   .org $1006
-                        	    47: 
-                        	    48:   .include "errorsound.s"
-
-Source: "errorsound.s"
-                        	     1: d400_sVoc1FreqLo = $b800
-                        	     2: d404_sVoc1Control = $b804
-                        	     3: d40b_sVoc2Control = $b80b
-                        	     4: d412_sVoc3Control = $b812
-                        	     5: 
-                        	     6:   .org $1006
-                        	     7: 
-01:1006 A218            	     8: PlaySid             ldx #$18
-01:1008 B504            	     9: L1008               lda $04,x
-01:100A 9D00B8          	    10:                     sta d400_sVoc1FreqLo,x
-01:100D CA              	    11:                     dex
-01:100E 10F8            	    12:                     bpl L1008
-01:1010 C602            	    13:                     dec $02
-01:1012 3001            	    14:                     bmi L1015
-01:1014 60              	    15:                     rts
-                        	    16:                     
-01:1015 8602            	    17: L1015               stx $02
-01:1017 A503            	    18:                     lda $03
-01:1019 D018            	    19:                     bne L1033
-01:101B 201F00          	    20:                     jsr $001f
-01:101E F018            	    21:                     beq L1038
-01:1020 C9A0            	    22:                     cmp #$a0
-01:1022 B00A            	    23:                     bcs L102e
-01:1024 852A            	    24:                     sta $2a
-01:1026 201F00          	    25:                     jsr $001f
-01:1029 8529            	    26:                     sta $29
-01:102B 4C7610          	    27:                     jmp L1076
-                        	    28:                     
-01:102E 38              	    29: L102e               sec
-01:102F E99F            	    30:                     sbc #$9f
-01:1031 8503            	    31:                     sta $03
-01:1033 C603            	    32: L1033               dec $03
-01:1035 4C7610          	    33:                     jmp L1076
-                        	    34:                     
-01:1038 201F00          	    35: L1038               jsr $001f
-01:103B C9FD            	    36:                     cmp #$fd
-01:103D F02C            	    37:                     beq L106b
-01:103F C9FE            	    38:                     cmp #$fe
-01:1041 F01D            	    39:                     beq L1060
-01:1043 C9FF            	    40:                     cmp #$ff
-01:1045 F003            	    41:                     beq L104a
-01:1047 8502            	    42:                     sta $02
-01:1049 60              	    43:                     rts
-                        	    44:                     
-01:104A A900            	    45: L104a               lda #$00
-01:104C 8D04B8          	    46:                     sta d404_sVoc1Control
-01:104F 8D0BB8          	    47:                     sta d40b_sVoc2Control
-01:1052 8D12B8          	    48:                     sta d412_sVoc3Control
-01:1055 A95E            	    49:                     lda #$5e
-01:1057 8526            	    50:                     sta $26
-01:1059 A910            	    51:                     lda #$10
-01:105B 8527            	    52:                     sta $27
-01:105D 60              	    53:                     rts
-                        	    54:                     
-01:105E FF              	    55:                       .byte $ff, $00 
-01:105F 00
-01:1060 A51D            	    56: L1060               lda $1d
-01:1062 8526            	    57:                     sta $26
-01:1064 A51E            	    58:                     lda $1e
-01:1066 8527            	    59:                     sta $27
-01:1068 4C1510          	    60:                     jmp L1015
-                        	    61:                     
-01:106B A526            	    62: L106b               lda $26
-01:106D 851D            	    63:                     sta $1d
-01:106F A527            	    64:                     lda $27
-01:1071 851E            	    65:                     sta $1e
-01:1073 4C1510          	    66:                     jmp L1015
-                        	    67:                     
-01:1076 20A110          	    68: L1076               jsr S10a1
-01:1079 A9F8            	    69:                     lda #$f8
-01:107B 18              	    70: L107b               clc
-01:107C 6907            	    71:                     adc #$07
-01:107E 48              	    72:                     pha
-01:107F AA              	    73:                     tax
-01:1080 201F00          	    74:                     jsr $001f
-01:1083 4A              	    75:                     lsr a
-01:1084 08              	    76:                     php
-01:1085 E8              	    77: L1085               inx
-01:1086 4A              	    78:                     lsr a
-01:1087 B00A            	    79:                     bcs L1093
-01:1089 D0FA            	    80:                     bne L1085
-01:108B 28              	    81:                     plp
-01:108C 68              	    82:                     pla
-01:108D B0EC            	    83:                     bcs L107b
-01:108F 20A110          	    84:                     jsr S10a1
-01:1092 60              	    85:                     rts
-                        	    86:                     
-01:1093 48              	    87: L1093               pha
-01:1094 BCFFFF          	    88:                     ldy $ffff,x
-01:1097 201F00          	    89:                     jsr $001f
-01:109A 990400          	    90:                     sta $0004,y
-01:109D 68              	    91:                     pla
-01:109E 4C8510          	    92:                     jmp L1085
-                        	    93:                     
-01:10A1 A426            	    94: S10a1               ldy $26
-01:10A3 A629            	    95:                     ldx $29
-01:10A5 8429            	    96:                     sty $29
-01:10A7 8626            	    97:                     stx $26
-01:10A9 A427            	    98:                     ldy $27
-01:10AB A62A            	    99:                     ldx $2a
-01:10AD 842A            	   100:                     sty $2a
-01:10AF 8627            	   101:                     stx $27
-01:10B1 60              	   102:                     rts
-                        	   103:                     
-01:10B2 8426            	   104: L10b2               sty $26
-01:10B4 8627            	   105:                     stx $27
-01:10B6 A206            	   106:                     ldx #$06
-01:10B8 BDC610          	   107: L10b8               lda $10c6,x
-01:10BB 951F            	   108:                     sta $1f,x
-01:10BD CA              	   109:                     dex
-01:10BE 10F8            	   110:                     bpl L10b8
-01:10C0 A960            	   111:                     lda #$60
-01:10C2 8528            	   112:                     sta $28
-01:10C4 D00A            	   113:                     bne L10d0
-01:10C6 E626            	   114:                     inc $26
-01:10C8 D002            	   115:                     bne L10cc
-01:10CA E627            	   116:                     inc $27
-01:10CC ADFFFF          	   117: L10cc               lda $ffff
-01:10CF 60              	   118:                     rts
+Source: "empty.s"
+                        	    30: 
+                        	    31: init:
+00:0F82 78              	    32:   sei
+00:0F83 A2C9            	    33:   ldx #<secret
+00:0F85 A00F            	    34:   ldy #>secret
+00:0F87 20CDFF          	    35:   jsr w_acia_full
+00:0F8A A9AB            	    36:   lda #<irq
+00:0F8C 8DFE7F          	    37:   sta $7ffe
+00:0F8F A90F            	    38:   lda #>irq
+00:0F91 8DFF7F          	    39:   sta $7fff
+00:0F94 A9C0            	    40:   lda #$c0
+00:0F96 8D0EB0          	    41:   sta $b00e
+00:0F99 20B80F          	    42:   jsr putbut
+00:0F9C A900            	    43:   lda #0 ; Song Number
+00:0F9E 20ED11          	    44:   jsr InitSid
+00:0FA1 A940            	    45:   lda #$40
+00:0FA3 8D0DB0          	    46:   sta $b00d
+00:0FA6 58              	    47:   cli
+00:0FA7 EA              	    48:   nop
+                        	    49: ; You can put code you want to run in the backround here.
+                        	    50: loop:
+00:0FA8 4CA80F          	    51:   jmp loop
+                        	    52: irq:
+00:0FAB 48              	    53:   pha
+00:0FAC DA              	    54:   phx
+00:0FAD 5A              	    55:   phy
+00:0FAE 20B80F          	    56:   jsr putbut
+00:0FB1 200410          	    57:   jsr PlaySid
+00:0FB4 7A              	    58:   ply
+00:0FB5 FA              	    59:   plx
+00:0FB6 68              	    60:   pla
+00:0FB7 40              	    61:   rti
+                        	    62: 
+                        	    63: putbut
+00:0FB8 A21E            	    64:   ldx #$1e
+00:0FBA 8E04B0          	    65:   stx $b004
+00:0FBD 8E06B0          	    66:   stx $b006
+00:0FC0 A24E            	    67:   ldx #$4e    ;50Hz IRQ
+00:0FC2 8E05B0          	    68:   stx $b005
+00:0FC5 8E07B0          	    69:   stx $b007
+00:0FC8 60              	    70:   rts 
+                        	    71: 
+                        	    72: secret:
+00:0FC9 796F7520666F756E	    73: 	.byte "you found the easter egg!", $0d, $0a, $0d, $0a, "now playing 4MAT - EMPTY", $0d, $0a, $00
+00:0FD1 6420746865206561
+00:0FD9 7374657220656767
+00:0FE1 21
+00:0FE2 0D
+00:0FE3 0A
+00:0FE4 0D
+00:0FE5 0A
+00:0FE6 6E6F7720706C6179
+00:0FEE 696E6720344D4154
+00:0FF6 202D20454D505459
+00:0FFE 0D
+00:0FFF 0A
+00:1000 00
+                        	    74: 
+                        	    75: 	.org $1001
+                        	    76: 
+01:1001 4C0710          	    77: L1001               jmp L1007
+                        	    78:                     
+01:1004 4CB710          	    79: PlaySid             jmp L10b7
+                        	    80:                     
+01:1007 A200            	    81: L1007               ldx #$00
+01:1009 A901            	    82: L1009               lda #$01
+01:100B 8580            	    83:                     sta $80
+01:100D 8A              	    84:                     txa
+01:100E A8              	    85:                     tay
+01:100F A580            	    86: L100f               lda $80
+01:1011 99AB18          	    87:                     sta $18ab,y
+01:1014 0A              	    88:                     asl a
+01:1015 8580            	    89:                     sta $80
+01:1017 BD3011          	    90:                     lda $1130,x
+01:101A 992B19          	    91:                     sta $192b,y
+01:101D 2A              	    92:                     rol a
+01:101E 9D3011          	    93:                     sta $1130,x
+01:1021 9006            	    94:                     bcc L1029
+01:1023 A580            	    95:                     lda $80
+01:1025 6900            	    96:                     adc #$00
+01:1027 8580            	    97:                     sta $80
+01:1029 18              	    98: L1029               clc
+01:102A 98              	    99:                     tya
+01:102B 690C            	   100:                     adc #$0c
+01:102D A8              	   101:                     tay
+01:102E 10DF            	   102:                     bpl L100f
+01:1030 E8              	   103:                     inx
+01:1031 E00C            	   104:                     cpx #$0c
+01:1033 D0D4            	   105:                     bne L1009
+01:1035 A00E            	   106:                     ldy #$0e
+01:1037 8C18B8          	   107:                     sty d418_sFiltMode
+01:103A A202            	   108:                     ldx #$02
+01:103C BDEA11          	   109: L103c               lda $11ea,x
+01:103F 992F18          	   110:                     sta $182f,y
+01:1042 A90E            	   111:                     lda #$0e
+01:1044 991A18          	   112:                     sta $181a,y
+01:1047 98              	   113:                     tya
+01:1048 E907            	   114:                     sbc #$07
+01:104A A8              	   115:                     tay
+01:104B CA              	   116:                     dex
+01:104C D0EE            	   117:                     bne L103c
+01:104E 60              	   118:                     rts
                         	   119:                     
-01:10D0 201F00          	   120: L10d0               jsr $001f
-01:10D3 8D04DC          	   121:                     sta $dc04
-01:10D6 201F00          	   122:                     jsr $001f
-01:10D9 8D05DC          	   123:                     sta $dc05
-01:10DC 201F00          	   124:                     jsr $001f
-01:10DF 8529            	   125:                     sta $29
-01:10E1 201F00          	   126:                     jsr $001f
-01:10E4 852A            	   127:                     sta $2a
-01:10E6 E626            	   128:                     inc $26
-01:10E8 D002            	   129:                     bne L10ec
-01:10EA E627            	   130:                     inc $27
-01:10EC A526            	   131: L10ec               lda $26
-01:10EE 8D9510          	   132:                     sta $1095
-01:10F1 A527            	   133:                     lda $27
-01:10F3 8D9610          	   134:                     sta $1096
-01:10F6 A21C            	   135:                     ldx #$1c
-01:10F8 A900            	   136:                     lda #$00
-01:10FA 9502            	   137: L10fa               sta $02,x
-01:10FC CA              	   138:                     dex
-01:10FD 10FB            	   139:                     bpl L10fa
-01:10FF 20A110          	   140:                     jsr S10a1
-01:1102 60              	   141:                     rts
-                        	   142:                     
-01:1103 A009            	   143: InitSid2            ldy #$09
-01:1105 A211            	   144:                     ldx #$11
-01:1107 4CB210          	   145:                     jmp L10b2
-                        	   146: 
-01:110A F00F77110100120D	   147:   .binary "errorsound.bin"
-01:1112 04050B1408090706
-01:111A 0C030E0F10111713
-01:1122 0A1516180200B600
-01:112A 6EB60116FF3E0320
-01:1132 F0410820FFF000FD
-01:113A 00000007FF0000FD
-01:1142 070000071E00000F
-01:114A FD06166E063E03FF
-01:1152 166E080008000863
-01:115A 0000004000FF3E03
-01:1162 20F04108209FF000
-01:116A FD0007BF0000FD07
-01:1172 00070E00000F112D
-01:117A 00FD114AA0114AA0
-01:1182 114AA0114AA0114A
-01:118A A0114AA0114AA011
-01:1192 4AA0114AA0114AA0
-01:119A 114AA0114AA0114A
-01:11A2 A0114AA0114AA011
-01:11AA 4AA0114AA0114AA0
-01:11B2 114AA0114AA0114A
-01:11BA A0114AA0114AA011
-01:11C2 4AA0114AA0114AA0
-01:11CA 114AA0114AA0114A
-01:11D2 A0114AA0114AA011
-01:11DA 4AA0114AA0114AA0
-01:11E2 114AA0114AA0114A
-01:11EA A0114AA0114AA011
-01:11F2 4AA0114AA0114AA0
-01:11FA 114AA0114AA0114A
-01:1202 A0114AA0114AA011
-01:120A 4AA0114AA0114AA0
-01:1212 114AA0114AA0114A
-01:121A A0114AA0114AA011
-01:1222 4AA0114AA0114AA0
-01:122A 114AA200FE
-                        	   148: ;          ^^^^^^^^^^^
-                        	   149: ; put your data file here.
-                        	   150: 
-                        	   151: 
-
-Source: "errors.s"
-                        	    49: 
-                        	    50: startupsoundloop:	
-01:122F A502            	    51:   lda donefact		; loop only if the sound is not done
-01:1231 D0FC            	    52:   bne startupsoundloop
-01:1233 9C0EB0          	    53:   stz $b00e		; if done disable irqs
-01:1236 9C0DB0          	    54:   stz $b00d
-01:1239 78              	    55:   sei
-01:123A A5C0            	    56:   lda $c0		; clear irq vectors
-01:123C 8DFF7F          	    57:   sta $7fff
-01:123F 9CFE7F          	    58:   stz $7ffe
-01:1242 204912          	    59:   jsr clear_sid
-01:1245 60              	    60:   rts
-01:1246 60              	    61:   rts
-01:1247 60              	    62:   rts
-01:1248 60              	    63:   rts
-                        	    64: 
-                        	    65: clear_sid
-01:1249 A217            	    66:   ldx #$17 ; 17 cuz no pop
-                        	    67: csid
-01:124B 9E00B8          	    68:   stz $b800,x
-01:124E CA              	    69:   dex
-01:124F D0FA            	    70:   bne csid
-01:1251 60              	    71:   rts
-                        	    72: 
-                        	    73: 
-
-Source: "sd_handeler.s"
-                        	   241: 
+01:104F BC1518          	   120: L104f               ldy $1815,x
+01:1052 BD0218          	   121:                     lda $1802,x
+01:1055 797411          	   122:                     adc $1174,y
+01:1058 DD0218          	   123:                     cmp $1802,x
+01:105B 9D0218          	   124:                     sta $1802,x
+01:105E B003            	   125:                     bcs L1063
+01:1060 FE0318          	   126:                     inc $1803,x
+01:1063 98              	   127: L1063               tya
+01:1064 0A              	   128:                     asl a
+01:1065 0A              	   129:                     asl a
+01:1066 7D1618          	   130:                     adc $1816,x
+01:1069 FD1518          	   131:                     sbc $1815,x
+01:106C A8              	   132:                     tay
+01:106D B95111          	   133:                     lda $1151,y
+01:1070 9D0418          	   134:                     sta $1804,x
+01:1073 B93C11          	   135:                     lda $113c,y
+01:1076 C9F0            	   136:                     cmp #$f0
+01:1078 9012            	   137:                     bcc L108c
+01:107A 290F            	   138:                     and #$0f
+01:107C 7D1818          	   139:                     adc $1818,x
+01:107F 7D2C18          	   140:                     adc $182c,x
+01:1082 A8              	   141:                     tay
+01:1083 B92A19          	   142:                     lda $192a,y
+01:1086 9D0018          	   143:                     sta $1800,x
+01:1089 B9AA18          	   144:                     lda $18aa,y
+01:108C 9D0118          	   145: L108c               sta $1801,x
+01:108F FE1618          	   146: L108f               inc $1816,x
+01:1092 BD1618          	   147:                     lda $1816,x
+01:1095 2903            	   148:                     and #$03
+01:1097 D00A            	   149:                     bne L10a3
+01:1099 BC1518          	   150:                     ldy $1815,x
+01:109C B96D11          	   151:                     lda $116d,y
+01:109F 4A              	   152:                     lsr a
+01:10A0 4A              	   153:                     lsr a
+01:10A1 4A              	   154:                     lsr a
+01:10A2 4A              	   155:                     lsr a
+01:10A3 9D1618          	   156: L10a3               sta $1816,x
+01:10A6 A007            	   157: L10a6               ldy #$07
+01:10A8 BD0018          	   158: L10a8               lda $1800,x
+01:10AB 9D00B8          	   159:                     sta d400_sVoc1FreqLo,x
+01:10AE E8              	   160:                     inx
+01:10AF 88              	   161:                     dey
+01:10B0 D0F6            	   162:                     bne L10a8
+01:10B2 E015            	   163:                     cpx #$15
+01:10B4 D003            	   164:                     bne L10b9
+01:10B6 60              	   165:                     rts
+                        	   166:                     
+01:10B7 A200            	   167: L10b7               ldx #$00
+01:10B9 DE2E18          	   168: L10b9               dec $182e,x
+01:10BC 1091            	   169:                     bpl L104f
+01:10BE A906            	   170:                     lda #$06
+01:10C0 9D2E18          	   171:                     sta $182e,x
+01:10C3 DE2A18          	   172:                     dec $182a,x
+01:10C6 1087            	   173:                     bpl L104f
+01:10C8 FE1918          	   174: L10c8               inc $1819,x
+01:10CB BC1918          	   175: L10cb               ldy $1819,x
+01:10CE BD1B18          	   176:                     lda $181b,x
+01:10D1 9D2A18          	   177:                     sta $182a,x
+01:10D4 B97B11          	   178:                     lda $117b,y
+01:10D7 F0CD            	   179:                     beq L10a6
+01:10D9 301E            	   180:                     bmi L10f9
+01:10DB 9D1818          	   181:                     sta $1818,x
+01:10DE A900            	   182:                     lda #$00
+01:10E0 9D1618          	   183:                     sta $1816,x
+01:10E3 BC1518          	   184:                     ldy $1815,x
+01:10E6 B96D11          	   185:                     lda $116d,y
+01:10E9 9D0318          	   186:                     sta $1803,x
+01:10EC B96611          	   187:                     lda $1166,y
+01:10EF 9D0618          	   188:                     sta $1806,x
+01:10F2 A909            	   189:                     lda #$09
+01:10F4 9D0418          	   190:                     sta $1804,x
+01:10F7 1096            	   191:                     bpl L108f
+01:10F9 C9FF            	   192: L10f9               cmp #$ff
+01:10FB F010            	   193:                     beq L110d
+01:10FD C9DF            	   194:                     cmp #$df
+01:10FF 290F            	   195:                     and #$0f
+01:1101 9005            	   196:                     bcc L1108
+01:1103 9D1518          	   197:                     sta $1815,x
+01:1106 10C0            	   198:                     bpl L10c8
+01:1108 9D1B18          	   199: L1108               sta $181b,x
+01:110B 10BB            	   200:                     bpl L10c8
+01:110D FE1A18          	   201: L110d               inc $181a,x
+01:1110 BC1A18          	   202: L1110               ldy $181a,x
+01:1113 B9BD11          	   203:                     lda $11bd,y
+01:1116 3005            	   204:                     bmi L111d
+01:1118 9D1918          	   205:                     sta $1819,x
+01:111B 10AE            	   206:                     bpl L10cb
+01:111D C9FF            	   207: L111d               cmp #$ff
+01:111F F007            	   208:                     beq L1128
+01:1121 290F            	   209:                     and #$0f
+01:1123 9D2C18          	   210:                     sta $182c,x
+01:1126 10E5            	   211:                     bpl L110d
+01:1128 BD2F18          	   212: L1128               lda $182f,x
+01:112B 9D1A18          	   213:                     sta $181a,x
+01:112E 10E0            	   214:                     bpl L1110
+01:1130 0C              	   215:                     .byte $0c, $1c, $2d, $3e, $51, $66, $7b, $91, $a9, $c3, $dd, $fa, $f3, $f7, $f0, $f4 
+01:1131 1C
+01:1132 2D
+01:1133 3E
+01:1134 51
+01:1135 66
+01:1136 7B
+01:1137 91
+01:1138 A9
+01:1139 C3
+01:113A DD
+01:113B FA
+01:113C F3
+01:113D F7
+01:113E F0
+01:113F F4
+01:1140 F7              	   216:                     .byte $f7, $f0, $10, $af, $06, $f0, $f0, $f0, $14, $0c, $e0, $fc, $ef, $f0, $fc, $fc 
+01:1141 F0
+01:1142 10
+01:1143 AF
+01:1144 06
+01:1145 F0
+01:1146 F0
+01:1147 F0
+01:1148 14
+01:1149 0C
+01:114A E0
+01:114B FC
+01:114C EF
+01:114D F0
+01:114E FC
+01:114F FC
+01:1150 F0              	   217:                     .byte $f0, $41, $41, $41, $41, $41, $41, $41, $81, $40, $41, $41, $40, $41, $41, $80 
+01:1151 41
+01:1152 41
+01:1153 41
+01:1154 41
+01:1155 41
+01:1156 41
+01:1157 41
+01:1158 81
+01:1159 40
+01:115A 41
+01:115B 41
+01:115C 40
+01:115D 41
+01:115E 41
+01:115F 80
+01:1160 11              	   218:                     .byte $11, $81, $40, $11, $21, $40, $6f, $6f, $95, $ec, $a9, $79, $6e, $15, $18, $38 
+01:1161 81
+01:1162 40
+01:1163 11
+01:1164 21
+01:1165 40
+01:1166 6F
+01:1167 6F
+01:1168 95
+01:1169 EC
+01:116A A9
+01:116B 79
+01:116C 6E
+01:116D 15
+01:116E 18
+01:116F 38
+01:1170 30              	   219:                     .byte $30, $38, $3b, $36, $1c, $0c, $00, $15, $00, $74, $a5, $00, $ff, $81, $e3, $11 
+01:1171 38
+01:1172 3B
+01:1173 36
+01:1174 1C
+01:1175 0C
+01:1176 00
+01:1177 15
+01:1178 00
+01:1179 74
+01:117A A5
+01:117B 00
+01:117C FF
+01:117D 81
+01:117E E3
+01:117F 11
+01:1180 1D              	   220:                     .byte $1d, $82, $e4, $55, $82, $e3, $11, $81, $1d, $e4, $55, $e3, $18, $ff, $e2, $55 
+01:1181 82
+01:1182 E4
+01:1183 55
+01:1184 82
+01:1185 E3
+01:1186 11
+01:1187 81
+01:1188 1D
+01:1189 E4
+01:118A 55
+01:118B E3
+01:118C 18
+01:118D FF
+01:118E E2
+01:118F 55
+01:1190 E5              	   221:                     .byte $e5, $30, $35, $3a, $41, $35, $3a, $29, $ff, $8f, $e0, $35, $e1, $33, $31, $00 
+01:1191 30
+01:1192 35
+01:1193 3A
+01:1194 41
+01:1195 35
+01:1196 3A
+01:1197 29
+01:1198 FF
+01:1199 8F
+01:119A E0
+01:119B 35
+01:119C E1
+01:119D 33
+01:119E 31
+01:119F 00
+01:11A0 E0              	   222:                     .byte $e0, $35, $e1, $33, $e0, $2e, $00, $ff, $e6, $82, $38, $37, $87, $ff, $33, $80 
+01:11A1 35
+01:11A2 E1
+01:11A3 33
+01:11A4 E0
+01:11A5 2E
+01:11A6 00
+01:11A7 FF
+01:11A8 E6
+01:11A9 82
+01:11AA 38
+01:11AB 37
+01:11AC 87
+01:11AD FF
+01:11AE 33
+01:11AF 80
+01:11B0 2E              	   223:                     .byte $2e, $2c, $ff, $31, $8f, $00, $81, $00, $ff, $8f, $2e, $00, $ff, $f0, $02, $02 
+01:11B1 2C
+01:11B2 FF
+01:11B3 31
+01:11B4 8F
+01:11B5 00
+01:11B6 81
+01:11B7 00
+01:11B8 FF
+01:11B9 8F
+01:11BA 2E
+01:11BB 00
+01:11BC FF
+01:11BD F0
+01:11BE 02
+01:11BF 02
+01:11C0 F5              	   224:                     .byte $f5, $02, $02, $f8, $02, $fa, $02, $f1, $02, $02, $ff, $13, $ff, $1e, $1e, $2d 
+01:11C1 02
+01:11C2 02
+01:11C3 F8
+01:11C4 02
+01:11C5 FA
+01:11C6 02
+01:11C7 F1
+01:11C8 02
+01:11C9 02
+01:11CA FF
+01:11CB 13
+01:11CC FF
+01:11CD 1E
+01:11CE 1E
+01:11CF 2D
+01:11D0 33              	   225:                     .byte $33, $2d, $33, $2d, $38, $2d, $33, $2d, $33, $3e, $2d, $f7, $33, $f0, $2d, $f9 
+01:11D1 2D
+01:11D2 33
+01:11D3 2D
+01:11D4 38
+01:11D5 2D
+01:11D6 33
+01:11D7 2D
+01:11D8 33
+01:11D9 3E
+01:11DA 2D
+01:11DB F7
+01:11DC 33
+01:11DD F0
+01:11DE 2D
+01:11DF F9
+01:11E0 33              	   226:                     .byte $33, $f0, $2d, $38, $2d, $33, $2d, $33, $3e, $ff, $00, $0e, $10
+01:11E1 F0
+01:11E2 2D
+01:11E3 38
+01:11E4 2D
+01:11E5 33
+01:11E6 2D
+01:11E7 33
+01:11E8 3E
+01:11E9 FF
+01:11EA 00
+01:11EB 0E
+01:11EC 10
+01:11ED A200            	   227: InitSid             ldx #$00
+01:11EF 8A              	   228:                     txa
+01:11F0 9D0018          	   229: L11f0               sta $1800,x
+01:11F3 E8              	   230:                     inx
+01:11F4 D0FA            	   231:                     bne L11f0
+01:11F6 4C0110          	   232:                     jmp L1001
+                        	   233: 
+                        	   234: 
 
 
 Symbols by name:
-DDRA                             E:B003
-DDRB                             E:B002
-InitSid                          A:0954
-InitSid2                         A:1103
-L1008                            A:1008
-L1015                            A:1015
-L102e                            A:102E
-L1033                            A:1033
-L1038                            A:1038
-L104a                            A:104A
-L1060                            A:1060
-L106b                            A:106B
-L1076                            A:1076
-L107b                            A:107B
-L1085                            A:1085
-L1093                            A:1093
-L10b2                            A:10B2
-L10b8                            A:10B8
-L10cc                            A:10CC
-L10d0                            A:10D0
-L10ec                            A:10EC
-L10fa                            A:10FA
-LCD_E                            E:0080
-LCD_RS                           E:0020
-LCD_RW                           E:0040
-PORTA_OUTPUTPINS                 E:00FC
-PlaySid                          A:1006
-S10a1                            A:10A1
-SD_CS                            E:0010
-SD_MOSI                          E:0004
-SD_SCK                           E:0008
-arc                              A:0877
-charbuffer                       E:0705
-clear_sid                        A:1249
-cleardisplay                     E:FFBE
-continue24542                    A:093F
-crlf                             E:FFBB
-csid                             A:124B
+InitSid                          A:11ED
+L1001                            A:1001
+L1007                            A:1007
+L1009                            A:1009
+L100f                            A:100F
+L1029                            A:1029
+L103c                            A:103C
+L104f                            A:104F
+L1063                            A:1063
+L108c                            A:108C
+L108f                            A:108F
+L10a3                            A:10A3
+L10a6                            A:10A6
+L10a8                            A:10A8
+L10b7                            A:10B7
+L10b9                            A:10B9
+L10c8                            A:10C8
+L10cb                            A:10CB
+L10f9                            A:10F9
+L1108                            A:1108
+L110d                            A:110D
+L1110                            A:1110
+L111d                            A:111D
+L1128                            A:1128
+L11f0                            A:11F0
+PlaySid                          A:1004
 d400_sVoc1FreqLo                 E:B800
-d404_sVoc1Control                E:B804
-d40b_sVoc2Control                E:B80B
-d412_sVoc3Control                E:B812
-dir                              A:0872
-dirname                          A:0714
-donefact                         E:0002
-donemsg                          A:079E
-dot                              A:088D
-ebut                             A:0879
-end                              A:08FB
-endlist                          A:08A4
-endthat                          A:089C
-error                            A:0757
-error_sound                      A:0909
-errormsg                         A:0720
-exitloop                         A:08D4
-fat32_address                    E:005D
+d418_sFiltMode                   E:B818
 fat32_bytesremaining             E:0063
-fat32_file_read                  E:FFE5
-fat32_finddirent                 E:FFDF
-fat32_opendirent                 E:FFD9
-fat32_openroot                   E:FFD6
-fat32_readdirent                 E:FFDC
 fat32_workspace                  E:0500
-findrau                          A:0745
-foundfile                        A:08E6
-foundsubdir                      A:0765
-irq                              A:092D
-irqcount                         E:0003
-jumptoit                         A:0706
-jumptolist                       A:08AA
-list                             A:0869
-loadbuf                          A:0854
-loadmsg                          A:07A0
-lodmm                            A:07CD
-lodmsg                           A:078F
-lopii                            A:0892
-nameloop                         A:0883
-nofiles                          A:08A4
-other                            A:085F
-print_chara                      E:FFC7
-putbut                           A:0943
-rootsetup                        A:0748
-runthesound                      A:090F
-rxpol                            A:077C
-rxput                            A:0784
-sdstart                          A:072B
-seed                             E:0001
-startupsoundloop                 A:122F
-txpoll                           E:FFC4
-type                             A:076C
-typeloop                         A:08B0
-typelop                          A:078C
-typemsg                          A:07FC
-via_init                         A:0709
+init                             A:0F82
+irq                              A:0FAB
+loop                             A:0FA8
+putbut                           A:0FB8
+secret                           A:0FC9
 w_acia_full                      E:FFCD
 zp_fat32_variables               E:004F
-zp_sd_address                    E:0048
 
 Symbols by value:
-0001 seed
-0002 donefact
-0003 irqcount
-0004 SD_MOSI
-0008 SD_SCK
-0010 SD_CS
-0020 LCD_RS
-0040 LCD_RW
-0048 zp_sd_address
 004F zp_fat32_variables
-005D fat32_address
 0063 fat32_bytesremaining
-0080 LCD_E
-00FC PORTA_OUTPUTPINS
 0500 fat32_workspace
-0705 charbuffer
-0706 jumptoit
-0709 via_init
-0714 dirname
-0720 errormsg
-072B sdstart
-0745 findrau
-0748 rootsetup
-0757 error
-0765 foundsubdir
-076C type
-077C rxpol
-0784 rxput
-078C typelop
-078F lodmsg
-079E donemsg
-07A0 loadmsg
-07CD lodmm
-07FC typemsg
-0854 loadbuf
-085F other
-0869 list
-0872 dir
-0877 arc
-0879 ebut
-0883 nameloop
-088D dot
-0892 lopii
-089C endthat
-08A4 endlist
-08A4 nofiles
-08AA jumptolist
-08B0 typeloop
-08D4 exitloop
-08E6 foundfile
-08FB end
-0909 error_sound
-090F runthesound
-092D irq
-093F continue24542
-0943 putbut
-0954 InitSid
-1006 PlaySid
-1008 L1008
-1015 L1015
-102E L102e
-1033 L1033
-1038 L1038
-104A L104a
-1060 L1060
-106B L106b
-1076 L1076
-107B L107b
-1085 L1085
-1093 L1093
-10A1 S10a1
-10B2 L10b2
-10B8 L10b8
-10CC L10cc
-10D0 L10d0
-10EC L10ec
-10FA L10fa
-1103 InitSid2
-122F startupsoundloop
-1249 clear_sid
-124B csid
-B002 DDRB
-B003 DDRA
+0F82 init
+0FA8 loop
+0FAB irq
+0FB8 putbut
+0FC9 secret
+1001 L1001
+1004 PlaySid
+1007 L1007
+1009 L1009
+100F L100f
+1029 L1029
+103C L103c
+104F L104f
+1063 L1063
+108C L108c
+108F L108f
+10A3 L10a3
+10A6 L10a6
+10A8 L10a8
+10B7 L10b7
+10B9 L10b9
+10C8 L10c8
+10CB L10cb
+10F9 L10f9
+1108 L1108
+110D L110d
+1110 L1110
+111D L111d
+1128 L1128
+11ED InitSid
+11F0 L11f0
 B800 d400_sVoc1FreqLo
-B804 d404_sVoc1Control
-B80B d40b_sVoc2Control
-B812 d412_sVoc3Control
-FFBB crlf
-FFBE cleardisplay
-FFC4 txpoll
-FFC7 print_chara
+B818 d418_sFiltMode
 FFCD w_acia_full
-FFD6 fat32_openroot
-FFD9 fat32_opendirent
-FFDC fat32_readdirent
-FFDF fat32_finddirent
-FFE5 fat32_file_read
