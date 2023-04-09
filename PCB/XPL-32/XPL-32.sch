@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.6.0">
+<eagle version="9.6.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -25695,7 +25695,7 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <sheet>
 <plain>
 <text x="154.94" y="-53.34" size="5.08" layer="94">XPL-32</text>
-<text x="180.34" y="-53.34" size="5.08" layer="94">By Liam Oppenheimer</text>
+<text x="180.34" y="-53.34" size="5.08" layer="94">By Waverider</text>
 <text x="241.3" y="-66.04" size="3.81" layer="94">A</text>
 <text x="-111.76" y="165.1" size="1.778" layer="97">VIDEO/EXTVID Relay</text>
 <text x="-109.22" y="152.4" size="1.778" layer="97">65c22</text>

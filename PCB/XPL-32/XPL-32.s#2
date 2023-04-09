@@ -25713,7 +25713,8 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <text x="205.74" y="22.86" size="1.778" layer="97">Jumper Debug Settings</text>
 <wire x1="205.74" y1="22.86" x2="187.96" y2="22.86" width="0.1524" layer="97"/>
 <wire x1="187.96" y1="22.86" x2="185.42" y2="20.32" width="0.1524" layer="97"/>
-<text x="-86.36" y="175.26" size="1.778" layer="97">Pin 1 Is The Signal.</text>
+<text x="-86.36" y="175.26" size="1.778" layer="97">Pin 4 Is The Signal.</text>
+<text x="-165.1" y="127" size="1.778" layer="97">Had to use PB7 :O</text>
 </plain>
 <instances>
 <instance part="U1" gate="G$1" x="60.96" y="58.42" smashed="yes">
