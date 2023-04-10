@@ -43,9 +43,8 @@ reset:
 
   jsr vdp_set_registers
   jsr vdp_setup
-  lda #255	; activate display
-  sta $b003
-  sta $b001
+  lda #$ce	; activate display
+  sta $b00c
 holding:
   jsr wait
   jsr changecolor
