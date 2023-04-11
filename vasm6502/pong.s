@@ -34,6 +34,8 @@ P2_PAD = $3a
 balldx = $3b
 balldy = $3c
 
+txl = $3d ; 2 bytes
+
 ; hitboxes
 p1_hitbox_x   = $e1
 p2_hitbox_x   = $10
@@ -393,39 +395,52 @@ vdp_name_table_loop:
   pla
   rts
 
+scoremsg:
+  .byte "0  ",$01,"  0",0
+
 vdp_write_name_table:
   pha
   phx
+;  vdp_write_vram TEXT_LOC
+;  ldx #0
+;.loop:
+;  lda text_vdp,x
+;  beq end_write
+;  sta VDP_VRAM
+;  inx
+;  jmp .loop
+;end_write:  
+
   vdp_write_vram TEXT_LOC
   ldx #0
-.loop:
-  lda text_vdp,x
-  beq end_write
+.slp
+  lda scoremsg,x
+  beq .sl
   sta VDP_VRAM
   inx
-  jmp .loop
-end_write:  
+  jmp .slp
+.sl
 
   ; make dotted vertical line
-;  lda #<TEXT_LOC
-;  sta $00
-;  lda #>TEXT_LOC
-;  sta $01
-;.lp
-;  lda #$01 ; vertical line
-;  sta VDP_VRAM
-;  lda $00
-;  adc #64 ; 64 cuz dotted
-;  sta $00
-;  sta VDP_REG ; low
-;  adc #0 ; carry
-;  sta $01
-;  cmp #$03 ; done?
-;  beq .done
-;  ora #VDP_WRITE_VRAM_BIT ; send vram
-;  sta VDP_REG
-;  jmp .lp
-;.done
+  lda #<TEXT_LOC+60
+  sta txl
+  lda #>TEXT_LOC
+  sta txl+1
+.lp
+  lda #$01 ; vertical line
+  sta VDP_VRAM
+  lda txl
+  adc #64 ; 64 cuz dotted
+  sta txl
+  sta VDP_REG ; low
+  adc #0 ; carry
+  sta txl+1
+  cmp #$03 ; done?
+  beq .done
+  ora #VDP_WRITE_VRAM_BIT ; send vram
+  sta VDP_REG
+  jmp .lp
+.done
   plx
   pla
   rts 
