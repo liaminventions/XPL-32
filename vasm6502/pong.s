@@ -35,10 +35,10 @@ balldx = $3b
 balldy = $3c
 
 ; hitboxes
-p1_hitbox_x   = ??
-p2_hitbox_x   = ??
+p1_hitbox_x   = $e1
+p2_hitbox_x   = $10
 
-screen_bottom = ??
+screen_bottom = $b0
 
 P1_PADDLE = $b819
 P2_PADDLE = $b81a
@@ -180,7 +180,7 @@ move_ball:
   lda vdp_spr+12
   sec
   sbc #8
-  cmp vdo_spr ; p2 paddle y bot hitbox ( bot block - 8)
+  cmp vdp_spr ; p2 paddle y bot hitbox ( bot block - 8)
   bcc .nx1 ; branch if <
   jsr .hitx
   jmp .dn
@@ -194,12 +194,12 @@ move_ball:
   lda vdp_spr+1
   cmp #p1_hitbox_x ; p1 paddle x hitbox
   bne .ex1
-  lda vdp_spr+?
+  lda vdp_spr+4
   clc
   adc #9
   cmp vdp_spr ; p1 paddle y top hitbox ( top block + 9)
   bcs .ex1 ; branch if >
-  lda vdp_spr+?
+  lda vdp_spr+12
   sec
   sbc #8
   cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 8)
