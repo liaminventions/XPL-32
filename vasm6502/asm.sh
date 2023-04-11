@@ -1,9 +1,8 @@
 #!/bin/bash
-echo "Input: "
-read IN
-echo "Output: "
-read OUT
-vasm6502_oldstyle -Fbin -dotdir -c02 $IN -o /run/media/$USER/XPL/root/$OUT -L a.list
+udisksctl mount -b /dev/sda1
+vasm6502_oldstyle -Fbin -dotdir -c02 "$1" -o /run/media/$USER/XPL/root/"$2" -L a.list
 cd ..
 ./sd.sh
+udisksctl unmount -b /dev/sda1
+./git_add.sh
 cd vasm6502
