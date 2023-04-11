@@ -31,6 +31,15 @@ p2dex = $37
 P1_PAD = $39
 P2_PAD = $3a
 
+balldx = $3b
+balldy = $3c
+
+; hitboxes
+p1_hitbox_x   = ??
+p2_hitbox_x   = ??
+
+screen_bottom = ??
+
 P1_PADDLE = $b819
 P2_PADDLE = $b81a
 
@@ -50,6 +59,9 @@ reset:
 ;;;;;;;;;;;;;;;;;;; setup subroutines ;;;;;;;;;;;;;;;;;;;;;;;
 
   sei
+  lda #1
+  sta balldx
+  sta balldy
   ; store irq location
   ;lda #<vdp_irq
   ;sta $7ffe
@@ -59,8 +71,8 @@ reset:
 
   jsr vdp_set_registers
   jsr vdp_setup
-  lda #$ff	; activate display
-  sta $b002
+  lda #$ce	; activate display
+  sta $b00c
   sta $b000
   ;lda #0
   ;jsr InitSid
@@ -75,6 +87,7 @@ holding:
   lda VDP_REG
   and #$80
   beq holding
+
 ;  lda #$0e
 ;  sta VDP_REG
 ;  lda #$87
@@ -86,6 +99,27 @@ holding:
 ;  sta VDP_REG
   ;jmp holding
 ;vdp_irq:
+
+  ; Update p1 paddle position
+  jsr update_p1pad
+
+  ;and #%00100000
+  ;bne collision
+  ;rti
+;collision:
+  ;inc fc
+  ;beq col
+  ; do nothing yet
+  ;rti
+;col:
+  ;lda #16
+  ;sta fc
+  ;jsr changecolor
+  ;rti
+
+  jmp holding
+
+update_p1pad:
   lda P1_PADDLE
   asl
   asl
@@ -102,24 +136,110 @@ p1cp:
   inx
   cpx #28
   bne p1cp
+  jmp vdp_put_spr
 
-  jsr vdp_put_spr
- 
-  ;and #%00100000
-  ;bne collision
-  ;rti
-;collision:
-  ;inc fc
-  ;beq col
-  ; do nothing yet
-  ;rti
-  jmp holding
-;col:
-  ;lda #16
-  ;sta fc
-  ;jsr changecolor
-  ;rti
-  ;jmp holding
+; one frame ball move
+; if balld(N) is zero, it will decrement
+; y,x btw
+move_ball:
+  lda balldx
+  bne .bx
+  dec vdp_spr+1
+  jmp .dy
+.bx
+  inc vdp_spr+1
+.dy
+  lda balldy
+  bne .by
+  dec vdp_spr
+  jmp .nx
+.by
+  inc vdp_spr
+.nx
+  ; did we hit the bottom of the screen?
+  lda vdp_spr ; y
+  cmp #screen_bottom
+  bne .ny1
+  jsr .hity 
+  jmp .ny2
+.ny1
+  ; how about the top?
+  lda vdp_spr ; if y = 0: hity
+  bne .ny2
+  jsr .hity
+.ny2
+  ; alright, have we hit p2? (left)
+  lda vdp_spr+1
+  cmp #p2_hitbox_x ; p2 paddle x hitbox
+  bne .nx1
+  lda vdp_spr+4
+  clc
+  adc #9
+  cmp vdp_spr ; p2 paddle y top hitbox ( top block + 9)
+  bcs .nx1 ; branch if >
+  lda vdp_spr+12
+  sec
+  sbc #8
+  cmp vdo_spr ; p2 paddle y bot hitbox ( bot block - 8)
+  bcc .nx1 ; branch if <
+  jsr .hitx
+  jmp .dn
+.nx1
+  ; or did p2 lose?
+  lda vdp_spr
+  cmp #0
+  beq .p1win
+  ; how about if we hit p1?  
+.p1s
+  lda vdp_spr+1
+  cmp #p1_hitbox_x ; p1 paddle x hitbox
+  bne .ex1
+  lda vdp_spr+?
+  clc
+  adc #9
+  cmp vdp_spr ; p1 paddle y top hitbox ( top block + 9)
+  bcs .ex1 ; branch if >
+  lda vdp_spr+?
+  sec
+  sbc #8
+  cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 8)
+  bcc .ex1 ; branch if <
+  jsr .hitx
+  jmp .dn
+.ex1
+  ; or did p1 lose?
+  lda vdp_spr
+  cmp #$f1
+  beq .p2win
+  jmp .dn
+
+.p1win
+  ; idk what to do here yet... for now just reverse x
+  jsr .hitx
+  rts
+.p2win
+  jsr .hitx
+  rts
+
+.dn
+  rts
+
+.hity
+; reverse y direction
+  lda balldy
+  beq .hyp
+  stz balldy
+.hyp
+  inc balldy
+  rts
+.hitx
+; reverse x direction
+  lda balldx
+  beq .hxp
+  stz balldx
+.hxp
+  inc balldx
+  rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
 
