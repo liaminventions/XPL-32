@@ -226,14 +226,20 @@ move_ball:
 .hity
 ; reverse y direction
   lda balldy
-  eor #$ff
-  sta balldy
+  beq .hyp
+  stz balldy
+  rts
+.hyp
+  inc balldy
   rts
 .hitx
 ; reverse x direction
   lda balldx
-  eor #$ff
-  sta balldx
+  beq .hxp
+  stz balldx
+  rts
+.hxp
+  inc balldx
   rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
