@@ -232,6 +232,7 @@ move_ball:
   lda balldy
   beq .hyp
   stz balldy
+  rts
 .hyp
   inc balldy
   rts
@@ -240,6 +241,7 @@ move_ball:
   lda balldx
   beq .hxp
   stz balldx
+  rts
 .hxp
   inc balldx
   rts
