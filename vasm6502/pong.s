@@ -401,6 +401,7 @@ scoremsg:
 vdp_write_name_table:
   pha
   phx
+  phy
 ;  vdp_write_vram TEXT_LOC
 ;  ldx #0
 ;.loop:
@@ -421,26 +422,46 @@ vdp_write_name_table:
   jmp .slp
 .sl
 
+  vdp_write_vram TEXT_LOC+4
+
   ; make dotted vertical line
-  lda #<TEXT_LOC+60
+  lda #<TEXT_LOC+4
   sta txl
   lda #>TEXT_LOC
   sta txl+1
+  ldy #0
 .lp
+  ; add 64 to txl, place a vertical line at vram(txl),
+  ; and loop until the screen has been filled
+  lda txl
+  clc
+  adc #64
+  sta txl
+  lda txl+1
+  adc #0
+  sta txl+1
+  bcc .nn
+
+  iny
+  cpy #3 ; written three pages?
+  beq .done
+
+.nn
+
+  ; put vram address
+  lda txl
+  sta VDP_REG
+  lda txl+1
+  ora #VDP_WRITE_VRAM_BIT
+  sta VDP_REG
+
   lda #$01 ; vertical line
   sta VDP_VRAM
-  lda txl
-  adc #64 ; 64 cuz dotted
-  sta txl
-  sta VDP_REG ; low
-  adc #0 ; carry
-  sta txl+1
-  cmp #$03 ; done?
-  beq .done
-  ora #VDP_WRITE_VRAM_BIT ; send vram
-  sta VDP_REG
+
   jmp .lp
+ 
 .done
+  ply
   plx
   pla
   rts 
