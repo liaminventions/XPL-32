@@ -74,8 +74,8 @@ Source: "pong.s"
                         	    69:   ;sta $7fff
 00:0F07 9C0EB0          	    70:   stz $b00e     ; argguahububefhia! that darn via! short circut!!1!! this is d fix
                         	    71: 
-00:0F0A 206410          	    72:   jsr vdp_set_registers
-00:0F0D 20ED0F          	    73:   jsr vdp_setup
+00:0F0A 206710          	    72:   jsr vdp_set_registers
+00:0F0D 20F00F          	    73:   jsr vdp_setup
 00:0F10 A9CE            	    74:   lda #$ce	; activate display
 00:0F12 8D0CB0          	    75:   sta $b00c
 00:0F15 8D00B0          	    76:   sta $b000
@@ -106,573 +106,576 @@ Source: "pong.s"
                         	   101: ;vdp_irq:
                         	   102: 
                         	   103:   ; Update p1 paddle position
-00:0F29 202F0F          	   104:   jsr update_p1pad
+00:0F29 20320F          	   104:   jsr update_p1pad
                         	   105: 
-                        	   106:   ;and #%00100000
-                        	   107:   ;bne collision
-                        	   108:   ;rti
-                        	   109: ;collision:
-                        	   110:   ;inc fc
-                        	   111:   ;beq col
-                        	   112:   ; do nothing yet
-                        	   113:   ;rti
-                        	   114: ;col:
-                        	   115:   ;lda #16
-                        	   116:   ;sta fc
-                        	   117:   ;jsr changecolor
-                        	   118:   ;rti
-                        	   119: 
-00:0F2C 4C220F          	   120:   jmp holding
-                        	   121: 
-                        	   122: update_p1pad:
-00:0F2F AD19B8          	   123:   lda P1_PADDLE
-00:0F32 0A              	   124:   asl
-00:0F33 0A              	   125:   asl
-00:0F34 8539            	   126:   sta P1_PAD
-00:0F36 A200            	   127:   ldx #0
-                        	   128: p1cp: 
-00:0F38 A539            	   129:   lda P1_PAD
-00:0F3A 9D5710          	   130:   sta vdp_spr+16,x
-00:0F3D 6910            	   131:   adc #$10
-00:0F3F 8539            	   132:   sta P1_PAD
-00:0F41 E8              	   133:   inx
-00:0F42 E8              	   134:   inx
-00:0F43 E8              	   135:   inx
+                        	   106:   ; Update ball
+00:0F2C 204F0F          	   107:   jsr move_ball
+                        	   108: 
+                        	   109:   ;and #%00100000
+                        	   110:   ;bne collision
+                        	   111:   ;rti
+                        	   112: ;collision:
+                        	   113:   ;inc fc
+                        	   114:   ;beq col
+                        	   115:   ; do nothing yet
+                        	   116:   ;rti
+                        	   117: ;col:
+                        	   118:   ;lda #16
+                        	   119:   ;sta fc
+                        	   120:   ;jsr changecolor
+                        	   121:   ;rti
+                        	   122: 
+00:0F2F 4C220F          	   123:   jmp holding
+                        	   124: 
+                        	   125: update_p1pad:
+00:0F32 AD19B8          	   126:   lda P1_PADDLE
+00:0F35 0A              	   127:   asl
+00:0F36 0A              	   128:   asl
+00:0F37 8539            	   129:   sta P1_PAD
+00:0F39 A200            	   130:   ldx #0
+                        	   131: p1cp: 
+00:0F3B A539            	   132:   lda P1_PAD
+00:0F3D 9D5A10          	   133:   sta vdp_spr+16,x
+00:0F40 6910            	   134:   adc #$10
+00:0F42 8539            	   135:   sta P1_PAD
 00:0F44 E8              	   136:   inx
-00:0F45 E01C            	   137:   cpx #28
-00:0F47 D0EF            	   138:   bne p1cp
-00:0F49 4C2910          	   139:   jmp vdp_put_spr
-                        	   140: 
-                        	   141: ; one frame ball move
-                        	   142: ; if balld(N) is zero, it will decrement
-                        	   143: ; y,x btw
-                        	   144: move_ball:
-00:0F4C A53B            	   145:   lda balldx
-00:0F4E D006            	   146:   bne .bx
-00:0F50 CE4810          	   147:   dec vdp_spr+1
-00:0F53 4C590F          	   148:   jmp .dy
-                        	   149: .bx
-00:0F56 EE4810          	   150:   inc vdp_spr+1
-                        	   151: .dy
-00:0F59 A53C            	   152:   lda balldy
-00:0F5B D006            	   153:   bne .by
-00:0F5D CE4710          	   154:   dec vdp_spr
-00:0F60 4C660F          	   155:   jmp .nx
-                        	   156: .by
-00:0F63 EE4710          	   157:   inc vdp_spr
-                        	   158: .nx
-                        	   159:   ; did we hit the bottom of the screen?
-00:0F66 AD4710          	   160:   lda vdp_spr ; y
-00:0F69 C9B0            	   161:   cmp #screen_bottom
-00:0F6B D006            	   162:   bne .ny1
-00:0F6D 20DB0F          	   163:   jsr .hity 
-00:0F70 4C7B0F          	   164:   jmp .ny2
-                        	   165: .ny1
-                        	   166:   ; how about the top?
-00:0F73 AD4710          	   167:   lda vdp_spr ; if y = 0: hity
-00:0F76 D003            	   168:   bne .ny2
-00:0F78 20DB0F          	   169:   jsr .hity
-                        	   170: .ny2
-                        	   171:   ; alright, have we hit p2? (left)
-00:0F7B AD4810          	   172:   lda vdp_spr+1
-00:0F7E C910            	   173:   cmp #p2_hitbox_x ; p2 paddle x hitbox
-00:0F80 D01C            	   174:   bne .nx1
-00:0F82 AD4B10          	   175:   lda vdp_spr+4
-00:0F85 18              	   176:   clc
-00:0F86 6909            	   177:   adc #9
-00:0F88 CD4710          	   178:   cmp vdp_spr ; p2 paddle y top hitbox ( top block + 9)
-00:0F8B B011            	   179:   bcs .nx1 ; branch if >
-00:0F8D AD5310          	   180:   lda vdp_spr+12
-00:0F90 38              	   181:   sec
-00:0F91 E908            	   182:   sbc #8
-00:0F93 CD4710          	   183:   cmp vdp_spr ; p2 paddle y bot hitbox ( bot block - 8)
-00:0F96 9006            	   184:   bcc .nx1 ; branch if <
-00:0F98 20E40F          	   185:   jsr .hitx
-00:0F9B 4CDA0F          	   186:   jmp .dn
-                        	   187: .nx1
-                        	   188:   ; or did p2 lose?
-00:0F9E AD4710          	   189:   lda vdp_spr
-00:0FA1 C900            	   190:   cmp #0
-00:0FA3 F02D            	   191:   beq .p1win
-                        	   192:   ; how about if we hit p1?  
-                        	   193: .p1s
-00:0FA5 AD4810          	   194:   lda vdp_spr+1
-00:0FA8 C9E1            	   195:   cmp #p1_hitbox_x ; p1 paddle x hitbox
-00:0FAA D01C            	   196:   bne .ex1
-00:0FAC AD4B10          	   197:   lda vdp_spr+4
-00:0FAF 18              	   198:   clc
-00:0FB0 6909            	   199:   adc #9
-00:0FB2 CD4710          	   200:   cmp vdp_spr ; p1 paddle y top hitbox ( top block + 9)
-00:0FB5 B011            	   201:   bcs .ex1 ; branch if >
-00:0FB7 AD5310          	   202:   lda vdp_spr+12
-00:0FBA 38              	   203:   sec
-00:0FBB E908            	   204:   sbc #8
-00:0FBD CD4710          	   205:   cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 8)
-00:0FC0 9006            	   206:   bcc .ex1 ; branch if <
-00:0FC2 20E40F          	   207:   jsr .hitx
-00:0FC5 4CDA0F          	   208:   jmp .dn
-                        	   209: .ex1
-                        	   210:   ; or did p1 lose?
-00:0FC8 AD4710          	   211:   lda vdp_spr
-00:0FCB C9F1            	   212:   cmp #$f1
-00:0FCD F007            	   213:   beq .p2win
-00:0FCF 4CDA0F          	   214:   jmp .dn
-                        	   215: 
-                        	   216: .p1win
-                        	   217:   ; idk what to do here yet... for now just reverse x
-00:0FD2 20E40F          	   218:   jsr .hitx
-00:0FD5 60              	   219:   rts
-                        	   220: .p2win
-00:0FD6 20E40F          	   221:   jsr .hitx
-00:0FD9 60              	   222:   rts
-                        	   223: 
-                        	   224: .dn
-00:0FDA 60              	   225:   rts
+00:0F45 E8              	   137:   inx
+00:0F46 E8              	   138:   inx
+00:0F47 E8              	   139:   inx
+00:0F48 E01C            	   140:   cpx #28
+00:0F4A D0EF            	   141:   bne p1cp
+00:0F4C 4C2C10          	   142:   jmp vdp_put_spr
+                        	   143: 
+                        	   144: ; one frame ball move
+                        	   145: ; if balld(N) is zero, it will decrement
+                        	   146: ; y,x btw
+                        	   147: move_ball:
+00:0F4F A53B            	   148:   lda balldx
+00:0F51 D006            	   149:   bne .bx
+00:0F53 CE4B10          	   150:   dec vdp_spr+1
+00:0F56 4C5C0F          	   151:   jmp .dy
+                        	   152: .bx
+00:0F59 EE4B10          	   153:   inc vdp_spr+1
+                        	   154: .dy
+00:0F5C A53C            	   155:   lda balldy
+00:0F5E D006            	   156:   bne .by
+00:0F60 CE4A10          	   157:   dec vdp_spr
+00:0F63 4C690F          	   158:   jmp .nx
+                        	   159: .by
+00:0F66 EE4A10          	   160:   inc vdp_spr
+                        	   161: .nx
+                        	   162:   ; did we hit the bottom of the screen?
+00:0F69 AD4A10          	   163:   lda vdp_spr ; y
+00:0F6C C9B0            	   164:   cmp #screen_bottom
+00:0F6E D006            	   165:   bne .ny1
+00:0F70 20DE0F          	   166:   jsr .hity 
+00:0F73 4C7E0F          	   167:   jmp .ny2
+                        	   168: .ny1
+                        	   169:   ; how about the top?
+00:0F76 AD4A10          	   170:   lda vdp_spr ; if y = 0: hity
+00:0F79 D003            	   171:   bne .ny2
+00:0F7B 20DE0F          	   172:   jsr .hity
+                        	   173: .ny2
+                        	   174:   ; alright, have we hit p2? (left)
+00:0F7E AD4B10          	   175:   lda vdp_spr+1
+00:0F81 C910            	   176:   cmp #p2_hitbox_x ; p2 paddle x hitbox
+00:0F83 D01C            	   177:   bne .nx1
+00:0F85 AD4E10          	   178:   lda vdp_spr+4
+00:0F88 18              	   179:   clc
+00:0F89 6909            	   180:   adc #9
+00:0F8B CD4A10          	   181:   cmp vdp_spr ; p2 paddle y top hitbox ( top block + 9)
+00:0F8E B011            	   182:   bcs .nx1 ; branch if >
+00:0F90 AD5610          	   183:   lda vdp_spr+12
+00:0F93 38              	   184:   sec
+00:0F94 E908            	   185:   sbc #8
+00:0F96 CD4A10          	   186:   cmp vdp_spr ; p2 paddle y bot hitbox ( bot block - 8)
+00:0F99 9006            	   187:   bcc .nx1 ; branch if <
+00:0F9B 20E70F          	   188:   jsr .hitx
+00:0F9E 4CDD0F          	   189:   jmp .dn
+                        	   190: .nx1
+                        	   191:   ; or did p2 lose?
+00:0FA1 AD4A10          	   192:   lda vdp_spr
+00:0FA4 C900            	   193:   cmp #0
+00:0FA6 F02D            	   194:   beq .p1win
+                        	   195:   ; how about if we hit p1?  
+                        	   196: .p1s
+00:0FA8 AD4B10          	   197:   lda vdp_spr+1
+00:0FAB C9E1            	   198:   cmp #p1_hitbox_x ; p1 paddle x hitbox
+00:0FAD D01C            	   199:   bne .ex1
+00:0FAF AD4E10          	   200:   lda vdp_spr+4
+00:0FB2 18              	   201:   clc
+00:0FB3 6909            	   202:   adc #9
+00:0FB5 CD4A10          	   203:   cmp vdp_spr ; p1 paddle y top hitbox ( top block + 9)
+00:0FB8 B011            	   204:   bcs .ex1 ; branch if >
+00:0FBA AD5610          	   205:   lda vdp_spr+12
+00:0FBD 38              	   206:   sec
+00:0FBE E908            	   207:   sbc #8
+00:0FC0 CD4A10          	   208:   cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 8)
+00:0FC3 9006            	   209:   bcc .ex1 ; branch if <
+00:0FC5 20E70F          	   210:   jsr .hitx
+00:0FC8 4CDD0F          	   211:   jmp .dn
+                        	   212: .ex1
+                        	   213:   ; or did p1 lose?
+00:0FCB AD4A10          	   214:   lda vdp_spr
+00:0FCE C9F1            	   215:   cmp #$f1
+00:0FD0 F007            	   216:   beq .p2win
+00:0FD2 4CDD0F          	   217:   jmp .dn
+                        	   218: 
+                        	   219: .p1win
+                        	   220:   ; idk what to do here yet... for now just reverse x
+00:0FD5 20E70F          	   221:   jsr .hitx
+00:0FD8 60              	   222:   rts
+                        	   223: .p2win
+00:0FD9 20E70F          	   224:   jsr .hitx
+00:0FDC 60              	   225:   rts
                         	   226: 
-                        	   227: .hity
-                        	   228: ; reverse y direction
-00:0FDB A53C            	   229:   lda balldy
-00:0FDD F002            	   230:   beq .hyp
-00:0FDF 643C            	   231:   stz balldy
-                        	   232: .hyp
-00:0FE1 E63C            	   233:   inc balldy
-00:0FE3 60              	   234:   rts
-                        	   235: .hitx
-                        	   236: ; reverse x direction
-00:0FE4 A53B            	   237:   lda balldx
-00:0FE6 F002            	   238:   beq .hxp
-00:0FE8 643B            	   239:   stz balldx
-                        	   240: .hxp
-00:0FEA E63B            	   241:   inc balldx
-00:0FEC 60              	   242:   rts
-                        	   243: 
-                        	   244: ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
-                        	   245: 
-                        	   246: vdp_setup:
-00:0FED 207C10          	   247:   jsr vdp_zapram
-00:0FF0 20B910          	   248:   jsr vdp_initialize_name_table
-00:0FF3 203111          	   249:   jsr vdp_initialize_color_table
-00:0FF6 20E010          	   250:   jsr vdp_write_name_table
-00:0FF9 20FF10          	   251:   jsr vdp_initialize_pattern_table
-00:0FFC 200610          	   252:   jsr vdp_copysprites
-00:0FFF 202910          	   253:   jsr vdp_put_spr
-00:1002 204E11          	   254:   jsr vdp_enable_display
-00:1005 60              	   255:   rts
-                        	   256: 
-                        	   257: vdp_copysprites:
-00:1006 48              	   258:   pha
-00:1007 DA              	   259:   phx
-                        	   260:   vdp_write_vram VDP_SPRITE_PATTERN_TABLE_BASE
-00:1008 48              	     1M   pha
-00:1009 A900            	     2M   lda #<(VDP_SPRITE_PATTERN_TABLE_BASE)
-00:100B 8D0188          	     3M   sta VDP_REG
-00:100E A940            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPRITE_PATTERN_TABLE_BASE)
-00:1010 8D0188          	     5M   sta VDP_REG
-00:1013 68              	     6M   pla
-00:1014 A200            	   261:   ldx #0
-                        	   262: .loop:
-00:1016 BD6C11          	   263:   lda vdp_block,x
-00:1019 8D0088          	   264:   sta VDP_VRAM
-00:101C E8              	   265:   inx
-00:101D E040            	   266:   cpx #64 ; also copy the ball sprite
-00:101F D0F5            	   267:   bne .loop
-00:1021 A9D0            	   268:   lda #$d0
-00:1023 8D0088          	   269:   sta VDP_VRAM
-00:1026 FA              	   270:   plx
-00:1027 68              	   271:   pla
-00:1028 60              	   272:   rts
-                        	   273: 
-                        	   274: vdp_put_spr:
-00:1029 48              	   275:   pha
-00:102A DA              	   276:   phx
-                        	   277:   vdp_write_vram VDP_SPR_ATT_TABLE_BASE 
-00:102B 48              	     1M   pha
-00:102C A900            	     2M   lda #<(VDP_SPR_ATT_TABLE_BASE )
-00:102E 8D0188          	     3M   sta VDP_REG
-00:1031 A947            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPR_ATT_TABLE_BASE )
-00:1033 8D0188          	     5M   sta VDP_REG
-00:1036 68              	     6M   pla
-00:1037 A200            	   278:   ldx #0
-                        	   279: .loop
-00:1039 BD4710          	   280:   lda vdp_spr,x
-00:103C 8D0088          	   281:   sta VDP_VRAM
-00:103F E8              	   282:   inx
-00:1040 E01D            	   283:   cpx #$1d
-00:1042 D0F5            	   284:   bne .loop
-00:1044 FA              	   285:   plx 
-00:1045 68              	   286:   pla
-00:1046 60              	   287:   rts
-                        	   288: 
-                        	   289: vdp_spr:
-                        	   290:   ; ball
-                        	   291:   ; Y=0x5f, X=0x77, NAME=4, COL=White
-00:1047 5F              	   292:   .byte $5f,$77,$04,$0f
-00:1048 77
-00:1049 04
-00:104A 0F
-                        	   293:   ; left paddle
-00:104B 6F              	   294:   .byte $6f,$00,$00,$0f
-00:104C 00
-00:104D 00
-00:104E 0F
-00:104F 5F              	   295:   .byte $5f,$00,$00,$0f
+                        	   227: .dn
+00:0FDD 60              	   228:   rts
+                        	   229: 
+                        	   230: .hity
+                        	   231: ; reverse y direction
+00:0FDE A53C            	   232:   lda balldy
+00:0FE0 F002            	   233:   beq .hyp
+00:0FE2 643C            	   234:   stz balldy
+                        	   235: .hyp
+00:0FE4 E63C            	   236:   inc balldy
+00:0FE6 60              	   237:   rts
+                        	   238: .hitx
+                        	   239: ; reverse x direction
+00:0FE7 A53B            	   240:   lda balldx
+00:0FE9 F002            	   241:   beq .hxp
+00:0FEB 643B            	   242:   stz balldx
+                        	   243: .hxp
+00:0FED E63B            	   244:   inc balldx
+00:0FEF 60              	   245:   rts
+                        	   246: 
+                        	   247: ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
+                        	   248: 
+                        	   249: vdp_setup:
+00:0FF0 207F10          	   250:   jsr vdp_zapram
+00:0FF3 20BC10          	   251:   jsr vdp_initialize_name_table
+00:0FF6 203411          	   252:   jsr vdp_initialize_color_table
+00:0FF9 20E310          	   253:   jsr vdp_write_name_table
+00:0FFC 200211          	   254:   jsr vdp_initialize_pattern_table
+00:0FFF 200910          	   255:   jsr vdp_copysprites
+00:1002 202C10          	   256:   jsr vdp_put_spr
+00:1005 205111          	   257:   jsr vdp_enable_display
+00:1008 60              	   258:   rts
+                        	   259: 
+                        	   260: vdp_copysprites:
+00:1009 48              	   261:   pha
+00:100A DA              	   262:   phx
+                        	   263:   vdp_write_vram VDP_SPRITE_PATTERN_TABLE_BASE
+00:100B 48              	     1M   pha
+00:100C A900            	     2M   lda #<(VDP_SPRITE_PATTERN_TABLE_BASE)
+00:100E 8D0188          	     3M   sta VDP_REG
+00:1011 A940            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPRITE_PATTERN_TABLE_BASE)
+00:1013 8D0188          	     5M   sta VDP_REG
+00:1016 68              	     6M   pla
+00:1017 A200            	   264:   ldx #0
+                        	   265: .loop:
+00:1019 BD6F11          	   266:   lda vdp_block,x
+00:101C 8D0088          	   267:   sta VDP_VRAM
+00:101F E8              	   268:   inx
+00:1020 E040            	   269:   cpx #64 ; also copy the ball sprite
+00:1022 D0F5            	   270:   bne .loop
+00:1024 A9D0            	   271:   lda #$d0
+00:1026 8D0088          	   272:   sta VDP_VRAM
+00:1029 FA              	   273:   plx
+00:102A 68              	   274:   pla
+00:102B 60              	   275:   rts
+                        	   276: 
+                        	   277: vdp_put_spr:
+00:102C 48              	   278:   pha
+00:102D DA              	   279:   phx
+                        	   280:   vdp_write_vram VDP_SPR_ATT_TABLE_BASE 
+00:102E 48              	     1M   pha
+00:102F A900            	     2M   lda #<(VDP_SPR_ATT_TABLE_BASE )
+00:1031 8D0188          	     3M   sta VDP_REG
+00:1034 A947            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_SPR_ATT_TABLE_BASE )
+00:1036 8D0188          	     5M   sta VDP_REG
+00:1039 68              	     6M   pla
+00:103A A200            	   281:   ldx #0
+                        	   282: .loop
+00:103C BD4A10          	   283:   lda vdp_spr,x
+00:103F 8D0088          	   284:   sta VDP_VRAM
+00:1042 E8              	   285:   inx
+00:1043 E01D            	   286:   cpx #$1d
+00:1045 D0F5            	   287:   bne .loop
+00:1047 FA              	   288:   plx 
+00:1048 68              	   289:   pla
+00:1049 60              	   290:   rts
+                        	   291: 
+                        	   292: vdp_spr:
+                        	   293:   ; ball
+                        	   294:   ; Y=0x5f, X=0x77, NAME=4, COL=White
+00:104A 5F              	   295:   .byte $5f,$77,$04,$0f
+00:104B 77
+00:104C 04
+00:104D 0F
+                        	   296:   ; left paddle
+00:104E 6F              	   297:   .byte $6f,$00,$00,$0f
+00:104F 00
 00:1050 00
-00:1051 00
-00:1052 0F
-00:1053 4F              	   296:   .byte $4f,$00,$00,$0f
+00:1051 0F
+00:1052 5F              	   298:   .byte $5f,$00,$00,$0f
+00:1053 00
 00:1054 00
-00:1055 00
-00:1056 0F
-                        	   297:   ; right paddle
-00:1057 6F              	   298:   .byte $6f,$f1,$00,$0f
-00:1058 F1
-00:1059 00
-00:105A 0F
-00:105B 5F              	   299:   .byte $5f,$f1,$00,$0f
-00:105C F1
-00:105D 00
-00:105E 0F
-00:105F 4F              	   300:   .byte $4f,$f1,$00,$0f
-00:1060 F1
-00:1061 00
-00:1062 0F
-                        	   301:   ; end (Y=0xD0 means last entry)
-00:1063 D0              	   302:   .byte $d0
-                        	   303: 
-                        	   304: ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
-                        	   305: 
-                        	   306: vdp_set_registers:
-00:1064 48              	   307:   pha
-00:1065 DA              	   308:   phx
-00:1066 A200            	   309:   ldx #0
-                        	   310: .loop:
-00:1068 BD6411          	   311:   lda vdp_register_inits,x
-00:106B 8D0188          	   312:   sta VDP_REG
-00:106E 8A              	   313:   txa
-00:106F 0980            	   314:   ora #VDP_REGISTER_BITS 				; combine the register number with the second write pattern
-00:1071 8D0188          	   315:   sta VDP_REG
-00:1074 E8              	   316:   inx
-00:1075 E008            	   317:   cpx #8
-00:1077 D0EF            	   318:   bne .loop
-00:1079 FA              	   319:   plx
-00:107A 68              	   320:   pla
-00:107B 60              	   321:   rts
-                        	   322: 
-                        	   323: vdp_zapram:
-00:107C 48              	   324:   pha
-00:107D 5A              	   325:   phy
-00:107E DA              	   326:   phx
-00:107F A040            	   327:   ldy #$40
-00:1081 A900            	   328:   lda #0
-00:1083 8D0188          	   329:   sta VDP_REG
-00:1086 8C0188          	   330:   sty VDP_REG
-00:1089 A2C0            	   331:   ldx #$c0
-                        	   332: nexf:
-00:108B A000            	   333:   ldy #0
-                        	   334: zapf:
-00:108D 8D0088          	   335:   sta VDP_VRAM
-00:1090 C8              	   336:   iny
-00:1091 D0FA            	   337:   bne zapf
-00:1093 E8              	   338:   inx
-00:1094 D0F5            	   339:   bne nexf
-00:1096 FA              	   340:   plx
-00:1097 7A              	   341:   ply
-00:1098 68              	   342:   pla
-00:1099 60              	   343:   rts
-                        	   344: 
-                        	   345: wait:
-00:109A DA              	   346: 	phx
-00:109B 5A              	   347: 	phy
-00:109C A8              	   348:         tay          ; load secondary loop cycle count (A reg)
-00:109D A2FF            	   349:         ldx  #$ff
-00:109F CA              	   350: delay   dex          ; (2 cycles)
-00:10A0 D0FD            	   351:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
-00:10A2 88              	   352:         dey          ; (2 cycles)
-00:10A3 D0FA            	   353:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
-00:10A5 7A              	   354: 	ply
-00:10A6 FA              	   355: 	plx
-00:10A7 60              	   356: 	rts
-                        	   357: 
-                        	   358: changecolor:
-00:10A8 48              	   359:   pha
-00:10A9 EE6B11          	   360:   inc vdp_register_7
-00:10AC AD6B11          	   361:   lda vdp_register_7
-00:10AF 8D0188          	   362:   sta VDP_REG
-00:10B2 A987            	   363:   lda #$87
-00:10B4 8D0188          	   364:   sta VDP_REG
-00:10B7 68              	   365:   pla
-00:10B8 60              	   366:   rts
-                        	   367: 
-                        	   368: ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
-                        	   369: 
-                        	   370: vdp_initialize_name_table:
-00:10B9 48              	   371:   pha
-00:10BA DA              	   372:   phx
-00:10BB 5A              	   373:   phy
-                        	   374:   vdp_write_vram VDP_NAME_TABLE_BASE
-00:10BC 48              	     1M   pha
-00:10BD A900            	     2M   lda #<(VDP_NAME_TABLE_BASE)
-00:10BF 8D0188          	     3M   sta VDP_REG
-00:10C2 A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_NAME_TABLE_BASE)
-00:10C4 8D0188          	     5M   sta VDP_REG
-00:10C7 68              	     6M   pla
-00:10C8 6432            	   375:   stz VDP_NAME_POINTER
-00:10CA A920            	   376:   lda #$20
-00:10CC A000            	   377:   ldy #0
-                        	   378: vdp_name_table_loop:
-                        	   379:   ;sty VDP_VRAM
-00:10CE 8D0088          	   380:   sta VDP_VRAM
-00:10D1 C8              	   381:   iny
-00:10D2 D0FA            	   382:   bne vdp_name_table_loop
-                        	   383: 
-00:10D4 E632            	   384:   inc VDP_NAME_POINTER
-00:10D6 A632            	   385:   ldx VDP_NAME_POINTER
-00:10D8 E003            	   386:   cpx #3
-00:10DA D0F2            	   387:   bne vdp_name_table_loop
-                        	   388:   
-00:10DC 7A              	   389:   ply
-00:10DD FA              	   390:   plx
-00:10DE 68              	   391:   pla
-00:10DF 60              	   392:   rts
-                        	   393: 
-                        	   394: vdp_write_name_table:
-00:10E0 48              	   395:   pha
-00:10E1 DA              	   396:   phx
-                        	   397:   vdp_write_vram TEXT_LOC
-00:10E2 48              	     1M   pha
-00:10E3 A90F            	     2M   lda #<(TEXT_LOC)
-00:10E5 8D0188          	     3M   sta VDP_REG
-00:10E8 A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >TEXT_LOC)
-00:10EA 8D0188          	     5M   sta VDP_REG
-00:10ED 68              	     6M   pla
-00:10EE A200            	   398:   ldx #0
-                        	   399: .loop:
-00:10F0 BD5B11          	   400:   lda text_vdp,x
-00:10F3 F007            	   401:   beq end_write
-00:10F5 8D0088          	   402:   sta VDP_VRAM
-00:10F8 E8              	   403:   inx
-00:10F9 4CF010          	   404:   jmp .loop
-                        	   405: end_write:  
-                        	   406: 
-                        	   407:   ; make dotted vertical line
-                        	   408: ;  lda #<TEXT_LOC
-                        	   409: ;  sta $00
-                        	   410: ;  lda #>TEXT_LOC
-                        	   411: ;  sta $01
-                        	   412: ;.lp
-                        	   413: ;  lda #$01 ; vertical line
-                        	   414: ;  sta VDP_VRAM
-                        	   415: ;  lda $00
-                        	   416: ;  adc #64 ; 64 cuz dotted
-                        	   417: ;  sta $00
-                        	   418: ;  sta VDP_REG ; low
-                        	   419: ;  adc #0 ; carry
-                        	   420: ;  sta $01
-                        	   421: ;  cmp #$03 ; done?
-                        	   422: ;  beq .done
-                        	   423: ;  ora #VDP_WRITE_VRAM_BIT ; send vram
-                        	   424: ;  sta VDP_REG
-                        	   425: ;  jmp .lp
-                        	   426: ;.done
-00:10FC FA              	   427:   plx
-00:10FD 68              	   428:   pla
-00:10FE 60              	   429:   rts 
-                        	   430: 
-                        	   431: ;  .include "wavid.s"
-                        	   432: 
-                        	   433: ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
-                        	   434: 
-                        	   435: vdp_initialize_pattern_table:
-00:10FF 48              	   436:   pha
-00:1100 DA              	   437:   phx
-                        	   438:   vdp_write_vram VDP_PATTERN_TABLE_BASE
-00:1101 48              	     1M   pha
-00:1102 A900            	     2M   lda #<(VDP_PATTERN_TABLE_BASE)
-00:1104 8D0188          	     3M   sta VDP_REG
-00:1107 A948            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_PATTERN_TABLE_BASE)
-00:1109 8D0188          	     5M   sta VDP_REG
-00:110C 68              	     6M   pla
-00:110D A900            	   439:   lda #<vdp_pattern                         ; load the start address of the patterns to zero page
-00:110F 8530            	   440:   sta VDP_PATTERN_INIT
-00:1111 A912            	   441:   lda #>vdp_pattern
-00:1113 8531            	   442:   sta VDP_PATTERN_INIT_HI
-                        	   443: vdp_pattern_table_loop:
-00:1115 B230            	   444:   lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-00:1117 8D0088          	   445:   sta VDP_VRAM                            ; and store it to VRAM
-00:111A E630            	   446:   inc VDP_PATTERN_INIT
-00:111C A530            	   447:   lda VDP_PATTERN_INIT
-00:111E D002            	   448:   bne wopeee
-00:1120 E631            	   449:   inc VDP_PATTERN_INIT_HI
-                        	   450: wopeee:
-00:1122 A530            	   451:   lda VDP_PATTERN_INIT
-00:1124 C900            	   452:   cmp #<vdp_pattern_end
-00:1126 D0ED            	   453:   bne vdp_pattern_table_loop
-00:1128 A531            	   454:   lda VDP_PATTERN_INIT_HI
-00:112A C916            	   455:   cmp #>vdp_pattern_end
-00:112C D0E7            	   456:   bne vdp_pattern_table_loop
-00:112E FA              	   457:   plx
-00:112F 68              	   458:   pla
-00:1130 60              	   459:   rts
-                        	   460: 
-                        	   461: ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
-                        	   462: 
-                        	   463: vdp_initialize_color_table:
-                        	   464: ;  pha
-                        	   465: ;  phx
-                        	   466: ;  vdp_write_vram VDP_COLOR_TABLE_BASE
-                        	   467: ;  lda #<vdp_color                         ; load the start address of the patterns to zero page
-                        	   468: ;  sta VDP_PATTERN_INIT
-                        	   469: ;  lda #>vdp_color
-                        	   470: ;  sta VDP_PATTERN_INIT_HI
-                        	   471: ;vdp_color_table_loop:
-                        	   472: ;  lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
-                        	   473: ;  sta VDP_VRAM                            ; and store it to VRAM
-                        	   474: ;  inc VDP_PATTERN_INIT
-                        	   475: ;  lda VDP_PATTERN_INIT
-                        	   476: ;  bne wopee
-                        	   477: ;  inc VDP_PATTERN_INIT_HI
-                        	   478: ;wopee:
-                        	   479: ;  lda VDP_PATTERN_INIT
-                        	   480: ;  cmp #<vdp_color_end
-                        	   481: ;  bne vdp_color_table_loop
-                        	   482: ;  lda VDP_PATTERN_INIT_HI
-                        	   483: ;  cmp #>vdp_color_end
+00:1055 0F
+00:1056 4F              	   299:   .byte $4f,$00,$00,$0f
+00:1057 00
+00:1058 00
+00:1059 0F
+                        	   300:   ; right paddle
+00:105A 6F              	   301:   .byte $6f,$f1,$00,$0f
+00:105B F1
+00:105C 00
+00:105D 0F
+00:105E 5F              	   302:   .byte $5f,$f1,$00,$0f
+00:105F F1
+00:1060 00
+00:1061 0F
+00:1062 4F              	   303:   .byte $4f,$f1,$00,$0f
+00:1063 F1
+00:1064 00
+00:1065 0F
+                        	   304:   ; end (Y=0xD0 means last entry)
+00:1066 D0              	   305:   .byte $d0
+                        	   306: 
+                        	   307: ;;;;;;;;;;;;;;;;;;; vdp_set_registers ;;;;;;;;;;;;;;;;;;;;;;;;
+                        	   308: 
+                        	   309: vdp_set_registers:
+00:1067 48              	   310:   pha
+00:1068 DA              	   311:   phx
+00:1069 A200            	   312:   ldx #0
+                        	   313: .loop:
+00:106B BD6711          	   314:   lda vdp_register_inits,x
+00:106E 8D0188          	   315:   sta VDP_REG
+00:1071 8A              	   316:   txa
+00:1072 0980            	   317:   ora #VDP_REGISTER_BITS 				; combine the register number with the second write pattern
+00:1074 8D0188          	   318:   sta VDP_REG
+00:1077 E8              	   319:   inx
+00:1078 E008            	   320:   cpx #8
+00:107A D0EF            	   321:   bne .loop
+00:107C FA              	   322:   plx
+00:107D 68              	   323:   pla
+00:107E 60              	   324:   rts
+                        	   325: 
+                        	   326: vdp_zapram:
+00:107F 48              	   327:   pha
+00:1080 5A              	   328:   phy
+00:1081 DA              	   329:   phx
+00:1082 A040            	   330:   ldy #$40
+00:1084 A900            	   331:   lda #0
+00:1086 8D0188          	   332:   sta VDP_REG
+00:1089 8C0188          	   333:   sty VDP_REG
+00:108C A2C0            	   334:   ldx #$c0
+                        	   335: nexf:
+00:108E A000            	   336:   ldy #0
+                        	   337: zapf:
+00:1090 8D0088          	   338:   sta VDP_VRAM
+00:1093 C8              	   339:   iny
+00:1094 D0FA            	   340:   bne zapf
+00:1096 E8              	   341:   inx
+00:1097 D0F5            	   342:   bne nexf
+00:1099 FA              	   343:   plx
+00:109A 7A              	   344:   ply
+00:109B 68              	   345:   pla
+00:109C 60              	   346:   rts
+                        	   347: 
+                        	   348: wait:
+00:109D DA              	   349: 	phx
+00:109E 5A              	   350: 	phy
+00:109F A8              	   351:         tay          ; load secondary loop cycle count (A reg)
+00:10A0 A2FF            	   352:         ldx  #$ff
+00:10A2 CA              	   353: delay   dex          ; (2 cycles)
+00:10A3 D0FD            	   354:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
+00:10A5 88              	   355:         dey          ; (2 cycles)
+00:10A6 D0FA            	   356:         bne  delay   ; (3 cycles in loop, 2 cycles at end)
+00:10A8 7A              	   357: 	ply
+00:10A9 FA              	   358: 	plx
+00:10AA 60              	   359: 	rts
+                        	   360: 
+                        	   361: changecolor:
+00:10AB 48              	   362:   pha
+00:10AC EE6E11          	   363:   inc vdp_register_7
+00:10AF AD6E11          	   364:   lda vdp_register_7
+00:10B2 8D0188          	   365:   sta VDP_REG
+00:10B5 A987            	   366:   lda #$87
+00:10B7 8D0188          	   367:   sta VDP_REG
+00:10BA 68              	   368:   pla
+00:10BB 60              	   369:   rts
+                        	   370: 
+                        	   371: ;;;;;;;;;;;;;;;;;;; vdp_initialize_name_table ;;;;;;;;;;;;;;;;;;;
+                        	   372: 
+                        	   373: vdp_initialize_name_table:
+00:10BC 48              	   374:   pha
+00:10BD DA              	   375:   phx
+00:10BE 5A              	   376:   phy
+                        	   377:   vdp_write_vram VDP_NAME_TABLE_BASE
+00:10BF 48              	     1M   pha
+00:10C0 A900            	     2M   lda #<(VDP_NAME_TABLE_BASE)
+00:10C2 8D0188          	     3M   sta VDP_REG
+00:10C5 A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_NAME_TABLE_BASE)
+00:10C7 8D0188          	     5M   sta VDP_REG
+00:10CA 68              	     6M   pla
+00:10CB 6432            	   378:   stz VDP_NAME_POINTER
+00:10CD A920            	   379:   lda #$20
+00:10CF A000            	   380:   ldy #0
+                        	   381: vdp_name_table_loop:
+                        	   382:   ;sty VDP_VRAM
+00:10D1 8D0088          	   383:   sta VDP_VRAM
+00:10D4 C8              	   384:   iny
+00:10D5 D0FA            	   385:   bne vdp_name_table_loop
+                        	   386: 
+00:10D7 E632            	   387:   inc VDP_NAME_POINTER
+00:10D9 A632            	   388:   ldx VDP_NAME_POINTER
+00:10DB E003            	   389:   cpx #3
+00:10DD D0F2            	   390:   bne vdp_name_table_loop
+                        	   391:   
+00:10DF 7A              	   392:   ply
+00:10E0 FA              	   393:   plx
+00:10E1 68              	   394:   pla
+00:10E2 60              	   395:   rts
+                        	   396: 
+                        	   397: vdp_write_name_table:
+00:10E3 48              	   398:   pha
+00:10E4 DA              	   399:   phx
+                        	   400:   vdp_write_vram TEXT_LOC
+00:10E5 48              	     1M   pha
+00:10E6 A90F            	     2M   lda #<(TEXT_LOC)
+00:10E8 8D0188          	     3M   sta VDP_REG
+00:10EB A944            	     4M   lda #(VDP_WRITE_VRAM_BIT | >TEXT_LOC)
+00:10ED 8D0188          	     5M   sta VDP_REG
+00:10F0 68              	     6M   pla
+00:10F1 A200            	   401:   ldx #0
+                        	   402: .loop:
+00:10F3 BD5E11          	   403:   lda text_vdp,x
+00:10F6 F007            	   404:   beq end_write
+00:10F8 8D0088          	   405:   sta VDP_VRAM
+00:10FB E8              	   406:   inx
+00:10FC 4CF310          	   407:   jmp .loop
+                        	   408: end_write:  
+                        	   409: 
+                        	   410:   ; make dotted vertical line
+                        	   411: ;  lda #<TEXT_LOC
+                        	   412: ;  sta $00
+                        	   413: ;  lda #>TEXT_LOC
+                        	   414: ;  sta $01
+                        	   415: ;.lp
+                        	   416: ;  lda #$01 ; vertical line
+                        	   417: ;  sta VDP_VRAM
+                        	   418: ;  lda $00
+                        	   419: ;  adc #64 ; 64 cuz dotted
+                        	   420: ;  sta $00
+                        	   421: ;  sta VDP_REG ; low
+                        	   422: ;  adc #0 ; carry
+                        	   423: ;  sta $01
+                        	   424: ;  cmp #$03 ; done?
+                        	   425: ;  beq .done
+                        	   426: ;  ora #VDP_WRITE_VRAM_BIT ; send vram
+                        	   427: ;  sta VDP_REG
+                        	   428: ;  jmp .lp
+                        	   429: ;.done
+00:10FF FA              	   430:   plx
+00:1100 68              	   431:   pla
+00:1101 60              	   432:   rts 
+                        	   433: 
+                        	   434: ;  .include "wavid.s"
+                        	   435: 
+                        	   436: ;;;;;;;;;;;;;;;;;;; vdp_initialize_pattern_table ;;;;;;;;;;;;;;;;;;;
+                        	   437: 
+                        	   438: vdp_initialize_pattern_table:
+00:1102 48              	   439:   pha
+00:1103 DA              	   440:   phx
+                        	   441:   vdp_write_vram VDP_PATTERN_TABLE_BASE
+00:1104 48              	     1M   pha
+00:1105 A900            	     2M   lda #<(VDP_PATTERN_TABLE_BASE)
+00:1107 8D0188          	     3M   sta VDP_REG
+00:110A A948            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_PATTERN_TABLE_BASE)
+00:110C 8D0188          	     5M   sta VDP_REG
+00:110F 68              	     6M   pla
+00:1110 A900            	   442:   lda #<vdp_pattern                         ; load the start address of the patterns to zero page
+00:1112 8530            	   443:   sta VDP_PATTERN_INIT
+00:1114 A912            	   444:   lda #>vdp_pattern
+00:1116 8531            	   445:   sta VDP_PATTERN_INIT_HI
+                        	   446: vdp_pattern_table_loop:
+00:1118 B230            	   447:   lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
+00:111A 8D0088          	   448:   sta VDP_VRAM                            ; and store it to VRAM
+00:111D E630            	   449:   inc VDP_PATTERN_INIT
+00:111F A530            	   450:   lda VDP_PATTERN_INIT
+00:1121 D002            	   451:   bne wopeee
+00:1123 E631            	   452:   inc VDP_PATTERN_INIT_HI
+                        	   453: wopeee:
+00:1125 A530            	   454:   lda VDP_PATTERN_INIT
+00:1127 C900            	   455:   cmp #<vdp_pattern_end
+00:1129 D0ED            	   456:   bne vdp_pattern_table_loop
+00:112B A531            	   457:   lda VDP_PATTERN_INIT_HI
+00:112D C916            	   458:   cmp #>vdp_pattern_end
+00:112F D0E7            	   459:   bne vdp_pattern_table_loop
+00:1131 FA              	   460:   plx
+00:1132 68              	   461:   pla
+00:1133 60              	   462:   rts
+                        	   463: 
+                        	   464: ;;;;;;;;;;;;;;;;;;; vdp_initialize_color_table ;;;;;;;;;;;;;;;;;;;
+                        	   465: 
+                        	   466: vdp_initialize_color_table:
+                        	   467: ;  pha
+                        	   468: ;  phx
+                        	   469: ;  vdp_write_vram VDP_COLOR_TABLE_BASE
+                        	   470: ;  lda #<vdp_color                         ; load the start address of the patterns to zero page
+                        	   471: ;  sta VDP_PATTERN_INIT
+                        	   472: ;  lda #>vdp_color
+                        	   473: ;  sta VDP_PATTERN_INIT_HI
+                        	   474: ;vdp_color_table_loop:
+                        	   475: ;  lda (VDP_PATTERN_INIT)                  ; load A with the value at VDP_PATTERN_INIT 
+                        	   476: ;  sta VDP_VRAM                            ; and store it to VRAM
+                        	   477: ;  inc VDP_PATTERN_INIT
+                        	   478: ;  lda VDP_PATTERN_INIT
+                        	   479: ;  bne wopee
+                        	   480: ;  inc VDP_PATTERN_INIT_HI
+                        	   481: ;wopee:
+                        	   482: ;  lda VDP_PATTERN_INIT
+                        	   483: ;  cmp #<vdp_color_end
                         	   484: ;  bne vdp_color_table_loop
-                        	   485: ;  plx
-                        	   486: ;  pla
-                        	   487: ;  rts
-00:1131 48              	   488:   pha
-00:1132 DA              	   489:   phx
-                        	   490:   vdp_write_vram VDP_COLOR_TABLE_BASE
-00:1133 48              	     1M   pha
-00:1134 A900            	     2M   lda #<(VDP_COLOR_TABLE_BASE)
-00:1136 8D0188          	     3M   sta VDP_REG
-00:1139 A960            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_COLOR_TABLE_BASE)
-00:113B 8D0188          	     5M   sta VDP_REG
-00:113E 68              	     6M   pla
-00:113F A200            	   491:   ldx #0
-                        	   492: vdpclp:
-00:1141 A9F0            	   493:   lda #$f0
-00:1143 8D0088          	   494:   sta VDP_VRAM
-00:1146 E8              	   495:   inx
-00:1147 E020            	   496:   cpx #32
-00:1149 D0F6            	   497:   bne vdpclp
-00:114B FA              	   498:   plx
-00:114C 68              	   499:   pla
-00:114D 60              	   500:   rts
-                        	   501: 
-                        	   502: ;;;;;;;;;;;;;;;;;;; vdp_enable_display ;;;;;;;;;;;;;;;;;;;;;;;;;
-                        	   503: 
-                        	   504: vdp_enable_display:
-00:114E 48              	   505:   pha
-00:114F A9E2            	   506:   lda #%11100010			; select 16k bytes of vram, enable the active display, enable vdp interrupt, set gfx mode 1
-00:1151 8D0188          	   507:   sta VDP_REG
-00:1154 A981            	   508:   lda #(VDP_REGISTER_BITS | 1)
-00:1156 8D0188          	   509:   sta VDP_REG
-00:1159 68              	   510:   pla
-00:115A 60              	   511:   rts
-                        	   512: 
-                        	   513: text_vdp:
-                        	   514:   ;.byte "Hello, World!", $00
-00:115B 53434F5245      	   515:   .byte "SCORE", $3a, " 0", $00
-00:1160 3A
-00:1161 2030
-00:1163 00
-                        	   516: 
-                        	   517: 
-                        	   518: vdp_register_inits:
-00:1164 00              	   519: vdp_register_0: .byte %00000000 ; 0  0  0  0  0  0  M3 EXTVDP
-00:1165 82              	   520: vdp_register_1: .byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
-00:1166 01              	   521: vdp_register_2: .byte $01       ; Name table base / $400. $01 = $0400
-00:1167 80              	   522: vdp_register_3: .byte $80       ; Color table base = $2000
-00:1168 01              	   523: vdp_register_4: .byte $01       ; Pattern table base / $800. $01 = $0800
-00:1169 0E              	   524: vdp_register_5: .byte $0e       ; Sprite attribute table base = $0700
-00:116A 00              	   525: vdp_register_6: .byte $00       ; Sprite pattern generator = $0000
-00:116B 01              	   526: vdp_register_7: .byte $01       ; FG/BG. 1=>Black, F=>White
-                        	   527: vdp_end_register_inits:
-                        	   528: 
-                        	   529: ;;;;;;;;;;;;;;;;;;; vdp_sprpatterns ;;;;;;;;;;;;;;;;;;;;;
-                        	   530: vdp_block: ; (0x00)
-00:116C FF              	   531:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-00:116D FF
-00:116E FF
-00:116F FF
+                        	   485: ;  lda VDP_PATTERN_INIT_HI
+                        	   486: ;  cmp #>vdp_color_end
+                        	   487: ;  bne vdp_color_table_loop
+                        	   488: ;  plx
+                        	   489: ;  pla
+                        	   490: ;  rts
+00:1134 48              	   491:   pha
+00:1135 DA              	   492:   phx
+                        	   493:   vdp_write_vram VDP_COLOR_TABLE_BASE
+00:1136 48              	     1M   pha
+00:1137 A900            	     2M   lda #<(VDP_COLOR_TABLE_BASE)
+00:1139 8D0188          	     3M   sta VDP_REG
+00:113C A960            	     4M   lda #(VDP_WRITE_VRAM_BIT | >VDP_COLOR_TABLE_BASE)
+00:113E 8D0188          	     5M   sta VDP_REG
+00:1141 68              	     6M   pla
+00:1142 A200            	   494:   ldx #0
+                        	   495: vdpclp:
+00:1144 A9F0            	   496:   lda #$f0
+00:1146 8D0088          	   497:   sta VDP_VRAM
+00:1149 E8              	   498:   inx
+00:114A E020            	   499:   cpx #32
+00:114C D0F6            	   500:   bne vdpclp
+00:114E FA              	   501:   plx
+00:114F 68              	   502:   pla
+00:1150 60              	   503:   rts
+                        	   504: 
+                        	   505: ;;;;;;;;;;;;;;;;;;; vdp_enable_display ;;;;;;;;;;;;;;;;;;;;;;;;;
+                        	   506: 
+                        	   507: vdp_enable_display:
+00:1151 48              	   508:   pha
+00:1152 A9E2            	   509:   lda #%11100010			; select 16k bytes of vram, enable the active display, enable vdp interrupt, set gfx mode 1
+00:1154 8D0188          	   510:   sta VDP_REG
+00:1157 A981            	   511:   lda #(VDP_REGISTER_BITS | 1)
+00:1159 8D0188          	   512:   sta VDP_REG
+00:115C 68              	   513:   pla
+00:115D 60              	   514:   rts
+                        	   515: 
+                        	   516: text_vdp:
+                        	   517:   ;.byte "Hello, World!", $00
+00:115E 53434F5245      	   518:   .byte "SCORE", $3a, " 0", $00
+00:1163 3A
+00:1164 2030
+00:1166 00
+                        	   519: 
+                        	   520: 
+                        	   521: vdp_register_inits:
+00:1167 00              	   522: vdp_register_0: .byte %00000000 ; 0  0  0  0  0  0  M3 EXTVDP
+00:1168 82              	   523: vdp_register_1: .byte %10000010 ;16k Bl IE M1 M2 0 Siz MAG
+00:1169 01              	   524: vdp_register_2: .byte $01       ; Name table base / $400. $01 = $0400
+00:116A 80              	   525: vdp_register_3: .byte $80       ; Color table base = $2000
+00:116B 01              	   526: vdp_register_4: .byte $01       ; Pattern table base / $800. $01 = $0800
+00:116C 0E              	   527: vdp_register_5: .byte $0e       ; Sprite attribute table base = $0700
+00:116D 00              	   528: vdp_register_6: .byte $00       ; Sprite pattern generator = $0000
+00:116E 01              	   529: vdp_register_7: .byte $01       ; FG/BG. 1=>Black, F=>White
+                        	   530: vdp_end_register_inits:
+                        	   531: 
+                        	   532: ;;;;;;;;;;;;;;;;;;; vdp_sprpatterns ;;;;;;;;;;;;;;;;;;;;;
+                        	   533: vdp_block: ; (0x00)
+00:116F FF              	   534:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 00:1170 FF
 00:1171 FF
 00:1172 FF
 00:1173 FF
-00:1174 FF              	   532:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+00:1174 FF
 00:1175 FF
 00:1176 FF
-00:1177 FF
+00:1177 FF              	   535:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 00:1178 FF
 00:1179 FF
 00:117A FF
 00:117B FF
-00:117C FF              	   533:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+00:117C FF
 00:117D FF
 00:117E FF
-00:117F FF
+00:117F FF              	   536:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 00:1180 FF
 00:1181 FF
 00:1182 FF
 00:1183 FF
-00:1184 FF              	   534:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+00:1184 FF
 00:1185 FF
 00:1186 FF
-00:1187 FF
+00:1187 FF              	   537:   .byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 00:1188 FF
 00:1189 FF
 00:118A FF
 00:118B FF
-                        	   535: vdp_ball: ; (0x04)
-00:118C 07              	   536:   .byte $07,$1f,$3f,$7f,$7f,$ff,$ff,$ff
-00:118D 1F
-00:118E 3F
-00:118F 7F
-00:1190 7F
-00:1191 FF
-00:1192 FF
-00:1193 FF
-00:1194 FF              	   537:   .byte $ff,$ff,$ff,$7f,$7f,$3f,$1f,$07
+00:118C FF
+00:118D FF
+00:118E FF
+                        	   538: vdp_ball: ; (0x04)
+00:118F 07              	   539:   .byte $07,$1f,$3f,$7f,$7f,$ff,$ff,$ff
+00:1190 1F
+00:1191 3F
+00:1192 7F
+00:1193 7F
+00:1194 FF
 00:1195 FF
 00:1196 FF
-00:1197 7F
-00:1198 7F
-00:1199 3F
-00:119A 1F
-00:119B 07
-00:119C E0              	   538:   .byte $e0,$f8,$fc,$fe,$fe,$ff,$ff,$ff
-00:119D F8
-00:119E FC
-00:119F FE
-00:11A0 FE
-00:11A1 FF
-00:11A2 FF
-00:11A3 FF
-00:11A4 FF              	   539:   .byte $ff,$ff,$ff,$fe,$fe,$fc,$f8,$e0
+00:1197 FF              	   540:   .byte $ff,$ff,$ff,$7f,$7f,$3f,$1f,$07
+00:1198 FF
+00:1199 FF
+00:119A 7F
+00:119B 7F
+00:119C 3F
+00:119D 1F
+00:119E 07
+00:119F E0              	   541:   .byte $e0,$f8,$fc,$fe,$fe,$ff,$ff,$ff
+00:11A0 F8
+00:11A1 FC
+00:11A2 FE
+00:11A3 FE
+00:11A4 FF
 00:11A5 FF
 00:11A6 FF
-00:11A7 FE
-00:11A8 FE
-00:11A9 FC
-00:11AA F8
-00:11AB E0
-                        	   540: 
-                        	   541: ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
-                        	   542: ;  .align 8
-                        	   543: ;vdp_color:
-                        	   544: ;  .binary "???.TIAC"
-                        	   545: ;vdp_color_end:
-                        	   546: ;  .byte $00
-                        	   547: 
-                        	   548: ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
-                        	   549: 
-                        	   550:   .align 8
-                        	   551: vdp_pattern:
-                        	   552: ;  .binary "???.TIAP"
-                        	   553: ; line drawing
-00:1200 00              	   554:   .byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
+00:11A7 FF              	   542:   .byte $ff,$ff,$ff,$fe,$fe,$fc,$f8,$e0
+00:11A8 FF
+00:11A9 FF
+00:11AA FE
+00:11AB FE
+00:11AC FC
+00:11AD F8
+00:11AE E0
+                        	   543: 
+                        	   544: ;;;;;;;;;;;;;;;;;;; vdp_color ;;;;;;;;;;;;;;;;;;;;;
+                        	   545: ;  .align 8
+                        	   546: ;vdp_color:
+                        	   547: ;  .binary "???.TIAC"
+                        	   548: ;vdp_color_end:
+                        	   549: ;  .byte $00
+                        	   550: 
+                        	   551: ;;;;;;;;;;;;;;;;;;; vdp_patterns ;;;;;;;;;;;;;;;;;;;;;
+                        	   552: 
+                        	   553:   .align 8
+                        	   554: vdp_pattern:
+                        	   555: ;  .binary "???.TIAP"
+                        	   556: ; line drawing
+00:1200 00              	   557:   .byte $00,$00,$00,$FF,$FF,$00,$00,$00 ; lr
 00:1201 00
 00:1202 00
 00:1203 FF
@@ -680,7 +683,7 @@ Source: "pong.s"
 00:1205 00
 00:1206 00
 00:1207 00
-00:1208 18              	   555:   .byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud
+00:1208 18              	   558:   .byte $18,$18,$18,$18,$18,$18,$18,$18 ; ud
 00:1209 18
 00:120A 18
 00:120B 18
@@ -688,7 +691,7 @@ Source: "pong.s"
 00:120D 18
 00:120E 18
 00:120F 18
-00:1210 00              	   556:   .byte $00,$00,$00,$F8,$F8,$18,$18,$18 ; ld
+00:1210 00              	   559:   .byte $00,$00,$00,$F8,$F8,$18,$18,$18 ; ld
 00:1211 00
 00:1212 00
 00:1213 F8
@@ -696,7 +699,7 @@ Source: "pong.s"
 00:1215 18
 00:1216 18
 00:1217 18
-00:1218 00              	   557:   .byte $00,$00,$00,$1F,$1F,$18,$18,$18 ; rd
+00:1218 00              	   560:   .byte $00,$00,$00,$1F,$1F,$18,$18,$18 ; rd
 00:1219 00
 00:121A 00
 00:121B 1F
@@ -704,7 +707,7 @@ Source: "pong.s"
 00:121D 18
 00:121E 18
 00:121F 18
-00:1220 18              	   558:   .byte $18,$18,$18,$F8,$F8,$00,$00,$00 ; lu
+00:1220 18              	   561:   .byte $18,$18,$18,$F8,$F8,$00,$00,$00 ; lu
 00:1221 18
 00:1222 18
 00:1223 F8
@@ -712,7 +715,7 @@ Source: "pong.s"
 00:1225 00
 00:1226 00
 00:1227 00
-00:1228 18              	   559:   .byte $18,$18,$18,$1F,$1F,$00,$00,$00 ; ur
+00:1228 18              	   562:   .byte $18,$18,$18,$1F,$1F,$00,$00,$00 ; ur
 00:1229 18
 00:122A 18
 00:122B 1F
@@ -720,7 +723,7 @@ Source: "pong.s"
 00:122D 00
 00:122E 00
 00:122F 00
-00:1230 18              	   560:   .byte $18,$18,$18,$FF,$FF,$18,$18,$18 ; lurd
+00:1230 18              	   563:   .byte $18,$18,$18,$FF,$FF,$18,$18,$18 ; lurd
 00:1231 18
 00:1232 18
 00:1233 FF
@@ -728,8 +731,8 @@ Source: "pong.s"
 00:1235 18
 00:1236 18
 00:1237 18
-                        	   561: ; <nonsense for debug>
-00:1238 07              	   562:   .byte $07,$07,$07,$07,$07,$07,$07,$00 ; 07
+                        	   564: ; <nonsense for debug>
+00:1238 07              	   565:   .byte $07,$07,$07,$07,$07,$07,$07,$00 ; 07
 00:1239 07
 00:123A 07
 00:123B 07
@@ -737,7 +740,7 @@ Source: "pong.s"
 00:123D 07
 00:123E 07
 00:123F 00
-00:1240 08              	   563:   .byte $08,$08,$08,$08,$08,$08,$08,$00 ; 08
+00:1240 08              	   566:   .byte $08,$08,$08,$08,$08,$08,$08,$00 ; 08
 00:1241 08
 00:1242 08
 00:1243 08
@@ -745,7 +748,7 @@ Source: "pong.s"
 00:1245 08
 00:1246 08
 00:1247 00
-00:1248 09              	   564:   .byte $09,$09,$09,$09,$09,$09,$09,$00 ; 09
+00:1248 09              	   567:   .byte $09,$09,$09,$09,$09,$09,$09,$00 ; 09
 00:1249 09
 00:124A 09
 00:124B 09
@@ -753,7 +756,7 @@ Source: "pong.s"
 00:124D 09
 00:124E 09
 00:124F 00
-00:1250 0A              	   565:   .byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$00 ; 0A
+00:1250 0A              	   568:   .byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$00 ; 0A
 00:1251 0A
 00:1252 0A
 00:1253 0A
@@ -761,7 +764,7 @@ Source: "pong.s"
 00:1255 0A
 00:1256 0A
 00:1257 00
-00:1258 0B              	   566:   .byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$00 ; 0B
+00:1258 0B              	   569:   .byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$00 ; 0B
 00:1259 0B
 00:125A 0B
 00:125B 0B
@@ -769,7 +772,7 @@ Source: "pong.s"
 00:125D 0B
 00:125E 0B
 00:125F 00
-00:1260 0C              	   567:   .byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$00 ; 0C
+00:1260 0C              	   570:   .byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$00 ; 0C
 00:1261 0C
 00:1262 0C
 00:1263 0C
@@ -777,7 +780,7 @@ Source: "pong.s"
 00:1265 0C
 00:1266 0C
 00:1267 00
-00:1268 0D              	   568:   .byte $0D,$0D,$0D,$0D,$0D,$0D,$0D,$00 ; 0D
+00:1268 0D              	   571:   .byte $0D,$0D,$0D,$0D,$0D,$0D,$0D,$00 ; 0D
 00:1269 0D
 00:126A 0D
 00:126B 0D
@@ -785,7 +788,7 @@ Source: "pong.s"
 00:126D 0D
 00:126E 0D
 00:126F 00
-00:1270 0E              	   569:   .byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$00 ; 0E
+00:1270 0E              	   572:   .byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$00 ; 0E
 00:1271 0E
 00:1272 0E
 00:1273 0E
@@ -793,7 +796,7 @@ Source: "pong.s"
 00:1275 0E
 00:1276 0E
 00:1277 00
-00:1278 0F              	   570:   .byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$00 ; 0F
+00:1278 0F              	   573:   .byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$00 ; 0F
 00:1279 0F
 00:127A 0F
 00:127B 0F
@@ -801,7 +804,7 @@ Source: "pong.s"
 00:127D 0F
 00:127E 0F
 00:127F 00
-00:1280 10              	   571:   .byte $10,$10,$10,$10,$10,$10,$10,$00 ; 10
+00:1280 10              	   574:   .byte $10,$10,$10,$10,$10,$10,$10,$00 ; 10
 00:1281 10
 00:1282 10
 00:1283 10
@@ -809,7 +812,7 @@ Source: "pong.s"
 00:1285 10
 00:1286 10
 00:1287 00
-00:1288 11              	   572:   .byte $11,$11,$11,$11,$11,$11,$11,$00 ; 11
+00:1288 11              	   575:   .byte $11,$11,$11,$11,$11,$11,$11,$00 ; 11
 00:1289 11
 00:128A 11
 00:128B 11
@@ -817,7 +820,7 @@ Source: "pong.s"
 00:128D 11
 00:128E 11
 00:128F 00
-00:1290 12              	   573:   .byte $12,$12,$12,$12,$12,$12,$12,$00 ; 12
+00:1290 12              	   576:   .byte $12,$12,$12,$12,$12,$12,$12,$00 ; 12
 00:1291 12
 00:1292 12
 00:1293 12
@@ -825,7 +828,7 @@ Source: "pong.s"
 00:1295 12
 00:1296 12
 00:1297 00
-00:1298 13              	   574:   .byte $13,$13,$13,$13,$13,$13,$13,$00 ; 13
+00:1298 13              	   577:   .byte $13,$13,$13,$13,$13,$13,$13,$00 ; 13
 00:1299 13
 00:129A 13
 00:129B 13
@@ -833,7 +836,7 @@ Source: "pong.s"
 00:129D 13
 00:129E 13
 00:129F 00
-00:12A0 14              	   575:   .byte $14,$14,$14,$14,$14,$14,$14,$00 ; 14
+00:12A0 14              	   578:   .byte $14,$14,$14,$14,$14,$14,$14,$00 ; 14
 00:12A1 14
 00:12A2 14
 00:12A3 14
@@ -841,7 +844,7 @@ Source: "pong.s"
 00:12A5 14
 00:12A6 14
 00:12A7 00
-00:12A8 15              	   576:   .byte $15,$15,$15,$15,$15,$15,$15,$00 ; 15
+00:12A8 15              	   579:   .byte $15,$15,$15,$15,$15,$15,$15,$00 ; 15
 00:12A9 15
 00:12AA 15
 00:12AB 15
@@ -849,7 +852,7 @@ Source: "pong.s"
 00:12AD 15
 00:12AE 15
 00:12AF 00
-00:12B0 16              	   577:   .byte $16,$16,$16,$16,$16,$16,$16,$00 ; 16
+00:12B0 16              	   580:   .byte $16,$16,$16,$16,$16,$16,$16,$00 ; 16
 00:12B1 16
 00:12B2 16
 00:12B3 16
@@ -857,7 +860,7 @@ Source: "pong.s"
 00:12B5 16
 00:12B6 16
 00:12B7 00
-00:12B8 17              	   578:   .byte $17,$17,$17,$17,$17,$17,$17,$00 ; 17
+00:12B8 17              	   581:   .byte $17,$17,$17,$17,$17,$17,$17,$00 ; 17
 00:12B9 17
 00:12BA 17
 00:12BB 17
@@ -865,7 +868,7 @@ Source: "pong.s"
 00:12BD 17
 00:12BE 17
 00:12BF 00
-00:12C0 18              	   579:   .byte $18,$18,$18,$18,$18,$18,$18,$00 ; 18
+00:12C0 18              	   582:   .byte $18,$18,$18,$18,$18,$18,$18,$00 ; 18
 00:12C1 18
 00:12C2 18
 00:12C3 18
@@ -873,7 +876,7 @@ Source: "pong.s"
 00:12C5 18
 00:12C6 18
 00:12C7 00
-00:12C8 19              	   580:   .byte $19,$19,$19,$19,$19,$19,$19,$00 ; 19
+00:12C8 19              	   583:   .byte $19,$19,$19,$19,$19,$19,$19,$00 ; 19
 00:12C9 19
 00:12CA 19
 00:12CB 19
@@ -881,7 +884,7 @@ Source: "pong.s"
 00:12CD 19
 00:12CE 19
 00:12CF 00
-00:12D0 1A              	   581:   .byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$00 ; 1A
+00:12D0 1A              	   584:   .byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$00 ; 1A
 00:12D1 1A
 00:12D2 1A
 00:12D3 1A
@@ -889,7 +892,7 @@ Source: "pong.s"
 00:12D5 1A
 00:12D6 1A
 00:12D7 00
-00:12D8 1B              	   582:   .byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$00 ; 1B
+00:12D8 1B              	   585:   .byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$00 ; 1B
 00:12D9 1B
 00:12DA 1B
 00:12DB 1B
@@ -897,7 +900,7 @@ Source: "pong.s"
 00:12DD 1B
 00:12DE 1B
 00:12DF 00
-00:12E0 1C              	   583:   .byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$00 ; 1C
+00:12E0 1C              	   586:   .byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$00 ; 1C
 00:12E1 1C
 00:12E2 1C
 00:12E3 1C
@@ -905,7 +908,7 @@ Source: "pong.s"
 00:12E5 1C
 00:12E6 1C
 00:12E7 00
-00:12E8 1D              	   584:   .byte $1D,$1D,$1D,$1D,$1D,$1D,$1D,$00 ; 1D
+00:12E8 1D              	   587:   .byte $1D,$1D,$1D,$1D,$1D,$1D,$1D,$00 ; 1D
 00:12E9 1D
 00:12EA 1D
 00:12EB 1D
@@ -913,7 +916,7 @@ Source: "pong.s"
 00:12ED 1D
 00:12EE 1D
 00:12EF 00
-00:12F0 1E              	   585:   .byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$00 ; 1E
+00:12F0 1E              	   588:   .byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$00 ; 1E
 00:12F1 1E
 00:12F2 1E
 00:12F3 1E
@@ -921,7 +924,7 @@ Source: "pong.s"
 00:12F5 1E
 00:12F6 1E
 00:12F7 00
-00:12F8 1F              	   586:   .byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$00 ; 1F
+00:12F8 1F              	   589:   .byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$00 ; 1F
 00:12F9 1F
 00:12FA 1F
 00:12FB 1F
@@ -929,8 +932,8 @@ Source: "pong.s"
 00:12FD 1F
 00:12FE 1F
 00:12FF 00
-                        	   587: ; </nonsense>
-00:1300 00              	   588:   .byte $00,$00,$00,$00,$00,$00,$00,$00 ; ' '
+                        	   590: ; </nonsense>
+00:1300 00              	   591:   .byte $00,$00,$00,$00,$00,$00,$00,$00 ; ' '
 00:1301 00
 00:1302 00
 00:1303 00
@@ -938,7 +941,7 @@ Source: "pong.s"
 00:1305 00
 00:1306 00
 00:1307 00
-00:1308 20              	   589:   .byte $20,$20,$20,$00,$20,$20,$00,$00 ; !
+00:1308 20              	   592:   .byte $20,$20,$20,$00,$20,$20,$00,$00 ; !
 00:1309 20
 00:130A 20
 00:130B 00
@@ -946,7 +949,7 @@ Source: "pong.s"
 00:130D 20
 00:130E 00
 00:130F 00
-00:1310 50              	   590:   .byte $50,$50,$50,$00,$00,$00,$00,$00 ; "
+00:1310 50              	   593:   .byte $50,$50,$50,$00,$00,$00,$00,$00 ; "
 00:1311 50
 00:1312 50
 00:1313 00
@@ -954,7 +957,7 @@ Source: "pong.s"
 00:1315 00
 00:1316 00
 00:1317 00
-00:1318 50              	   591:   .byte $50,$50,$F8,$50,$F8,$50,$50,$00 ; #
+00:1318 50              	   594:   .byte $50,$50,$F8,$50,$F8,$50,$50,$00 ; #
 00:1319 50
 00:131A F8
 00:131B 50
@@ -962,7 +965,7 @@ Source: "pong.s"
 00:131D 50
 00:131E 50
 00:131F 00
-00:1320 20              	   592:   .byte $20,$78,$A0,$70,$28,$F0,$20,$00 ; $
+00:1320 20              	   595:   .byte $20,$78,$A0,$70,$28,$F0,$20,$00 ; $
 00:1321 78
 00:1322 A0
 00:1323 70
@@ -970,7 +973,7 @@ Source: "pong.s"
 00:1325 F0
 00:1326 20
 00:1327 00
-00:1328 C0              	   593:   .byte $C0,$C8,$10,$20,$40,$98,$18,$00 ; %
+00:1328 C0              	   596:   .byte $C0,$C8,$10,$20,$40,$98,$18,$00 ; %
 00:1329 C8
 00:132A 10
 00:132B 20
@@ -978,7 +981,7 @@ Source: "pong.s"
 00:132D 98
 00:132E 18
 00:132F 00
-00:1330 40              	   594:   .byte $40,$A0,$A0,$40,$A8,$90,$68,$00 ; &
+00:1330 40              	   597:   .byte $40,$A0,$A0,$40,$A8,$90,$68,$00 ; &
 00:1331 A0
 00:1332 A0
 00:1333 40
@@ -986,7 +989,7 @@ Source: "pong.s"
 00:1335 90
 00:1336 68
 00:1337 00
-00:1338 20              	   595:   .byte $20,$20,$40,$00,$00,$00,$00,$00 ; '
+00:1338 20              	   598:   .byte $20,$20,$40,$00,$00,$00,$00,$00 ; '
 00:1339 20
 00:133A 40
 00:133B 00
@@ -994,7 +997,7 @@ Source: "pong.s"
 00:133D 00
 00:133E 00
 00:133F 00
-00:1340 20              	   596:   .byte $20,$40,$80,$80,$80,$40,$20,$00 ; (
+00:1340 20              	   599:   .byte $20,$40,$80,$80,$80,$40,$20,$00 ; (
 00:1341 40
 00:1342 80
 00:1343 80
@@ -1002,7 +1005,7 @@ Source: "pong.s"
 00:1345 40
 00:1346 20
 00:1347 00
-00:1348 20              	   597:   .byte $20,$10,$08,$08,$08,$10,$20,$00 ; )
+00:1348 20              	   600:   .byte $20,$10,$08,$08,$08,$10,$20,$00 ; )
 00:1349 10
 00:134A 08
 00:134B 08
@@ -1010,7 +1013,7 @@ Source: "pong.s"
 00:134D 10
 00:134E 20
 00:134F 00
-00:1350 20              	   598:   .byte $20,$A8,$70,$20,$70,$A8,$20,$00 ; *
+00:1350 20              	   601:   .byte $20,$A8,$70,$20,$70,$A8,$20,$00 ; *
 00:1351 A8
 00:1352 70
 00:1353 20
@@ -1018,7 +1021,7 @@ Source: "pong.s"
 00:1355 A8
 00:1356 20
 00:1357 00
-00:1358 00              	   599:   .byte $00,$20,$20,$F8,$20,$20,$00,$00 ; +
+00:1358 00              	   602:   .byte $00,$20,$20,$F8,$20,$20,$00,$00 ; +
 00:1359 20
 00:135A 20
 00:135B F8
@@ -1026,7 +1029,7 @@ Source: "pong.s"
 00:135D 20
 00:135E 00
 00:135F 00
-00:1360 00              	   600:   .byte $00,$00,$00,$00,$20,$20,$40,$00 ; ,
+00:1360 00              	   603:   .byte $00,$00,$00,$00,$20,$20,$40,$00 ; ,
 00:1361 00
 00:1362 00
 00:1363 00
@@ -1034,7 +1037,7 @@ Source: "pong.s"
 00:1365 20
 00:1366 40
 00:1367 00
-00:1368 00              	   601:   .byte $00,$00,$00,$F8,$00,$00,$00,$00 ; -
+00:1368 00              	   604:   .byte $00,$00,$00,$F8,$00,$00,$00,$00 ; -
 00:1369 00
 00:136A 00
 00:136B F8
@@ -1042,7 +1045,7 @@ Source: "pong.s"
 00:136D 00
 00:136E 00
 00:136F 00
-00:1370 00              	   602:   .byte $00,$00,$00,$00,$20,$20,$00,$00 ; .
+00:1370 00              	   605:   .byte $00,$00,$00,$00,$20,$20,$00,$00 ; .
 00:1371 00
 00:1372 00
 00:1373 00
@@ -1050,7 +1053,7 @@ Source: "pong.s"
 00:1375 20
 00:1376 00
 00:1377 00
-00:1378 00              	   603:   .byte $00,$08,$10,$20,$40,$80,$00,$00 ; /
+00:1378 00              	   606:   .byte $00,$08,$10,$20,$40,$80,$00,$00 ; /
 00:1379 08
 00:137A 10
 00:137B 20
@@ -1058,7 +1061,7 @@ Source: "pong.s"
 00:137D 80
 00:137E 00
 00:137F 00
-00:1380 70              	   604:   .byte $70,$88,$98,$A8,$C8,$88,$70,$00 ; 0
+00:1380 70              	   607:   .byte $70,$88,$98,$A8,$C8,$88,$70,$00 ; 0
 00:1381 88
 00:1382 98
 00:1383 A8
@@ -1066,7 +1069,7 @@ Source: "pong.s"
 00:1385 88
 00:1386 70
 00:1387 00
-00:1388 20              	   605:   .byte $20,$60,$20,$20,$20,$20,$70,$00 ; 1
+00:1388 20              	   608:   .byte $20,$60,$20,$20,$20,$20,$70,$00 ; 1
 00:1389 60
 00:138A 20
 00:138B 20
@@ -1074,7 +1077,7 @@ Source: "pong.s"
 00:138D 20
 00:138E 70
 00:138F 00
-00:1390 70              	   606:   .byte $70,$88,$08,$30,$40,$80,$F8,$00 ; 2
+00:1390 70              	   609:   .byte $70,$88,$08,$30,$40,$80,$F8,$00 ; 2
 00:1391 88
 00:1392 08
 00:1393 30
@@ -1082,7 +1085,7 @@ Source: "pong.s"
 00:1395 80
 00:1396 F8
 00:1397 00
-00:1398 F8              	   607:   .byte $F8,$08,$10,$30,$08,$88,$70,$00 ; 3
+00:1398 F8              	   610:   .byte $F8,$08,$10,$30,$08,$88,$70,$00 ; 3
 00:1399 08
 00:139A 10
 00:139B 30
@@ -1090,7 +1093,7 @@ Source: "pong.s"
 00:139D 88
 00:139E 70
 00:139F 00
-00:13A0 10              	   608:   .byte $10,$30,$50,$90,$F8,$10,$10,$00 ; 4
+00:13A0 10              	   611:   .byte $10,$30,$50,$90,$F8,$10,$10,$00 ; 4
 00:13A1 30
 00:13A2 50
 00:13A3 90
@@ -1098,7 +1101,7 @@ Source: "pong.s"
 00:13A5 10
 00:13A6 10
 00:13A7 00
-00:13A8 F8              	   609:   .byte $F8,$80,$F0,$08,$08,$88,$70,$00 ; 5
+00:13A8 F8              	   612:   .byte $F8,$80,$F0,$08,$08,$88,$70,$00 ; 5
 00:13A9 80
 00:13AA F0
 00:13AB 08
@@ -1106,7 +1109,7 @@ Source: "pong.s"
 00:13AD 88
 00:13AE 70
 00:13AF 00
-00:13B0 38              	   610:   .byte $38,$40,$80,$F0,$88,$88,$70,$00 ; 6
+00:13B0 38              	   613:   .byte $38,$40,$80,$F0,$88,$88,$70,$00 ; 6
 00:13B1 40
 00:13B2 80
 00:13B3 F0
@@ -1114,7 +1117,7 @@ Source: "pong.s"
 00:13B5 88
 00:13B6 70
 00:13B7 00
-00:13B8 F8              	   611:   .byte $F8,$08,$10,$20,$40,$40,$40,$00 ; 7
+00:13B8 F8              	   614:   .byte $F8,$08,$10,$20,$40,$40,$40,$00 ; 7
 00:13B9 08
 00:13BA 10
 00:13BB 20
@@ -1122,7 +1125,7 @@ Source: "pong.s"
 00:13BD 40
 00:13BE 40
 00:13BF 00
-00:13C0 70              	   612:   .byte $70,$88,$88,$70,$88,$88,$70,$00 ; 8
+00:13C0 70              	   615:   .byte $70,$88,$88,$70,$88,$88,$70,$00 ; 8
 00:13C1 88
 00:13C2 88
 00:13C3 70
@@ -1130,7 +1133,7 @@ Source: "pong.s"
 00:13C5 88
 00:13C6 70
 00:13C7 00
-00:13C8 70              	   613:   .byte $70,$88,$88,$78,$08,$10,$E0,$00 ; 9
+00:13C8 70              	   616:   .byte $70,$88,$88,$78,$08,$10,$E0,$00 ; 9
 00:13C9 88
 00:13CA 88
 00:13CB 78
@@ -1138,7 +1141,7 @@ Source: "pong.s"
 00:13CD 10
 00:13CE E0
 00:13CF 00
-00:13D0 00              	   614:   .byte $00,$00,$20,$00,$20,$00,$00,$00 ; :
+00:13D0 00              	   617:   .byte $00,$00,$20,$00,$20,$00,$00,$00 ; :
 00:13D1 00
 00:13D2 20
 00:13D3 00
@@ -1146,7 +1149,7 @@ Source: "pong.s"
 00:13D5 00
 00:13D6 00
 00:13D7 00
-00:13D8 00              	   615:   .byte $00,$00,$20,$00,$20,$20,$40,$00 ; ;
+00:13D8 00              	   618:   .byte $00,$00,$20,$00,$20,$20,$40,$00 ; ;
 00:13D9 00
 00:13DA 20
 00:13DB 00
@@ -1154,7 +1157,7 @@ Source: "pong.s"
 00:13DD 20
 00:13DE 40
 00:13DF 00
-00:13E0 10              	   616:   .byte $10,$20,$40,$80,$40,$20,$10,$00 ; <
+00:13E0 10              	   619:   .byte $10,$20,$40,$80,$40,$20,$10,$00 ; <
 00:13E1 20
 00:13E2 40
 00:13E3 80
@@ -1162,7 +1165,7 @@ Source: "pong.s"
 00:13E5 20
 00:13E6 10
 00:13E7 00
-00:13E8 00              	   617:   .byte $00,$00,$F8,$00,$F8,$00,$00,$00 ; =
+00:13E8 00              	   620:   .byte $00,$00,$F8,$00,$F8,$00,$00,$00 ; =
 00:13E9 00
 00:13EA F8
 00:13EB 00
@@ -1170,7 +1173,7 @@ Source: "pong.s"
 00:13ED 00
 00:13EE 00
 00:13EF 00
-00:13F0 40              	   618:   .byte $40,$20,$10,$08,$10,$20,$40,$00 ; >
+00:13F0 40              	   621:   .byte $40,$20,$10,$08,$10,$20,$40,$00 ; >
 00:13F1 20
 00:13F2 10
 00:13F3 08
@@ -1178,7 +1181,7 @@ Source: "pong.s"
 00:13F5 20
 00:13F6 40
 00:13F7 00
-00:13F8 70              	   619:   .byte $70,$88,$10,$20,$20,$00,$20,$00 ; ?
+00:13F8 70              	   622:   .byte $70,$88,$10,$20,$20,$00,$20,$00 ; ?
 00:13F9 88
 00:13FA 10
 00:13FB 20
@@ -1186,7 +1189,7 @@ Source: "pong.s"
 00:13FD 00
 00:13FE 20
 00:13FF 00
-00:1400 70              	   620:   .byte $70,$88,$A8,$B8,$B0,$80,$78,$00 ; @
+00:1400 70              	   623:   .byte $70,$88,$A8,$B8,$B0,$80,$78,$00 ; @
 00:1401 88
 00:1402 A8
 00:1403 B8
@@ -1194,7 +1197,7 @@ Source: "pong.s"
 00:1405 80
 00:1406 78
 00:1407 00
-00:1408 20              	   621:   .byte $20,$50,$88,$88,$F8,$88,$88,$00 ; A
+00:1408 20              	   624:   .byte $20,$50,$88,$88,$F8,$88,$88,$00 ; A
 00:1409 50
 00:140A 88
 00:140B 88
@@ -1202,7 +1205,7 @@ Source: "pong.s"
 00:140D 88
 00:140E 88
 00:140F 00
-00:1410 F0              	   622:   .byte $F0,$88,$88,$F0,$88,$88,$F0,$00 ; B
+00:1410 F0              	   625:   .byte $F0,$88,$88,$F0,$88,$88,$F0,$00 ; B
 00:1411 88
 00:1412 88
 00:1413 F0
@@ -1210,7 +1213,7 @@ Source: "pong.s"
 00:1415 88
 00:1416 F0
 00:1417 00
-00:1418 70              	   623:   .byte $70,$88,$80,$80,$80,$88,$70,$00 ; C
+00:1418 70              	   626:   .byte $70,$88,$80,$80,$80,$88,$70,$00 ; C
 00:1419 88
 00:141A 80
 00:141B 80
@@ -1218,7 +1221,7 @@ Source: "pong.s"
 00:141D 88
 00:141E 70
 00:141F 00
-00:1420 F0              	   624:   .byte $F0,$88,$88,$88,$88,$88,$F0,$00 ; D
+00:1420 F0              	   627:   .byte $F0,$88,$88,$88,$88,$88,$F0,$00 ; D
 00:1421 88
 00:1422 88
 00:1423 88
@@ -1226,7 +1229,7 @@ Source: "pong.s"
 00:1425 88
 00:1426 F0
 00:1427 00
-00:1428 F8              	   625:   .byte $F8,$80,$80,$F0,$80,$80,$F8,$00 ; E
+00:1428 F8              	   628:   .byte $F8,$80,$80,$F0,$80,$80,$F8,$00 ; E
 00:1429 80
 00:142A 80
 00:142B F0
@@ -1234,7 +1237,7 @@ Source: "pong.s"
 00:142D 80
 00:142E F8
 00:142F 00
-00:1430 F8              	   626:   .byte $F8,$80,$80,$F0,$80,$80,$80,$00 ; F
+00:1430 F8              	   629:   .byte $F8,$80,$80,$F0,$80,$80,$80,$00 ; F
 00:1431 80
 00:1432 80
 00:1433 F0
@@ -1242,7 +1245,7 @@ Source: "pong.s"
 00:1435 80
 00:1436 80
 00:1437 00
-00:1438 78              	   627:   .byte $78,$80,$80,$80,$98,$88,$78,$00 ; G
+00:1438 78              	   630:   .byte $78,$80,$80,$80,$98,$88,$78,$00 ; G
 00:1439 80
 00:143A 80
 00:143B 80
@@ -1250,7 +1253,7 @@ Source: "pong.s"
 00:143D 88
 00:143E 78
 00:143F 00
-00:1440 88              	   628:   .byte $88,$88,$88,$F8,$88,$88,$88,$00 ; H
+00:1440 88              	   631:   .byte $88,$88,$88,$F8,$88,$88,$88,$00 ; H
 00:1441 88
 00:1442 88
 00:1443 F8
@@ -1258,7 +1261,7 @@ Source: "pong.s"
 00:1445 88
 00:1446 88
 00:1447 00
-00:1448 70              	   629:   .byte $70,$20,$20,$20,$20,$20,$70,$00 ; I
+00:1448 70              	   632:   .byte $70,$20,$20,$20,$20,$20,$70,$00 ; I
 00:1449 20
 00:144A 20
 00:144B 20
@@ -1266,7 +1269,7 @@ Source: "pong.s"
 00:144D 20
 00:144E 70
 00:144F 00
-00:1450 08              	   630:   .byte $08,$08,$08,$08,$08,$88,$70,$00 ; J
+00:1450 08              	   633:   .byte $08,$08,$08,$08,$08,$88,$70,$00 ; J
 00:1451 08
 00:1452 08
 00:1453 08
@@ -1274,7 +1277,7 @@ Source: "pong.s"
 00:1455 88
 00:1456 70
 00:1457 00
-00:1458 88              	   631:   .byte $88,$90,$A0,$C0,$A0,$90,$88,$00 ; K
+00:1458 88              	   634:   .byte $88,$90,$A0,$C0,$A0,$90,$88,$00 ; K
 00:1459 90
 00:145A A0
 00:145B C0
@@ -1282,7 +1285,7 @@ Source: "pong.s"
 00:145D 90
 00:145E 88
 00:145F 00
-00:1460 80              	   632:   .byte $80,$80,$80,$80,$80,$80,$F8,$00 ; L
+00:1460 80              	   635:   .byte $80,$80,$80,$80,$80,$80,$F8,$00 ; L
 00:1461 80
 00:1462 80
 00:1463 80
@@ -1290,7 +1293,7 @@ Source: "pong.s"
 00:1465 80
 00:1466 F8
 00:1467 00
-00:1468 88              	   633:   .byte $88,$D8,$A8,$A8,$88,$88,$88,$00 ; M
+00:1468 88              	   636:   .byte $88,$D8,$A8,$A8,$88,$88,$88,$00 ; M
 00:1469 D8
 00:146A A8
 00:146B A8
@@ -1298,7 +1301,7 @@ Source: "pong.s"
 00:146D 88
 00:146E 88
 00:146F 00
-00:1470 88              	   634:   .byte $88,$88,$C8,$A8,$98,$88,$88,$00 ; N
+00:1470 88              	   637:   .byte $88,$88,$C8,$A8,$98,$88,$88,$00 ; N
 00:1471 88
 00:1472 C8
 00:1473 A8
@@ -1306,7 +1309,7 @@ Source: "pong.s"
 00:1475 88
 00:1476 88
 00:1477 00
-00:1478 70              	   635:   .byte $70,$88,$88,$88,$88,$88,$70,$00 ; O
+00:1478 70              	   638:   .byte $70,$88,$88,$88,$88,$88,$70,$00 ; O
 00:1479 88
 00:147A 88
 00:147B 88
@@ -1314,7 +1317,7 @@ Source: "pong.s"
 00:147D 88
 00:147E 70
 00:147F 00
-00:1480 F0              	   636:   .byte $F0,$88,$88,$F0,$80,$80,$80,$00 ; P
+00:1480 F0              	   639:   .byte $F0,$88,$88,$F0,$80,$80,$80,$00 ; P
 00:1481 88
 00:1482 88
 00:1483 F0
@@ -1322,7 +1325,7 @@ Source: "pong.s"
 00:1485 80
 00:1486 80
 00:1487 00
-00:1488 70              	   637:   .byte $70,$88,$88,$88,$A8,$90,$68,$00 ; Q
+00:1488 70              	   640:   .byte $70,$88,$88,$88,$A8,$90,$68,$00 ; Q
 00:1489 88
 00:148A 88
 00:148B 88
@@ -1330,7 +1333,7 @@ Source: "pong.s"
 00:148D 90
 00:148E 68
 00:148F 00
-00:1490 F0              	   638:   .byte $F0,$88,$88,$F0,$A0,$90,$88,$00 ; R
+00:1490 F0              	   641:   .byte $F0,$88,$88,$F0,$A0,$90,$88,$00 ; R
 00:1491 88
 00:1492 88
 00:1493 F0
@@ -1338,7 +1341,7 @@ Source: "pong.s"
 00:1495 90
 00:1496 88
 00:1497 00
-00:1498 70              	   639:   .byte $70,$88,$80,$70,$08,$88,$70,$00 ; S
+00:1498 70              	   642:   .byte $70,$88,$80,$70,$08,$88,$70,$00 ; S
 00:1499 88
 00:149A 80
 00:149B 70
@@ -1346,7 +1349,7 @@ Source: "pong.s"
 00:149D 88
 00:149E 70
 00:149F 00
-00:14A0 F8              	   640:   .byte $F8,$20,$20,$20,$20,$20,$20,$00 ; T
+00:14A0 F8              	   643:   .byte $F8,$20,$20,$20,$20,$20,$20,$00 ; T
 00:14A1 20
 00:14A2 20
 00:14A3 20
@@ -1354,7 +1357,7 @@ Source: "pong.s"
 00:14A5 20
 00:14A6 20
 00:14A7 00
-00:14A8 88              	   641:   .byte $88,$88,$88,$88,$88,$88,$70,$00 ; U
+00:14A8 88              	   644:   .byte $88,$88,$88,$88,$88,$88,$70,$00 ; U
 00:14A9 88
 00:14AA 88
 00:14AB 88
@@ -1362,7 +1365,7 @@ Source: "pong.s"
 00:14AD 88
 00:14AE 70
 00:14AF 00
-00:14B0 88              	   642:   .byte $88,$88,$88,$88,$50,$50,$20,$00 ; V
+00:14B0 88              	   645:   .byte $88,$88,$88,$88,$50,$50,$20,$00 ; V
 00:14B1 88
 00:14B2 88
 00:14B3 88
@@ -1370,7 +1373,7 @@ Source: "pong.s"
 00:14B5 50
 00:14B6 20
 00:14B7 00
-00:14B8 88              	   643:   .byte $88,$88,$88,$A8,$A8,$D8,$88,$00 ; W
+00:14B8 88              	   646:   .byte $88,$88,$88,$A8,$A8,$D8,$88,$00 ; W
 00:14B9 88
 00:14BA 88
 00:14BB A8
@@ -1378,7 +1381,7 @@ Source: "pong.s"
 00:14BD D8
 00:14BE 88
 00:14BF 00
-00:14C0 88              	   644:   .byte $88,$88,$50,$20,$50,$88,$88,$00 ; X
+00:14C0 88              	   647:   .byte $88,$88,$50,$20,$50,$88,$88,$00 ; X
 00:14C1 88
 00:14C2 50
 00:14C3 20
@@ -1386,7 +1389,7 @@ Source: "pong.s"
 00:14C5 88
 00:14C6 88
 00:14C7 00
-00:14C8 88              	   645:   .byte $88,$88,$50,$20,$20,$20,$20,$00 ; Y
+00:14C8 88              	   648:   .byte $88,$88,$50,$20,$20,$20,$20,$00 ; Y
 00:14C9 88
 00:14CA 50
 00:14CB 20
@@ -1394,7 +1397,7 @@ Source: "pong.s"
 00:14CD 20
 00:14CE 20
 00:14CF 00
-00:14D0 F8              	   646:   .byte $F8,$08,$10,$20,$40,$80,$F8,$00 ; Z
+00:14D0 F8              	   649:   .byte $F8,$08,$10,$20,$40,$80,$F8,$00 ; Z
 00:14D1 08
 00:14D2 10
 00:14D3 20
@@ -1402,7 +1405,7 @@ Source: "pong.s"
 00:14D5 80
 00:14D6 F8
 00:14D7 00
-00:14D8 F8              	   647:   .byte $F8,$C0,$C0,$C0,$C0,$C0,$F8,$00 ; [
+00:14D8 F8              	   650:   .byte $F8,$C0,$C0,$C0,$C0,$C0,$F8,$00 ; [
 00:14D9 C0
 00:14DA C0
 00:14DB C0
@@ -1410,7 +1413,7 @@ Source: "pong.s"
 00:14DD C0
 00:14DE F8
 00:14DF 00
-00:14E0 00              	   648:   .byte $00,$80,$40,$20,$10,$08,$00,$00 ; \
+00:14E0 00              	   651:   .byte $00,$80,$40,$20,$10,$08,$00,$00 ; \
 00:14E1 80
 00:14E2 40
 00:14E3 20
@@ -1418,7 +1421,7 @@ Source: "pong.s"
 00:14E5 08
 00:14E6 00
 00:14E7 00
-00:14E8 F8              	   649:   .byte $F8,$18,$18,$18,$18,$18,$F8,$00 ; ]
+00:14E8 F8              	   652:   .byte $F8,$18,$18,$18,$18,$18,$F8,$00 ; ]
 00:14E9 18
 00:14EA 18
 00:14EB 18
@@ -1426,7 +1429,7 @@ Source: "pong.s"
 00:14ED 18
 00:14EE F8
 00:14EF 00
-00:14F0 00              	   650:   .byte $00,$00,$20,$50,$88,$00,$00,$00 ; ^
+00:14F0 00              	   653:   .byte $00,$00,$20,$50,$88,$00,$00,$00 ; ^
 00:14F1 00
 00:14F2 20
 00:14F3 50
@@ -1434,7 +1437,7 @@ Source: "pong.s"
 00:14F5 00
 00:14F6 00
 00:14F7 00
-00:14F8 00              	   651:   .byte $00,$00,$00,$00,$00,$00,$F8,$00 ; _
+00:14F8 00              	   654:   .byte $00,$00,$00,$00,$00,$00,$F8,$00 ; _
 00:14F9 00
 00:14FA 00
 00:14FB 00
@@ -1442,7 +1445,7 @@ Source: "pong.s"
 00:14FD 00
 00:14FE F8
 00:14FF 00
-00:1500 40              	   652:   .byte $40,$20,$10,$00,$00,$00,$00,$00 ; `
+00:1500 40              	   655:   .byte $40,$20,$10,$00,$00,$00,$00,$00 ; `
 00:1501 20
 00:1502 10
 00:1503 00
@@ -1450,7 +1453,7 @@ Source: "pong.s"
 00:1505 00
 00:1506 00
 00:1507 00
-00:1508 00              	   653:   .byte $00,$00,$70,$88,$88,$98,$68,$00 ; a
+00:1508 00              	   656:   .byte $00,$00,$70,$88,$88,$98,$68,$00 ; a
 00:1509 00
 00:150A 70
 00:150B 88
@@ -1458,7 +1461,7 @@ Source: "pong.s"
 00:150D 98
 00:150E 68
 00:150F 00
-00:1510 80              	   654:   .byte $80,$80,$F0,$88,$88,$88,$F0,$00 ; b
+00:1510 80              	   657:   .byte $80,$80,$F0,$88,$88,$88,$F0,$00 ; b
 00:1511 80
 00:1512 F0
 00:1513 88
@@ -1466,7 +1469,7 @@ Source: "pong.s"
 00:1515 88
 00:1516 F0
 00:1517 00
-00:1518 00              	   655:   .byte $00,$00,$78,$80,$80,$80,$78,$00 ; c
+00:1518 00              	   658:   .byte $00,$00,$78,$80,$80,$80,$78,$00 ; c
 00:1519 00
 00:151A 78
 00:151B 80
@@ -1474,7 +1477,7 @@ Source: "pong.s"
 00:151D 80
 00:151E 78
 00:151F 00
-00:1520 08              	   656:   .byte $08,$08,$78,$88,$88,$88,$78,$00 ; d
+00:1520 08              	   659:   .byte $08,$08,$78,$88,$88,$88,$78,$00 ; d
 00:1521 08
 00:1522 78
 00:1523 88
@@ -1482,7 +1485,7 @@ Source: "pong.s"
 00:1525 88
 00:1526 78
 00:1527 00
-00:1528 00              	   657:   .byte $00,$00,$70,$88,$F8,$80,$78,$00 ; e
+00:1528 00              	   660:   .byte $00,$00,$70,$88,$F8,$80,$78,$00 ; e
 00:1529 00
 00:152A 70
 00:152B 88
@@ -1490,7 +1493,7 @@ Source: "pong.s"
 00:152D 80
 00:152E 78
 00:152F 00
-00:1530 30              	   658:   .byte $30,$40,$E0,$40,$40,$40,$40,$00 ; f
+00:1530 30              	   661:   .byte $30,$40,$E0,$40,$40,$40,$40,$00 ; f
 00:1531 40
 00:1532 E0
 00:1533 40
@@ -1498,7 +1501,7 @@ Source: "pong.s"
 00:1535 40
 00:1536 40
 00:1537 00
-00:1538 00              	   659:   .byte $00,$00,$70,$88,$F8,$08,$F0,$00 ; g
+00:1538 00              	   662:   .byte $00,$00,$70,$88,$F8,$08,$F0,$00 ; g
 00:1539 00
 00:153A 70
 00:153B 88
@@ -1506,7 +1509,7 @@ Source: "pong.s"
 00:153D 08
 00:153E F0
 00:153F 00
-00:1540 80              	   660:   .byte $80,$80,$F0,$88,$88,$88,$88,$00 ; h
+00:1540 80              	   663:   .byte $80,$80,$F0,$88,$88,$88,$88,$00 ; h
 00:1541 80
 00:1542 F0
 00:1543 88
@@ -1514,7 +1517,7 @@ Source: "pong.s"
 00:1545 88
 00:1546 88
 00:1547 00
-00:1548 00              	   661:   .byte $00,$40,$00,$40,$40,$40,$40,$00 ; i
+00:1548 00              	   664:   .byte $00,$40,$00,$40,$40,$40,$40,$00 ; i
 00:1549 40
 00:154A 00
 00:154B 40
@@ -1522,7 +1525,7 @@ Source: "pong.s"
 00:154D 40
 00:154E 40
 00:154F 00
-00:1550 00              	   662:   .byte $00,$20,$00,$20,$20,$A0,$60,$00 ; j
+00:1550 00              	   665:   .byte $00,$20,$00,$20,$20,$A0,$60,$00 ; j
 00:1551 20
 00:1552 00
 00:1553 20
@@ -1530,7 +1533,7 @@ Source: "pong.s"
 00:1555 A0
 00:1556 60
 00:1557 00
-00:1558 00              	   663:   .byte $00,$80,$80,$A0,$C0,$A0,$90,$00 ; k
+00:1558 00              	   666:   .byte $00,$80,$80,$A0,$C0,$A0,$90,$00 ; k
 00:1559 80
 00:155A 80
 00:155B A0
@@ -1538,7 +1541,7 @@ Source: "pong.s"
 00:155D A0
 00:155E 90
 00:155F 00
-00:1560 C0              	   664:   .byte $C0,$40,$40,$40,$40,$40,$60,$00 ; l
+00:1560 C0              	   667:   .byte $C0,$40,$40,$40,$40,$40,$60,$00 ; l
 00:1561 40
 00:1562 40
 00:1563 40
@@ -1546,7 +1549,7 @@ Source: "pong.s"
 00:1565 40
 00:1566 60
 00:1567 00
-00:1568 00              	   665:   .byte $00,$00,$D8,$A8,$A8,$A8,$A8,$00 ; m
+00:1568 00              	   668:   .byte $00,$00,$D8,$A8,$A8,$A8,$A8,$00 ; m
 00:1569 00
 00:156A D8
 00:156B A8
@@ -1554,7 +1557,7 @@ Source: "pong.s"
 00:156D A8
 00:156E A8
 00:156F 00
-00:1570 00              	   666:   .byte $00,$00,$F0,$88,$88,$88,$88,$00 ; n
+00:1570 00              	   669:   .byte $00,$00,$F0,$88,$88,$88,$88,$00 ; n
 00:1571 00
 00:1572 F0
 00:1573 88
@@ -1562,7 +1565,7 @@ Source: "pong.s"
 00:1575 88
 00:1576 88
 00:1577 00
-00:1578 00              	   667:   .byte $00,$00,$70,$88,$88,$88,$70,$00 ; o
+00:1578 00              	   670:   .byte $00,$00,$70,$88,$88,$88,$70,$00 ; o
 00:1579 00
 00:157A 70
 00:157B 88
@@ -1570,7 +1573,7 @@ Source: "pong.s"
 00:157D 88
 00:157E 70
 00:157F 00
-00:1580 00              	   668:   .byte $00,$00,$70,$88,$F0,$80,$80,$00 ; p
+00:1580 00              	   671:   .byte $00,$00,$70,$88,$F0,$80,$80,$00 ; p
 00:1581 00
 00:1582 70
 00:1583 88
@@ -1578,7 +1581,7 @@ Source: "pong.s"
 00:1585 80
 00:1586 80
 00:1587 00
-00:1588 00              	   669:   .byte $00,$00,$F0,$88,$78,$08,$08,$00 ; q
+00:1588 00              	   672:   .byte $00,$00,$F0,$88,$78,$08,$08,$00 ; q
 00:1589 00
 00:158A F0
 00:158B 88
@@ -1586,7 +1589,7 @@ Source: "pong.s"
 00:158D 08
 00:158E 08
 00:158F 00
-00:1590 00              	   670:   .byte $00,$00,$70,$88,$80,$80,$80,$00 ; r
+00:1590 00              	   673:   .byte $00,$00,$70,$88,$80,$80,$80,$00 ; r
 00:1591 00
 00:1592 70
 00:1593 88
@@ -1594,7 +1597,7 @@ Source: "pong.s"
 00:1595 80
 00:1596 80
 00:1597 00
-00:1598 00              	   671:   .byte $00,$00,$78,$80,$70,$08,$F0,$00 ; s
+00:1598 00              	   674:   .byte $00,$00,$78,$80,$70,$08,$F0,$00 ; s
 00:1599 00
 00:159A 78
 00:159B 80
@@ -1602,7 +1605,7 @@ Source: "pong.s"
 00:159D 08
 00:159E F0
 00:159F 00
-00:15A0 40              	   672:   .byte $40,$40,$F0,$40,$40,$40,$30,$00 ; t
+00:15A0 40              	   675:   .byte $40,$40,$F0,$40,$40,$40,$30,$00 ; t
 00:15A1 40
 00:15A2 F0
 00:15A3 40
@@ -1610,7 +1613,7 @@ Source: "pong.s"
 00:15A5 40
 00:15A6 30
 00:15A7 00
-00:15A8 00              	   673:   .byte $00,$00,$88,$88,$88,$88,$78,$00 ; u
+00:15A8 00              	   676:   .byte $00,$00,$88,$88,$88,$88,$78,$00 ; u
 00:15A9 00
 00:15AA 88
 00:15AB 88
@@ -1618,7 +1621,7 @@ Source: "pong.s"
 00:15AD 88
 00:15AE 78
 00:15AF 00
-00:15B0 00              	   674:   .byte $00,$00,$88,$88,$90,$A0,$40,$00 ; v
+00:15B0 00              	   677:   .byte $00,$00,$88,$88,$90,$A0,$40,$00 ; v
 00:15B1 00
 00:15B2 88
 00:15B3 88
@@ -1626,7 +1629,7 @@ Source: "pong.s"
 00:15B5 A0
 00:15B6 40
 00:15B7 00
-00:15B8 00              	   675:   .byte $00,$00,$88,$88,$88,$A8,$D8,$00 ; w
+00:15B8 00              	   678:   .byte $00,$00,$88,$88,$88,$A8,$D8,$00 ; w
 00:15B9 00
 00:15BA 88
 00:15BB 88
@@ -1634,7 +1637,7 @@ Source: "pong.s"
 00:15BD A8
 00:15BE D8
 00:15BF 00
-00:15C0 00              	   676:   .byte $00,$00,$88,$50,$20,$50,$88,$00 ; x
+00:15C0 00              	   679:   .byte $00,$00,$88,$50,$20,$50,$88,$00 ; x
 00:15C1 00
 00:15C2 88
 00:15C3 50
@@ -1642,7 +1645,7 @@ Source: "pong.s"
 00:15C5 50
 00:15C6 88
 00:15C7 00
-00:15C8 00              	   677:   .byte $00,$00,$88,$88,$78,$08,$F0,$00 ; y
+00:15C8 00              	   680:   .byte $00,$00,$88,$88,$78,$08,$F0,$00 ; y
 00:15C9 00
 00:15CA 88
 00:15CB 88
@@ -1650,7 +1653,7 @@ Source: "pong.s"
 00:15CD 08
 00:15CE F0
 00:15CF 00
-00:15D0 00              	   678:   .byte $00,$00,$F8,$10,$20,$40,$F8,$00 ; z
+00:15D0 00              	   681:   .byte $00,$00,$F8,$10,$20,$40,$F8,$00 ; z
 00:15D1 00
 00:15D2 F8
 00:15D3 10
@@ -1658,7 +1661,7 @@ Source: "pong.s"
 00:15D5 40
 00:15D6 F8
 00:15D7 00
-00:15D8 38              	   679:   .byte $38,$40,$20,$C0,$20,$40,$38,$00 ; {
+00:15D8 38              	   682:   .byte $38,$40,$20,$C0,$20,$40,$38,$00 ; {
 00:15D9 40
 00:15DA 20
 00:15DB C0
@@ -1666,7 +1669,7 @@ Source: "pong.s"
 00:15DD 40
 00:15DE 38
 00:15DF 00
-00:15E0 40              	   680:   .byte $40,$40,$40,$00,$40,$40,$40,$00 ; |
+00:15E0 40              	   683:   .byte $40,$40,$40,$00,$40,$40,$40,$00 ; |
 00:15E1 40
 00:15E2 40
 00:15E3 00
@@ -1674,7 +1677,7 @@ Source: "pong.s"
 00:15E5 40
 00:15E6 40
 00:15E7 00
-00:15E8 E0              	   681:   .byte $E0,$10,$20,$18,$20,$10,$E0,$00 ; }
+00:15E8 E0              	   684:   .byte $E0,$10,$20,$18,$20,$10,$E0,$00 ; }
 00:15E9 10
 00:15EA 20
 00:15EB 18
@@ -1682,7 +1685,7 @@ Source: "pong.s"
 00:15ED 10
 00:15EE E0
 00:15EF 00
-00:15F0 40              	   682:   .byte $40,$A8,$10,$00,$00,$00,$00,$00 ; ~
+00:15F0 40              	   685:   .byte $40,$A8,$10,$00,$00,$00,$00,$00 ; ~
 00:15F1 A8
 00:15F2 10
 00:15F3 00
@@ -1690,7 +1693,7 @@ Source: "pong.s"
 00:15F5 00
 00:15F6 00
 00:15F7 00
-00:15F8 A8              	   683:   .byte $A8,$50,$A8,$50,$A8,$50,$A8,$00 ; checkerboard
+00:15F8 A8              	   686:   .byte $A8,$50,$A8,$50,$A8,$50,$A8,$00 ; checkerboard
 00:15F9 50
 00:15FA A8
 00:15FB 50
@@ -1698,10 +1701,10 @@ Source: "pong.s"
 00:15FD 50
 00:15FE A8
 00:15FF 00
-                        	   684: vdp_pattern_end:
-                        	   685: 
-00:1600 00              	   686:   .byte $00
-                        	   687: 
+                        	   687: vdp_pattern_end:
+                        	   688: 
+00:1600 00              	   689:   .byte $00
+                        	   690: 
 
 
 Symbols by name:
@@ -1722,53 +1725,53 @@ VDP_VRAM                         E:8800
 VDP_WRITE_VRAM_BIT               E:0040
 balldx                           E:003B
 balldy                           E:003C
-changecolor                      A:10A8
-delay                            A:109F
-end_write                        A:10FC
+changecolor                      A:10AB
+delay                            A:10A2
+end_write                        A:10FF
 fc                               E:0034
 holding                          A:0F22
-move_ball                        A:0F4C
-nexf                             A:108B
+move_ball                        A:0F4F
+nexf                             A:108E
 p1_hitbox_x                      E:00E1
-p1cp                             A:0F38
+p1cp                             A:0F3B
 p1dex                            E:0035
 p2_hitbox_x                      E:0010
 p2dex                            E:0037
 reset                            A:0F00
 screen_bottom                    E:00B0
-text_vdp                         A:115B
-update_p1pad                     A:0F2F
-vdp_ball                         A:118C
-vdp_block                        A:116C
-vdp_copysprites                  A:1006
-vdp_enable_display               A:114E
-vdp_end_register_inits           A:116C
-vdp_initialize_color_table       A:1131
-vdp_initialize_name_table        A:10B9
-vdp_initialize_pattern_table     A:10FF
-vdp_name_table_loop              A:10CE
+text_vdp                         A:115E
+update_p1pad                     A:0F32
+vdp_ball                         A:118F
+vdp_block                        A:116F
+vdp_copysprites                  A:1009
+vdp_enable_display               A:1151
+vdp_end_register_inits           A:116F
+vdp_initialize_color_table       A:1134
+vdp_initialize_name_table        A:10BC
+vdp_initialize_pattern_table     A:1102
+vdp_name_table_loop              A:10D1
 vdp_pattern                      A:1200
 vdp_pattern_end                  A:1600
-vdp_pattern_table_loop           A:1115
-vdp_put_spr                      A:1029
-vdp_register_0                   A:1164
-vdp_register_1                   A:1165
-vdp_register_2                   A:1166
-vdp_register_3                   A:1167
-vdp_register_4                   A:1168
-vdp_register_5                   A:1169
-vdp_register_6                   A:116A
-vdp_register_7                   A:116B
-vdp_register_inits               A:1164
-vdp_set_registers                A:1064
-vdp_setup                        A:0FED
-vdp_spr                          A:1047
-vdp_write_name_table             A:10E0
-vdp_zapram                       A:107C
-vdpclp                           A:1141
-wait                             A:109A
-wopeee                           A:1122
-zapf                             A:108D
+vdp_pattern_table_loop           A:1118
+vdp_put_spr                      A:102C
+vdp_register_0                   A:1167
+vdp_register_1                   A:1168
+vdp_register_2                   A:1169
+vdp_register_3                   A:116A
+vdp_register_4                   A:116B
+vdp_register_5                   A:116C
+vdp_register_6                   A:116D
+vdp_register_7                   A:116E
+vdp_register_inits               A:1167
+vdp_set_registers                A:1067
+vdp_setup                        A:0FF0
+vdp_spr                          A:104A
+vdp_write_name_table             A:10E3
+vdp_zapram                       A:107F
+vdpclp                           A:1144
+wait                             A:109D
+wopeee                           A:1125
+zapf                             A:1090
 
 Symbols by value:
 0000 VDP_SPRITE_PATTERN_TABLE_BASE
@@ -1792,43 +1795,43 @@ Symbols by value:
 0800 VDP_PATTERN_TABLE_BASE
 0F00 reset
 0F22 holding
-0F2F update_p1pad
-0F38 p1cp
-0F4C move_ball
-0FED vdp_setup
-1006 vdp_copysprites
-1029 vdp_put_spr
-1047 vdp_spr
-1064 vdp_set_registers
-107C vdp_zapram
-108B nexf
-108D zapf
-109A wait
-109F delay
-10A8 changecolor
-10B9 vdp_initialize_name_table
-10CE vdp_name_table_loop
-10E0 vdp_write_name_table
-10FC end_write
-10FF vdp_initialize_pattern_table
-1115 vdp_pattern_table_loop
-1122 wopeee
-1131 vdp_initialize_color_table
-1141 vdpclp
-114E vdp_enable_display
-115B text_vdp
-1164 vdp_register_0
-1164 vdp_register_inits
-1165 vdp_register_1
-1166 vdp_register_2
-1167 vdp_register_3
-1168 vdp_register_4
-1169 vdp_register_5
-116A vdp_register_6
-116B vdp_register_7
-116C vdp_block
-116C vdp_end_register_inits
-118C vdp_ball
+0F32 update_p1pad
+0F3B p1cp
+0F4F move_ball
+0FF0 vdp_setup
+1009 vdp_copysprites
+102C vdp_put_spr
+104A vdp_spr
+1067 vdp_set_registers
+107F vdp_zapram
+108E nexf
+1090 zapf
+109D wait
+10A2 delay
+10AB changecolor
+10BC vdp_initialize_name_table
+10D1 vdp_name_table_loop
+10E3 vdp_write_name_table
+10FF end_write
+1102 vdp_initialize_pattern_table
+1118 vdp_pattern_table_loop
+1125 wopeee
+1134 vdp_initialize_color_table
+1144 vdpclp
+1151 vdp_enable_display
+115E text_vdp
+1167 vdp_register_0
+1167 vdp_register_inits
+1168 vdp_register_1
+1169 vdp_register_2
+116A vdp_register_3
+116B vdp_register_4
+116C vdp_register_5
+116D vdp_register_6
+116E vdp_register_7
+116F vdp_block
+116F vdp_end_register_inits
+118F vdp_ball
 1200 vdp_pattern
 1600 vdp_pattern_end
 2000 VDP_COLOR_TABLE_BASE

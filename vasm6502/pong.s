@@ -103,6 +103,9 @@ holding:
   ; Update p1 paddle position
   jsr update_p1pad
 
+  ; Update ball
+  jsr move_ball
+
   ;and #%00100000
   ;bne collision
   ;rti
