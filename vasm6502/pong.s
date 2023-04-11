@@ -175,16 +175,16 @@ move_ball:
   lda vdp_spr+1
   cmp #p2_hitbox_x ; p2 paddle x hitbox
   bne .nx1
-;  lda vdp_spr+4
-;  clc
-;  adc #9
-;  cmp vdp_spr ; p2 paddle y top hitbox ( top block + 9)
-;  bcs .nx1 ; branch if >
-;  lda vdp_spr+12
-;  sec
-;  sbc #8
-;  cmp vdp_spr ; p2 paddle y bot hitbox ( bot block - 8)
-;  bcc .nx1 ; branch if <
+  lda vdp_spr+4
+  clc
+  adc #8 ; p2 paddle y top hitbox ( top block + 8)
+  cmp vdp_spr 
+  bcc .nx1 ; branch if >
+  lda vdp_spr+12
+  sec
+  sbc #9
+  cmp vdp_spr ; p2 paddle y bot hitbox ( bot block - 9)
+  bcs .nx1 ; branch if <
   jsr .hitx
   jmp .dn
 .nx1
@@ -197,16 +197,16 @@ move_ball:
   lda vdp_spr+1
   cmp #p1_hitbox_x ; p1 paddle x hitbox
   bne .ex1
-;  lda vdp_spr+4
-;  clc
-;  adc #9
-;  cmp vdp_spr ; p1 paddle y top hitbox ( top block + 9)
-;  bcs .ex1 ; branch if >
-;  lda vdp_spr+12
-;  sec
-;  sbc #8
-;  cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 8)
-;  bcc .ex1 ; branch if <
+  lda vdp_spr+16
+  clc
+  adc #8
+  cmp vdp_spr ; p1 paddle y top hitbox ( top block + 8)
+  bcc .ex1 ; branch if >
+  lda vdp_spr+24
+  sec
+  sbc #9
+  cmp vdp_spr ; p1 paddle y bot hitbox ( bot block - 9)
+  bcs .ex1 ; branch if <
   jsr .hitx
   jmp .dn
 .ex1
