@@ -189,7 +189,7 @@ move_ball:
   jmp .dn
 .nx1
   ; or did p2 lose?
-  lda vdp_spr
+  lda vdp_spr+1
   cmp #0
   beq .p1win
   ; how about if we hit p1?  
@@ -211,7 +211,7 @@ move_ball:
   jmp .dn
 .ex1
   ; or did p1 lose?
-  lda vdp_spr
+  lda vdp_spr+1
   cmp #$f1
   beq .p2win
   jmp .dn

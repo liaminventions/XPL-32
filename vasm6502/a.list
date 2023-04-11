@@ -194,7 +194,7 @@ Source: "pong.s"
 00:0F9E 4CDD0F          	   189:   jmp .dn
                         	   190: .nx1
                         	   191:   ; or did p2 lose?
-00:0FA1 AD4C10          	   192:   lda vdp_spr
+00:0FA1 AD4D10          	   192:   lda vdp_spr+1
 00:0FA4 C900            	   193:   cmp #0
 00:0FA6 F02D            	   194:   beq .p1win
                         	   195:   ; how about if we hit p1?  
@@ -216,7 +216,7 @@ Source: "pong.s"
 00:0FC8 4CDD0F          	   211:   jmp .dn
                         	   212: .ex1
                         	   213:   ; or did p1 lose?
-00:0FCB AD4C10          	   214:   lda vdp_spr
+00:0FCB AD4D10          	   214:   lda vdp_spr+1
 00:0FCE C9F1            	   215:   cmp #$f1
 00:0FD0 F007            	   216:   beq .p2win
 00:0FD2 4CDD0F          	   217:   jmp .dn
