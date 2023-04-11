@@ -199,8 +199,8 @@ move_ball:
   bne .ex1
   lda vdp_spr+16
   clc
-  adc #8
-  cmp vdp_spr ; p1 paddle y top hitbox ( top block + 8)
+  adc #8 ; p1 paddle y top hitbox ( top block + 8)
+  cmp vdp_spr 
   bcc .ex1 ; branch if >
   lda vdp_spr+24
   sec
@@ -214,8 +214,8 @@ move_ball:
   lda vdp_spr+1
   cmp #$f1
   beq .p2win
-  jmp .dn
-
+.dn
+  rts
 .p1win
   ; idk what to do here yet... for now just reverse x
   jsr .hitx
@@ -223,27 +223,17 @@ move_ball:
 .p2win
   jsr .hitx
   rts
-
-.dn
-  rts
-
 .hity
 ; reverse y direction
   lda balldy
-  beq .hyp
-  stz balldy
-  rts
-.hyp
-  inc balldy
+  eor #$ff
+  sta balldy
   rts
 .hitx
 ; reverse x direction
   lda balldx
-  beq .hxp
-  stz balldx
-  rts
-.hxp
-  inc balldx
+  eor #$ff
+  sta balldx
   rts
 
 ;;;;;;;;;;;;;;;;;;; vdp_setup subroutines ;;;;;;;;;;;;;;;;;;;;
