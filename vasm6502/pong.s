@@ -127,10 +127,11 @@ update_p1pad:
   asl
   asl
   sta P1_PAD
-  ldx #0
+  ldx #16
 p1cp: 
   lda P1_PAD
-  sta vdp_spr+16,x
+  sta vdp_spr,x
+  clc
   adc #$10
   sta P1_PAD
   inx
