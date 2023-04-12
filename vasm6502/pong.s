@@ -14,6 +14,7 @@ VDP_NAME_TABLE_BASE = $0400
 VDP_SPR_ATT_TABLE_BASE = $0700
 
 TEXT_LOC		= VDP_NAME_TABLE_BASE+15
+LINE_LOC		= TEXT_LOC+4
 P2_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+4 
 P1_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+16
 
@@ -422,12 +423,10 @@ vdp_write_name_table:
   jmp .slp
 .sl
 
-  vdp_write_vram TEXT_LOC+4
-
   ; make dotted vertical line
-  lda #<TEXT_LOC+4
+  lda #<LINE_LOC
   sta txl
-  lda #>TEXT_LOC
+  lda #>LINE_LOC
   sta txl+1
   ldy #0
 .lp
