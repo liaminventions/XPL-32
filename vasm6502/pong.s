@@ -13,10 +13,20 @@ VDP_COLOR_TABLE_BASE = $2000
 VDP_NAME_TABLE_BASE = $0400
 VDP_SPR_ATT_TABLE_BASE = $0700
 
+; SID paddles
+P1_PADDLE = $b819
+P2_PADDLE = $b81a
+
 TEXT_LOC		= VDP_NAME_TABLE_BASE+15
 LINE_LOC		= TEXT_LOC+4
 P2_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+4 
 P1_PADDLE_SPR		= VDP_SPR_ATT_TABLE_BASE+16
+
+; hitbox values
+p1_hitbox_x   = $e1
+p2_hitbox_x   = $10
+
+screen_bottom = $b0
 
 ; zero page addresses
 VDP_PATTERN_INIT    	= $30
@@ -37,14 +47,8 @@ balldy = $3c
 
 txl = $3d ; 2 bytes
 
-; hitboxes
-p1_hitbox_x   = $e1
-p2_hitbox_x   = $10
-
-screen_bottom = $b0
-
-P1_PADDLE = $b819
-P2_PADDLE = $b81a
+scorecount1 = $3f
+scorecount2 = $40
 
   .org $0f00
   .macro vdp_write_vram			; macro to store address in vdp_reg for write
@@ -223,9 +227,11 @@ move_ball:
 .p1win
   ; idk what to do here yet... for now just reverse x
   jsr .hitx
+  inc scorecount1
   rts
 .p2win
   jsr .hitx
+  inc scorecount2
   rts
 .hity
 ; reverse y direction
