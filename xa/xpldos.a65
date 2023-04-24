@@ -80,7 +80,7 @@
 ;;  ; auugh
 ;;  jmp csnd
 ;;csndd:
-;;  ; if . then do nothinbindl = , {LID CLOSE},  exec, light -s sysfs/leds/kbd_backlight -S 0%g
+;;  ; if . then do nothing
 ;;  dey
 ;;csnd:
 ;  inc dircnt
