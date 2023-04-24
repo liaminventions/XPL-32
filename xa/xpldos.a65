@@ -827,9 +827,9 @@ loadfoundcode
 
   ; All done.
 
-  ldy #>ends
-  ldx #<ends
-  jsr w_acia_full
+  ;ldy #>ends
+  ;ldx #<ends
+  ;jsr w_acia_full
   ldx #<loadedmsg
   ldy #>loadedmsg
   jsr w_acia_full
