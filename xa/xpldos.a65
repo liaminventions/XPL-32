@@ -80,7 +80,7 @@
 ;;  ; auugh
 ;;  jmp csnd
 ;;csndd:
-;;  ; if . then do nothing
+;;  ; if . then do nothinbindl = , {LID CLOSE},  exec, light -s sysfs/leds/kbd_backlight -S 0%g
 ;;  dey
 ;;csnd:
 ;  inc dircnt
@@ -728,8 +728,10 @@ loadlc:
   bne ldp
   lda #$ff
   sta buffer+4
+  jmp ldp2
 ldp:
   stz buffer+4
+ldp2:
 .)
 loadpath:
 .(
@@ -803,6 +805,17 @@ foundfile
 .)
 loadfoundcode
 .(
+  ; backup file size 
+  ldy #28
+  lda (zp_sd_address),y
+  clc
+  adc buffer
+  pha
+  iny
+  lda (zp_sd_address),y
+  adc buffer+1
+  pha
+
   jsr fat32_opendirent	; open the file
 
   lda buffer		; and load it to the address
@@ -817,12 +830,27 @@ loadfoundcode
   ldy #>ends
   ldx #<ends
   jsr w_acia_full
+  ldx #<loadedmsg
+  ldy #>loadedmsg
+  jsr w_acia_full
+  lda buffer+1
+  jsr print_hex_acia
+  lda buffer
+  jsr print_hex_acia
+  ldx #<tomsg 
+  ldy #>tomsg
+  jsr w_acia_full
+  pla
+  jsr print_hex_acia
+  pla
+  jsr print_hex_acia
+  jsr crlf
 
   ; Is this a XPL file?
   lda buffer+4
   bne lo
 
-  jmp (buffer+2)	; jump to start address from LOADADDR.SAR
+  jmp (buffer+2)	; jump to start address from LOADADDR
 
 lo:
   rts
@@ -1157,4 +1185,10 @@ femsg:
   .byte "File exists. Overwrite? (y/n): ", $00  
 foldermsg:
   .byte "No such file or directory.", $0d, $0a, $00
+
+; THE FOLLOWING MESSAGES ARE ALREADY IN TAPE.A65!
+;loadedmsg:
+;  .byte "Loaded from ", $00
+;tomsg:
+;  .byte " to ", $00
 
