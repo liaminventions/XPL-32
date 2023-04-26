@@ -25,4 +25,6 @@ also, somehow the error sound dissapeared? so ill fix that too
 
 4/24/2023 - gahh i think i finished sd card stuff but some weird stuff is happenin... gotta fix that before i make the video...
 
+also i am making pong for the xpl (using the tms card)
+
 so there
