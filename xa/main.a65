@@ -5,7 +5,7 @@
 ;;; / /^\ \| |   | |_32_ | |  | | (_) | | | | | || (_) | |   
 ;;; \/   \/\_|   \_____/ \_|  |_/\___/|_| |_|_|\__\___/|_|   
 ;;;
-;;; MITEMON (for XPL-32)
+;;; XPL-32 Monitor (Originally mitemon)
 ;;; 
 ;;; Very simple ROM monitor for the 6502 Mite single-board computer..
 ;;; But this version is for the XPL-32.
@@ -75,10 +75,11 @@ ARGINDEX   = $0020  ; and on to $002F for up to 16 arguments
 PRINTVEC   = $0042  ; and $0043. for printing routine.
 ENTRY	   = $0044  ; and $0045
 MEMTESTBASE= $0046  ; and $0047
+ENDVEC     = $000e  ; and $000f. for help and about routines
 ; memory copy:
-mem_source = $10 ; and $11
-mem_copy = $12 ; and $13
-mem_end = $1a ; and $1v
+mem_source = $0a ; and $0b
+mem_copy = $0c ; and $0d
+mem_end = $0e ; and $0f
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
@@ -621,31 +622,22 @@ aboutcmd
   sta PRINTVEC
   lda #>aboutstring
   sta PRINTVEC+1
-  jsr printvecstr
-  ldy #0
-  rts
+  lda #<aboutstringend
+  sta ENDVEC
+  lda #>aboutstringend
+  sta ENDVEC+1
+  jmp printveclong
 
 helpcmd
-.(
   lda #<helpstring
   sta PRINTVEC
   lda #>helpstring
   sta PRINTVEC+1
-helplp:
-  lda (PRINTVEC)
-  jsr print_chara
-  inc PRINTVEC
-  bne help2
-  inc PRINTVEC+1
-help2:
-  lda PRINTVEC
-  cmp #<helpstringend
-  bne helplp
-  lda PRINTVEC+1
-  cmp #>helpstringend
-  bne helplp	
-.)
-  rts
+  lda #<helpstringend
+  sta ENDVEC
+  lda #>helpstringend
+  sta ENDVEC+1
+  jmp printveclong	
 
 notimplcmd
   lda #<implementstring
@@ -2776,16 +2768,39 @@ printvecstr
 next_char
 wait_txd_empty  
   lda ACIA_STATUS
-  and #$10
-  beq wait_txd_empty
-  lda (PRINTVEC),y
-  beq endstr
+  and #$10		;; if you have a wdc 65c51 installed, replace this 
+  beq wait_txd_empty	;; with a loop.
+  lda (PRINTVEC),y	;;
+  beq endstr		;; be sure to also change the code in acia.a65!
   sta ACIA_DATA
   iny
   bra next_char
 endstr
 .)
   rts
+
+;;; print a string bigger than 256 bytes. 
+;;; start at PRINTVEC and end at ENDVEC
+;;;
+printveclong:
+.(
+  phx
+lp:
+  lda (PRINTVEC)
+  jsr print_chara
+  inc PRINTVEC
+  bne pvl
+  inc PRINTVEC+1
+pvl:
+  lda PRINTVEC
+  cmp ENDVEC 
+  bne lp
+  lda PRINTVEC+1
+  cmp ENDVEC+1
+  bne lp
+  plx
+  rts
+.)
 
 
 ;;;
@@ -2795,9 +2810,21 @@ endstr
 hextable:	 .byte "0123456789ABCDEF"
 greeting:	 .byte "XPL-32 monitor", $0d, $0a, $00
 prompt:		 .byte ">"
-aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0a 
-		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a, $0d, $0a
-                 .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $00
+aboutstring:	 .byte "XPL-32 monitor - a command prompt for the XPL-32.", $0d, $0a
+		 .byte "This program was original developed by Paul Dourish, and it was called Mitemon.", $0d, $0a
+                 .byte "In this version, I have added XPL-32 support, and a couple new commands.", $0d, $0a, $0d, $0a
+		 .byte "Copyright (C) 2023  Waverider & Paul Dourish", $0d ,$0a, $0d, $0a
+		 .byte "This program is free software: you can redistribute it and/or modify", $0d, $0a
+		 .byte "it under the terms of the GNU General Public License as published by" , $0d, $0a
+		 .byte "the Free Software Foundation, either version 3 of the License, or", $0d, $0a
+		 .byte "(at your option) any later version.", $0d, $0a, $0d, $0a
+		 .byte "This program is distributed in the hope that it will be useful,", $0d, $0a
+		 .byte "but WITHOUT ANY WARRANTY", $3b, " without even the implied warranty of", $0d, $0a
+		 .byte "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the", $0d, $0a
+		 .byte "GNU General Public License for more details.", $0d, $0a, $0d, $0a
+		 .byte "You should have received a copy of the GNU General Public License", $0d, $0a
+		 .byte "along with this program.  If not, see <https://www.gnu.org/licenses/>.", $0d, $0a
+aboutstringend:  .byte $00
 helpstring:	 .byte "Commands available:", $0d, $0a, $0d, $0a
 		 .byte "echo", $09, " - Echos a string to the screen.", $0d, $0a
 		 .byte "help", $09, " - displays this screen", $0d, $0a
@@ -2853,7 +2880,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 3820,$00
+  .dsb 3129,$00
 
 ; ----KERNAL----
 
