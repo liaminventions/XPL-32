@@ -1,2 +1,2 @@
 #!/bin/bash
-xa mon11.a65 -o xpl.BIN -l xpl.lst
+xa main.a65 -o xpl.BIN -l xpl.lst
