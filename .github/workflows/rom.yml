@@ -65,7 +65,8 @@ jobs:
       - name: Assemble XPL-monitor with xa
         run: |
           cd xa
-          ./xa mon11.a65 -o xpl.BIN
+          rm xpl.BIN
+          ./xa main.a65 -o xpl.BIN
           
       # Link XPL monitor with BASIC
       - name: Link XPL monitor with BASIC
