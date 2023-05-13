@@ -728,11 +728,11 @@ loadlc:
   lda (folderpointer),y
   cmp #'L'
   bne ldp
-  lda #$ff
-  sta buffer+4
+  stz buffer+4
   jmp ldp2
 ldp:
-  stz buffer+4
+  lda #$ff
+  sta buffer+4
 ldp2:
 .)
 loadpath:
