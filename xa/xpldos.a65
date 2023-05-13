@@ -1,5 +1,5 @@
 ;; xplDOS
-;; unix-esque SD Card Navigation system.
+;; *NIX-esque SD Card Navigation system.
 ;;
 ;; the first byte of path is 0 if there was an init error.
 ;; otherwise it is a index to PATH for the empty space after the last foldername
@@ -241,7 +241,7 @@ patherror:
   .byte "No Memory Card.", $0d, $0a, $00
 
 ;; print PATH
-;; prints the current directory, like unix
+;; prints the current directory, like *NIX
 ;; for example:
 ;; ~/test/ >_
 ;; or:
@@ -721,9 +721,11 @@ loadlc:
   cmp #'X'
   bne ldp
   iny
+  lda (folderpointer),y
   cmp #'P'
   bne ldp
   iny
+  lda (folderpointer),y
   cmp #'L'
   bne ldp
   lda #$ff
@@ -966,7 +968,7 @@ nf:
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
-  ; Calculate file size (end-start)
+  ; Calculate file size (end - start)
   sec
   lda stackaccess
   sbc savestart
