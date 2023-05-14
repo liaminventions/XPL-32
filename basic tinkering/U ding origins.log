@@ -1,5 +1,5 @@
        5 PRINT CHR$(12)
-       10 PRINT "U ding origins" : PRINT "By Liam and Ezra"
+       10 PRINT "U ding origins" : PRINT "By waverider"
        20 PRINT "You land in Ebut Field. You see a Ha in the distance."
        30 PRINT "The Ha has a pitchfork."
        40 GOSUB 800 : PRINT "Commands availible: walk to ha ; walk away"
