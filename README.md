@@ -44,3 +44,13 @@ I currently use [EAGLE](https://www.autodesk.com/products/eagle/free-download)
 I have "xa 6502 cross assembler" syntax highlighting in vim, and the "vasm" extension in vscode.
 
 most source files are .s, but some are .a65 or .asm
+
+## Debugging 
+
+I use [Pulseview](https://sigrok.org/wiki/PulseView) with [this logic analyzer (the 2018 variant)](https://sigrok.org/wiki/Mcupro_Logic16_clone)
+
+It was an absolute pain to set up...
+
+Also, the SDcard-SPI decoder in libsigrokdecode was completly broken for me. (it always expected a CRC...) My fix was to make my own custom version of the decoder (it's in the debug diretory.)
+
+The custom version is still slightly broken, but I am working on it.
