@@ -38,7 +38,7 @@ I currently use [EAGLE](https://www.autodesk.com/products/eagle/free-download)
 ## 3D Modeling
 [Fusion 360](https://www.autodesk.com/products/fusion-360/overview?us_oa=dotcom-us&us_si=4e5471dc-07ed-4416-80c0-6f3e9f7c15b4&us_pt=NINVFUS&us_at=%5Bobject%20Object%5D&term=1-YEAR&tab=subscription&plc=F360)
 ## Coding
-[VIM](https://www.vim.org/) or [vscode](https://code.visualstudio.com/) for coding.
+[VIM](https://www.vim.org/), [NVIM](https://neovim.io/)/[LunarVIM](https://www.lunarvim.org/) or [vscode](https://code.visualstudio.com/) for code editing.
 [xa](https://github.com/fachat/xa65), [ca65](https://github.com/cc65/cc65) (from cc65), and [vasm](http://sun.hasenbraten.de/vasm/) for assembly.
 
 I have "xa 6502 cross assembler" syntax highlighting in vim, and the "vasm" extension in vscode.
