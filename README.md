@@ -54,3 +54,5 @@ It was an absolute pain to set up...
 Also, the SDcard-SPI decoder in libsigrokdecode was completly broken for me. (it always expected a CRC...) My fix was to make my own custom version of the decoder (it's in the debug diretory.)
 
 The custom version is still slightly broken, but I am working on it.
+
+I also use [decode6502 by hoglet](https://github.com/hoglet67/6502Decoder)
