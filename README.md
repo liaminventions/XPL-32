@@ -19,7 +19,7 @@ A 6502, of course. A W65C02 to be exact.
 [Datasheet](https://eater.net/datasheets/w65c02s.pdf)
 ## I/O
 For the I/O, I've got a W65C22 VIA. Port A, Port B and the handshake bits connect to the I/O slot.
-However PA7 is connected to the Video Switch Relay (VSR)
+However CA2 is connected to the Video Switch Relay (VSR)
 [W65C22 Datasheet](https://eater.net/datasheets/w65c22.pdf)
 ## Video
 The XPL-32 has an expandable monochrome terminal display that uses a 6551 ACIA  at $8000 and two arduinos.
