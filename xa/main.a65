@@ -360,6 +360,8 @@ inlp:
 
 initf:
 
+  ; if the init failed, just continue on with no SD card.
+
   ldx #$FF
 
 ;; done with initialization. start actually being a monitor
@@ -479,37 +481,40 @@ endofline
 ;;;
 ;;; just for testing. echo arguments, backwards.
 ;;;
-testparse
-  phx               ; preserve x
-  cpy #0            ; test for no arguments
-  beq donetestparse
-  iny               ; add one to get a guard value
-  sty SCRATCH       ; store in SCRATCH. when we get to this value, we stop
-  ldy #1            ; start at 1
-nextarg
-  clc
-  tya               ; grab the argument number
-  adc #$30          ; add 48 to make it an ascii value
-  jsr puta
-  lda #$3A          ; ascii for ":"
-  jsr puta
-  ldx ARGINDEX,y    ; load the index of the next argument into x
-nextletter
-  ;; print null-terminated string from INPUT+x
-  lda INPUT,x
-  beq donearg
-  jsr puta
-  inx
-  bne nextletter    ; use this as "branch always," will never be 0
-donearg
-  ;; output carriage return/line feed and see if there are more arguments
-  jsr crlf
-  iny
-  cpy SCRATCH
-  bne nextarg       ; not hit guard yet, so repeat
-donetestparse
-  plx
-  rts
+
+; NOTE - we dont need this right now.
+
+;testparse
+;  phx               ; preserve x
+;  cpy #0            ; test for no arguments
+;  beq donetestparse
+;  iny               ; add one to get a guard value
+;  sty SCRATCH       ; store in SCRATCH. when we get to this value, we stop
+;  ldy #1            ; start at 1
+;nextarg
+;  clc
+;  tya               ; grab the argument number
+;  adc #$30          ; add 48 to make it an ascii value
+;  jsr puta
+;  lda #$3A          ; ascii for ":"
+;  jsr puta
+;  ldx ARGINDEX,y    ; load the index of the next argument into x
+;nextletter
+;  ;; print null-terminated string from INPUT+x
+;  lda INPUT,x
+;  beq donearg
+;  jsr puta
+;  inx
+;  bne nextletter    ; use this as "branch always," will never be 0
+;donearg
+;  ;; output carriage return/line feed and see if there are more arguments
+;  jsr crlf
+;  iny
+;  cpy SCRATCH
+;  bne nextarg       ; not hit guard yet, so repeat
+;donetestparse
+;  plx
+;  rts
 
 
 ;;;;;;;;;;;;;
@@ -661,10 +666,7 @@ nottend
   ;; not using printvecstr for this because we're printing
   ;; directly out of the input buffer  
 next_char
-wait_txd_empty  
-  lda ACIA_STATUS
-  and #$10
-  beq wait_txd_empty
+  jsr txpoll
   lda INPUT,x
   beq endofarg
   sta ACIA_DATA
