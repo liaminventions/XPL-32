@@ -14,6 +14,13 @@ osi_basic-master/.libfat32.s.un\~
 osi_basic-master/.savetest.s.un\~ 
 osi_basic-master/.osi_bas\ -\ Copy.s.swp 
 osi_basic-master/.osi_bas\ -\ Copy.s.un\~
+osi_basic-master/xpl.BIN 
+osi_basic-master/a.list 
+osi_basic-master/b.list 
+osi_basic-master/osi_bas.o 
+osi_basic-master/osi_bas.bin 
+osi_basic-master/osi_bas\ -\ Copy.o 
+osi_basic-master/osi_bas\ -\ Copy.bin
 xa/a.o65 
 xa/final.BIN
 xa/PREV.BIN 
