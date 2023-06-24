@@ -66,7 +66,7 @@ ascii_home
   pla
   rts
 
-; TODO: FIX VARIABLES IN w_acia_full!!!!
+; TODO FIX VARIABLES
 
 w_acia_full
   pha
