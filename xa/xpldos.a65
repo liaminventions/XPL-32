@@ -27,6 +27,8 @@
 ; Jump to / dir
 ; jumps to a dir with a /
 ; temp addr at "tmp"
+;
+; !! NOTE: NOT FUNCTIONAL YET !!
 
 ;jmpdir:
 ;.(
