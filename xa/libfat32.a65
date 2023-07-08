@@ -671,11 +671,16 @@ nofail:
 
   ; Divide by sectors per cluster (power of 2)
   lda fat32_sectorspercluster
+  cmp #1
+  beq one
+  
   lsr
 cl
   lsr fat32_bytesremaining
   lsr
   bcc cl
+
+one
 
   ; We will be making a new cluster every time
   stz fat32_pendingsectors
