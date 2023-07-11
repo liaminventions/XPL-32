@@ -533,9 +533,9 @@ fill:
   lda #$20		
 filllp:			
   sta (folderpointer),y
-  iny
-  cpy #21 		; stop if index over 20, we don't want to overwrite the file extension
+  cpy #20 		; stop if index is 20, we don't want to overwrite the file extension
   bne filllp
+  iny
   ; add 11 to folderpointer
   clc
   lda folderpointer
