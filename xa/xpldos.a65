@@ -456,10 +456,10 @@ backdire:
   ;jsr refreshpath
   rts
 nopd:
-  ldy #22
+  ldy #24
   lda #0
   sta (folderpointer),y
-  lda #19
+  lda #21
   sta fileext
   ldy #0
 shortlp:
@@ -475,12 +475,12 @@ nodot
   sty sc
   clc
   lda sc
-  adc #11
+  adc #13
   sta sc
-  lda #11
+  lda #13
   sta fileext
   lda #$20
-  ldy #19
+  ldy #21
   sta (folderpointer),y
   iny
   sta (folderpointer),y
@@ -497,7 +497,7 @@ ext:
   sta (folderpointer),y
   iny
   sty fileext
-  cpy #22
+  cpy #24
   beq extd
   ply
   jmp ext
@@ -505,9 +505,9 @@ extd:
   ply
   clc
   lda sc	; add to sc
-  adc #11
+  adc #13
   sta sc
-  lda #11
+  lda #13
   sta fileext
 mvname:
   ; move name
@@ -536,12 +536,12 @@ fill:
 filllp:			
   sta (folderpointer),y
   iny
-  cpy #19 		; stop if index over 18, we don't want to overwrite the file extension
+  cpy #21 		; stop if index over 20, we don't want to overwrite the file extension
   bne filllp
   ; add 11 to folderpointer
   clc
   lda folderpointer
-  adc #11
+  adc #13
   sta folderpointer
   ; now we need to convert lowercase to uppercase
   ldy #0
