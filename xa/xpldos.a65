@@ -497,7 +497,7 @@ ext:
   sta (folderpointer),y
   iny
   sty fileext
-  cpy #23
+  cpy #24
   beq extd
   ply
   jmp ext
