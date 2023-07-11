@@ -420,7 +420,7 @@ cdf:
 redlp:
   jsr fat32_file_readbyte
   beq catd
-  cmp #$0a
+  cmp #$0d
   beq notunix
   jmp unixloop
 unix:
