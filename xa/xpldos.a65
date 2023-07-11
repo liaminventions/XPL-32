@@ -505,17 +505,14 @@ extd:
   ply
   clc
   lda sc	; add to sc
-  adc #13
+  adc #12
   sta sc
   lda #13
   sta fileext
 mvname:
   ; move name
   ldy #0
-  jmp mvlp2
 mvlp:
-  iny
-mvlp2:
   lda (folderpointer),y
   phy
   ldy fileext
@@ -525,6 +522,7 @@ mvlp2:
   cpy sc
   beq ad2sc
   ply
+  iny
   jmp mvlp
 ad2sc:
   ply
