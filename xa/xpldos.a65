@@ -427,6 +427,11 @@ unix:
   jsr fat32_file_readbyte
   beq catd
 unixloop:
+  cmp #$0a
+  bne notcr
+  jsr print_chara
+  lda #$0d
+notcr:
   jsr print_chara
   jmp unix
 notunix:
