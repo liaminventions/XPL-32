@@ -505,7 +505,7 @@ extd:
   ply
   clc
   lda sc	; add to sc
-  adc #12
+  adc #13
   sta sc
   lda #13
   sta fileext
@@ -516,18 +516,17 @@ mvlp:
   lda (folderpointer),y
   phy
   ldy fileext
+  cpy sc
+  beq ad2sc
   sta (folderpointer),y
   iny
   sty fileext
-  cpy sc
-  beq ad2sc
   ply
   iny
   jmp mvlp
 ad2sc:
   ply
   ldy sc
-  iny
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
 fill:
