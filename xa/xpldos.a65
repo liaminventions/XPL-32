@@ -530,12 +530,15 @@ ad2sc:
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
 fill:
-  lda #$20		
+  lda #$20
+  cpy #21
+  beq notfill
 filllp:			
   sta (folderpointer),y
-  cpy #20 		; stop if index is 20, we don't want to overwrite the file extension
-  bne filllp
   iny
+  cpy #21 		; stop if index is 20, we don't want to overwrite the file extension
+  bne filllp
+notfill
   ; add 11 to folderpointer
   clc
   lda folderpointer
