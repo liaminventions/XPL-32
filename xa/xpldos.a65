@@ -527,6 +527,7 @@ mvlp:
 ad2sc:
   ply
   ldy sc
+  iny
 ; the file extention is moved, now pad spaces from the end of the name
 ; to the start of the extension.
 fill:
