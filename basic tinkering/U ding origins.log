@@ -1,73 +1,73 @@
-       5 PRINT CHR$(12)
-       10 PRINT "U ding origins" : PRINT "By waverider"
-       20 PRINT "You land in Ebut Field. You see a Ha in the distance."
-       30 PRINT "The Ha has a pitchfork."
-       40 GOSUB 800 : PRINT "Commands availible: walk to ha ; walk away"
-       45 PRINT "from ha"
-       50 INPUT A$
-       60 IF A$ = "walk to ha" THEN GOTO 80
-       70 IF A$ = "walk away from ha" THEN GOTO 900
-       72 PRINT "Invalid command"
-       78 GOTO 40
-       80 PRINT "You walk to the Ha."
-       90 PRINT "'AAAAAAHHH!!' The Ha says."
-       100 PRINT "'I guess my prediction was correct!'"
-       110 PRINT "The Ha's name is Butraker."
-       120 PRINT "Butraker starts raking his but with his pitchfork."
-       130 PRINT "You start to get very annoyed."
-       140 GOSUB 800
-       150 PRINT "Commands availible: eat butraker ; punch butraker ;"
-       160 PRINT "jump into space and choke"
-       170 INPUT A$
-       180 IF A$ = "eat butraker" THEN GOTO 700
-       190 IF A$ = "punch butraker" THEN GOTO 600
-       200 IF A$ = "jump into space and choke" THEN GOTO 500
-       210 PRINT "Invalid command"
-       220 GOTO 150
-       300 PRINT "Commands availible: go to library ; choke"
-       310 INPUT A$
-       320 IF A$ = "go to library" THEN GOTO 1000
-       330 IF A$ = "choke" THEN GOTO 500
-       340 PRINT "Invalid command"
-       350 GOTO 300
-       500 PRINT CHR$(12) ; "You jump into space and choke."
-       510 GOTO 2000
-       600 PRINT CHR$(12) ; "You punched Butraker."
-       610 PRINT "Butraker fought back."
-       620 GOTO 2000
-       700 PRINT CHR$(12) "You eat Butraker."
-       705 GOSUB 820
-       710 PRINT "What?! You start to transform!!!"
-       720 PRINT "You Are Now...."
-       730 GOSUB 820
-       740 PRINT "U Ding!!!"
-       750 PRINT "You have a T-shirt that says 'U' on it."
-       760 PRINT "You want to leave Ebut Field."
-       770 PRINT CHR$(24) ; CHR$(2) ; "NOW!" : PRINT CHR$(24) ; CHR$(3)
-       780 PRINT "You see a library in the distance."
-       790 GOSUB 800
-       795 GOTO 300
-       800 PRINT "What do you want to do?"
-       810 RETURN
-       820 FOR D=0 TO 255
-       830 NEXT D
-       840 RETURN
-       900 PRINT "You walked away from the Ha."
-       910 PRINT "You kept walking forever..."
-       920 GOTO 2000
-       1000 PRINT "You go to the library."
-       1010 PRINT "You see a LOT of books."
-       1020 GOTO 800
-       1030 PRINT "Commands availible: read about rockets to leave "
-       1040 PRINT "ebut field ; read about growing bananas"
-       1050 INPUT A$
-       1060 IF A$ = "read about rockets to leave ebut field" THEN GOTO 1200
-       1070 IF A$ = "read about growing bananas" THEN GOTO 1300
-       1080 PRINT "Invalid command"
-       1090 GOTO 1030
-       1300 PRINT CHR$(12) ; "You read about growing bananas."
-       1310 PRINT "You sucsesfully have a banana farm."
-       1320 PRINT "On Ebut Field..."
-       1330 GOTO 2000
-       2000 PRINT "GAME OVER."
-       2010 END
+5 PRINT CHR$(12)
+10 PRINT "U ding origins" : PRINT "By waverider"
+20 PRINT "You land in Ebut Field. You see a Ha in the distance."
+30 PRINT "The Ha has a pitchfork."
+40 GOSUB 800 : PRINT "Commands availible: walk to ha ; walk away"
+45 PRINT "from ha"
+50 INPUT A$
+60 IF A$ = "walk to ha" THEN GOTO 80
+70 IF A$ = "walk away from ha" THEN GOTO 900
+72 PRINT "Invalid command"
+78 GOTO 40
+80 PRINT "You walk to the Ha."
+90 PRINT "'AAAAAAHHH!!' The Ha says."
+100 PRINT "'I guess my prediction was correct!'"
+110 PRINT "The Ha's name is Butraker."
+120 PRINT "Butraker starts raking his but with his pitchfork."
+130 PRINT "You start to get very annoyed."
+140 GOSUB 800
+150 PRINT "Commands availible: eat butraker ; punch butraker ;"
+160 PRINT "jump into space and choke"
+170 INPUT A$
+180 IF A$ = "eat butraker" THEN GOTO 700
+190 IF A$ = "punch butraker" THEN GOTO 600
+200 IF A$ = "jump into space and choke" THEN GOTO 500
+210 PRINT "Invalid command"
+220 GOTO 150
+300 PRINT "Commands availible: go to library ; choke"
+310 INPUT A$
+320 IF A$ = "go to library" THEN GOTO 1000
+330 IF A$ = "choke" THEN GOTO 500
+340 PRINT "Invalid command"
+350 GOTO 300
+500 PRINT CHR$(12) ; "You jump into space and choke."
+510 GOTO 2000
+600 PRINT CHR$(12) ; "You punched Butraker."
+610 PRINT "Butraker fought back."
+620 GOTO 2000
+700 PRINT CHR$(12) "You eat Butraker."
+705 GOSUB 820
+710 PRINT "What?! You start to transform!!!"
+720 PRINT "You Are Now...."
+730 GOSUB 820
+740 PRINT "U Ding!!!"
+750 PRINT "You have a T-shirt that says 'U' on it."
+760 PRINT "You want to leave Ebut Field."
+770 PRINT CHR$(24) ; CHR$(2) ; "NOW!" : PRINT CHR$(24) ; CHR$(3)
+780 PRINT "You see a library in the distance."
+790 GOSUB 800
+795 GOTO 300
+800 PRINT "What do you want to do?"
+810 RETURN
+820 FOR D=0 TO 255
+830 NEXT D
+840 RETURN
+900 PRINT "You walked away from the Ha."
+910 PRINT "You kept walking forever..."
+920 GOTO 2000
+1000 PRINT "You go to the library."
+1010 PRINT "You see a LOT of books."
+1020 GOTO 800
+1030 PRINT "Commands availible: read about rockets to leave "
+1040 PRINT "ebut field ; read about growing bananas"
+1050 INPUT A$
+1060 IF A$ = "read about rockets to leave ebut field" THEN GOTO 1200
+1070 IF A$ = "read about growing bananas" THEN GOTO 1300
+1080 PRINT "Invalid command"
+1090 GOTO 1030
+1300 PRINT CHR$(12) ; "You read about growing bananas."
+1310 PRINT "You sucsesfully have a banana farm."
+1320 PRINT "On Ebut Field..."
+1330 GOTO 2000
+2000 PRINT "GAME OVER."
+2010 END
