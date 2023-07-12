@@ -1103,7 +1103,7 @@ proc:
   lda folderpointer+1
   sta savepoint+1
   ; path refresh
-  jsr shortconvert
+  jsr refreshpath
   ; load
   ldx savepoint
   ldy savepoint+1
