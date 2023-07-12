@@ -1103,7 +1103,7 @@ proc:
   lda folderpointer+1
   sta savepoint+1
   ; path refresh
-  jsr refreshpath
+  jsr fat32_open_cd
   ; load
   ldx savepoint
   ldy savepoint+1
@@ -1137,7 +1137,7 @@ stlp
   bne stlp
   ; Now, mark it as a deleted file
   jsr fat32_markdeleted
-  jsr fat32_open_cd
+  jsr refreshpath
   ; Find the directory
   lda backdir
   beq nono ;TODO CHECK
