@@ -1137,10 +1137,10 @@ stlp
   bne stlp
   ; Now, mark it as a deleted file
   jsr fat32_markdeleted
-  jsr refreshpath
+  jsr fat32_open_cd
   ; Find the directory
-  lda backdir
-  beq nono ;TODO CHECK
+  ;lda backdir
+  ;beq nono ;TODO CHECK
 nono:
   ldx savepoint
   ldy savepoint+1
@@ -1172,6 +1172,7 @@ mvpaste
   ; Now write the sector
   jsr fat32_wrcurrent
   ; Done!
+  jsr backpath
   plx
   rts
 overf:
