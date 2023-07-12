@@ -5,4 +5,4 @@ cd ../osi_basic-master
 ./asm.sh
 ./rom.sh
 cd ..
-./git_add.sh
+./git_add.sh "$1"

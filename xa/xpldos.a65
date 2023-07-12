@@ -1103,7 +1103,7 @@ proc:
   lda folderpointer+1
   sta savepoint+1
   ; path refresh
-  jsr fat32_open_cd
+  jsr shortconvert
   ; load
   ldx savepoint
   ldy savepoint+1
