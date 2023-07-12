@@ -1172,7 +1172,7 @@ mvpaste
   ; Now write the sector
   jsr fat32_wrcurrent
   ; Done!
-  jsr backpath
+  jsr refreshpath
   plx
   rts
 overf:
