@@ -126,7 +126,7 @@
 ;  sta folderpointer
 ;  lda pathindex+1
 ;  sta folderpointer+1
-;  jsr refreshpath	; load it
+;  jsr fat32_open_cd	; load it
 ;  ; all done
 ;  clc
 ;  rts
@@ -234,6 +234,7 @@ backpath:
   sta path
   ldx path
   stz path,x
+  jsr refreshpath
   pla
   plx
   rts
@@ -346,7 +347,7 @@ cdd:
   ;bcs error
   ; Open subdirectory
   ;jsr fat32_opendirent	; open folder
-  jsr refreshpath
+  jsr fat32_open_cd
 .)
 cdsub:
   ; check if the folder exists + get info
@@ -365,7 +366,7 @@ cdbb:
   plx
   rts
 notcd:
-  jsr refreshpath
+  jsr fat32_open_cd
   plx
   rts
 
@@ -404,7 +405,7 @@ cdf:
   ; Convert to SHORT
   jsr shortconvert
   ; Refresh Path
-  jsr refreshpath
+  jsr fat32_open_cd
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
@@ -602,7 +603,7 @@ cdf:
   lda ARGINDEX
   cmp #1	       ; if there's only one argument (ls) then list current directory 
   bne jmperror
-  jsr refreshpath
+  jsr fat32_open_cd
   lda #$ff
   sta backdir
   jmp list
@@ -624,6 +625,7 @@ processparam           ; process the filename parameter
 ;dontcd:
   stz backdir
 .)
+
 list:			; list file dir
 .(
   jsr fat32_readdirent	; files?
@@ -691,8 +693,9 @@ endlist:		; exit listing code
 ;  jmp dontb
 ;nono:
   jsr backpath		; cd .. if ls <folderpath>
+  rts
 dontb:
-  jsr refreshpath	; refresh the directory
+  jsr fat32_open_cd	; refresh the directory
   rts
 jumptolist:
   jsr crlf
@@ -756,7 +759,7 @@ ldp2:
 loadpath:
 .(
   ; Refresh
-  jsr refreshpath
+  jsr fat32_open_cd
   ; Loading..
   ldx #<loading_msg
   ldy #>loading_msg
@@ -982,7 +985,7 @@ yes
   ; delete it to clean the FAT
   jsr fat32_deletefile
 nf:
-  ;jsr refreshpath
+  ;jsr fat32_open_cd
   ldx #<savemsg
   ldy #>savemsg
   jsr w_acia_full
@@ -1054,7 +1057,7 @@ proc:
   lda folderpointer+1
   sta savepoint+1
   ; path refresh
-  jsr refreshpath
+  jsr fat32_open_cd
   ; load
   ldx savepoint
   ldy savepoint+1
@@ -1100,7 +1103,7 @@ proc:
   lda folderpointer+1
   sta savepoint+1
   ; path refresh
-  jsr refreshpath
+  jsr fat32_open_cd
   ; load
   ldx savepoint
   ldy savepoint+1
@@ -1134,7 +1137,7 @@ stlp
   bne stlp
   ; Now, mark it as a deleted file
   jsr fat32_markdeleted
-  jsr refreshpath
+  jsr fat32_open_cd
   ; Find the directory
   lda backdir
   beq nono ;TODO CHECK

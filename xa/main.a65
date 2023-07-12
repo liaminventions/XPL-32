@@ -83,7 +83,7 @@ mem_end = $0e ; and $0f
 ; sd card:
 zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
-zp_fat32_variables = $4f    ; 49 bytes
+zp_fat32_variables = $4e    ; 49 bytes
 ; only used during fat32 processing
 path = $400		    ; page
 fat32_workspace = $500      ; two pages
@@ -2882,7 +2882,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 3141,$00
+  .dsb 3036,$00
 
 ; ----KERNAL----
 
