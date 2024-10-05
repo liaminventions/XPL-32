@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "memory card")(type "KiCad")(uri "$(KIPRJMOD)/memory card.pretty")(options "")(descr ""))
+)

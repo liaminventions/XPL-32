@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "XPL-32")(type "KiCad")(uri "$(KIPRJMOD)/XPL-32.pretty")(options "")(descr ""))
+)
