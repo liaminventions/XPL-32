@@ -4,10 +4,10 @@
 
 The XPL-32 is a homebrew 8-bit 6502 laptop, with four 48-pin expansion slots, and a 22-pin I/O port.
  ### XPL-32 stands for:
-eXpandable 
-Personal 
-Laptop 
-with 32k ram
+e**X**pandable 
+**P**ersonal 
+**L**aptop 
+with **32**k ram
 # [Blog](https://unstinkableinventions.wordpress.com/)
 Here I will post hardware updates to the XPL and more.
 
