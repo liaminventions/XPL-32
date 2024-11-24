@@ -89,4 +89,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with: 
           name: xpl32_rom
-          path: artifacts-ubuntu-latest
+          path: artifacts
