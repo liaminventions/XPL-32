@@ -97,7 +97,7 @@ INPUT      = $0200  ; block out this page for monitor command input
 ;; $0400-04FF is blocked for xmodem testing (temporary)
 ;;
 ;; names of variables used in the scratchpad
-XYLODSAV2	= $10  ; temporary address for save command
+;;XYLODSAV2	= $10  ; temporary address for save command
 STARTADDR	= $12  ; for start addr for receive
 ENDADDR		= $14
 serialvar	= $16
@@ -117,6 +117,7 @@ backdir		= $18 ; 1byt
 sc		= $19 ; 1byt
 ;dircnt		= $1a ; 1byt
 savestart	= $1a ; 2byt
+saveend = $10   ; 2byt
 savepoint	= $1c ; 2byt
 ;; vi..?
 viaddr		= $1a ; 2byt
@@ -2882,7 +2883,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 3036,$00
+  .dsb 3008,$00
 
 ; ----KERNAL----
 

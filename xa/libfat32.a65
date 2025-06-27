@@ -237,7 +237,7 @@ fat32_seekcluster:
 ; This routine also leaves Y pointing to the LSB for the 32 bit next cluster.
 
 ; Gets ready to read fat32_nextcluster, and advances it according to the FAT                            
-; Before calling, set carry to compare the current FAT sector with lastsector.                          
+; Before calling, set carry to compare the current FAT sector with lastsector.
 ; Otherwize, clear carry to force reading the FAT.            
 
   php
@@ -260,7 +260,7 @@ fat32_seekcluster:
   lda fat32_nextcluster+3
   rol
   sta zp_sd_currentsector+2
-  ; note - cluster numbers never have the top bit 1, so no carry can occur
+  ; note - cluster numbers never have the top bit set, so no carry can occur
 
   ; Add FAT starting sector
   lda zp_sd_currentsector
@@ -671,7 +671,6 @@ fat32_allocatefile:
   ; Allocate the first cluster.
   jsr fat32_allocatecluster
 
-
   ; We don't properly support 64k+ files, as it's unnecessary complication given
   ; the 6502's small address space. So we'll just empty out the top two bytes.
   lda #0
@@ -680,9 +679,9 @@ fat32_allocatefile:
 
   ; Stash filesize, as we will be clobbering it here
   lda fat32_bytesremaining
-  pha
+  pha 
   lda fat32_bytesremaining+1
-  pha
+  pha 
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining
@@ -702,14 +701,14 @@ nofail:
 
   ; Divide by sectors per cluster (power of 2)
   lda fat32_sectorspercluster
+cloop
   cmp #1
   beq one
-  
   lsr
-cl
-  lsr fat32_bytesremaining
-  lsr
-  bcc cl
+  lsr fat32_bytesremaining+1  ; high byte
+  ror fat32_bytesremaining    ; low byte, with carry from high
+
+  jmp cloop
 
 one
 
@@ -826,16 +825,17 @@ fat32_findnextfreecluster:
 ; Find next free cluster
 ; 
 ; This program will search the FAT for an empty entry, and
-; save the 32-bit cluster number at fat32_lastfoundfreecluter.
+; save the 32-bit cluster number at fat32_lastfoundfreecluster.
 ;
 ; Also sets the carry bit if the SD card is full.
 ;
 
   ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
-
-  lda #0
+  ; skip reserved clusters
+  lda #2
   sta fat32_nextcluster
   sta fat32_lastfoundfreecluster
+  lda #0
   sta fat32_nextcluster+1
   sta fat32_lastfoundfreecluster+1
   sta fat32_nextcluster+2
@@ -851,7 +851,6 @@ searchclusters
 
   ; Is the cluster free?
   lda fat32_nextcluster
-  and #$0f
   ora fat32_nextcluster+1
   ora fat32_nextcluster+2
   ora fat32_nextcluster+3
@@ -866,6 +865,10 @@ searchclusters
   bne copycluster
   inc fat32_lastfoundfreecluster+3
 
+  lda fat32_lastfoundfreecluster
+  cmp #$10
+  bcs sd_full
+
 copycluster
 
   ; Copy the cluster count to the next cluster
@@ -876,6 +879,7 @@ copycluster
   lda fat32_lastfoundfreecluster+2
   sta fat32_nextcluster+2
   lda fat32_lastfoundfreecluster+3
+  and #$0f
   sta fat32_nextcluster+3
   
   ; Go again for another pass
@@ -883,6 +887,11 @@ copycluster
 
 foundcluster
   ; done.
+  clc
+  rts
+
+sd_full
+  sec
   rts
 .)
 
@@ -1383,7 +1392,7 @@ fat32_file_readbyte:
   sta fat32_address+1
 
   jsr fat32_readnextsector
-  bcs rtss                    ; this shouldn't happen
+  bcs rtss
 
 gotdata:
   ldy #0
@@ -1460,6 +1469,15 @@ fat32_file_write:
   sta fat32_lastcluster+2
   lda fat32_filecluster+3
   sta fat32_lastcluster+3
+
+  lda fat32_filecluster
+  sta fat32_nextcluster
+  lda fat32_filecluster+1
+  sta fat32_nextcluster+1
+  lda fat32_filecluster+2
+  sta fat32_nextcluster+2
+  lda fat32_filecluster+3
+  sta fat32_nextcluster+3
 
   ; Round the size up to the next whole sector
   lda fat32_bytesremaining

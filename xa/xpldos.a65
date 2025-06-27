@@ -951,6 +951,10 @@ proc:
   lda stackaccess+1
   sta savestart+1
   jsr pop16
+  lda stackaccess
+  sta saveend
+  lda stackaccess+1
+  sta saveend+1
   jmp sg
 .)
 savekernal:
@@ -991,11 +995,11 @@ nf:
   jsr w_acia_full
   ; Calculate file size (end - start)
   sec
-  lda stackaccess
+  lda saveend
   sbc savestart
   sta fat32_bytesremaining 
   pha
-  lda stackaccess+1
+  lda saveend+1
   sbc savestart+1
   sta fat32_bytesremaining+1
   pha

@@ -185,9 +185,6 @@ sd_waitresult
   beq sd_waitresult
   rts
 
-loadtable:
-	.byte $02,"-",$02,"\",$02,"|",$02,"/", $00
-
 sd_sendcommand 
 
   lda #SD_MOSI           ; pull CS low to begin command
