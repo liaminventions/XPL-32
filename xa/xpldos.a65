@@ -164,11 +164,12 @@ resolvepath:
   lda #1
   sta path
   jsr fat32_openroot
+  jsr rootalias
 
   ; check if path is just "/" (i.e., empty after slash)
-  iny
-  lda (folderpointer),y
-  beq rootalias
+  ldy #1
+  ;lda (folderpointer),y
+  ;beq rootrts
 
   ; path starts with '/', but has more — skip past it
   tya
@@ -179,6 +180,9 @@ resolvepath:
   inc folderpointer+1
 qp:
   jmp parsepath
+
+rootrts:
+  rts
 
 rootalias:
   ; pretend path was /ROOT
@@ -191,6 +195,7 @@ rootalias:
   lda #>ral
   sta folderpointer+1
   jsr addpath
+  jsr refreshpath
   pla 
   sta folderpointer+1
   pla 
@@ -203,7 +208,7 @@ ral:
 
 relstart:
   ; relative path, start from current directory
-  jsr refreshpath
+;  jsr refreshpath
 
 parsepath:
 nextseg:
