@@ -150,6 +150,142 @@
 ;rootmsg:
 ;  .byte "Root Not Yet Supported! Use ", $22, "folder", $22, " instead", $0d, $0a, $00
 
+;; resolvepath 
+;; Handles absolute and relative paths
+
+resolvepath:
+.( 
+  ldy #0
+  lda (folderpointer),y
+  cmp #'/'       ; absolute path?
+  bne relstart
+
+  ; absolute path, clear PATH
+  lda #1
+  sta path
+  jsr fat32_openroot
+
+  ; check if path is just "/" (i.e., empty after slash)
+  iny
+  lda (folderpointer),y
+  beq rootalias
+
+  ; path starts with '/', but has more — skip past it
+  tya
+  clc
+  adc folderpointer
+  sta folderpointer
+  bcc qp
+  inc folderpointer+1
+qp:
+  jmp parsepath
+
+rootalias:
+  ; pretend path was /ROOT
+  lda folderpointer
+  pha
+  lda #<ral
+  sta folderpointer
+  lda folderpointer+1
+  pha
+  lda #>ral
+  sta folderpointer+1
+  jsr addpath
+  pla 
+  sta folderpointer+1
+  pla 
+  sta folderpointer
+  clc
+  rts
+
+ral:
+  .byte "ROOT       ", $00
+
+relstart:
+  ; relative path, start from current directory
+  jsr refreshpath
+
+parsepath:
+nextseg:
+  ; skip slashes
+  ldy #0
+  lda (folderpointer),y
+  beq ddone
+  cmp #'/'
+  bne buildseg
+  inc folderpointer
+  bne nextseg
+  inc folderpointer+1
+  jmp nextseg
+
+buildseg:
+  ldx #0
+segloop:
+  lda (folderpointer),y
+  beq endseg
+  cmp #'/'
+  beq endseg
+  sta buffer+32,x
+  inx
+  iny
+  cpx #12
+  bne segloop
+
+endseg:
+  lda #0
+  sta buffer+32,x   ; null-terminate
+
+  tya
+  clc
+  adc folderpointer
+  sta folderpointer
+  bcc fldr
+  inc folderpointer+1
+fldr:
+
+  ; Check for . and ..
+  ldy #0
+  lda buffer+32,y
+  cmp #'.'
+  bne notdot
+  iny
+  lda buffer+32,y
+  beq nextseg       ; just '.', skip
+  cmp #'.'
+  bne nextseg       ; not '..'
+  iny
+  lda buffer+32,y
+  beq goback        ; confirmed '..'
+  jmp nextseg       ; invalid (e.g., '...'), ignore
+
+notdot:
+  ; CD into this segment
+  lda folderpointer
+  pha 
+  lda #<buffer+32
+  sta folderpointer
+  lda folderpointer+1
+  pha 
+  lda #>buffer+32
+  sta folderpointer+1
+  jsr shortconvert
+  jsr addpath
+  pla
+  sta folderpointer+1
+  pla
+  sta folderpointer
+  jmp nextseg
+
+goback:
+  jsr backpath
+  jmp nextseg
+
+ddone:
+  jsr refreshpath
+  clc
+  rts
+.)
+
 ; PATH refresh
 ; goes to the ROOT directory, and CDs to the directory at PATH.
 ;
@@ -328,47 +464,10 @@ processparam           ; process the filename parameter
 .)
 cdd:
 .(
-  ; handle dir
-  ;jsr jmpdir 
-  ;bcc cdbb
-  ; check for . or ..
-  jsr shortconvert
-  lda backdir
-  beq notcd  
-  cmp #$55
-  beq cdbb
-  ; ok, that should do it.
-  ; Open root directory
-  ;jsr fat32_openroot	
-  ; Find the subdirectory by name
-  ;ldx #<subdirname
-  ;ldy #>subdirname
-  ;jsr fat32_finddirent
-  ;bcs error
-  ; Open subdirectory
-  ;jsr fat32_opendirent	; open folder
-  jsr fat32_open_cd
+  jsr resolvepath
+  plx
+  rts
 .)
-cdsub:
-  ; check if the folder exists + get info
-  ldx folderpointer
-  ldy folderpointer+1
-  jsr fat32_finddirent
-  bcs fileerror
-  ; ok, it exists, now cd
-  jsr fat32_opendirent
-  ; all done.
-  ; now add this to the current directory, only if no cd ..
-  lda backdir
-  beq cdbb
-  jsr addpath
-cdbb:
-  plx
-  rts
-notcd:
-  jsr fat32_open_cd
-  plx
-  rts
 
 fileerror
   ; no such folder
@@ -1145,11 +1244,11 @@ stlp
   ; Find the directory
   ;lda backdir
   ;beq nono ;TODO CHECK
-nono:
-  ldx savepoint
-  ldy savepoint+1
-  jsr fat32_finddirent
-  bcc mvgotdirent 
+;nono:
+;  ldx savepoint
+;  ldy savepoint+1
+;  jsr fat32_finddirent
+;  bcc mvgotdirent 
 mvfail
   ; The directory was not found
   jsr rlerror

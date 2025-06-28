@@ -3,7 +3,7 @@
 ; This module requires some RAM workspace to be defined elsewhere:
 ; 
 ; fat32_workspace    - a large page-aligned 512-byte workspace
-; zp_fat32_variables - 49 bytes of zero-page storage for variables etc
+; zp_fat32_variables - 55 bytes of zero-page storage for variables etc
 
 fat32_readbuffer = fat32_workspace
 
@@ -16,13 +16,14 @@ fat32_address           	  = zp_fat32_variables + $0e  ; 2 bytes
 fat32_nextcluster       	  = zp_fat32_variables + $10  ; 4 bytes
 fat32_bytesremaining    	  = zp_fat32_variables + $14  ; 4 bytes   	
 fat32_lastfoundfreecluster	= zp_fat32_variables + $18  ; 4 bytes
-fat32_lastcluster		        = zp_fat32_variables + $1c  ; 4 bytes
-fat32_lastsector	        	= zp_fat32_variables + $21  ; 4 bytes
-fat32_filenamepointer       = zp_fat32_variables + $26  ; 2 bytes
-fat32_numfats			          = zp_fat32_variables + $28  ; 1 byte
-fat32_filecluster		        = zp_fat32_variables + $29  ; 4 bytes
-fat32_sectorsperfat		      = zp_fat32_variables + $2d  ; 4 bytes
-fat32_cdcluster             = zp_fat32_variables + $31  ; 4 bytes
+fat32_filenamepointer       = zp_fat32_variables + $1c  ; 2 bytes
+fat32_lastcluster		        = fat32_variables + $00  ; 4 bytes
+fat32_lastsector	        	= fat32_variables + $04  ; 4 bytes
+fat32_numfats			          = fat32_variables + $08  ; 1 byte
+fat32_filecluster		        = fat32_variables + $09  ; 4 bytes
+fat32_sectorsperfat		      = fat32_variables + $0d  ; 4 bytes
+fat32_cdcluster             = fat32_variables + $11  ; 4 bytes
+fat32_buffer_index          = fat32_variables + $15  ; 1 byte
 
 fat32_errorstage            = fat32_bytesremaining  ; only used during initialization
 
@@ -367,11 +368,20 @@ spcshiftloopdone:
   ; Find the offset to this cluster's entry in the FAT sector we loaded earlier
 
   ; Offset = (cluster*4) & 511 = (cluster & 127) * 4
+
   lda fat32_nextcluster
   and #$7f
   asl
   asl
   tay ; Y = low byte of offset
+
+  ; cluster_offset = (cluster * 4) & 511
+  ;lda fat32_nextcluster
+  ;asl                         ; ×2
+  ;rol fat32_nextcluster+1     ; bit 7 → bit 0 of high byte
+  ;asl                         ; ×4
+  ;rol fat32_nextcluster+1     ; bit 7 → bit 0 again
+  ;tay                         ; Y = offset low byte
 
   ; Add the potentially carried bit to the high byte of the address
   lda zp_sd_address+1
@@ -407,20 +417,27 @@ spcshiftloopdone:
   ply ; restore index to the table entry for the cluster
 
   ; See if it's the end of the chain
-  ora #$f0
-  and fat32_nextcluster+2
-  and fat32_nextcluster+1
-  cmp #$ff
+  ; Save raw value for EOC check
+  ;lda fat32_nextcluster+3
+  cmp #$0F
+  bcc notendofchain
+  lda fat32_nextcluster+2
+  cmp #$FF
+  bne notendofchain
+  lda fat32_nextcluster+1
+  cmp #$FF
   bne notendofchain
   lda fat32_nextcluster
-  cmp #$f8
+  cmp #$F8
   bcc notendofchain
 
-  ; It's the end of the chain, set the top bits so that we can tell this later on
+  ; It's EOC
+  lda #$FF
   sta fat32_nextcluster+3
 notendofchain:
   rts
 .)
+
 
 fat32_readnextsector:
 .(
@@ -437,7 +454,21 @@ fat32_readnextsector:
 
   ; No pending sectors, check for end of cluster chain
   lda fat32_nextcluster+3
-  bmi endofchain
+  cmp #$0F
+  bne not_eoc
+  lda fat32_nextcluster+2
+  cmp #$FF
+  bne not_eoc
+  lda fat32_nextcluster+1
+  cmp #$FF
+  bne not_eoc
+  lda fat32_nextcluster
+  cmp #$F8     ; EOC starts at F8
+  bcc not_eoc
+
+  jmp endofchain
+
+not_eoc:
 
   ; Prepare to read the next cluster
   sec
@@ -487,7 +518,21 @@ fat32_writenextsector:
 
   ; No pending sectors, check for end of cluster chain
   lda fat32_nextcluster+3
-  bmi endofchain
+  cmp #$0F
+  bne not_eoc
+  lda fat32_nextcluster+2
+  cmp #$FF
+  bne not_eoc
+  lda fat32_nextcluster+1
+  cmp #$FF
+  bne not_eoc
+  lda fat32_nextcluster
+  cmp #$F8     ; EOC starts at F8
+  bcc not_eoc
+
+  jmp endofchain
+
+not_eoc:
 
   ; Prepare to read the next cluster
   sec
@@ -740,7 +785,7 @@ lastcluster
   sec
   jsr fat32_seekcluster
 
-  ; Write 0x0FFFFFFF (EOC)
+  ; Write 0x0FFFFFFE (EOC)
   lda #$0f
   sta (zp_sd_address),y
   dey
@@ -749,6 +794,7 @@ lastcluster
   dey
   sta (zp_sd_address),y
   dey
+  lda #$fe
   sta (zp_sd_address),y
 
   ; Update the FAT
@@ -807,7 +853,8 @@ notlastcluster
   dex
   stx fat32_bytesremaining    ; note - actually stores clusters remaining
 
-  bne allocatelp
+  beq fail
+  jmp allocatelp
 
   ; Done!
 fail
@@ -1401,10 +1448,6 @@ gotdata:
   inc zp_sd_address
   bne rtss
   inc zp_sd_address+1
-  bne rtss
-  inc zp_sd_address+2
-  bne rtss
-  inc zp_sd_address+3
 
 rtss:
   rts

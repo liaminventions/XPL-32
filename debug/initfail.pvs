@@ -1,6 +1,6 @@
 [General]
 decode_signals=0
-meta_objs=0
+meta_objs=1
 views=1
 
 [0]
@@ -115,6 +115,12 @@ conversion_type=0
 enabled=true
 name=9
 
+[meta_obj0]
+assoc_view=0
+end_time=22 serialization::archive 20 0 0 0 0 2 31218620 48529209 48195002 52622646 3043147 0 0 0 6
+start_time=22 serialization::archive 20 0 0 0 0 1 39480299 25893932 45094139 81711958 28581401 0 0 0 6
+type=selection
+
 [view0]
 0\trace_height=34
 1\trace_height=34
@@ -132,9 +138,9 @@ name=9
 7\trace_height=34
 8\trace_height=34
 9\trace_height=34
-offset=22 serialization::archive 20 0 0 0 0 87674493 47694457 85800734 41642639 40911040 0 -8 0 0 6
-scale=0.001958925883258041
-segment_display_mode=1
+offset=22 serialization::archive 20 0 0 0 0 56410066 64992524 4980160 87986599 13190931 54648100 -8 1 0 6
+scale=0.004554293781458854
+segment_display_mode=3
 splitter_state="@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0\x45\0\0\a,\x1\0\0\0\x1\x1\0\0\0\x1\0)"
 v_offset=-112
 zero_offset=22 serialization::archive 20 0 0 0 0 0 0 0 0 0 0 0 0 0 6
