@@ -29,10 +29,6 @@
 
 resolvepath:
 .( 
-  lda folderpointer
-  pha
-  lda folderpointer+1
-  pha 
   ldy #0
   lda (folderpointer),y
   cmp #'/'       ; absolute path?
@@ -43,6 +39,7 @@ resolvepath:
   sta path
   jsr rootalias
 
+  ; check if path is just "/" (i.e., empty after slash)
   ldy #1
   tya
   clc
@@ -152,10 +149,6 @@ ddone:
   jsr refreshpath
 rtend:
   clc
-  pla
-  sta folderpointer+1
-  pla
-  sta folderpointer
   rts
 .)
 
@@ -454,25 +447,16 @@ cdf:
   lda ARGINDEX
   cmp #2
   bne error
-
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
-  
+  ; Convert to SHORT
+  jsr shortconvert
+  ; Refresh Path
   jsr fat32_open_cd
-  jsr stashpath     ; stash path
-  jsr resolvepath   ; resolve new path
-  jsr stripfile     ; get enclosing folder
-  php               ; save carry for later
-  bcs cont          ; are we in the same dir?
-
-  ; no, we need to cd first.
-  jsr refreshpath
-  
-cont 
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
@@ -481,11 +465,10 @@ cont
 
   ; Open the file
   jsr fat32_opendirent
-
-  ; Read file contents into read buffer
-  lda #>fat32_readbuffer
+  ; Read file contents into buffer
+  lda #<buffer
   sta fat32_address
-  lda #<fat32_readbuffer
+  lda #>buffer
   sta fat32_address+1
 redlp:
   jsr fat32_file_readbyte
@@ -508,11 +491,6 @@ notunix:
   jsr print_chara
   jmp redlp
 catd:
-  jsr restorepath
-  plp
-  bcs catdd         ; if file dir differs
-  jsr refreshpath   ; go back to og
-catdd
   ; CR+LF
   jsr crlf
   rts
