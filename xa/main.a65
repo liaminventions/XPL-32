@@ -85,6 +85,8 @@ zp_sd_address = $48         ; 2 bytes
 zp_sd_currentsector = $4a   ; 4 bytes
 zp_fat32_variables = $4e    ; 55 bytes
 fat32_variables = $300
+fnstash = $318 ; 32 bytes
+last_slash_pos = $338
 ; only used during fat32 processing
 path = $400		    ; page
 fat32_workspace = $500      ; two pages
@@ -2884,7 +2886,7 @@ interrupt
   jmp ($7ffe)  
   rti
 
-  .dsb 2710,$00
+  .dsb 2589,$00
 
 ; ----KERNAL----
 

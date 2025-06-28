@@ -24,154 +24,26 @@
 ;; TAR?
 ;; MAN?
 
-; Jump to / dir
-; jumps to a dir with a /
-; temp addr at "tmp"
-;
-; NOTE: NOT FUNCTIONAL YET
-
-;jmpdir:
-;.(
-;  ; stash folderpointer
-;  lda folderpointer
-;  sta pathindex
-;  lda folderpointer+1
-;  sta pathindex+1
-;  lda #<tmp
-;  sta folderpointer
-;  lda #>tmp
-;  sta folderpointer+1
-;  ; check if there is a slash at all
-;  ldy #0
-;chklp:
-;  lda (pathindex),y
-;  beq no
-;  cmp '/'
-;  beq css
-;  iny
-;  jmp chklp
-;css:  
-;  cpy #0	; was the / at the start? ex. "ls /folder"
-;  beq root	;				  ^			
-;  ; ok. the path is relative. (ls test/hi) NOT root (ls /test/hi)	 
-;  ; now incrementally cd
-;  ldy #0
-;  jmp cse
-;cslp:
-;  lda (pathindex),y
-;  beq csdone
-;  cmp '/'	; / ?
-;  beq csdn
-;  iny
-;  jmp cslp
-;csdn:
-;  iny
-;cse:
-;  ; a dot?
-;;  lda (pathindex),y
-;;  cmp #$2e
-;;  bne csnd
-;;  iny
-;;  lda (pathindex),y 
-;;  cmp #$2e
-;;  bne csndd
-;;  ; if .. then go back
-;;  jsr backpath
-;;  lda dircnt
-;;  bne csnd
-;;  ; auugh
-;;  jmp csnd
-;;csndd:
-;;  ; if . then do nothing
-;;  dey
-;;csnd:
-;  inc dircnt
-;  ; convert to uppercase
-;  ; first copy to temp addr
-;  phy
-;  ldx #0
-;csclp:
-;  lda (pathindex),y
-;  beq scn
-;  cmp #'/'
-;  beq scn
-;  sta tmp,x
-;  iny
-;  inx
-;  jmp csclp
-;scn:
-;  lda #$2e
-;  sta tmp,x
-;  inx
-;  lda #$20
-;  ldy #0
-;scnl:
-;  sta tmp,x
-;  inx
-;  iny
-;  cpy #3
-;  bne scnl
-;  ply
-;  ; then convert
-;  jsr shortconvert
-;  jsr addpath	; add it
-;  ; next folder
-;  clc
-;  tya
-;  adc folderpointer
-;  sta folderpointer
-;  jmp cslp
-;csdone:
-;  lda pathindex
-;  sta folderpointer
-;  lda pathindex+1
-;  sta folderpointer+1
-;  jsr fat32_open_cd	; load it
-;  ; all done
-;  clc
-;  rts
-;root:
-;  ; root !!
-;  ldx #<rootmsg
-;  ldy #>rootmsg
-;  jsr w_acia_full
-;no:
-;  ; no / dir
-;  ; proceed normally
-;  stz dircnt
-;  lda pathindex
-;  sta folderpointer
-;  lda pathindex+1
-;  sta folderpointer+1
-;  sec
-;  rts
-;.)
-;
-;rootmsg:
-;  .byte "Root Not Yet Supported! Use ", $22, "folder", $22, " instead", $0d, $0a, $00
-
 ;; resolvepath 
 ;; Handles absolute and relative paths
 
 resolvepath:
 .( 
+  lda folderpointer
+  pha
+  lda folderpointer+1
+  pha 
   ldy #0
   lda (folderpointer),y
   cmp #'/'       ; absolute path?
-  bne relstart
+  bne parsepath
 
   ; absolute path, clear PATH
   lda #1
   sta path
-  jsr fat32_openroot
   jsr rootalias
 
-  ; check if path is just "/" (i.e., empty after slash)
   ldy #1
-  ;lda (folderpointer),y
-  ;beq rootrts
-
-  ; path starts with '/', but has more — skip past it
   tya
   clc
   adc folderpointer
@@ -181,11 +53,8 @@ resolvepath:
 qp:
   jmp parsepath
 
-rootrts:
-  rts
-
 rootalias:
-  ; pretend path was /ROOT
+  ; /ROOT
   lda folderpointer
   pha
   lda #<ral
@@ -195,23 +64,17 @@ rootalias:
   lda #>ral
   sta folderpointer+1
   jsr addpath
-  jsr refreshpath
   pla 
   sta folderpointer+1
   pla 
   sta folderpointer
-  clc
-  rts
+  jmp rtend
 
 ral:
   .byte "ROOT       ", $00
 
-relstart:
-  ; relative path, start from current directory
-;  jsr refreshpath
-
+; relative path, start from current directory
 parsepath:
-nextseg:
   ; skip slashes
   ldy #0
   lda (folderpointer),y
@@ -219,9 +82,9 @@ nextseg:
   cmp #'/'
   bne buildseg
   inc folderpointer
-  bne nextseg
+  bne parsepath
   inc folderpointer+1
-  jmp nextseg
+  jmp parsepath
 
 buildseg:
   ldx #0
@@ -230,7 +93,7 @@ segloop:
   beq endseg
   cmp #'/'
   beq endseg
-  sta buffer+32,x
+  sta fnstash,x
   inx
   iny
   cpx #12
@@ -238,7 +101,7 @@ segloop:
 
 endseg:
   lda #0
-  sta buffer+32,x   ; null-terminate
+  sta fnstash,x   ; null-terminate
 
   tya
   clc
@@ -250,28 +113,28 @@ fldr:
 
   ; Check for . and ..
   ldy #0
-  lda buffer+32,y
+  lda fnstash,y
   cmp #'.'
   bne notdot
   iny
-  lda buffer+32,y
-  beq nextseg       ; just '.', skip
+  lda fnstash,y
+  beq parsepath       ; just '.', skip
   cmp #'.'
-  bne nextseg       ; not '..'
+  bne parsepath       ; not '..'
   iny
-  lda buffer+32,y
+  lda fnstash,y
   beq goback        ; confirmed '..'
-  jmp nextseg       ; invalid (e.g., '...'), ignore
+  jmp parsepath       ; invalid (e.g., '...'), ignore
 
 notdot:
   ; CD into this segment
   lda folderpointer
   pha 
-  lda #<buffer+32
+  lda #<fnstash
   sta folderpointer
   lda folderpointer+1
   pha 
-  lda #>buffer+32
+  lda #>fnstash
   sta folderpointer+1
   jsr shortconvert
   jsr addpath
@@ -279,15 +142,20 @@ notdot:
   sta folderpointer+1
   pla
   sta folderpointer
-  jmp nextseg
+  jmp parsepath
 
 goback:
   jsr backpath
-  jmp nextseg
+  jmp parsepath
 
 ddone:
   jsr refreshpath
+rtend:
   clc
+  pla
+  sta folderpointer+1
+  pla
+  sta folderpointer
   rts
 .)
 
@@ -375,7 +243,6 @@ backpath:
   sta path
   ldx path
   stz path,x
-  jsr refreshpath
   pla
   plx
   rts
@@ -387,24 +254,18 @@ patherror:
 ;; print PATH
 ;; prints the current directory, like *NIX
 ;; for example:
-;; ~/test/ >_
+;; /test/ >_
 ;; or:
-;; ~/ >_
+;; / >_
 ;;
 printpath:
 .(
   ; No memory card?
   lda path
-  bne ppb
+  bne pp
   sec
   rts
-  ;jmp rlerror
-ppb
-  ; sould this be $fb? (square root symbol)
-  ; for now it's ~
-  lda #$7e ; root
-  jsr print_chara
-ppc:
+pp
   lda #'/'
   jsr print_chara
   lda #12	     ; path+12 because we already showed the root
@@ -470,6 +331,7 @@ processparam           ; process the filename parameter
 cdd:
 .(
   jsr resolvepath
+  jsr refreshpath
   plx
   rts
 .)
@@ -487,6 +349,98 @@ error
   jsr w_acia_full
   rts
 
+stashpath:
+.(
+  pha
+  phx
+  ldx #0
+lp
+  lda path,x
+  sta buffer,x
+  beq st
+  inx
+  jmp lp
+st
+  plx
+  pla
+  rts
+.)
+
+restorepath:
+.(
+  pha
+  phx
+  ldx #0
+lp
+  lda buffer,x
+  sta path,x
+  beq st
+  inx
+  jmp lp
+st
+  plx
+  pla
+  rts
+.)
+
+; checks if we are in the same dir
+cmppath:
+.(
+  phx
+  pha
+  ldx #0
+lp
+  lda path,x
+  cmp buffer,x
+  bne ne
+cn
+  cmp #0
+  bne lp 
+eq
+  pla 
+  plx
+  sec 
+  rts
+ne
+  pla 
+  plx
+  clc
+  rts
+.)
+
+; strips the file off of the input path 
+; (eg. /test/folder/myfile.txt -> /test/folder/)
+; set carry if in same folder
+stripfile:
+.(
+  ; find the last slash
+  ldx #0
+  ldy #0
+find_last_slash:
+  lda folderpointer,x
+  beq stdn              ; end of string
+  cmp #'/'              ; is it a slash?
+  bne not_slash
+  ldy #1
+  stx last_slash_pos    ; save last slash index
+not_slash:
+  inx
+  bne find_last_slash   ; loop
+  
+stdn:
+  ; overwrite the character after the last slash with null terminator
+  ldx last_slash_pos
+  lda #0
+  sta folderpointer,x
+  tya
+  beq ogg
+  clc
+  rts
+ogg:
+  sec
+  rts
+.)
+
 ;; CAT
 ;; prints out a file
 
@@ -500,27 +454,38 @@ cdf:
   lda ARGINDEX
   cmp #2
   bne error
+
   clc
   lda #<INPUT
   adc ARGINDEX+2
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
-  ; Convert to SHORT
-  jsr shortconvert
-  ; Refresh Path
+  
   jsr fat32_open_cd
+  jsr stashpath     ; stash path
+  jsr resolvepath   ; resolve new path
+  jsr stripfile     ; get enclosing folder
+  php               ; save carry for later
+  bcs cont          ; are we in the same dir?
+
+  ; no, we need to cd first.
+  jsr refreshpath
+  
+cont 
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
   jsr fat32_finddirent
-  bcs error
+  bcs jmperror
+
   ; Open the file
   jsr fat32_opendirent
-  ; Read file contents into buffer
-  lda #<buffer
+
+  ; Read file contents into read buffer
+  lda #>fat32_readbuffer
   sta fat32_address
-  lda #>buffer
+  lda #<fat32_readbuffer
   sta fat32_address+1
 redlp:
   jsr fat32_file_readbyte
@@ -543,9 +508,16 @@ notunix:
   jsr print_chara
   jmp redlp
 catd:
+  jsr restorepath
+  plp
+  bcs catdd         ; if file dir differs
+  jsr refreshpath   ; go back to og
+catdd
   ; CR+LF
   jsr crlf
   rts
+jmperror:
+  jmp error
 .)
 
 shortconvert:
@@ -1288,15 +1260,15 @@ overf:
   ldy #0
 mvff
   lda (folderpointer),y
-  sta buffer+32,y
+  sta fnstash,y
   iny
   cpy #13
   bne mvff
 mvdn:
   ; store location
-  lda #<buffer+32
+  lda #<fnstash
   sta folderpointer
-  lda #>buffer+32
+  lda #>fnstash
   sta folderpointer+1
   rts
 .)
