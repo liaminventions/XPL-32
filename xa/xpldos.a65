@@ -658,9 +658,8 @@ cdf:
   cmp #1	       ; if there's only one argument (ls) then list current directory 
   bne jmperror
   jsr fat32_open_cd
-  lda #$ff
-  sta backdir
-  jmp list
+  jsr list
+  jmp fat32_open_cd
 jmperror:
   jmp error
 processparam           ; process the filename parameter
@@ -671,21 +670,24 @@ processparam           ; process the filename parameter
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
-  ; get /
-  ;jsr jmpdir
-  ;bcc dontcd
-  ; now cd
-  jsr cdsub
-;dontcd:
-  stz backdir
+  jsr stashpath
+  jsr resolvepath 
+  jsr cmppath
+  bcs listres
+  jsr refreshpath
+  jmp dolist
+listres
+  jsr fat32_open_cd
+dolist
+  jsr list
+  jsr restorepath
+  jmp refreshpath
 .)
 
 list:			; list file dir
 .(
   jsr fat32_readdirent	; files?
   bcs nofiles
-  ;and #$40
-  ;beq arc
 ebut:
   ldx #0
   ldy #8
@@ -734,22 +736,6 @@ endthat:
 nofiles:		; if not,
 endlist:		; exit listing code
   jsr crlf
-  lda backdir
-  bne dontb
-;  lda dircnt
-;  beq nono
-;  ldx #0
-;dddl:
-;  jsr backpath
-;  inx
-;  cpx dircnt
-;  bne dddl
-;  jmp dontb
-;nono:
-  jsr backpath		; cd .. if ls <folderpath>
-  rts
-dontb:
-  jsr fat32_open_cd	; refresh the directory
   rts
 jumptolist:
   jsr crlf
