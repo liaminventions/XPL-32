@@ -229,7 +229,7 @@ main.a65
   181 A:c041                           table7    
   182 A:c041  4d c0                              .word table8
   183 A:c043  6d 65 6d 74 65 73 74 00            .byt "memtest",$00
-  184 A:c04b  ec ea                              .word memtestcmd
+  184 A:c04b  ef ea                              .word memtestcmd
   185 A:c04d                           table8    
   186 A:c04d  55 c0                              .word table9
   187 A:c04f  64 69 73 00                        .byt "dis",$00
@@ -253,11 +253,11 @@ main.a65
   205 A:c075                                    ;table13
   206 A:c075  7c c0                              .word table13
   207 A:c077  76 69 00                           .byt "vi",$00
-  208 A:c07a  93 e9                              .word vicmd
+  208 A:c07a  96 e9                              .word vicmd
   209 A:c07c                           table13   
   210 A:c07c  85 c0                              .word table14
   211 A:c07e  6c 6f 61 64 00                     .byt "load",$00
-  212 A:c083  22 e6                              .word loadcmd
+  212 A:c083  25 e6                              .word loadcmd
   213 A:c085                           table14   
   214 A:c085  8f c0                              .word table15
   215 A:c087  74 73 61 76 65 00                  .byt "tsave",$00
@@ -269,15 +269,15 @@ main.a65
   221 A:c099                           table16   
   222 A:c099  a0 c0                              .word table17
   223 A:c09b  6c 73 00                           .byt "ls",$00
-  224 A:c09e  8e e5                              .word lscmd
+  224 A:c09e  91 e5                              .word lscmd
   225 A:c0a0                           table17   
   226 A:c0a0  a7 c0                              .word table18
   227 A:c0a2  63 64 00                           .byt "cd",$00
-  228 A:c0a5  d7 e3                              .word cdcmd
+  228 A:c0a5  d4 e3                              .word cdcmd
   229 A:c0a7                           table18   
   230 A:c0a7  af c0                              .word table19
   231 A:c0a9  63 61 74 00                        .byt "cat",$00
-  232 A:c0ad  6c e4                              .word catcmd
+  232 A:c0ad  6f e4                              .word catcmd
   233 A:c0af                           table19   
   234 A:c0af  b9 c0                              .word table20
   235 A:c0b1  63 6c 65 61 72 00                  .byt "clear",$00
@@ -285,15 +285,15 @@ main.a65
   237 A:c0b9                           table20   
   238 A:c0b9  c2 c0                              .word table21
   239 A:c0bb  73 61 76 65 00                     .byt "save",$00
-  240 A:c0c0  3c e7                              .word savecmd
+  240 A:c0c0  3f e7                              .word savecmd
   241 A:c0c2                           table21   
   242 A:c0c2  c9 c0                              .word table22
   243 A:c0c4  72 6d 00                           .byt "rm",$00
-  244 A:c0c7  0c e8                              .word rmcmd
+  244 A:c0c7  0f e8                              .word rmcmd
   245 A:c0c9                           table22   
   246 A:c0c9  d0 c0                              .word table23
   247 A:c0cb  6d 76 00                           .byt "mv",$00
-  248 A:c0ce  4a e8                              .word mvcmd
+  248 A:c0ce  4d e8                              .word mvcmd
   249 A:c0d0                           table23   
   250 A:c0d0  00 00                              .word $00              ; this signals it's the last entry in the table
   251 A:c0d2  72 74 69 00                        .byt "rti",$00
@@ -1184,7 +1184,7 @@ startupsound.a65
    36 A:c3b9  a9 12                              lda #$12
    37 A:c3bb  85 0f                              sta mem_end+1
 
-   39 A:c3bd  20 cd ea                           jsr memcopy
+   39 A:c3bd  20 d0 ea                           jsr memcopy
 
    41 A:c3c0                           runthesound 
    41 A:c3c0                                    ; thats done, now to play the sound
@@ -1334,7 +1334,7 @@ main.a65
 
   325 A:c699                                    ; Subdirectory not found
   326 A:c699  a0 e8                              ldy #>submsg
-  327 A:c69b  a2 e8                              ldx #<submsg
+  327 A:c69b  a2 eb                              ldx #<submsg
   328 A:c69d  20 82 e0                           jsr w_acia_full
   329 A:c6a0  9c 00 04                           stz path
   330 A:c6a3  4c db c6                           jmp initf
@@ -1389,12 +1389,12 @@ main.a65
   377 A:c6dd                                    ;;; first just in case there's other gunk on the screen.
   378 A:c6dd                                    ;;;
   379 A:c6dd                           sayhello  
-  380 A:c6dd  a9 85                              lda #<greeting
+  380 A:c6dd  a9 88                              lda #<greeting
   381 A:c6df  85 42                              sta PRINTVEC
   382 A:c6e1  a9 eb                              lda #>greeting
   383 A:c6e3  85 43                              sta PRINTVEC+1
   384 A:c6e5  a0 00                              ldy #0
-  385 A:c6e7  20 47 eb                           jsr printvecstr
+  385 A:c6e7  20 4a eb                           jsr printvecstr
 
   387 A:c6ea                                    ;  ldy #0
   388 A:c6ea                                    ;.(
@@ -1422,13 +1422,13 @@ main.a65
   411 A:c6ea  ad 00 04                           lda path
   412 A:c6ed  f0 03                              beq wait_txd_empty
   413 A:c6ef                                    ;; if so, print the current directory.
-  414 A:c6ef  20 93 e3                           jsr printpath
+  414 A:c6ef  20 90 e3                           jsr printpath
   415 A:c6f2                                    ;; print the prompt
   416 A:c6f2                           wait_txd_empty 
   417 A:c6f2  ad 01 80                           lda ACIA_STATUS
   418 A:c6f5  29 10                              and #$10
   419 A:c6f7  f0 f9                              beq wait_txd_empty
-  420 A:c6f9  ad 96 eb                           lda prompt
+  420 A:c6f9  ad 99 eb                           lda prompt
   421 A:c6fc  8d 00 80                           sta ACIA_DATA
   422 A:c6ff                                     .) 
 
@@ -1603,11 +1603,11 @@ main.a65
   595 A:c78e                                    ;; ...
 
   597 A:c78e                           printerror 
-  598 A:c78e  a9 6e                              lda #<nocmderrstr
+  598 A:c78e  a9 71                              lda #<nocmderrstr
   599 A:c790  85 42                              sta PRINTVEC
   600 A:c792  a9 f3                              lda #>nocmderrstr
   601 A:c794  85 43                              sta PRINTVEC+1
-  602 A:c796  20 47 eb                           jsr printvecstr
+  602 A:c796  20 4a eb                           jsr printvecstr
   603 A:c799                                    ; no need for crlf
   604 A:c799                                    ;  ldy #0
   605 A:c799                                    ;.(
@@ -1633,33 +1633,33 @@ main.a65
   627 A:c79b                                    ;;;;;;;;;;;;;
 
   629 A:c79b                           aboutcmd  
-  630 A:c79b  a9 97                              lda #<aboutstring
+  630 A:c79b  a9 9a                              lda #<aboutstring
   631 A:c79d  85 42                              sta PRINTVEC
   632 A:c79f  a9 eb                              lda #>aboutstring
   633 A:c7a1  85 43                              sta PRINTVEC+1
-  634 A:c7a3  a9 08                              lda #<aboutstringend
+  634 A:c7a3  a9 0b                              lda #<aboutstringend
   635 A:c7a5  85 0e                              sta ENDVEC
   636 A:c7a7  a9 ef                              lda #>aboutstringend
   637 A:c7a9  85 0f                              sta ENDVEC+1
-  638 A:c7ab  4c 5b eb                           jmp printveclong
+  638 A:c7ab  4c 5e eb                           jmp printveclong
 
   640 A:c7ae                           helpcmd   
-  641 A:c7ae  a9 09                              lda #<helpstring
+  641 A:c7ae  a9 0c                              lda #<helpstring
   642 A:c7b0  85 42                              sta PRINTVEC
   643 A:c7b2  a9 ef                              lda #>helpstring
   644 A:c7b4  85 43                              sta PRINTVEC+1
-  645 A:c7b6  a9 6d                              lda #<helpstringend
+  645 A:c7b6  a9 70                              lda #<helpstringend
   646 A:c7b8  85 0e                              sta ENDVEC
   647 A:c7ba  a9 f3                              lda #>helpstringend
   648 A:c7bc  85 0f                              sta ENDVEC+1
-  649 A:c7be  4c 5b eb                           jmp printveclong
+  649 A:c7be  4c 5e eb                           jmp printveclong
 
   651 A:c7c1                           notimplcmd 
-  652 A:c7c1  a9 87                              lda #<implementstring
+  652 A:c7c1  a9 8a                              lda #<implementstring
   653 A:c7c3  85 42                              sta PRINTVEC
   654 A:c7c5  a9 f3                              lda #>implementstring
   655 A:c7c7  85 43                              sta PRINTVEC+1
-  656 A:c7c9  20 47 eb                           jsr printvecstr
+  656 A:c7c9  20 4a eb                           jsr printvecstr
   657 A:c7cc  60                                 rts 
 
   659 A:c7cd                           echocmd   
@@ -1723,11 +1723,11 @@ main.a65
   719 A:c82b  80 0b                              bra ende
 
   721 A:c82d                           error     
-  722 A:c82d  a9 bf                              lda #<pokeerrstring
+  722 A:c82d  a9 c2                              lda #<pokeerrstring
   723 A:c82f  85 42                              sta PRINTVEC
   724 A:c831  a9 f3                              lda #>pokeerrstring
   725 A:c833  85 43                              sta PRINTVEC+1
-  726 A:c835  20 47 eb                           jsr printvecstr
+  726 A:c835  20 4a eb                           jsr printvecstr
   727 A:c838                           ende      
   728 A:c838                                     .) 
   729 A:c838  20 45 d6                           jsr crlf
@@ -1869,11 +1869,11 @@ main.a65
   865 A:c8f8  4c 09 c9                           jmp enddumpcmd
 
   867 A:c8fb                           error     
-  868 A:c8fb  a9 9d                              lda #<dumperrstring
+  868 A:c8fb  a9 a0                              lda #<dumperrstring
   869 A:c8fd  85 42                              sta PRINTVEC
   870 A:c8ff  a9 f3                              lda #>dumperrstring
   871 A:c901  85 43                              sta PRINTVEC+1
-  872 A:c903  20 47 eb                           jsr printvecstr
+  872 A:c903  20 4a eb                           jsr printvecstr
   873 A:c906                                    ;  ldy #0
   874 A:c906                                    ;  ;; do error
   875 A:c906                                    ;next_char
@@ -1956,11 +1956,11 @@ main.a65
 
   954 A:c960                           error     
   955 A:c960  a0 00                              ldy #0
-  956 A:c962  a9 f4                              lda #<zeroerrstring
+  956 A:c962  a9 f7                              lda #<zeroerrstring
   957 A:c964  85 42                              sta PRINTVEC
   958 A:c966  a9 f3                              lda #>zeroerrstring
   959 A:c968  85 43                              sta PRINTVEC+1
-  960 A:c96a  20 47 eb                           jsr printvecstr
+  960 A:c96a  20 4a eb                           jsr printvecstr
   961 A:c96d                                    ;  ;; do error
   962 A:c96d                                    ;next_char
   963 A:c96d                                    ;wait_txd_empty  
@@ -2004,11 +2004,11 @@ main.a65
  1003 A:c991                                    ;; no rts here because we'll rts from the subroutine
 
  1005 A:c991                           error     
- 1006 A:c991  a9 df                              lda #<goerrstring
+ 1006 A:c991  a9 e2                              lda #<goerrstring
  1007 A:c993  85 42                              sta PRINTVEC
  1008 A:c995  a9 f3                              lda #>goerrstring
  1009 A:c997  85 43                              sta PRINTVEC+1
- 1010 A:c999  20 47 eb                           jsr printvecstr
+ 1010 A:c999  20 4a eb                           jsr printvecstr
 
  1012 A:c99c  20 45 d6                           jsr crlf
  1013 A:c99f  60                                 rts 
@@ -2290,11 +2290,11 @@ tape.a65
   237 A:cb17  4c f0 ca                           jmp bitd
 
   239 A:cb1a                           error     
-  240 A:cb1a  a9 31                              lda #<tsaveerrstring
+  240 A:cb1a  a9 34                              lda #<tsaveerrstring
   241 A:cb1c  85 42                              sta PRINTVEC
   242 A:cb1e  a9 f4                              lda #>tsaveerrstring
   243 A:cb20  85 43                              sta PRINTVEC+1
-  244 A:cb22  20 47 eb                           jsr printvecstr
+  244 A:cb22  20 4a eb                           jsr printvecstr
 
   246 A:cb25  20 45 d6                           jsr crlf
   247 A:cb28  60                                 rts 
@@ -2593,11 +2593,11 @@ main.a65
  1059 A:cce6  4c f7 cc                           jmp xmreturn
 
  1061 A:cce9                           xerror    
- 1062 A:cce9  a9 16                              lda #<xrecverrstring
+ 1062 A:cce9  a9 19                              lda #<xrecverrstring
  1063 A:cceb  85 42                              sta PRINTVEC
  1064 A:cced  a9 f4                              lda #>xrecverrstring+1
  1065 A:ccef  85 43                              sta PRINTVEC+1
- 1066 A:ccf1  20 47 eb                           jsr printvecstr
+ 1066 A:ccf1  20 4a eb                           jsr printvecstr
  1067 A:ccf4  20 45 d6                           jsr crlf
 
  1069 A:ccf7                                     .) 
@@ -2901,11 +2901,11 @@ main.a65
 
  1091 A:ce88                           printhelp 
  1092 A:ce88                                    ;; print a help message
- 1093 A:ce88  a9 50                              lda #<inputhelpstring
+ 1093 A:ce88  a9 53                              lda #<inputhelpstring
  1094 A:ce8a  85 42                              sta PRINTVEC
  1095 A:ce8c  a9 f4                              lda #>inputhelpstring
  1096 A:ce8e  85 43                              sta PRINTVEC+1
- 1097 A:ce90  20 47 eb                           jsr printvecstr
+ 1097 A:ce90  20 4a eb                           jsr printvecstr
  1098 A:ce93  20 45 d6                           jsr crlf
 
  1100 A:ce96                           processparam                  ; process the address parameter
@@ -2983,11 +2983,11 @@ main.a65
  1172 A:cf05  4c 16 cf                           jmp inputreturn
 
  1174 A:cf08                           inputerror 
- 1175 A:cf08  a9 7e                              lda #<inputerrstring
+ 1175 A:cf08  a9 81                              lda #<inputerrstring
  1176 A:cf0a  85 42                              sta PRINTVEC
  1177 A:cf0c  a9 f4                              lda #>inputerrstring+1
  1178 A:cf0e  85 43                              sta PRINTVEC+1
- 1179 A:cf10  20 47 eb                           jsr printvecstr
+ 1179 A:cf10  20 4a eb                           jsr printvecstr
  1180 A:cf13  20 45 d6                           jsr crlf
  1181 A:cf16                           inputreturn 
  1182 A:cf16  60                                 rts                    ; return (x already restored)
@@ -3057,11 +3057,11 @@ main.a65
  1247 A:cf5d  4c 6e cf                           jmp begindis
 
  1249 A:cf60                           diserror  
- 1250 A:cf60  a9 a9                              lda #<diserrorstring
+ 1250 A:cf60  a9 ac                              lda #<diserrorstring
  1251 A:cf62  85 42                              sta PRINTVEC
  1252 A:cf64  a9 f4                              lda #>diserrorstring
  1253 A:cf66  85 43                              sta PRINTVEC+1
- 1254 A:cf68  20 47 eb                           jsr printvecstr
+ 1254 A:cf68  20 4a eb                           jsr printvecstr
 
  1256 A:cf6b                           enddis    
  1257 A:cf6b  4c bf d4                           jmp exitdis
@@ -4130,7 +4130,7 @@ main.a65
  2328 A:d67d  6a                                 ror 
  2329 A:d67e  6a                                 ror 
  2330 A:d67f  a8                                 tay 
- 2331 A:d680  b9 75 eb                           lda hextable,y
+ 2331 A:d680  b9 78 eb                           lda hextable,y
  2332 A:d683  8d 00 80                           sta ACIA_DATA
  2333 A:d686                           wait_txd_empty2 
  2334 A:d686  ad 01 80                           lda ACIA_STATUS
@@ -4140,7 +4140,7 @@ main.a65
  2338 A:d68e  18                                 clc 
  2339 A:d68f  29 0f                              and #$0f
  2340 A:d691  a8                                 tay 
- 2341 A:d692  b9 75 eb                           lda hextable,y
+ 2341 A:d692  b9 78 eb                           lda hextable,y
  2342 A:d695  8d 00 80                           sta ACIA_DATA
  2343 A:d698                                     .) 
  2344 A:d698  7a                                 ply 
@@ -6514,7 +6514,7 @@ main.a65
  2580 A:e0ba  85 0e                              sta mem_end
  2581 A:e0bc  a9 11                              lda #$11
  2582 A:e0be  85 0f                              sta mem_end+1
- 2583 A:e0c0  20 cd ea                           jsr memcopy
+ 2583 A:e0c0  20 d0 ea                           jsr memcopy
  2584 A:e0c3  a9 0a                              lda #$0a
  2585 A:e0c5  85 0c                              sta mem_copy
  2586 A:e0c7  a9 11                              lda #$11
@@ -6527,7 +6527,7 @@ main.a65
  2593 A:e0d5  85 0e                              sta mem_end
  2594 A:e0d7  a9 12                              lda #$12
  2595 A:e0d9  85 0f                              sta mem_end+1
- 2596 A:e0db  20 cd ea                           jsr memcopy
+ 2596 A:e0db  20 d0 ea                           jsr memcopy
  2597 A:e0de  a9 55                              lda #$55
  2598 A:e0e0  85 00                              sta donefact
  2599 A:e0e2  64 01                              stz irqcount
@@ -6649,12 +6649,12 @@ xpldos.a65
    60 A:e27a  48                                 pha 
    61 A:e27b  a9 e2                              lda #>ral
    62 A:e27d  85 12                              sta folderpointer+1
-   63 A:e27f  20 50 e3                           jsr addpath
+   63 A:e27f  20 4d e3                           jsr addpath
    64 A:e282  68                                 pla 
    65 A:e283  85 12                              sta folderpointer+1
    66 A:e285  68                                 pla 
    67 A:e286  85 11                              sta folderpointer
-   68 A:e288  4c 0e e3                           jmp rtend
+   68 A:e288  4c 0b e3                           jmp resdone
 
    70 A:e28b                           ral       
    70 A:e28b                                    
@@ -6666,7 +6666,7 @@ xpldos.a65
    75 A:e297                                    ; skip slashes
    76 A:e297  a0 00                              ldy #0
    77 A:e299  b1 11                              lda (folderpointer),y
-   78 A:e29b  f0 6e                              beq ddone
+   78 A:e29b  f0 6e                              beq resdone
    79 A:e29d  c9 2f                              cmp #'/'
    80 A:e29f  d0 09                              bne buildseg
    81 A:e2a1  e6 11                              inc folderpointer
@@ -6729,8 +6729,8 @@ xpldos.a65
   133 A:e2f1  48                                 pha 
   134 A:e2f2  a9 03                              lda #>fnstash
   135 A:e2f4  85 12                              sta folderpointer+1
-  136 A:e2f6  20 cc e4                           jsr shortconvert
-  137 A:e2f9  20 50 e3                           jsr addpath
+  136 A:e2f6  20 cf e4                           jsr shortconvert
+  137 A:e2f9  20 4d e3                           jsr addpath
   138 A:e2fc  68                                 pla 
   139 A:e2fd  85 12                              sta folderpointer+1
   140 A:e2ff  68                                 pla 
@@ -6739,1712 +6739,1711 @@ xpldos.a65
 
   144 A:e305                           goback    
   144 A:e305                                    
-  145 A:e305  20 6d e3                           jsr backpath
+  145 A:e305  20 6a e3                           jsr backpath
   146 A:e308  4c 97 e2                           jmp parsepath
 
-  148 A:e30b                           ddone     
+  148 A:e30b                           resdone   
   148 A:e30b                                    
-  149 A:e30b  20 10 e3                           jsr refreshpath
-  150 A:e30e                           rtend     
-  150 A:e30e                                    
-  151 A:e30e  18                                 clc 
-  152 A:e30f  60                                 rts 
-  153 A:e310                                     .) 
+  149 A:e30b  18                                 clc 
+  150 A:e30c  60                                 rts 
+  151 A:e30d                                     .) 
 
-  155 A:e310                                    ; PATH refresh
-  156 A:e310                                    ; goes to the ROOT directory, and CDs to the directory at PATH.
-  157 A:e310                                    ;
-  158 A:e310                                    ; this is probably equivilent to "Refresh" in Microsoft Windows.
-  159 A:e310                           refreshpath 
-  159 A:e310                                    
-  160 A:e310                                     .( 
-  161 A:e310                                    ; No memory card?
-  162 A:e310  ad 00 04                           lda path
-  163 A:e313  f0 26                              beq patherr
-  164 A:e315  a9 01                              lda #1             ; path+1 because path+0 is the path size variable
-  165 A:e317  85 16                              sta pathindex
-  166 A:e319                                    ; If memory card, then goto dir
-  167 A:e319  20 f4 db                           jsr fat32_openroot
-  168 A:e31c                           rloop     
-  168 A:e31c                                    
-  169 A:e31c                                    ; Open the directory
-  170 A:e31c  a6 16                              ldx pathindex
-  171 A:e31e  a0 04                              ldy #>path
-  172 A:e320  20 e1 de                           jsr fat32_finddirent
-  173 A:e323  90 03                              bcc fine
-  174 A:e325  4c 44 e3                           jmp rlerror
-  175 A:e328                           fine      
-  175 A:e328                                    
-  176 A:e328  20 5a dd                           jsr fat32_opendirent
-  177 A:e32b                                    ; advance to the next directory
-  178 A:e32b  18                                 clc 
-  179 A:e32c  a5 16                              lda pathindex
-  180 A:e32e  69 0b                              adc #11
-  181 A:e330  85 16                              sta pathindex
-  182 A:e332                                    ;lda (pathindex) ; end of path?
-  183 A:e332  ad 00 04                           lda path
-  184 A:e335  c5 16                              cmp pathindex
-  185 A:e337  d0 e3                              bne rloop                ; if not, cd to the next directory
-  186 A:e339  18                                 clc 
-  187 A:e33a  60                                 rts 
-  188 A:e33b                                     .) 
-  189 A:e33b                           patherr   
-  189 A:e33b                                    
-  190 A:e33b  a2 81                              ldx #<patherror
-  191 A:e33d  a0 e3                              ldy #>patherror
-  192 A:e33f  20 82 e0                           jsr w_acia_full
-  193 A:e342  38                                 sec 
-  194 A:e343  60                                 rts 
-  195 A:e344                           rlerror   
-  195 A:e344                                    
-  196 A:e344  a2 76                              ldx #<foldermsg
-  197 A:e346  a0 e9                              ldy #>foldermsg
-  198 A:e348  20 82 e0                           jsr w_acia_full
-  199 A:e34b  20 a5 e0                           jsr error_sound
-  200 A:e34e  38                                 sec 
-  201 A:e34f  60                                 rts 
+  153 A:e30d                                    ; PATH refresh
+  154 A:e30d                                    ; goes to the ROOT directory, and CDs to the directory at PATH.
+  155 A:e30d                                    ;
+  156 A:e30d                                    ; this is probably equivilent to "Refresh" in Microsoft Windows.
+  157 A:e30d                           refreshpath 
+  157 A:e30d                                    
+  158 A:e30d                                     .( 
+  159 A:e30d                                    ; No memory card?
+  160 A:e30d  ad 00 04                           lda path
+  161 A:e310  f0 26                              beq patherr
+  162 A:e312  a9 01                              lda #1             ; path+1 because path+0 is the path size variable
+  163 A:e314  85 16                              sta pathindex
+  164 A:e316                                    ; If memory card, then goto dir
+  165 A:e316  20 f4 db                           jsr fat32_openroot
+  166 A:e319                           rloop     
+  166 A:e319                                    
+  167 A:e319                                    ; Open the directory
+  168 A:e319  a6 16                              ldx pathindex
+  169 A:e31b  a0 04                              ldy #>path
+  170 A:e31d  20 e1 de                           jsr fat32_finddirent
+  171 A:e320  90 03                              bcc fine
+  172 A:e322  4c 41 e3                           jmp rlerror
+  173 A:e325                           fine      
+  173 A:e325                                    
+  174 A:e325  20 5a dd                           jsr fat32_opendirent
+  175 A:e328                                    ; advance to the next directory
+  176 A:e328  18                                 clc 
+  177 A:e329  a5 16                              lda pathindex
+  178 A:e32b  69 0b                              adc #11
+  179 A:e32d  85 16                              sta pathindex
+  180 A:e32f                                    ;lda (pathindex) ; end of path?
+  181 A:e32f  ad 00 04                           lda path
+  182 A:e332  c5 16                              cmp pathindex
+  183 A:e334  d0 e3                              bne rloop                ; if not, cd to the next directory
+  184 A:e336  18                                 clc 
+  185 A:e337  60                                 rts 
+  186 A:e338                                     .) 
+  187 A:e338                           patherr   
+  187 A:e338                                    
+  188 A:e338  a2 7e                              ldx #<patherror
+  189 A:e33a  a0 e3                              ldy #>patherror
+  190 A:e33c  20 82 e0                           jsr w_acia_full
+  191 A:e33f  38                                 sec 
+  192 A:e340  60                                 rts 
+  193 A:e341                           rlerror   
+  193 A:e341                                    
+  194 A:e341  a2 79                              ldx #<foldermsg
+  195 A:e343  a0 e9                              ldy #>foldermsg
+  196 A:e345  20 82 e0                           jsr w_acia_full
+  197 A:e348  20 a5 e0                           jsr error_sound
+  198 A:e34b  38                                 sec 
+  199 A:e34c  60                                 rts 
 
-  203 A:e350                                    ; add PATH
-  204 A:e350                                    ; adds a SHORT formatted folder at (folderpointer) to the PATH variable.
-  205 A:e350                           addpath   
-  205 A:e350                                    
-  206 A:e350                                     .( 
-  207 A:e350  48                                 pha 
-  208 A:e351  da                                 phx 
-  209 A:e352  5a                                 phy 
-  210 A:e353  a0 00                              ldy #0
-  211 A:e355  ae 00 04                           ldx path
-  212 A:e358                           aplp      
-  212 A:e358                                    
-  213 A:e358  b1 11                              lda (folderpointer),y
-  214 A:e35a  9d 00 04                           sta path,x
-  215 A:e35d  c8                                 iny 
-  216 A:e35e  e8                                 inx 
-  217 A:e35f  c0 0b                              cpy #11
-  218 A:e361  d0 f5                              bne aplp
-  219 A:e363  9e 00 04                           stz path,x
-  220 A:e366  8e 00 04                           stx path
-  221 A:e369  7a                                 ply 
-  222 A:e36a  fa                                 plx 
-  223 A:e36b  68                                 pla 
-  224 A:e36c  60                                 rts 
-  225 A:e36d                                     .) 
+  201 A:e34d                                    ; add PATH
+  202 A:e34d                                    ; adds a SHORT formatted folder at (folderpointer) to the PATH variable.
+  203 A:e34d                           addpath   
+  203 A:e34d                                    
+  204 A:e34d                                     .( 
+  205 A:e34d  48                                 pha 
+  206 A:e34e  da                                 phx 
+  207 A:e34f  5a                                 phy 
+  208 A:e350  a0 00                              ldy #0
+  209 A:e352  ae 00 04                           ldx path
+  210 A:e355                           aplp      
+  210 A:e355                                    
+  211 A:e355  b1 11                              lda (folderpointer),y
+  212 A:e357  9d 00 04                           sta path,x
+  213 A:e35a  c8                                 iny 
+  214 A:e35b  e8                                 inx 
+  215 A:e35c  c0 0b                              cpy #11
+  216 A:e35e  d0 f5                              bne aplp
+  217 A:e360  9e 00 04                           stz path,x
+  218 A:e363  8e 00 04                           stx path
+  219 A:e366  7a                                 ply 
+  220 A:e367  fa                                 plx 
+  221 A:e368  68                                 pla 
+  222 A:e369  60                                 rts 
+  223 A:e36a                                     .) 
 
-  227 A:e36d                                    ; delete PATH
-  228 A:e36d                                    ; goes back a directory, used in cd ..
-  229 A:e36d                           backpath  
-  229 A:e36d                                    
-  230 A:e36d                                     .( 
-  231 A:e36d  da                                 phx 
-  232 A:e36e  48                                 pha 
-  233 A:e36f  38                                 sec 
-  234 A:e370  ad 00 04                           lda path
-  235 A:e373  e9 0b                              sbc #11             ; remove dir
-  236 A:e375  8d 00 04                           sta path
-  237 A:e378  ae 00 04                           ldx path
-  238 A:e37b  9e 00 04                           stz path,x
-  239 A:e37e  68                                 pla 
-  240 A:e37f  fa                                 plx 
-  241 A:e380  60                                 rts 
-  242 A:e381                                     .) 
+  225 A:e36a                                    ; delete PATH
+  226 A:e36a                                    ; goes back a directory, used in cd ..
+  227 A:e36a                           backpath  
+  227 A:e36a                                    
+  228 A:e36a                                     .( 
+  229 A:e36a  da                                 phx 
+  230 A:e36b  48                                 pha 
+  231 A:e36c  38                                 sec 
+  232 A:e36d  ad 00 04                           lda path
+  233 A:e370  e9 0b                              sbc #11             ; remove dir
+  234 A:e372  8d 00 04                           sta path
+  235 A:e375  ae 00 04                           ldx path
+  236 A:e378  9e 00 04                           stz path,x
+  237 A:e37b  68                                 pla 
+  238 A:e37c  fa                                 plx 
+  239 A:e37d  60                                 rts 
+  240 A:e37e                                     .) 
 
-  244 A:e381                           patherror 
-  244 A:e381                                    
-  245 A:e381  4e 6f 20 4d 65 6d 6f ...           .byt "No Memory Card.",$0d,$0a,$00
+  242 A:e37e                           patherror 
+  242 A:e37e                                    
+  243 A:e37e  4e 6f 20 4d 65 6d 6f ...           .byt "No Memory Card.",$0d,$0a,$00
 
-  247 A:e393                                    ;; print PATH
-  248 A:e393                                    ;; prints the current directory, like *NIX
-  249 A:e393                                    ;; for example
-  249 A:e393                                    
-  250 A:e393                                    ;; /test/ >_
-  251 A:e393                                    ;; or
-  251 A:e393                                    
-  252 A:e393                                    ;; / >_
-  253 A:e393                                    ;;
-  254 A:e393                           printpath 
-  254 A:e393                                    
-  255 A:e393                                     .( 
-  256 A:e393                                    ; No memory card?
-  257 A:e393  ad 00 04                           lda path
-  258 A:e396  d0 02                              bne pp
-  259 A:e398  38                                 sec 
-  260 A:e399  60                                 rts 
-  261 A:e39a                           pp        
-  262 A:e39a  a9 2f                              lda #'/'
-  263 A:e39c  20 71 e0                           jsr print_chara
-  264 A:e39f  a9 0c                              lda #12             ; path+12 because we already showed the root
-  265 A:e3a1  85 16                              sta pathindex
-  266 A:e3a3  a9 04                              lda #>path
-  267 A:e3a5  85 17                              sta pathindex+1
-  268 A:e3a7  a0 00                              ldy #0
-  269 A:e3a9                           pplp      
-  269 A:e3a9                                    
-  270 A:e3a9                                    ; loop through path and print the folder, in lowercase
-  271 A:e3a9  b1 16                              lda (pathindex),y
-  272 A:e3ab  f0 23                              beq ppdone                ; exit if only root
-  273 A:e3ad  c9 20                              cmp #$20             ; space?
-  274 A:e3af  f0 09                              beq ppd
-  275 A:e3b1  09 20                              ora #$20             ; if not, print (in lowercase)
-  276 A:e3b3  20 71 e0                           jsr print_chara
-  277 A:e3b6  c8                                 iny 
-  278 A:e3b7  4c a9 e3                           jmp pplp
-  279 A:e3ba                           ppd       
-  279 A:e3ba                                    
-  280 A:e3ba  a9 2f                              lda #'/'             ; if space, dir done.
-  281 A:e3bc  20 71 e0                           jsr print_chara
-  282 A:e3bf                           ppdl      
-  282 A:e3bf                                    
-  283 A:e3bf  b1 16                              lda (pathindex),y            ; look for the next entry.
-  284 A:e3c1  c9 20                              cmp #$20
-  285 A:e3c3  d0 04                              bne notspace
-  286 A:e3c5  c8                                 iny 
-  287 A:e3c6  4c bf e3                           jmp ppdl
-  288 A:e3c9                           notspace  
-  288 A:e3c9                                    
-  289 A:e3c9  b1 16                              lda (pathindex),y            ; end of path?
-  290 A:e3cb  f0 03                              beq ppdone
-  291 A:e3cd  4c a9 e3                           jmp pplp                ; no, print another folder name.
-  292 A:e3d0                           ppdone    
-  292 A:e3d0                                    
-  293 A:e3d0                                    ; Print a space for good spacing
-  294 A:e3d0  a9 20                              lda #$20
-  295 A:e3d2  20 71 e0                           jsr print_chara
-  296 A:e3d5  18                                 clc 
-  297 A:e3d6  60                                 rts                    ; done!
-  298 A:e3d7                                     .) 
+  245 A:e390                                    ;; print PATH
+  246 A:e390                                    ;; prints the current directory, like *NIX
+  247 A:e390                                    ;; for example
+  247 A:e390                                    
+  248 A:e390                                    ;; /test/ >_
+  249 A:e390                                    ;; or
+  249 A:e390                                    
+  250 A:e390                                    ;; / >_
+  251 A:e390                                    ;;
+  252 A:e390                           printpath 
+  252 A:e390                                    
+  253 A:e390                                     .( 
+  254 A:e390                                    ; No memory card?
+  255 A:e390  ad 00 04                           lda path
+  256 A:e393  d0 02                              bne pp
+  257 A:e395  38                                 sec 
+  258 A:e396  60                                 rts 
+  259 A:e397                           pp        
+  260 A:e397  a9 2f                              lda #'/'
+  261 A:e399  20 71 e0                           jsr print_chara
+  262 A:e39c  a9 0c                              lda #12             ; path+12 because we already showed the root
+  263 A:e39e  85 16                              sta pathindex
+  264 A:e3a0  a9 04                              lda #>path
+  265 A:e3a2  85 17                              sta pathindex+1
+  266 A:e3a4  a0 00                              ldy #0
+  267 A:e3a6                           pplp      
+  267 A:e3a6                                    
+  268 A:e3a6                                    ; loop through path and print the folder, in lowercase
+  269 A:e3a6  b1 16                              lda (pathindex),y
+  270 A:e3a8  f0 23                              beq ppdone                ; exit if only root
+  271 A:e3aa  c9 20                              cmp #$20             ; space?
+  272 A:e3ac  f0 09                              beq ppd
+  273 A:e3ae  09 20                              ora #$20             ; if not, print (in lowercase)
+  274 A:e3b0  20 71 e0                           jsr print_chara
+  275 A:e3b3  c8                                 iny 
+  276 A:e3b4  4c a6 e3                           jmp pplp
+  277 A:e3b7                           ppd       
+  277 A:e3b7                                    
+  278 A:e3b7  a9 2f                              lda #'/'             ; if space, dir done.
+  279 A:e3b9  20 71 e0                           jsr print_chara
+  280 A:e3bc                           ppdl      
+  280 A:e3bc                                    
+  281 A:e3bc  b1 16                              lda (pathindex),y            ; look for the next entry.
+  282 A:e3be  c9 20                              cmp #$20
+  283 A:e3c0  d0 04                              bne notspace
+  284 A:e3c2  c8                                 iny 
+  285 A:e3c3  4c bc e3                           jmp ppdl
+  286 A:e3c6                           notspace  
+  286 A:e3c6                                    
+  287 A:e3c6  b1 16                              lda (pathindex),y            ; end of path?
+  288 A:e3c8  f0 03                              beq ppdone
+  289 A:e3ca  4c a6 e3                           jmp pplp                ; no, print another folder name.
+  290 A:e3cd                           ppdone    
+  290 A:e3cd                                    
+  291 A:e3cd                                    ; Print a space for good spacing
+  292 A:e3cd  a9 20                              lda #$20
+  293 A:e3cf  20 71 e0                           jsr print_chara
+  294 A:e3d2  18                                 clc 
+  295 A:e3d3  60                                 rts                    ; done!
+  296 A:e3d4                                     .) 
 
-  300 A:e3d7                                    ;; CD
-  301 A:e3d7                                    ;; Change the directory
-  302 A:e3d7                                    ;; if you use cdsub, folderpointer holds the address of the folder name
+  298 A:e3d4                                    ;; CD
+  299 A:e3d4                                    ;; Change the directory
+  300 A:e3d4                                    ;; if you use cdsub, folderpointer holds the address of the folder name
 
-  304 A:e3d7                           cdcmd     
-  304 A:e3d7                                    
-  305 A:e3d7                                     .( 
-  306 A:e3d7  da                                 phx 
-  307 A:e3d8  ad 00 04                           lda path
-  308 A:e3db  d0 03                              bne cdf
-  309 A:e3dd  4c 3b e3                           jmp patherr
-  310 A:e3e0                           cdf       
-  310 A:e3e0                                    
-  311 A:e3e0                                    ;; check arguments
-  312 A:e3e0  a5 20                              lda ARGINDEX
-  313 A:e3e2  c9 02                              cmp #2             ; if there's two arguments, change to the specified directory
-  314 A:e3e4  f0 03                              beq processparam
-  315 A:e3e6  4c 04 e4                           jmp error
-  316 A:e3e9                           processparam                  ; process the filename parameter
-  317 A:e3e9  18                                 clc 
-  318 A:e3ea  a9 00                              lda #<INPUT
-  319 A:e3ec  65 22                              adc ARGINDEX+2
-  320 A:e3ee  85 11                              sta folderpointer
-  321 A:e3f0  a9 02                              lda #>INPUT
-  322 A:e3f2  85 12                              sta folderpointer+1
-  323 A:e3f4                                     .) 
-  324 A:e3f4                           cdd       
-  324 A:e3f4                                    
-  325 A:e3f4                                     .( 
-  326 A:e3f4  20 52 e2                           jsr resolvepath
-  327 A:e3f7  20 10 e3                           jsr refreshpath
-  328 A:e3fa  fa                                 plx 
-  329 A:e3fb  60                                 rts 
-  330 A:e3fc                                     .) 
+  302 A:e3d4                           cdcmd     
+  302 A:e3d4                                    
+  303 A:e3d4                                     .( 
+  304 A:e3d4  ad 00 04                           lda path
+  305 A:e3d7  d0 03                              bne cdf
+  306 A:e3d9  4c 38 e3                           jmp patherr
+  307 A:e3dc                           cdf       
+  307 A:e3dc                                    
+  308 A:e3dc                                    ;; check arguments
+  309 A:e3dc  a5 20                              lda ARGINDEX
+  310 A:e3de  c9 02                              cmp #2             ; if there's two arguments, change to the specified directory
+  311 A:e3e0  f0 03                              beq processparam
+  312 A:e3e2  4c 07 e4                           jmp error
+  313 A:e3e5                           processparam                  ; process the filename parameter
+  314 A:e3e5  18                                 clc 
+  315 A:e3e6  a9 00                              lda #<INPUT
+  316 A:e3e8  65 22                              adc ARGINDEX+2
+  317 A:e3ea  85 11                              sta folderpointer
+  318 A:e3ec  a9 02                              lda #>INPUT
+  319 A:e3ee  85 12                              sta folderpointer+1
+  320 A:e3f0                                     .) 
+  321 A:e3f0                           cdsub     
+  321 A:e3f0                                    
+  322 A:e3f0                                     .( 
+  323 A:e3f0  20 0f e4                           jsr stashpath
+  324 A:e3f3  20 52 e2                           jsr resolvepath
+  325 A:e3f6  20 0d e3                           jsr refreshpath
+  326 A:e3f9  90 03                              bcc noerr
+  327 A:e3fb  20 22 e4                           jsr restorepath
+  328 A:e3fe                           noerr     
+  329 A:e3fe  60                                 rts 
+  330 A:e3ff                                     .) 
 
-  332 A:e3fc                           fileerror 
-  333 A:e3fc                                    ; no such folder
-  334 A:e3fc  a2 76                              ldx #<foldermsg
-  335 A:e3fe  a0 e9                              ldy #>foldermsg
-  336 A:e400  20 82 e0                           jsr w_acia_full
-  337 A:e403  60                                 rts 
+  332 A:e3ff                           fileerror 
+  333 A:e3ff                                    ; no such folder
+  334 A:e3ff  a2 79                              ldx #<foldermsg
+  335 A:e401  a0 e9                              ldy #>foldermsg
+  336 A:e403  20 82 e0                           jsr w_acia_full
+  337 A:e406  60                                 rts 
 
-  339 A:e404                           error     
-  340 A:e404  a2 3b                              ldx #<errormsg
-  341 A:e406  a0 f5                              ldy #>errormsg
-  342 A:e408  20 82 e0                           jsr w_acia_full
-  343 A:e40b  60                                 rts 
+  339 A:e407                           error     
+  340 A:e407  a2 3e                              ldx #<errormsg
+  341 A:e409  a0 f5                              ldy #>errormsg
+  342 A:e40b  20 82 e0                           jsr w_acia_full
+  343 A:e40e  60                                 rts 
 
-  345 A:e40c                           stashpath 
-  345 A:e40c                                    
-  346 A:e40c                                     .( 
-  347 A:e40c  48                                 pha 
-  348 A:e40d  da                                 phx 
-  349 A:e40e  a2 00                              ldx #0
-  350 A:e410                           lp        
-  351 A:e410  bd 00 04                           lda path,x
-  352 A:e413  9d 00 07                           sta buffer,x
-  353 A:e416  f0 04                              beq st
-  354 A:e418  e8                                 inx 
-  355 A:e419  4c 10 e4                           jmp lp
-  356 A:e41c                           st        
-  357 A:e41c  fa                                 plx 
-  358 A:e41d  68                                 pla 
-  359 A:e41e  60                                 rts 
-  360 A:e41f                                     .) 
+  345 A:e40f                           stashpath 
+  345 A:e40f                                    
+  346 A:e40f                                     .( 
+  347 A:e40f  48                                 pha 
+  348 A:e410  da                                 phx 
+  349 A:e411  a2 00                              ldx #0
+  350 A:e413                           lp        
+  351 A:e413  bd 00 04                           lda path,x
+  352 A:e416  9d 00 07                           sta buffer,x
+  353 A:e419  f0 04                              beq st
+  354 A:e41b  e8                                 inx 
+  355 A:e41c  4c 13 e4                           jmp lp
+  356 A:e41f                           st        
+  357 A:e41f  fa                                 plx 
+  358 A:e420  68                                 pla 
+  359 A:e421  60                                 rts 
+  360 A:e422                                     .) 
 
-  362 A:e41f                           restorepath 
-  362 A:e41f                                    
-  363 A:e41f                                     .( 
-  364 A:e41f  48                                 pha 
-  365 A:e420  da                                 phx 
-  366 A:e421  a2 00                              ldx #0
-  367 A:e423                           lp        
-  368 A:e423  bd 00 07                           lda buffer,x
-  369 A:e426  9d 00 04                           sta path,x
-  370 A:e429  f0 04                              beq st
-  371 A:e42b  e8                                 inx 
-  372 A:e42c  4c 23 e4                           jmp lp
-  373 A:e42f                           st        
-  374 A:e42f  fa                                 plx 
-  375 A:e430  68                                 pla 
-  376 A:e431  60                                 rts 
-  377 A:e432                                     .) 
+  362 A:e422                           restorepath 
+  362 A:e422                                    
+  363 A:e422                                     .( 
+  364 A:e422  48                                 pha 
+  365 A:e423  da                                 phx 
+  366 A:e424  a2 00                              ldx #0
+  367 A:e426                           lp        
+  368 A:e426  bd 00 07                           lda buffer,x
+  369 A:e429  9d 00 04                           sta path,x
+  370 A:e42c  f0 04                              beq st
+  371 A:e42e  e8                                 inx 
+  372 A:e42f  4c 26 e4                           jmp lp
+  373 A:e432                           st        
+  374 A:e432  fa                                 plx 
+  375 A:e433  68                                 pla 
+  376 A:e434  60                                 rts 
+  377 A:e435                                     .) 
 
-  379 A:e432                                    ; checks if we are in the same dir
-  380 A:e432                           cmppath   
-  380 A:e432                                    
-  381 A:e432                                     .( 
-  382 A:e432  da                                 phx 
-  383 A:e433  48                                 pha 
-  384 A:e434  a2 00                              ldx #0
-  385 A:e436                           lp        
-  386 A:e436  bd 00 04                           lda path,x
-  387 A:e439  dd 00 07                           cmp buffer,x
-  388 A:e43c  d0 08                              bne ne
-  389 A:e43e                           cn        
-  390 A:e43e  c9 00                              cmp #0
-  391 A:e440  d0 f4                              bne lp
-  392 A:e442                           eq        
-  393 A:e442  68                                 pla 
-  394 A:e443  fa                                 plx 
-  395 A:e444  38                                 sec 
-  396 A:e445  60                                 rts 
-  397 A:e446                           ne        
-  398 A:e446  68                                 pla 
-  399 A:e447  fa                                 plx 
-  400 A:e448  18                                 clc 
-  401 A:e449  60                                 rts 
-  402 A:e44a                                     .) 
+  379 A:e435                                    ; checks if we are in the same dir
+  380 A:e435                           cmppath   
+  380 A:e435                                    
+  381 A:e435                                     .( 
+  382 A:e435  da                                 phx 
+  383 A:e436  48                                 pha 
+  384 A:e437  a2 00                              ldx #0
+  385 A:e439                           lp        
+  386 A:e439  bd 00 04                           lda path,x
+  387 A:e43c  dd 00 07                           cmp buffer,x
+  388 A:e43f  d0 08                              bne ne
+  389 A:e441                           cn        
+  390 A:e441  c9 00                              cmp #0
+  391 A:e443  d0 f4                              bne lp
+  392 A:e445                           eq        
+  393 A:e445  68                                 pla 
+  394 A:e446  fa                                 plx 
+  395 A:e447  38                                 sec 
+  396 A:e448  60                                 rts 
+  397 A:e449                           ne        
+  398 A:e449  68                                 pla 
+  399 A:e44a  fa                                 plx 
+  400 A:e44b  18                                 clc 
+  401 A:e44c  60                                 rts 
+  402 A:e44d                                     .) 
 
-  404 A:e44a                                    ; strips the file off of the input path 
-  405 A:e44a                                    ; (eg. /test/folder/myfile.txt -> /test/folder/)
-  406 A:e44a                                    ; set carry if in same folder
-  407 A:e44a                           stripfile 
-  407 A:e44a                                    
-  408 A:e44a                                     .( 
-  409 A:e44a                                    ; find the last slash
-  410 A:e44a  a2 00                              ldx #0
-  411 A:e44c  a0 00                              ldy #0
-  412 A:e44e                           find_last_slash 
-  412 A:e44e                                    
-  413 A:e44e  b5 11                              lda folderpointer,x
-  414 A:e450  f0 0c                              beq stdn                ; end of string
-  415 A:e452  c9 2f                              cmp #'/'             ; is it a slash?
-  416 A:e454  d0 05                              bne not_slash
-  417 A:e456  a0 01                              ldy #1
-  418 A:e458  8e 38 03                           stx last_slash_pos                ; save last slash index
-  419 A:e45b                           not_slash 
-  419 A:e45b                                    
-  420 A:e45b  e8                                 inx 
-  421 A:e45c  d0 f0                              bne find_last_slash                ; loop
+  404 A:e44d                                    ; strips the file off of the input path 
+  405 A:e44d                                    ; (eg. /test/folder/myfile.txt -> /test/folder/)
+  406 A:e44d                                    ; set carry if in same folder
+  407 A:e44d                           stripfile 
+  407 A:e44d                                    
+  408 A:e44d                                     .( 
+  409 A:e44d                                    ; find the last slash
+  410 A:e44d  a2 00                              ldx #0
+  411 A:e44f  a0 00                              ldy #0
+  412 A:e451                           find_last_slash 
+  412 A:e451                                    
+  413 A:e451  b5 11                              lda folderpointer,x
+  414 A:e453  f0 0c                              beq stdn                ; end of string
+  415 A:e455  c9 2f                              cmp #'/'             ; is it a slash?
+  416 A:e457  d0 05                              bne not_slash
+  417 A:e459  a0 01                              ldy #1
+  418 A:e45b  8e 38 03                           stx last_slash_pos                ; save last slash index
+  419 A:e45e                           not_slash 
+  419 A:e45e                                    
+  420 A:e45e  e8                                 inx 
+  421 A:e45f  d0 f0                              bne find_last_slash                ; loop
 
-  423 A:e45e                           stdn      
-  423 A:e45e                                    
-  424 A:e45e                                    ; overwrite the character after the last slash with null terminator
-  425 A:e45e  ae 38 03                           ldx last_slash_pos
-  426 A:e461  a9 00                              lda #0
-  427 A:e463  95 11                              sta folderpointer,x
-  428 A:e465  98                                 tya 
-  429 A:e466  f0 02                              beq ogg
-  430 A:e468  18                                 clc 
-  431 A:e469  60                                 rts 
-  432 A:e46a                           ogg       
-  432 A:e46a                                    
-  433 A:e46a  38                                 sec 
-  434 A:e46b  60                                 rts 
-  435 A:e46c                                     .) 
+  423 A:e461                           stdn      
+  423 A:e461                                    
+  424 A:e461                                    ; overwrite the character after the last slash with null terminator
+  425 A:e461  ae 38 03                           ldx last_slash_pos
+  426 A:e464  a9 00                              lda #0
+  427 A:e466  95 11                              sta folderpointer,x
+  428 A:e468  98                                 tya 
+  429 A:e469  f0 02                              beq ogg
+  430 A:e46b  18                                 clc 
+  431 A:e46c  60                                 rts 
+  432 A:e46d                           ogg       
+  432 A:e46d                                    
+  433 A:e46d  38                                 sec 
+  434 A:e46e  60                                 rts 
+  435 A:e46f                                     .) 
 
-  437 A:e46c                                    ;; CAT
-  438 A:e46c                                    ;; prints out a file
+  437 A:e46f                                    ;; CAT
+  438 A:e46f                                    ;; prints out a file
 
-  440 A:e46c                           catcmd    
-  440 A:e46c                                    
-  441 A:e46c                                     .( 
-  442 A:e46c  ad 00 04                           lda path
-  443 A:e46f  d0 03                              bne cdf
-  444 A:e471  4c 3b e3                           jmp patherr
-  445 A:e474                           cdf       
-  445 A:e474                                    
-  446 A:e474                                    ;; check arguments
-  447 A:e474  a5 20                              lda ARGINDEX
-  448 A:e476  c9 02                              cmp #2
-  449 A:e478  d0 8a                              bne error
-  450 A:e47a  18                                 clc 
-  451 A:e47b  a9 00                              lda #<INPUT
-  452 A:e47d  65 22                              adc ARGINDEX+2
-  453 A:e47f  85 11                              sta folderpointer
-  454 A:e481  a9 02                              lda #>INPUT
-  455 A:e483  85 12                              sta folderpointer+1
-  456 A:e485                                    ; Convert to SHORT
-  457 A:e485  20 cc e4                           jsr shortconvert
-  458 A:e488                                    ; Refresh Path
-  459 A:e488  20 0f e0                           jsr fat32_open_cd
-  460 A:e48b                                    ; Find the file
-  461 A:e48b  a6 11                              ldx folderpointer
-  462 A:e48d  a4 12                              ldy folderpointer+1
-  463 A:e48f  20 e1 de                           jsr fat32_finddirent
-  464 A:e492  b0 35                              bcs jmperror
+  440 A:e46f                           catcmd    
+  440 A:e46f                                    
+  441 A:e46f                                     .( 
+  442 A:e46f  ad 00 04                           lda path
+  443 A:e472  d0 03                              bne cdf
+  444 A:e474  4c 38 e3                           jmp patherr
+  445 A:e477                           cdf       
+  445 A:e477                                    
+  446 A:e477                                    ;; check arguments
+  447 A:e477  a5 20                              lda ARGINDEX
+  448 A:e479  c9 02                              cmp #2
+  449 A:e47b  d0 8a                              bne error
+  450 A:e47d  18                                 clc 
+  451 A:e47e  a9 00                              lda #<INPUT
+  452 A:e480  65 22                              adc ARGINDEX+2
+  453 A:e482  85 11                              sta folderpointer
+  454 A:e484  a9 02                              lda #>INPUT
+  455 A:e486  85 12                              sta folderpointer+1
+  456 A:e488                                    ; Convert to SHORT
+  457 A:e488  20 cf e4                           jsr shortconvert
+  458 A:e48b                                    ; Refresh Path
+  459 A:e48b  20 0f e0                           jsr fat32_open_cd
+  460 A:e48e                                    ; Find the file
+  461 A:e48e  a6 11                              ldx folderpointer
+  462 A:e490  a4 12                              ldy folderpointer+1
+  463 A:e492  20 e1 de                           jsr fat32_finddirent
+  464 A:e495  b0 35                              bcs jmperror
 
-  466 A:e494                                    ; Open the file
-  467 A:e494  20 5a dd                           jsr fat32_opendirent
-  468 A:e497                                    ; Read file contents into buffer
-  469 A:e497  a9 00                              lda #<buffer
-  470 A:e499  85 5c                              sta fat32_address
-  471 A:e49b  a9 07                              lda #>buffer
-  472 A:e49d  85 5d                              sta fat32_address+1
-  473 A:e49f                           redlp     
-  473 A:e49f                                    
-  474 A:e49f  20 5f df                           jsr fat32_file_readbyte
-  475 A:e4a2  f0 21                              beq catd
-  476 A:e4a4  c9 0d                              cmp #$0d
-  477 A:e4a6  f0 17                              beq notunix
-  478 A:e4a8  4c b0 e4                           jmp unixloop
-  479 A:e4ab                           unix      
-  479 A:e4ab                                    
-  480 A:e4ab  20 5f df                           jsr fat32_file_readbyte
-  481 A:e4ae  f0 15                              beq catd
-  482 A:e4b0                           unixloop  
-  482 A:e4b0                                    
-  483 A:e4b0  c9 0a                              cmp #$0a
-  484 A:e4b2  d0 05                              bne notcr
-  485 A:e4b4  20 71 e0                           jsr print_chara
-  486 A:e4b7  a9 0d                              lda #$0d
-  487 A:e4b9                           notcr     
-  487 A:e4b9                                    
-  488 A:e4b9  20 71 e0                           jsr print_chara
-  489 A:e4bc  4c ab e4                           jmp unix
-  490 A:e4bf                           notunix   
-  490 A:e4bf                                    
-  491 A:e4bf  20 71 e0                           jsr print_chara
-  492 A:e4c2  4c 9f e4                           jmp redlp
-  493 A:e4c5                           catd      
-  493 A:e4c5                                    
-  494 A:e4c5                                    ; CR+LF
-  495 A:e4c5  20 45 d6                           jsr crlf
-  496 A:e4c8  60                                 rts 
-  497 A:e4c9                           jmperror  
-  497 A:e4c9                                    
-  498 A:e4c9  4c 04 e4                           jmp error
-  499 A:e4cc                                     .) 
+  466 A:e497                                    ; Open the file
+  467 A:e497  20 5a dd                           jsr fat32_opendirent
+  468 A:e49a                                    ; Read file contents into buffer
+  469 A:e49a  a9 00                              lda #<buffer
+  470 A:e49c  85 5c                              sta fat32_address
+  471 A:e49e  a9 07                              lda #>buffer
+  472 A:e4a0  85 5d                              sta fat32_address+1
+  473 A:e4a2                           redlp     
+  473 A:e4a2                                    
+  474 A:e4a2  20 5f df                           jsr fat32_file_readbyte
+  475 A:e4a5  f0 21                              beq catd
+  476 A:e4a7  c9 0d                              cmp #$0d
+  477 A:e4a9  f0 17                              beq notunix
+  478 A:e4ab  4c b3 e4                           jmp unixloop
+  479 A:e4ae                           unix      
+  479 A:e4ae                                    
+  480 A:e4ae  20 5f df                           jsr fat32_file_readbyte
+  481 A:e4b1  f0 15                              beq catd
+  482 A:e4b3                           unixloop  
+  482 A:e4b3                                    
+  483 A:e4b3  c9 0a                              cmp #$0a
+  484 A:e4b5  d0 05                              bne notcr
+  485 A:e4b7  20 71 e0                           jsr print_chara
+  486 A:e4ba  a9 0d                              lda #$0d
+  487 A:e4bc                           notcr     
+  487 A:e4bc                                    
+  488 A:e4bc  20 71 e0                           jsr print_chara
+  489 A:e4bf  4c ae e4                           jmp unix
+  490 A:e4c2                           notunix   
+  490 A:e4c2                                    
+  491 A:e4c2  20 71 e0                           jsr print_chara
+  492 A:e4c5  4c a2 e4                           jmp redlp
+  493 A:e4c8                           catd      
+  493 A:e4c8                                    
+  494 A:e4c8                                    ; CR+LF
+  495 A:e4c8  20 45 d6                           jsr crlf
+  496 A:e4cb  60                                 rts 
+  497 A:e4cc                           jmperror  
+  497 A:e4cc                                    
+  498 A:e4cc  4c 07 e4                           jmp error
+  499 A:e4cf                                     .) 
 
-  501 A:e4cc                           shortconvert 
-  501 A:e4cc                                    
-  502 A:e4cc                                     .( 
-  503 A:e4cc                                    ; loop through the null-terminated string at (folderpointer)
-  504 A:e4cc                                    ; and convert it to SHORT format.
-  505 A:e4cc                                    ; ex. "file.xpl",0 --> "FILE    XPL"
-  506 A:e4cc                                    ; check for . or ..
-  507 A:e4cc  a0 00                              ldy #0
-  508 A:e4ce  b1 11                              lda (folderpointer),y
-  509 A:e4d0  c9 2e                              cmp #$2e
-  510 A:e4d2  f0 07                              beq dotf
-  511 A:e4d4  a9 ff                              lda #$ff
-  512 A:e4d6  85 18                              sta backdir
-  513 A:e4d8  4c ed e4                           jmp nopd
-  514 A:e4db                           dotf      
-  514 A:e4db                                    
-  515 A:e4db  c8                                 iny 
-  516 A:e4dc  b1 11                              lda (folderpointer),y
-  517 A:e4de  c9 2e                              cmp #$2e
-  518 A:e4e0  f0 05                              beq backdire
-  519 A:e4e2  a9 55                              lda #$55
-  520 A:e4e4  85 18                              sta backdir
-  521 A:e4e6  60                                 rts                    ; do nothing if "."
-  522 A:e4e7                           backdire  
-  522 A:e4e7                                    
-  523 A:e4e7                                    ; ".." means go back
-  524 A:e4e7  20 6d e3                           jsr backpath
-  525 A:e4ea  64 18                              stz backdir
-  526 A:e4ec                                    ;jsr refreshpath
-  527 A:e4ec  60                                 rts 
-  528 A:e4ed                           nopd      
-  528 A:e4ed                                    
-  529 A:e4ed  a0 18                              ldy #24
-  530 A:e4ef  a9 00                              lda #0
-  531 A:e4f1  91 11                              sta (folderpointer),y
-  532 A:e4f3  a9 15                              lda #21
-  533 A:e4f5  85 14                              sta fileext
-  534 A:e4f7  a0 00                              ldy #0
-  535 A:e4f9                           shortlp   
-  535 A:e4f9                                    
-  536 A:e4f9  b1 11                              lda (folderpointer),y
-  537 A:e4fb  f0 08                              beq nodot
-  538 A:e4fd  c9 2e                              cmp #$2e             ; find the dot 
-  539 A:e4ff  f0 20                              beq extst
-  540 A:e501  c8                                 iny 
-  541 A:e502  4c f9 e4                           jmp shortlp
-  542 A:e505                           nodot     
-  543 A:e505                                    ; no dot, this is a folder
-  544 A:e505                                    ; empty out the extension
-  545 A:e505  84 19                              sty sc
-  546 A:e507  18                                 clc 
-  547 A:e508  a5 19                              lda sc
-  548 A:e50a  69 0d                              adc #13
-  549 A:e50c  85 19                              sta sc
-  550 A:e50e  a9 0d                              lda #13
-  551 A:e510  85 14                              sta fileext
-  552 A:e512  a9 20                              lda #$20
-  553 A:e514  a0 15                              ldy #21
-  554 A:e516  91 11                              sta (folderpointer),y
-  555 A:e518  c8                                 iny 
-  556 A:e519  91 11                              sta (folderpointer),y
-  557 A:e51b  c8                                 iny 
-  558 A:e51c  91 11                              sta (folderpointer),y
-  559 A:e51e  4c 42 e5                           jmp mvname                ; ok, go ahead and copy the name
-  560 A:e521                           extst     
-  560 A:e521                                    
-  561 A:e521  84 19                              sty sc                ; now move the file extension
-  562 A:e523                           ext       
-  562 A:e523                                    
-  563 A:e523  c8                                 iny 
-  564 A:e524  b1 11                              lda (folderpointer),y
-  565 A:e526  5a                                 phy 
-  566 A:e527  a4 14                              ldy fileext
-  567 A:e529  91 11                              sta (folderpointer),y
-  568 A:e52b  c8                                 iny 
-  569 A:e52c  84 14                              sty fileext
-  570 A:e52e  c0 18                              cpy #24
-  571 A:e530  f0 04                              beq extd
-  572 A:e532  7a                                 ply 
-  573 A:e533  4c 23 e5                           jmp ext
-  574 A:e536                           extd      
-  574 A:e536                                    
-  575 A:e536  7a                                 ply 
-  576 A:e537  18                                 clc 
-  577 A:e538  a5 19                              lda sc                ; add to sc
-  578 A:e53a  69 0d                              adc #13
-  579 A:e53c  85 19                              sta sc
-  580 A:e53e  a9 0d                              lda #13
-  581 A:e540  85 14                              sta fileext
-  582 A:e542                           mvname    
-  582 A:e542                                    
-  583 A:e542                                    ; move name
-  584 A:e542  a0 00                              ldy #0
-  585 A:e544                           mvlp      
-  585 A:e544                                    
-  586 A:e544  b1 11                              lda (folderpointer),y
-  587 A:e546  5a                                 phy 
-  588 A:e547  a4 14                              ldy fileext
-  589 A:e549  c4 19                              cpy sc
-  590 A:e54b  f0 0a                              beq ad2sc
-  591 A:e54d  91 11                              sta (folderpointer),y
-  592 A:e54f  c8                                 iny 
-  593 A:e550  84 14                              sty fileext
-  594 A:e552  7a                                 ply 
-  595 A:e553  c8                                 iny 
-  596 A:e554  4c 44 e5                           jmp mvlp
-  597 A:e557                           ad2sc     
-  597 A:e557                                    
-  598 A:e557  7a                                 ply 
-  599 A:e558  a4 19                              ldy sc
-  600 A:e55a                                    ; the file extention is moved, now pad spaces from the end of the name
-  601 A:e55a                                    ; to the start of the extension.
-  602 A:e55a                           fill      
-  602 A:e55a                                    
-  603 A:e55a  a9 20                              lda #$20
-  604 A:e55c  c0 15                              cpy #21
-  605 A:e55e  f0 07                              beq notfill
-  606 A:e560                           filllp    
-  606 A:e560                                    
-  607 A:e560  91 11                              sta (folderpointer),y
-  608 A:e562  c8                                 iny 
-  609 A:e563  c0 15                              cpy #21             ; stop if index is 20, we don't want to overwrite the file extension
-  610 A:e565  d0 f9                              bne filllp
-  611 A:e567                           notfill   
-  612 A:e567                                    ; add 11 to folderpointer
-  613 A:e567  18                                 clc 
-  614 A:e568  a5 11                              lda folderpointer
-  615 A:e56a  69 0d                              adc #13
-  616 A:e56c  85 11                              sta folderpointer
-  617 A:e56e                                    ; now we need to convert lowercase to uppercase
-  618 A:e56e  a0 00                              ldy #0
-  619 A:e570                           ldlp      
-  619 A:e570                                    
-  620 A:e570  b1 11                              lda (folderpointer),y
-  621 A:e572  f0 10                              beq ldd                ; if null, stop.
-  622 A:e574  c9 40                              cmp #$40             ; if numbers/symbols/space, skip.
-  623 A:e576  90 08                              bcc dontl
-  624 A:e578  c9 5f                              cmp #$5f             ; if _ skip
-  625 A:e57a  f0 04                              beq dontl
-  626 A:e57c  29 df                              and #$df             ; otherwise convert to uppercase
-  627 A:e57e  91 11                              sta (folderpointer),y
-  628 A:e580                           dontl     
-  628 A:e580                                    
-  629 A:e580  c8                                 iny 
-  630 A:e581  4c 70 e5                           jmp ldlp
-  631 A:e584                           ldd       
-  631 A:e584                                    
-  632 A:e584                                    ; ok! now we have a SHORT formatted filename at (folderpointer).
-  633 A:e584  60                                 rts 
-  634 A:e585                                     .) 
+  501 A:e4cf                           shortconvert 
+  501 A:e4cf                                    
+  502 A:e4cf                                     .( 
+  503 A:e4cf                                    ; loop through the null-terminated string at (folderpointer)
+  504 A:e4cf                                    ; and convert it to SHORT format.
+  505 A:e4cf                                    ; ex. "file.xpl",0 --> "FILE    XPL"
+  506 A:e4cf                                    ; check for . or ..
+  507 A:e4cf  a0 00                              ldy #0
+  508 A:e4d1  b1 11                              lda (folderpointer),y
+  509 A:e4d3  c9 2e                              cmp #$2e
+  510 A:e4d5  f0 07                              beq dotf
+  511 A:e4d7  a9 ff                              lda #$ff
+  512 A:e4d9  85 18                              sta backdir
+  513 A:e4db  4c f0 e4                           jmp nopd
+  514 A:e4de                           dotf      
+  514 A:e4de                                    
+  515 A:e4de  c8                                 iny 
+  516 A:e4df  b1 11                              lda (folderpointer),y
+  517 A:e4e1  c9 2e                              cmp #$2e
+  518 A:e4e3  f0 05                              beq backdire
+  519 A:e4e5  a9 55                              lda #$55
+  520 A:e4e7  85 18                              sta backdir
+  521 A:e4e9  60                                 rts                    ; do nothing if "."
+  522 A:e4ea                           backdire  
+  522 A:e4ea                                    
+  523 A:e4ea                                    ; ".." means go back
+  524 A:e4ea  20 6a e3                           jsr backpath
+  525 A:e4ed  64 18                              stz backdir
+  526 A:e4ef                                    ;jsr refreshpath
+  527 A:e4ef  60                                 rts 
+  528 A:e4f0                           nopd      
+  528 A:e4f0                                    
+  529 A:e4f0  a0 18                              ldy #24
+  530 A:e4f2  a9 00                              lda #0
+  531 A:e4f4  91 11                              sta (folderpointer),y
+  532 A:e4f6  a9 15                              lda #21
+  533 A:e4f8  85 14                              sta fileext
+  534 A:e4fa  a0 00                              ldy #0
+  535 A:e4fc                           shortlp   
+  535 A:e4fc                                    
+  536 A:e4fc  b1 11                              lda (folderpointer),y
+  537 A:e4fe  f0 08                              beq nodot
+  538 A:e500  c9 2e                              cmp #$2e             ; find the dot 
+  539 A:e502  f0 20                              beq extst
+  540 A:e504  c8                                 iny 
+  541 A:e505  4c fc e4                           jmp shortlp
+  542 A:e508                           nodot     
+  543 A:e508                                    ; no dot, this is a folder
+  544 A:e508                                    ; empty out the extension
+  545 A:e508  84 19                              sty sc
+  546 A:e50a  18                                 clc 
+  547 A:e50b  a5 19                              lda sc
+  548 A:e50d  69 0d                              adc #13
+  549 A:e50f  85 19                              sta sc
+  550 A:e511  a9 0d                              lda #13
+  551 A:e513  85 14                              sta fileext
+  552 A:e515  a9 20                              lda #$20
+  553 A:e517  a0 15                              ldy #21
+  554 A:e519  91 11                              sta (folderpointer),y
+  555 A:e51b  c8                                 iny 
+  556 A:e51c  91 11                              sta (folderpointer),y
+  557 A:e51e  c8                                 iny 
+  558 A:e51f  91 11                              sta (folderpointer),y
+  559 A:e521  4c 45 e5                           jmp mvname                ; ok, go ahead and copy the name
+  560 A:e524                           extst     
+  560 A:e524                                    
+  561 A:e524  84 19                              sty sc                ; now move the file extension
+  562 A:e526                           ext       
+  562 A:e526                                    
+  563 A:e526  c8                                 iny 
+  564 A:e527  b1 11                              lda (folderpointer),y
+  565 A:e529  5a                                 phy 
+  566 A:e52a  a4 14                              ldy fileext
+  567 A:e52c  91 11                              sta (folderpointer),y
+  568 A:e52e  c8                                 iny 
+  569 A:e52f  84 14                              sty fileext
+  570 A:e531  c0 18                              cpy #24
+  571 A:e533  f0 04                              beq extd
+  572 A:e535  7a                                 ply 
+  573 A:e536  4c 26 e5                           jmp ext
+  574 A:e539                           extd      
+  574 A:e539                                    
+  575 A:e539  7a                                 ply 
+  576 A:e53a  18                                 clc 
+  577 A:e53b  a5 19                              lda sc                ; add to sc
+  578 A:e53d  69 0d                              adc #13
+  579 A:e53f  85 19                              sta sc
+  580 A:e541  a9 0d                              lda #13
+  581 A:e543  85 14                              sta fileext
+  582 A:e545                           mvname    
+  582 A:e545                                    
+  583 A:e545                                    ; move name
+  584 A:e545  a0 00                              ldy #0
+  585 A:e547                           mvlp      
+  585 A:e547                                    
+  586 A:e547  b1 11                              lda (folderpointer),y
+  587 A:e549  5a                                 phy 
+  588 A:e54a  a4 14                              ldy fileext
+  589 A:e54c  c4 19                              cpy sc
+  590 A:e54e  f0 0a                              beq ad2sc
+  591 A:e550  91 11                              sta (folderpointer),y
+  592 A:e552  c8                                 iny 
+  593 A:e553  84 14                              sty fileext
+  594 A:e555  7a                                 ply 
+  595 A:e556  c8                                 iny 
+  596 A:e557  4c 47 e5                           jmp mvlp
+  597 A:e55a                           ad2sc     
+  597 A:e55a                                    
+  598 A:e55a  7a                                 ply 
+  599 A:e55b  a4 19                              ldy sc
+  600 A:e55d                                    ; the file extention is moved, now pad spaces from the end of the name
+  601 A:e55d                                    ; to the start of the extension.
+  602 A:e55d                           fill      
+  602 A:e55d                                    
+  603 A:e55d  a9 20                              lda #$20
+  604 A:e55f  c0 15                              cpy #21
+  605 A:e561  f0 07                              beq notfill
+  606 A:e563                           filllp    
+  606 A:e563                                    
+  607 A:e563  91 11                              sta (folderpointer),y
+  608 A:e565  c8                                 iny 
+  609 A:e566  c0 15                              cpy #21             ; stop if index is 20, we don't want to overwrite the file extension
+  610 A:e568  d0 f9                              bne filllp
+  611 A:e56a                           notfill   
+  612 A:e56a                                    ; add 11 to folderpointer
+  613 A:e56a  18                                 clc 
+  614 A:e56b  a5 11                              lda folderpointer
+  615 A:e56d  69 0d                              adc #13
+  616 A:e56f  85 11                              sta folderpointer
+  617 A:e571                                    ; now we need to convert lowercase to uppercase
+  618 A:e571  a0 00                              ldy #0
+  619 A:e573                           ldlp      
+  619 A:e573                                    
+  620 A:e573  b1 11                              lda (folderpointer),y
+  621 A:e575  f0 10                              beq ldd                ; if null, stop.
+  622 A:e577  c9 40                              cmp #$40             ; if numbers/symbols/space, skip.
+  623 A:e579  90 08                              bcc dontl
+  624 A:e57b  c9 5f                              cmp #$5f             ; if _ skip
+  625 A:e57d  f0 04                              beq dontl
+  626 A:e57f  29 df                              and #$df             ; otherwise convert to uppercase
+  627 A:e581  91 11                              sta (folderpointer),y
+  628 A:e583                           dontl     
+  628 A:e583                                    
+  629 A:e583  c8                                 iny 
+  630 A:e584  4c 73 e5                           jmp ldlp
+  631 A:e587                           ldd       
+  631 A:e587                                    
+  632 A:e587                                    ; ok! now we have a SHORT formatted filename at (folderpointer).
+  633 A:e587  60                                 rts 
+  634 A:e588                                     .) 
 
-  636 A:e585                           other     
-  636 A:e585                                    
-  637 A:e585                                    ; Write a letter of the filename currently being read
-  638 A:e585  b1 48                              lda (zp_sd_address),y
-  639 A:e587  09 20                              ora #$20             ; convert uppercase to lowercase
-  640 A:e589  20 71 e0                           jsr print_chara
-  641 A:e58c  c8                                 iny 
-  642 A:e58d  60                                 rts 
+  636 A:e588                           other     
+  636 A:e588                                    
+  637 A:e588                                    ; Write a letter of the filename currently being read
+  638 A:e588  b1 48                              lda (zp_sd_address),y
+  639 A:e58a  09 20                              ora #$20             ; convert uppercase to lowercase
+  640 A:e58c  20 71 e0                           jsr print_chara
+  641 A:e58f  c8                                 iny 
+  642 A:e590  60                                 rts 
 
-  644 A:e58e                                    ;; LS
-  645 A:e58e                                    ;; print a directory listing
+  644 A:e591                                    ;; LS
+  645 A:e591                                    ;; print a directory listing
 
-  647 A:e58e                           lscmd     
-  647 A:e58e                                    
-  648 A:e58e                                     .( 
-  649 A:e58e  ad 00 04                           lda path
-  650 A:e591  d0 03                              bne cdf
-  651 A:e593  4c 3b e3                           jmp patherr
-  652 A:e596                           cdf       
-  652 A:e596                                    
-  653 A:e596                                    ;; check arguments
-  654 A:e596  a5 20                              lda ARGINDEX
-  655 A:e598  c9 02                              cmp #2             ; if there's two arguments, list the specified directory
-  656 A:e59a  f0 13                              beq processparam
-  657 A:e59c  a5 20                              lda ARGINDEX
-  658 A:e59e  c9 01                              cmp #1             ; if there's only one argument (ls) then list current directory 
-  659 A:e5a0  d0 0a                              bne jmperror
-  660 A:e5a2  20 0f e0                           jsr fat32_open_cd
-  661 A:e5a5  a9 ff                              lda #$ff
-  662 A:e5a7  85 18                              sta backdir
-  663 A:e5a9  4c c1 e5                           jmp list
-  664 A:e5ac                           jmperror  
-  664 A:e5ac                                    
-  665 A:e5ac  4c 04 e4                           jmp error
-  666 A:e5af                           processparam                  ; process the filename parameter
-  667 A:e5af  64 18                              stz backdir
-  668 A:e5b1  18                                 clc 
-  669 A:e5b2  a9 00                              lda #<INPUT
-  670 A:e5b4  65 22                              adc ARGINDEX+2
-  671 A:e5b6  85 11                              sta folderpointer
-  672 A:e5b8  a9 02                              lda #>INPUT
-  673 A:e5ba  85 12                              sta folderpointer+1
-  674 A:e5bc                                    ; get /
-  675 A:e5bc                                    ;jsr jmpdir
-  676 A:e5bc                                    ;bcc dontcd
-  677 A:e5bc                                    ; now cd
-  678 A:e5bc  20 f4 e3                           jsr cdd
-  679 A:e5bf                                    ;dontcd
-  679 A:e5bf                                    
-  680 A:e5bf  64 18                              stz backdir
-  681 A:e5c1                                     .) 
+  647 A:e591                           lscmd     
+  647 A:e591                                    
+  648 A:e591                                     .( 
+  649 A:e591  ad 00 04                           lda path
+  650 A:e594  d0 03                              bne cdf
+  651 A:e596  4c 38 e3                           jmp patherr
+  652 A:e599                           cdf       
+  652 A:e599                                    
+  653 A:e599                                    ;; check arguments
+  654 A:e599  a5 20                              lda ARGINDEX
+  655 A:e59b  c9 02                              cmp #2             ; if there's two arguments, list the specified directory
+  656 A:e59d  f0 13                              beq processparam
+  657 A:e59f  a5 20                              lda ARGINDEX
+  658 A:e5a1  c9 01                              cmp #1             ; if there's only one argument (ls) then list current directory 
+  659 A:e5a3  d0 0a                              bne jmperror
+  660 A:e5a5  20 0f e0                           jsr fat32_open_cd
+  661 A:e5a8  a9 ff                              lda #$ff
+  662 A:e5aa  85 18                              sta backdir
+  663 A:e5ac  4c c4 e5                           jmp list
+  664 A:e5af                           jmperror  
+  664 A:e5af                                    
+  665 A:e5af  4c 07 e4                           jmp error
+  666 A:e5b2                           processparam                  ; process the filename parameter
+  667 A:e5b2  64 18                              stz backdir
+  668 A:e5b4  18                                 clc 
+  669 A:e5b5  a9 00                              lda #<INPUT
+  670 A:e5b7  65 22                              adc ARGINDEX+2
+  671 A:e5b9  85 11                              sta folderpointer
+  672 A:e5bb  a9 02                              lda #>INPUT
+  673 A:e5bd  85 12                              sta folderpointer+1
+  674 A:e5bf                                    ; get /
+  675 A:e5bf                                    ;jsr jmpdir
+  676 A:e5bf                                    ;bcc dontcd
+  677 A:e5bf                                    ; now cd
+  678 A:e5bf  20 f0 e3                           jsr cdsub
+  679 A:e5c2                                    ;dontcd
+  679 A:e5c2                                    
+  680 A:e5c2  64 18                              stz backdir
+  681 A:e5c4                                     .) 
 
-  683 A:e5c1                           list      
-  683 A:e5c1                                    ; list file dir
-  684 A:e5c1                                     .( 
-  685 A:e5c1  20 ab de                           jsr fat32_readdirent                ; files?
-  686 A:e5c4  b0 47                              bcs nofiles
-  687 A:e5c6                                    ;and #$40
-  688 A:e5c6                                    ;beq arc
-  689 A:e5c6                           ebut      
-  689 A:e5c6                                    
-  690 A:e5c6  a2 00                              ldx #0
-  691 A:e5c8  a0 08                              ldy #8
-  692 A:e5ca                           chklp     
-  692 A:e5ca                                    
-  693 A:e5ca  c0 0b                              cpy #11
-  694 A:e5cc  f0 0b                              beq no
-  695 A:e5ce  b1 48                              lda (zp_sd_address),y
-  696 A:e5d0  c9 20                              cmp #$20
-  697 A:e5d2  d0 01                              bne chky
-  698 A:e5d4  e8                                 inx 
-  699 A:e5d5                           chky      
-  699 A:e5d5                                    
-  700 A:e5d5  c8                                 iny 
-  701 A:e5d6  4c ca e5                           jmp chklp
-  702 A:e5d9                           no        
-  702 A:e5d9                                    
-  703 A:e5d9  e0 03                              cpx #3
-  704 A:e5db  d0 07                              bne arc
-  705 A:e5dd                           dir       
-  705 A:e5dd                                    
-  706 A:e5dd  a9 ff                              lda #$ff
-  707 A:e5df  85 15                              sta filetype                ; directorys show up as 
-  708 A:e5e1  4c e6 e5                           jmp name                ; yourfilename     test      folder  ...Etc
-  709 A:e5e4                           arc       
-  709 A:e5e4                                    
-  710 A:e5e4  64 15                              stz filetype                ; files show up as
-  711 A:e5e6                           name      
-  711 A:e5e6                                    ; test.xpl         music.xpl        file.bin  ...Etc
-  712 A:e5e6                                    ; At this point, we know that there are no files, files, or a suddir
-  713 A:e5e6                                    ; Now for the name
-  714 A:e5e6  a0 00                              ldy #0
-  715 A:e5e8                           nameloop  
-  715 A:e5e8                                    
-  716 A:e5e8  c0 08                              cpy #8
-  717 A:e5ea  f0 06                              beq dot
-  718 A:e5ec  20 85 e5                           jsr other
-  719 A:e5ef  4c e8 e5                           jmp nameloop
-  720 A:e5f2                           dot       
-  720 A:e5f2                                    
-  721 A:e5f2  a5 15                              lda filetype
-  722 A:e5f4  d0 0f                              bne endthat                ; if it's a file,
-  723 A:e5f6  a9 2e                              lda #$2e             ; shows its file extention
-  724 A:e5f8  20 71 e0                           jsr print_chara
-  725 A:e5fb                           lopii     
-  725 A:e5fb                                    
-  726 A:e5fb  c0 0b                              cpy #11
-  727 A:e5fd  f0 06                              beq endthat                ; print 3-letter file extention
-  728 A:e5ff  20 85 e5                           jsr other
-  729 A:e602  4c fb e5                           jmp lopii
-  730 A:e605                           endthat   
-  730 A:e605                                    
-  731 A:e605  a9 09                              lda #$09             ; Tab
-  732 A:e607  20 71 e0                           jsr print_chara                ; tab
-  733 A:e60a  4c c1 e5                           jmp list                ; go again ; next file if there are any left
-  734 A:e60d                           nofiles   
-  734 A:e60d                                    ; if not,
-  735 A:e60d                           endlist   
-  735 A:e60d                                    ; exit listing code
-  736 A:e60d  20 45 d6                           jsr crlf
-  737 A:e610  a5 18                              lda backdir
-  738 A:e612  d0 04                              bne dontb
-  739 A:e614                                    ;  lda dircnt
-  740 A:e614                                    ;  beq nono
-  741 A:e614                                    ;  ldx #0
-  742 A:e614                                    ;dddl
-  742 A:e614                                    
-  743 A:e614                                    ;  jsr backpath
-  744 A:e614                                    ;  inx
-  745 A:e614                                    ;  cpx dircnt
-  746 A:e614                                    ;  bne dddl
-  747 A:e614                                    ;  jmp dontb
-  748 A:e614                                    ;nono
-  748 A:e614                                    
-  749 A:e614  20 6d e3                           jsr backpath                ; cd .. if ls <folderpath>
-  750 A:e617  60                                 rts 
-  751 A:e618                           dontb     
-  751 A:e618                                    
-  752 A:e618  20 0f e0                           jsr fat32_open_cd                ; refresh the directory
-  753 A:e61b  60                                 rts 
-  754 A:e61c                           jumptolist 
-  754 A:e61c                                    
-  755 A:e61c  20 45 d6                           jsr crlf
-  756 A:e61f  4c c1 e5                           jmp list
-  757 A:e622                                     .) 
+  683 A:e5c4                           list      
+  683 A:e5c4                                    ; list file dir
+  684 A:e5c4                                     .( 
+  685 A:e5c4  20 ab de                           jsr fat32_readdirent                ; files?
+  686 A:e5c7  b0 47                              bcs nofiles
+  687 A:e5c9                                    ;and #$40
+  688 A:e5c9                                    ;beq arc
+  689 A:e5c9                           ebut      
+  689 A:e5c9                                    
+  690 A:e5c9  a2 00                              ldx #0
+  691 A:e5cb  a0 08                              ldy #8
+  692 A:e5cd                           chklp     
+  692 A:e5cd                                    
+  693 A:e5cd  c0 0b                              cpy #11
+  694 A:e5cf  f0 0b                              beq no
+  695 A:e5d1  b1 48                              lda (zp_sd_address),y
+  696 A:e5d3  c9 20                              cmp #$20
+  697 A:e5d5  d0 01                              bne chky
+  698 A:e5d7  e8                                 inx 
+  699 A:e5d8                           chky      
+  699 A:e5d8                                    
+  700 A:e5d8  c8                                 iny 
+  701 A:e5d9  4c cd e5                           jmp chklp
+  702 A:e5dc                           no        
+  702 A:e5dc                                    
+  703 A:e5dc  e0 03                              cpx #3
+  704 A:e5de  d0 07                              bne arc
+  705 A:e5e0                           dir       
+  705 A:e5e0                                    
+  706 A:e5e0  a9 ff                              lda #$ff
+  707 A:e5e2  85 15                              sta filetype                ; directorys show up as 
+  708 A:e5e4  4c e9 e5                           jmp name                ; yourfilename     test      folder  ...Etc
+  709 A:e5e7                           arc       
+  709 A:e5e7                                    
+  710 A:e5e7  64 15                              stz filetype                ; files show up as
+  711 A:e5e9                           name      
+  711 A:e5e9                                    ; test.xpl         music.xpl        file.bin  ...Etc
+  712 A:e5e9                                    ; At this point, we know that there are no files, files, or a suddir
+  713 A:e5e9                                    ; Now for the name
+  714 A:e5e9  a0 00                              ldy #0
+  715 A:e5eb                           nameloop  
+  715 A:e5eb                                    
+  716 A:e5eb  c0 08                              cpy #8
+  717 A:e5ed  f0 06                              beq dot
+  718 A:e5ef  20 88 e5                           jsr other
+  719 A:e5f2  4c eb e5                           jmp nameloop
+  720 A:e5f5                           dot       
+  720 A:e5f5                                    
+  721 A:e5f5  a5 15                              lda filetype
+  722 A:e5f7  d0 0f                              bne endthat                ; if it's a file,
+  723 A:e5f9  a9 2e                              lda #$2e             ; shows its file extention
+  724 A:e5fb  20 71 e0                           jsr print_chara
+  725 A:e5fe                           lopii     
+  725 A:e5fe                                    
+  726 A:e5fe  c0 0b                              cpy #11
+  727 A:e600  f0 06                              beq endthat                ; print 3-letter file extention
+  728 A:e602  20 88 e5                           jsr other
+  729 A:e605  4c fe e5                           jmp lopii
+  730 A:e608                           endthat   
+  730 A:e608                                    
+  731 A:e608  a9 09                              lda #$09             ; Tab
+  732 A:e60a  20 71 e0                           jsr print_chara                ; tab
+  733 A:e60d  4c c4 e5                           jmp list                ; go again ; next file if there are any left
+  734 A:e610                           nofiles   
+  734 A:e610                                    ; if not,
+  735 A:e610                           endlist   
+  735 A:e610                                    ; exit listing code
+  736 A:e610  20 45 d6                           jsr crlf
+  737 A:e613  a5 18                              lda backdir
+  738 A:e615  d0 04                              bne dontb
+  739 A:e617                                    ;  lda dircnt
+  740 A:e617                                    ;  beq nono
+  741 A:e617                                    ;  ldx #0
+  742 A:e617                                    ;dddl
+  742 A:e617                                    
+  743 A:e617                                    ;  jsr backpath
+  744 A:e617                                    ;  inx
+  745 A:e617                                    ;  cpx dircnt
+  746 A:e617                                    ;  bne dddl
+  747 A:e617                                    ;  jmp dontb
+  748 A:e617                                    ;nono
+  748 A:e617                                    
+  749 A:e617  20 6a e3                           jsr backpath                ; cd .. if ls <folderpath>
+  750 A:e61a  60                                 rts 
+  751 A:e61b                           dontb     
+  751 A:e61b                                    
+  752 A:e61b  20 0f e0                           jsr fat32_open_cd                ; refresh the directory
+  753 A:e61e  60                                 rts 
+  754 A:e61f                           jumptolist 
+  754 A:e61f                                    
+  755 A:e61f  20 45 d6                           jsr crlf
+  756 A:e622  4c c4 e5                           jmp list
+  757 A:e625                                     .) 
 
-  759 A:e622                                    ;; load
-  760 A:e622                                    ;; Here we load a file from the SD card.
-  761 A:e622                                    ;; .SAR stands for Start AddRess.
+  759 A:e625                                    ;; load
+  760 A:e625                                    ;; Here we load a file from the SD card.
+  761 A:e625                                    ;; .SAR stands for Start AddRess.
 
-  763 A:e622                           loadcmd   
-  764 A:e622                                     .( 
-  765 A:e622  ad 00 04                           lda path
-  766 A:e625  d0 03                              bne cdf
-  767 A:e627  4c 3b e3                           jmp patherr
-  768 A:e62a                           cdf       
-  768 A:e62a                                    
-  769 A:e62a                                    ;; check arguments
-  770 A:e62a  a5 20                              lda ARGINDEX
-  771 A:e62c  c9 02                              cmp #2             ; if there's two arguments, load the specified file
-  772 A:e62e  f0 0e                              beq lprocessparam
-  773 A:e630  a5 20                              lda ARGINDEX
-  774 A:e632  c9 01                              cmp #1             ; if there's only one argument, do a handeler load.
-  775 A:e634  f0 5b                              beq loadone
-  776 A:e636                                     .) 
-  777 A:e636                           lderror   
-  777 A:e636                                    
-  778 A:e636  a2 76                              ldx #<foldermsg              ; if it was not found, error and return.
-  779 A:e638  a0 e9                              ldy #>foldermsg
-  780 A:e63a  20 82 e0                           jsr w_acia_full
-  781 A:e63d  60                                 rts 
-  782 A:e63e                           lprocessparam                  ; the user specified a file, process the filename parameter.
-  783 A:e63e  18                                 clc 
-  784 A:e63f  a9 00                              lda #<INPUT
-  785 A:e641  65 22                              adc ARGINDEX+2
-  786 A:e643  85 11                              sta folderpointer
-  787 A:e645  a9 02                              lda #>INPUT              ; argument buffer under 256 bytes, so no adc #0.
-  788 A:e647  85 12                              sta folderpointer+1
-  789 A:e649                           loadlc    
-  789 A:e649                                    
-  790 A:e649                                     .( 
-  791 A:e649                                    ; convert string
-  792 A:e649  20 cc e4                           jsr shortconvert
-  793 A:e64c                                    ; is this a .XPL file?
-  794 A:e64c  a0 08                              ldy #$08
-  795 A:e64e  b1 11                              lda (folderpointer),y
-  796 A:e650  c9 58                              cmp #'X'
-  797 A:e652  d0 14                              bne ldp
-  798 A:e654  c8                                 iny 
-  799 A:e655  b1 11                              lda (folderpointer),y
-  800 A:e657  c9 50                              cmp #'P'
-  801 A:e659  d0 0d                              bne ldp
-  802 A:e65b  c8                                 iny 
-  803 A:e65c  b1 11                              lda (folderpointer),y
-  804 A:e65e  c9 4c                              cmp #'L'
-  805 A:e660  d0 06                              bne ldp
-  806 A:e662  9c 04 07                           stz buffer+4
-  807 A:e665  4c 6d e6                           jmp ldp2
-  808 A:e668                           ldp       
-  808 A:e668                                    
-  809 A:e668  a9 ff                              lda #$ff
-  810 A:e66a  8d 04 07                           sta buffer+4
-  811 A:e66d                           ldp2      
-  811 A:e66d                                    
-  812 A:e66d                                     .) 
-  813 A:e66d                           loadpath  
-  813 A:e66d                                    
-  814 A:e66d                                     .( 
-  815 A:e66d                                    ; Refresh
-  816 A:e66d  20 0f e0                           jsr fat32_open_cd
-  817 A:e670                                    ; Loading..
-  818 A:e670  a2 86                              ldx #<loading_msg
-  819 A:e672  a0 cb                              ldy #>loading_msg
-  820 A:e674  20 82 e0                           jsr w_acia_full
-  821 A:e677                                    ; BUG i need to add a start address header to the .XPL file format...
-  822 A:e677                                    ; at the moment it is assumed that the file will load and run at $0F00
-  823 A:e677  9c 00 07                           stz buffer
-  824 A:e67a  9c 02 07                           stz buffer+2
-  825 A:e67d  a9 0f                              lda #$0f             ; $0F00
-  826 A:e67f  8d 01 07                           sta buffer+1
-  827 A:e682  8d 03 07                           sta buffer+3
-  828 A:e685  a6 11                              ldx folderpointer
-  829 A:e687  a4 12                              ldy folderpointer+1          ; find the file
-  830 A:e689  20 e1 de                           jsr fat32_finddirent
-  831 A:e68c  90 47                              bcc loadfoundcode
-  832 A:e68e  4c 36 e6                           jmp lderror
-  833 A:e691                                     .) 
-  834 A:e691                           loadone   
-  834 A:e691                                    
-  835 A:e691                                     .( 
-  836 A:e691                                    ; the user has not specified a filename, so load the SD card handeler program.
+  763 A:e625                           loadcmd   
+  764 A:e625                                     .( 
+  765 A:e625  ad 00 04                           lda path
+  766 A:e628  d0 03                              bne cdf
+  767 A:e62a  4c 38 e3                           jmp patherr
+  768 A:e62d                           cdf       
+  768 A:e62d                                    
+  769 A:e62d                                    ;; check arguments
+  770 A:e62d  a5 20                              lda ARGINDEX
+  771 A:e62f  c9 02                              cmp #2             ; if there's two arguments, load the specified file
+  772 A:e631  f0 0e                              beq lprocessparam
+  773 A:e633  a5 20                              lda ARGINDEX
+  774 A:e635  c9 01                              cmp #1             ; if there's only one argument, do a handeler load.
+  775 A:e637  f0 5b                              beq loadone
+  776 A:e639                                     .) 
+  777 A:e639                           lderror   
+  777 A:e639                                    
+  778 A:e639  a2 79                              ldx #<foldermsg              ; if it was not found, error and return.
+  779 A:e63b  a0 e9                              ldy #>foldermsg
+  780 A:e63d  20 82 e0                           jsr w_acia_full
+  781 A:e640  60                                 rts 
+  782 A:e641                           lprocessparam                  ; the user specified a file, process the filename parameter.
+  783 A:e641  18                                 clc 
+  784 A:e642  a9 00                              lda #<INPUT
+  785 A:e644  65 22                              adc ARGINDEX+2
+  786 A:e646  85 11                              sta folderpointer
+  787 A:e648  a9 02                              lda #>INPUT              ; argument buffer under 256 bytes, so no adc #0.
+  788 A:e64a  85 12                              sta folderpointer+1
+  789 A:e64c                           loadlc    
+  789 A:e64c                                    
+  790 A:e64c                                     .( 
+  791 A:e64c                                    ; convert string
+  792 A:e64c  20 cf e4                           jsr shortconvert
+  793 A:e64f                                    ; is this a .XPL file?
+  794 A:e64f  a0 08                              ldy #$08
+  795 A:e651  b1 11                              lda (folderpointer),y
+  796 A:e653  c9 58                              cmp #'X'
+  797 A:e655  d0 14                              bne ldp
+  798 A:e657  c8                                 iny 
+  799 A:e658  b1 11                              lda (folderpointer),y
+  800 A:e65a  c9 50                              cmp #'P'
+  801 A:e65c  d0 0d                              bne ldp
+  802 A:e65e  c8                                 iny 
+  803 A:e65f  b1 11                              lda (folderpointer),y
+  804 A:e661  c9 4c                              cmp #'L'
+  805 A:e663  d0 06                              bne ldp
+  806 A:e665  9c 04 07                           stz buffer+4
+  807 A:e668  4c 70 e6                           jmp ldp2
+  808 A:e66b                           ldp       
+  808 A:e66b                                    
+  809 A:e66b  a9 ff                              lda #$ff
+  810 A:e66d  8d 04 07                           sta buffer+4
+  811 A:e670                           ldp2      
+  811 A:e670                                    
+  812 A:e670                                     .) 
+  813 A:e670                           loadpath  
+  813 A:e670                                    
+  814 A:e670                                     .( 
+  815 A:e670                                    ; Refresh
+  816 A:e670  20 0f e0                           jsr fat32_open_cd
+  817 A:e673                                    ; Loading..
+  818 A:e673  a2 86                              ldx #<loading_msg
+  819 A:e675  a0 cb                              ldy #>loading_msg
+  820 A:e677  20 82 e0                           jsr w_acia_full
+  821 A:e67a                                    ; BUG i need to add a start address header to the .XPL file format...
+  822 A:e67a                                    ; at the moment it is assumed that the file will load and run at $0F00
+  823 A:e67a  9c 00 07                           stz buffer
+  824 A:e67d  9c 02 07                           stz buffer+2
+  825 A:e680  a9 0f                              lda #$0f             ; $0F00
+  826 A:e682  8d 01 07                           sta buffer+1
+  827 A:e685  8d 03 07                           sta buffer+3
+  828 A:e688  a6 11                              ldx folderpointer
+  829 A:e68a  a4 12                              ldy folderpointer+1          ; find the file
+  830 A:e68c  20 e1 de                           jsr fat32_finddirent
+  831 A:e68f  90 47                              bcc loadfoundcode
+  832 A:e691  4c 39 e6                           jmp lderror
+  833 A:e694                                     .) 
+  834 A:e694                           loadone   
+  834 A:e694                                    
+  835 A:e694                                     .( 
+  836 A:e694                                    ; the user has not specified a filename, so load the SD card handeler program.
 
-  838 A:e691  20 23 e7                           jsr loadf
+  838 A:e694  20 26 e7                           jsr loadf
 
-  840 A:e694                                    ; Find file by name
-  841 A:e694  a2 31                              ldx #<loadname
-  842 A:e696  a0 e2                              ldy #>loadname              ; this is LOADADDR.SAR, which is what I plan 
-  843 A:e698  20 e1 de                           jsr fat32_finddirent                ; to merge into a header of .XPL files.
-  844 A:e69b  90 0a                              bcc foundfile                ; it holds the load address and jump address
-  845 A:e69d                                    ; of CODE.XPL.
-  846 A:e69d                                    ; File not found
-  847 A:e69d  a0 e8                              ldy #>filmsg
-  848 A:e69f  a2 fa                              ldx #<filmsg
-  849 A:e6a1  20 82 e0                           jsr w_acia_full
-  850 A:e6a4  4c a5 e0                           jmp error_sound
+  840 A:e697                                    ; Find file by name
+  841 A:e697  a2 31                              ldx #<loadname
+  842 A:e699  a0 e2                              ldy #>loadname              ; this is LOADADDR.SAR, which is what I plan 
+  843 A:e69b  20 e1 de                           jsr fat32_finddirent                ; to merge into a header of .XPL files.
+  844 A:e69e  90 0a                              bcc foundfile                ; it holds the load address and jump address
+  845 A:e6a0                                    ; of CODE.XPL.
+  846 A:e6a0                                    ; File not found
+  847 A:e6a0  a0 e8                              ldy #>filmsg
+  848 A:e6a2  a2 fd                              ldx #<filmsg
+  849 A:e6a4  20 82 e0                           jsr w_acia_full
+  850 A:e6a7  4c a5 e0                           jmp error_sound
 
-  852 A:e6a7                           foundfile 
+  852 A:e6aa                           foundfile 
 
-  854 A:e6a7                                    ; Open file
-  855 A:e6a7  20 5a dd                           jsr fat32_opendirent
+  854 A:e6aa                                    ; Open file
+  855 A:e6aa  20 5a dd                           jsr fat32_opendirent
 
-  857 A:e6aa                                    ; Read file contents into buffer
-  858 A:e6aa  a9 00                              lda #<buffer
-  859 A:e6ac  85 5c                              sta fat32_address
-  860 A:e6ae  a9 07                              lda #>buffer
-  861 A:e6b0  85 5d                              sta fat32_address+1
+  857 A:e6ad                                    ; Read file contents into buffer
+  858 A:e6ad  a9 00                              lda #<buffer
+  859 A:e6af  85 5c                              sta fat32_address
+  860 A:e6b1  a9 07                              lda #>buffer
+  861 A:e6b3  85 5d                              sta fat32_address+1
 
-  863 A:e6b2  20 a0 df                           jsr fat32_file_read
+  863 A:e6b5  20 a0 df                           jsr fat32_file_read
 
-  865 A:e6b5  9c 04 07                           stz buffer+4
+  865 A:e6b8  9c 04 07                           stz buffer+4
 
-  867 A:e6b8  20 23 e7                           jsr loadf                ; BUG really?
+  867 A:e6bb  20 26 e7                           jsr loadf                ; BUG really?
 
-  869 A:e6bb  a0 e9                              ldy #>lds
-  870 A:e6bd  a2 2e                              ldx #<lds
-  871 A:e6bf  20 82 e0                           jsr w_acia_full
+  869 A:e6be  a0 e9                              ldy #>lds
+  870 A:e6c0  a2 31                              ldx #<lds
+  871 A:e6c2  20 82 e0                           jsr w_acia_full
 
-  873 A:e6c2  a2 26                              ldx #<filename              ; CODE.XPL is the sd card's loader
-  874 A:e6c4  a0 e2                              ldy #>filename
-  875 A:e6c6  20 e1 de                           jsr fat32_finddirent
-  876 A:e6c9  90 0a                              bcc loadfoundcode
+  873 A:e6c5  a2 26                              ldx #<filename              ; CODE.XPL is the sd card's loader
+  874 A:e6c7  a0 e2                              ldy #>filename
+  875 A:e6c9  20 e1 de                           jsr fat32_finddirent
+  876 A:e6cc  90 0a                              bcc loadfoundcode
 
-  878 A:e6cb  a0 e9                              ldy #>filmsg2
-  879 A:e6cd  a2 16                              ldx #<filmsg2
-  880 A:e6cf  20 82 e0                           jsr w_acia_full
-  881 A:e6d2  4c a5 e0                           jmp error_sound
-  882 A:e6d5                                     .) 
-  883 A:e6d5                           loadfoundcode 
-  884 A:e6d5                                     .( 
-  885 A:e6d5                                    ; backup file size 
-  886 A:e6d5  a0 1c                              ldy #28
-  887 A:e6d7  b1 48                              lda (zp_sd_address),y
-  888 A:e6d9  18                                 clc 
-  889 A:e6da  6d 00 07                           adc buffer
-  890 A:e6dd  48                                 pha 
-  891 A:e6de  c8                                 iny 
-  892 A:e6df  b1 48                              lda (zp_sd_address),y
-  893 A:e6e1  6d 01 07                           adc buffer+1
-  894 A:e6e4  48                                 pha 
+  878 A:e6ce  a0 e9                              ldy #>filmsg2
+  879 A:e6d0  a2 19                              ldx #<filmsg2
+  880 A:e6d2  20 82 e0                           jsr w_acia_full
+  881 A:e6d5  4c a5 e0                           jmp error_sound
+  882 A:e6d8                                     .) 
+  883 A:e6d8                           loadfoundcode 
+  884 A:e6d8                                     .( 
+  885 A:e6d8                                    ; backup file size 
+  886 A:e6d8  a0 1c                              ldy #28
+  887 A:e6da  b1 48                              lda (zp_sd_address),y
+  888 A:e6dc  18                                 clc 
+  889 A:e6dd  6d 00 07                           adc buffer
+  890 A:e6e0  48                                 pha 
+  891 A:e6e1  c8                                 iny 
+  892 A:e6e2  b1 48                              lda (zp_sd_address),y
+  893 A:e6e4  6d 01 07                           adc buffer+1
+  894 A:e6e7  48                                 pha 
 
-  896 A:e6e5  20 5a dd                           jsr fat32_opendirent                ; open the file
+  896 A:e6e8  20 5a dd                           jsr fat32_opendirent                ; open the file
 
-  898 A:e6e8  ad 00 07                           lda buffer                ; and load it to the address
-  899 A:e6eb  85 5c                              sta fat32_address                ; from LOADADDR.SAR
-  900 A:e6ed  ad 01 07                           lda buffer+1
-  901 A:e6f0  85 5d                              sta fat32_address+1
+  898 A:e6eb  ad 00 07                           lda buffer                ; and load it to the address
+  899 A:e6ee  85 5c                              sta fat32_address                ; from LOADADDR.SAR
+  900 A:e6f0  ad 01 07                           lda buffer+1
+  901 A:e6f3  85 5d                              sta fat32_address+1
 
-  903 A:e6f2  20 a0 df                           jsr fat32_file_read
+  903 A:e6f5  20 a0 df                           jsr fat32_file_read
 
-  905 A:e6f5                                    ; All done.
+  905 A:e6f8                                    ; All done.
 
-  907 A:e6f5                                    ;ldy #>ends
-  908 A:e6f5                                    ;ldx #<ends
-  909 A:e6f5                                    ;jsr w_acia_full
-  910 A:e6f5  a2 a5                              ldx #<loadedmsg
-  911 A:e6f7  a0 cb                              ldy #>loadedmsg
-  912 A:e6f9  20 82 e0                           jsr w_acia_full
-  913 A:e6fc  ad 01 07                           lda buffer+1
-  914 A:e6ff  20 47 e0                           jsr print_hex_acia
-  915 A:e702  ad 00 07                           lda buffer
-  916 A:e705  20 47 e0                           jsr print_hex_acia
-  917 A:e708  a2 b2                              ldx #<tomsg
-  918 A:e70a  a0 cb                              ldy #>tomsg
-  919 A:e70c  20 82 e0                           jsr w_acia_full
-  920 A:e70f  68                                 pla 
-  921 A:e710  20 47 e0                           jsr print_hex_acia
-  922 A:e713  68                                 pla 
-  923 A:e714  20 47 e0                           jsr print_hex_acia
-  924 A:e717  20 45 d6                           jsr crlf
+  907 A:e6f8                                    ;ldy #>ends
+  908 A:e6f8                                    ;ldx #<ends
+  909 A:e6f8                                    ;jsr w_acia_full
+  910 A:e6f8  a2 a5                              ldx #<loadedmsg
+  911 A:e6fa  a0 cb                              ldy #>loadedmsg
+  912 A:e6fc  20 82 e0                           jsr w_acia_full
+  913 A:e6ff  ad 01 07                           lda buffer+1
+  914 A:e702  20 47 e0                           jsr print_hex_acia
+  915 A:e705  ad 00 07                           lda buffer
+  916 A:e708  20 47 e0                           jsr print_hex_acia
+  917 A:e70b  a2 b2                              ldx #<tomsg
+  918 A:e70d  a0 cb                              ldy #>tomsg
+  919 A:e70f  20 82 e0                           jsr w_acia_full
+  920 A:e712  68                                 pla 
+  921 A:e713  20 47 e0                           jsr print_hex_acia
+  922 A:e716  68                                 pla 
+  923 A:e717  20 47 e0                           jsr print_hex_acia
+  924 A:e71a  20 45 d6                           jsr crlf
 
-  926 A:e71a                                    ; Is this a XPL file?
-  927 A:e71a  ad 04 07                           lda buffer+4
-  928 A:e71d  d0 03                              bne lo
+  926 A:e71d                                    ; Is this a XPL file?
+  927 A:e71d  ad 04 07                           lda buffer+4
+  928 A:e720  d0 03                              bne lo
 
-  930 A:e71f  6c 02 07                           jmp (buffer+2)        ; jump to start address from LOADADDR
+  930 A:e722  6c 02 07                           jmp (buffer+2)        ; jump to start address from LOADADDR
 
-  932 A:e722                           lo        
-  932 A:e722                                    
-  933 A:e722  60                                 rts 
-  934 A:e723                                     .) 
+  932 A:e725                           lo        
+  932 A:e725                                    
+  933 A:e725  60                                 rts 
+  934 A:e726                                     .) 
 
-  936 A:e723                           loadf     
-  936 A:e723                                    
-  937 A:e723                                    ; Open root directory
-  938 A:e723  20 f4 db                           jsr fat32_openroot
+  936 A:e726                           loadf     
+  936 A:e726                                    
+  937 A:e726                                    ; Open root directory
+  938 A:e726  20 f4 db                           jsr fat32_openroot
 
-  940 A:e726                                    ; Find subdirectory by name
-  941 A:e726  a2 1b                              ldx #<subdirname
-  942 A:e728  a0 e2                              ldy #>subdirname
-  943 A:e72a  20 e1 de                           jsr fat32_finddirent
-  944 A:e72d  90 0a                              bcc foundsubdir
+  940 A:e729                                    ; Find subdirectory by name
+  941 A:e729  a2 1b                              ldx #<subdirname
+  942 A:e72b  a0 e2                              ldy #>subdirname
+  943 A:e72d  20 e1 de                           jsr fat32_finddirent
+  944 A:e730  90 0a                              bcc foundsubdir
 
-  946 A:e72f                                    ; Subdirectory not found
-  947 A:e72f  a0 e8                              ldy #>submsg
-  948 A:e731  a2 e8                              ldx #<submsg
-  949 A:e733  20 82 e0                           jsr w_acia_full
-  950 A:e736  4c a5 e0                           jmp error_sound
+  946 A:e732                                    ; Subdirectory not found
+  947 A:e732  a0 e8                              ldy #>submsg
+  948 A:e734  a2 eb                              ldx #<submsg
+  949 A:e736  20 82 e0                           jsr w_acia_full
+  950 A:e739  4c a5 e0                           jmp error_sound
 
-  952 A:e739                           foundsubdir 
+  952 A:e73c                           foundsubdir 
 
-  954 A:e739                                    ; Open subdirectory
-  955 A:e739  4c 5a dd                           jmp fat32_opendirent
+  954 A:e73c                                    ; Open subdirectory
+  955 A:e73c  4c 5a dd                           jmp fat32_opendirent
 
-  957 A:e73c                           savecmd   
-  957 A:e73c                                    
-  958 A:e73c                                     .( 
-  959 A:e73c                                    ; Save a file.
-  960 A:e73c  da                                 phx 
-  961 A:e73d  ad 00 04                           lda path
-  962 A:e740  d0 03                              bne sv
-  963 A:e742  4c 3b e3                           jmp patherr
-  964 A:e745                           sv        
-  964 A:e745                                    
-  965 A:e745  a5 20                              lda ARGINDEX
-  966 A:e747  c9 04                              cmp #4
-  967 A:e749  f0 03                              beq proc
-  968 A:e74b  4c 04 e4                           jmp error
-  969 A:e74e                           proc      
-  969 A:e74e                                    
-  970 A:e74e                                    ; filename
-  971 A:e74e  18                                 clc 
-  972 A:e74f  a9 00                              lda #<INPUT
-  973 A:e751  65 24                              adc ARGINDEX+4
-  974 A:e753  85 11                              sta folderpointer
-  975 A:e755  a9 02                              lda #>INPUT
-  976 A:e757  85 12                              sta folderpointer+1
-  977 A:e759                                    ; convert it to SHORT
-  978 A:e759  20 cc e4                           jsr shortconvert
-  979 A:e75c  a5 11                              lda folderpointer
-  980 A:e75e  85 1c                              sta savepoint
-  981 A:e760  a5 12                              lda folderpointer+1
-  982 A:e762  85 1d                              sta savepoint+1
-  983 A:e764                                    ; second addr parameter
-  984 A:e764  18                                 clc 
-  985 A:e765  a9 00                              lda #<INPUT
-  986 A:e767  65 23                              adc ARGINDEX+3
-  987 A:e769  85 80                              sta stackaccess
-  988 A:e76b  a9 02                              lda #>INPUT
-  989 A:e76d  85 81                              sta stackaccess+1
-  990 A:e76f  20 db c0                           jsr push16
-  991 A:e772  20 76 c2                           jsr read16hex
-  992 A:e775                                    ; first address parameter
-  993 A:e775  18                                 clc 
-  994 A:e776  a9 00                              lda #<INPUT
-  995 A:e778  65 22                              adc ARGINDEX+2
-  996 A:e77a  85 80                              sta stackaccess
-  997 A:e77c  a9 02                              lda #>INPUT
-  998 A:e77e  85 81                              sta stackaccess+1
-  999 A:e780  20 db c0                           jsr push16
- 1000 A:e783  20 76 c2                           jsr read16hex
- 1001 A:e786                                    ; stash them
- 1002 A:e786  20 e6 c0                           jsr pop16
- 1003 A:e789  a5 80                              lda stackaccess
- 1004 A:e78b  85 1a                              sta savestart
- 1005 A:e78d  a5 81                              lda stackaccess+1
- 1006 A:e78f  85 1b                              sta savestart+1
- 1007 A:e791  20 e6 c0                           jsr pop16
- 1008 A:e794  a5 80                              lda stackaccess
- 1009 A:e796  85 10                              sta saveend
- 1010 A:e798  a5 81                              lda stackaccess+1
- 1011 A:e79a  85 11                              sta saveend+1
- 1012 A:e79c  4c a0 e7                           jmp sg
- 1013 A:e79f                                     .) 
- 1014 A:e79f                           savekernal 
- 1014 A:e79f                                    
- 1015 A:e79f  da                                 phx 
- 1016 A:e7a0                           sg        
- 1016 A:e7a0                                    
- 1017 A:e7a0                                     .( 
- 1018 A:e7a0                                    ; now lets begin 
- 1019 A:e7a0                                    ; Refresh PATH
- 1020 A:e7a0  20 10 e3                           jsr refreshpath
- 1021 A:e7a3                                    ; Open the filename
- 1022 A:e7a3  a6 1c                              ldx savepoint
- 1023 A:e7a5  a4 1d                              ldy savepoint+1
- 1024 A:e7a7                                    ; Check if the file exists
- 1025 A:e7a7  20 e1 de                           jsr fat32_finddirent
- 1026 A:e7aa  90 03                              bcc fileexists
- 1027 A:e7ac  4c cb e7                           jmp nf
- 1028 A:e7af                           fileexists 
- 1028 A:e7af                                    
- 1029 A:e7af                                    ; If so, ask the user if they would like to overwrite the file.
- 1030 A:e7af  a2 56                              ldx #<femsg
- 1031 A:e7b1  a0 e9                              ldy #>femsg
- 1032 A:e7b3  20 82 e0                           jsr w_acia_full
- 1033 A:e7b6  20 44 f5                           jsr rxpoll
- 1034 A:e7b9  ad 00 80                           lda $8000
- 1035 A:e7bc  c9 79                              cmp #'y'             ; response = 'y'?
- 1036 A:e7be  f0 05                              beq yes
- 1037 A:e7c0  20 45 d6                           jsr crlf                ; no, cancel save
- 1038 A:e7c3  fa                                 plx 
- 1039 A:e7c4  60                                 rts 
- 1040 A:e7c5                           yes       
- 1041 A:e7c5                                    ; we would like to overwrite the file.
- 1042 A:e7c5  20 45 d6                           jsr crlf
- 1043 A:e7c8                                    ; delete it to clean the FAT
- 1044 A:e7c8  20 21 df                           jsr fat32_deletefile
- 1045 A:e7cb                           nf        
- 1045 A:e7cb                                    
- 1046 A:e7cb                                    ;jsr fat32_open_cd
- 1047 A:e7cb  a2 44                              ldx #<savemsg
- 1048 A:e7cd  a0 e9                              ldy #>savemsg
- 1049 A:e7cf  20 82 e0                           jsr w_acia_full
- 1050 A:e7d2                                    ; Calculate file size (end - start)
- 1051 A:e7d2  38                                 sec 
- 1052 A:e7d3  a5 10                              lda saveend
- 1053 A:e7d5  e5 1a                              sbc savestart
- 1054 A:e7d7  85 62                              sta fat32_bytesremaining
- 1055 A:e7d9  48                                 pha 
- 1056 A:e7da  a5 11                              lda saveend+1
- 1057 A:e7dc  e5 1b                              sbc savestart+1
- 1058 A:e7de  85 63                              sta fat32_bytesremaining+1
- 1059 A:e7e0  48                                 pha 
- 1060 A:e7e1                                    ; Allocate all the clusters for this file
- 1061 A:e7e1  20 41 dc                           jsr fat32_allocatefile
- 1062 A:e7e4                                    ; Refresh
- 1063 A:e7e4  20 10 e3                           jsr refreshpath
- 1064 A:e7e7                                    ; Put the filename at fat32_filenamepointer
- 1065 A:e7e7  a5 1c                              lda savepoint
- 1066 A:e7e9  85 6a                              sta fat32_filenamepointer
- 1067 A:e7eb  a5 1d                              lda savepoint+1
- 1068 A:e7ed  85 6b                              sta fat32_filenamepointer+1
- 1069 A:e7ef  68                                 pla 
- 1070 A:e7f0  85 63                              sta fat32_bytesremaining+1
- 1071 A:e7f2  68                                 pla 
- 1072 A:e7f3  85 62                              sta fat32_bytesremaining
- 1073 A:e7f5                                    ; Write a directory entry for this file
- 1074 A:e7f5  20 c2 dd                           jsr fat32_writedirent
- 1075 A:e7f8                                    ; Now, to actually write the file...
- 1076 A:e7f8  a5 1a                              lda savestart
- 1077 A:e7fa  85 5c                              sta fat32_address
- 1078 A:e7fc  a5 1b                              lda savestart+1
- 1079 A:e7fe  85 5d                              sta fat32_address+1
- 1080 A:e800  20 c0 df                           jsr fat32_file_write
- 1081 A:e803                                    ; All Done!
- 1082 A:e803  a2 4e                              ldx #<ends
- 1083 A:e805  a0 e9                              ldy #>ends
- 1084 A:e807  20 82 e0                           jsr w_acia_full
- 1085 A:e80a                           saveexit  
- 1085 A:e80a                                    
- 1086 A:e80a  fa                                 plx 
- 1087 A:e80b  60                                 rts 
- 1088 A:e80c                                     .) 
+  957 A:e73f                           savecmd   
+  957 A:e73f                                    
+  958 A:e73f                                     .( 
+  959 A:e73f                                    ; Save a file.
+  960 A:e73f  da                                 phx 
+  961 A:e740  ad 00 04                           lda path
+  962 A:e743  d0 03                              bne sv
+  963 A:e745  4c 38 e3                           jmp patherr
+  964 A:e748                           sv        
+  964 A:e748                                    
+  965 A:e748  a5 20                              lda ARGINDEX
+  966 A:e74a  c9 04                              cmp #4
+  967 A:e74c  f0 03                              beq proc
+  968 A:e74e  4c 07 e4                           jmp error
+  969 A:e751                           proc      
+  969 A:e751                                    
+  970 A:e751                                    ; filename
+  971 A:e751  18                                 clc 
+  972 A:e752  a9 00                              lda #<INPUT
+  973 A:e754  65 24                              adc ARGINDEX+4
+  974 A:e756  85 11                              sta folderpointer
+  975 A:e758  a9 02                              lda #>INPUT
+  976 A:e75a  85 12                              sta folderpointer+1
+  977 A:e75c                                    ; convert it to SHORT
+  978 A:e75c  20 cf e4                           jsr shortconvert
+  979 A:e75f  a5 11                              lda folderpointer
+  980 A:e761  85 1c                              sta savepoint
+  981 A:e763  a5 12                              lda folderpointer+1
+  982 A:e765  85 1d                              sta savepoint+1
+  983 A:e767                                    ; second addr parameter
+  984 A:e767  18                                 clc 
+  985 A:e768  a9 00                              lda #<INPUT
+  986 A:e76a  65 23                              adc ARGINDEX+3
+  987 A:e76c  85 80                              sta stackaccess
+  988 A:e76e  a9 02                              lda #>INPUT
+  989 A:e770  85 81                              sta stackaccess+1
+  990 A:e772  20 db c0                           jsr push16
+  991 A:e775  20 76 c2                           jsr read16hex
+  992 A:e778                                    ; first address parameter
+  993 A:e778  18                                 clc 
+  994 A:e779  a9 00                              lda #<INPUT
+  995 A:e77b  65 22                              adc ARGINDEX+2
+  996 A:e77d  85 80                              sta stackaccess
+  997 A:e77f  a9 02                              lda #>INPUT
+  998 A:e781  85 81                              sta stackaccess+1
+  999 A:e783  20 db c0                           jsr push16
+ 1000 A:e786  20 76 c2                           jsr read16hex
+ 1001 A:e789                                    ; stash them
+ 1002 A:e789  20 e6 c0                           jsr pop16
+ 1003 A:e78c  a5 80                              lda stackaccess
+ 1004 A:e78e  85 1a                              sta savestart
+ 1005 A:e790  a5 81                              lda stackaccess+1
+ 1006 A:e792  85 1b                              sta savestart+1
+ 1007 A:e794  20 e6 c0                           jsr pop16
+ 1008 A:e797  a5 80                              lda stackaccess
+ 1009 A:e799  85 10                              sta saveend
+ 1010 A:e79b  a5 81                              lda stackaccess+1
+ 1011 A:e79d  85 11                              sta saveend+1
+ 1012 A:e79f  4c a3 e7                           jmp sg
+ 1013 A:e7a2                                     .) 
+ 1014 A:e7a2                           savekernal 
+ 1014 A:e7a2                                    
+ 1015 A:e7a2  da                                 phx 
+ 1016 A:e7a3                           sg        
+ 1016 A:e7a3                                    
+ 1017 A:e7a3                                     .( 
+ 1018 A:e7a3                                    ; now lets begin 
+ 1019 A:e7a3                                    ; Refresh PATH
+ 1020 A:e7a3  20 0d e3                           jsr refreshpath
+ 1021 A:e7a6                                    ; Open the filename
+ 1022 A:e7a6  a6 1c                              ldx savepoint
+ 1023 A:e7a8  a4 1d                              ldy savepoint+1
+ 1024 A:e7aa                                    ; Check if the file exists
+ 1025 A:e7aa  20 e1 de                           jsr fat32_finddirent
+ 1026 A:e7ad  90 03                              bcc fileexists
+ 1027 A:e7af  4c ce e7                           jmp nf
+ 1028 A:e7b2                           fileexists 
+ 1028 A:e7b2                                    
+ 1029 A:e7b2                                    ; If so, ask the user if they would like to overwrite the file.
+ 1030 A:e7b2  a2 59                              ldx #<femsg
+ 1031 A:e7b4  a0 e9                              ldy #>femsg
+ 1032 A:e7b6  20 82 e0                           jsr w_acia_full
+ 1033 A:e7b9  20 47 f5                           jsr rxpoll
+ 1034 A:e7bc  ad 00 80                           lda $8000
+ 1035 A:e7bf  c9 79                              cmp #'y'             ; response = 'y'?
+ 1036 A:e7c1  f0 05                              beq yes
+ 1037 A:e7c3  20 45 d6                           jsr crlf                ; no, cancel save
+ 1038 A:e7c6  fa                                 plx 
+ 1039 A:e7c7  60                                 rts 
+ 1040 A:e7c8                           yes       
+ 1041 A:e7c8                                    ; we would like to overwrite the file.
+ 1042 A:e7c8  20 45 d6                           jsr crlf
+ 1043 A:e7cb                                    ; delete it to clean the FAT
+ 1044 A:e7cb  20 21 df                           jsr fat32_deletefile
+ 1045 A:e7ce                           nf        
+ 1045 A:e7ce                                    
+ 1046 A:e7ce                                    ;jsr fat32_open_cd
+ 1047 A:e7ce  a2 47                              ldx #<savemsg
+ 1048 A:e7d0  a0 e9                              ldy #>savemsg
+ 1049 A:e7d2  20 82 e0                           jsr w_acia_full
+ 1050 A:e7d5                                    ; Calculate file size (end - start)
+ 1051 A:e7d5  38                                 sec 
+ 1052 A:e7d6  a5 10                              lda saveend
+ 1053 A:e7d8  e5 1a                              sbc savestart
+ 1054 A:e7da  85 62                              sta fat32_bytesremaining
+ 1055 A:e7dc  48                                 pha 
+ 1056 A:e7dd  a5 11                              lda saveend+1
+ 1057 A:e7df  e5 1b                              sbc savestart+1
+ 1058 A:e7e1  85 63                              sta fat32_bytesremaining+1
+ 1059 A:e7e3  48                                 pha 
+ 1060 A:e7e4                                    ; Allocate all the clusters for this file
+ 1061 A:e7e4  20 41 dc                           jsr fat32_allocatefile
+ 1062 A:e7e7                                    ; Refresh
+ 1063 A:e7e7  20 0d e3                           jsr refreshpath
+ 1064 A:e7ea                                    ; Put the filename at fat32_filenamepointer
+ 1065 A:e7ea  a5 1c                              lda savepoint
+ 1066 A:e7ec  85 6a                              sta fat32_filenamepointer
+ 1067 A:e7ee  a5 1d                              lda savepoint+1
+ 1068 A:e7f0  85 6b                              sta fat32_filenamepointer+1
+ 1069 A:e7f2  68                                 pla 
+ 1070 A:e7f3  85 63                              sta fat32_bytesremaining+1
+ 1071 A:e7f5  68                                 pla 
+ 1072 A:e7f6  85 62                              sta fat32_bytesremaining
+ 1073 A:e7f8                                    ; Write a directory entry for this file
+ 1074 A:e7f8  20 c2 dd                           jsr fat32_writedirent
+ 1075 A:e7fb                                    ; Now, to actually write the file...
+ 1076 A:e7fb  a5 1a                              lda savestart
+ 1077 A:e7fd  85 5c                              sta fat32_address
+ 1078 A:e7ff  a5 1b                              lda savestart+1
+ 1079 A:e801  85 5d                              sta fat32_address+1
+ 1080 A:e803  20 c0 df                           jsr fat32_file_write
+ 1081 A:e806                                    ; All Done!
+ 1082 A:e806  a2 51                              ldx #<ends
+ 1083 A:e808  a0 e9                              ldy #>ends
+ 1084 A:e80a  20 82 e0                           jsr w_acia_full
+ 1085 A:e80d                           saveexit  
+ 1085 A:e80d                                    
+ 1086 A:e80d  fa                                 plx 
+ 1087 A:e80e  60                                 rts 
+ 1088 A:e80f                                     .) 
 
- 1090 A:e80c                           rmcmd     
- 1090 A:e80c                                    
- 1091 A:e80c                                     .( 
- 1092 A:e80c                                    ; Remove a file
- 1093 A:e80c  da                                 phx 
- 1094 A:e80d  ad 00 04                           lda path
- 1095 A:e810  d0 03                              bne rm
- 1096 A:e812  4c 3b e3                           jmp patherr
- 1097 A:e815                           rm        
- 1097 A:e815                                    
- 1098 A:e815                                    ;; check arguments
- 1099 A:e815  a5 20                              lda ARGINDEX
- 1100 A:e817  c9 02                              cmp #2             ; if there's two arguments, load the specified file
- 1101 A:e819  f0 03                              beq proc
- 1102 A:e81b  4c 04 e4                           jmp error
- 1103 A:e81e                           proc      
- 1103 A:e81e                                    
- 1104 A:e81e                                    ; filename
- 1105 A:e81e  18                                 clc 
- 1106 A:e81f  a9 00                              lda #<INPUT
- 1107 A:e821  65 22                              adc ARGINDEX+2
- 1108 A:e823  85 11                              sta folderpointer
- 1109 A:e825  a9 02                              lda #>INPUT
- 1110 A:e827  85 12                              sta folderpointer+1
- 1111 A:e829                                    ; convert it to SHORT
- 1112 A:e829  20 cc e4                           jsr shortconvert
- 1113 A:e82c  a5 11                              lda folderpointer
- 1114 A:e82e  85 1c                              sta savepoint
- 1115 A:e830  a5 12                              lda folderpointer+1
- 1116 A:e832  85 1d                              sta savepoint+1
- 1117 A:e834                                    ; path refresh
- 1118 A:e834  20 0f e0                           jsr fat32_open_cd
- 1119 A:e837                                    ; load
- 1120 A:e837  a6 1c                              ldx savepoint
- 1121 A:e839  a4 1d                              ldy savepoint+1
- 1122 A:e83b                                    ; find it
- 1123 A:e83b  20 e1 de                           jsr fat32_finddirent
- 1124 A:e83e  90 05                              bcc foundfile
- 1125 A:e840  20 44 e3                           jsr rlerror
- 1126 A:e843  fa                                 plx 
- 1127 A:e844  60                                 rts 
- 1128 A:e845                           foundfile 
- 1128 A:e845                                    
- 1129 A:e845  20 21 df                           jsr fat32_deletefile
- 1130 A:e848                                    ; done
- 1131 A:e848  fa                                 plx 
- 1132 A:e849  60                                 rts 
- 1133 A:e84a                                     .) 
+ 1090 A:e80f                           rmcmd     
+ 1090 A:e80f                                    
+ 1091 A:e80f                                     .( 
+ 1092 A:e80f                                    ; Remove a file
+ 1093 A:e80f  da                                 phx 
+ 1094 A:e810  ad 00 04                           lda path
+ 1095 A:e813  d0 03                              bne rm
+ 1096 A:e815  4c 38 e3                           jmp patherr
+ 1097 A:e818                           rm        
+ 1097 A:e818                                    
+ 1098 A:e818                                    ;; check arguments
+ 1099 A:e818  a5 20                              lda ARGINDEX
+ 1100 A:e81a  c9 02                              cmp #2             ; if there's two arguments, load the specified file
+ 1101 A:e81c  f0 03                              beq proc
+ 1102 A:e81e  4c 07 e4                           jmp error
+ 1103 A:e821                           proc      
+ 1103 A:e821                                    
+ 1104 A:e821                                    ; filename
+ 1105 A:e821  18                                 clc 
+ 1106 A:e822  a9 00                              lda #<INPUT
+ 1107 A:e824  65 22                              adc ARGINDEX+2
+ 1108 A:e826  85 11                              sta folderpointer
+ 1109 A:e828  a9 02                              lda #>INPUT
+ 1110 A:e82a  85 12                              sta folderpointer+1
+ 1111 A:e82c                                    ; convert it to SHORT
+ 1112 A:e82c  20 cf e4                           jsr shortconvert
+ 1113 A:e82f  a5 11                              lda folderpointer
+ 1114 A:e831  85 1c                              sta savepoint
+ 1115 A:e833  a5 12                              lda folderpointer+1
+ 1116 A:e835  85 1d                              sta savepoint+1
+ 1117 A:e837                                    ; path refresh
+ 1118 A:e837  20 0f e0                           jsr fat32_open_cd
+ 1119 A:e83a                                    ; load
+ 1120 A:e83a  a6 1c                              ldx savepoint
+ 1121 A:e83c  a4 1d                              ldy savepoint+1
+ 1122 A:e83e                                    ; find it
+ 1123 A:e83e  20 e1 de                           jsr fat32_finddirent
+ 1124 A:e841  90 05                              bcc foundfile
+ 1125 A:e843  20 41 e3                           jsr rlerror
+ 1126 A:e846  fa                                 plx 
+ 1127 A:e847  60                                 rts 
+ 1128 A:e848                           foundfile 
+ 1128 A:e848                                    
+ 1129 A:e848  20 21 df                           jsr fat32_deletefile
+ 1130 A:e84b                                    ; done
+ 1131 A:e84b  fa                                 plx 
+ 1132 A:e84c  60                                 rts 
+ 1133 A:e84d                                     .) 
 
- 1135 A:e84a                           mvcmd     
- 1135 A:e84a                                    
- 1136 A:e84a                                     .( 
- 1137 A:e84a                                    ; Move a file.
- 1138 A:e84a  da                                 phx 
- 1139 A:e84b  ad 00 04                           lda path
- 1140 A:e84e  d0 03                              bne mv
- 1141 A:e850  4c 3b e3                           jmp patherr
- 1142 A:e853                           mv        
- 1142 A:e853                                    
- 1143 A:e853                                    ;; check arguments
- 1144 A:e853  a5 20                              lda ARGINDEX
- 1145 A:e855  c9 03                              cmp #3
- 1146 A:e857  f0 03                              beq proc
- 1147 A:e859  4c 04 e4                           jmp error
- 1148 A:e85c                           proc      
- 1148 A:e85c                                    
- 1149 A:e85c                                    ; fetch first filename
- 1150 A:e85c  18                                 clc 
- 1151 A:e85d  a9 00                              lda #<INPUT
- 1152 A:e85f  65 22                              adc ARGINDEX+2
- 1153 A:e861  85 11                              sta folderpointer
- 1154 A:e863  a9 02                              lda #>INPUT
- 1155 A:e865  85 12                              sta folderpointer+1
- 1156 A:e867  20 d3 e8                           jsr overf
- 1157 A:e86a                                    ; convert it to SHORT
- 1158 A:e86a  20 cc e4                           jsr shortconvert
- 1159 A:e86d  a5 11                              lda folderpointer
- 1160 A:e86f  85 1c                              sta savepoint
- 1161 A:e871  a5 12                              lda folderpointer+1
- 1162 A:e873  85 1d                              sta savepoint+1
- 1163 A:e875                                    ; path refresh
- 1164 A:e875  20 0f e0                           jsr fat32_open_cd
- 1165 A:e878                                    ; load
- 1166 A:e878  a6 1c                              ldx savepoint
- 1167 A:e87a  a4 1d                              ldy savepoint+1
- 1168 A:e87c                                    ; find it
- 1169 A:e87c  20 e1 de                           jsr fat32_finddirent
- 1170 A:e87f  90 03                              bcc gotit
- 1171 A:e881  4c ae e8                           jmp mvfail
- 1172 A:e884                           gotit     
- 1172 A:e884                                    
- 1173 A:e884                                    ; carry already clear
- 1174 A:e884                                    ; get the folder to move it to
- 1175 A:e884  a9 00                              lda #<INPUT
- 1176 A:e886  65 23                              adc ARGINDEX+3
- 1177 A:e888  85 11                              sta folderpointer
- 1178 A:e88a  a9 02                              lda #>INPUT
- 1179 A:e88c  85 12                              sta folderpointer+1
- 1180 A:e88e  20 d3 e8                           jsr overf
- 1181 A:e891                                    ; convert it to SHORT
- 1182 A:e891  20 cc e4                           jsr shortconvert
- 1183 A:e894  a5 11                              lda folderpointer
- 1184 A:e896  85 1c                              sta savepoint
- 1185 A:e898  a5 12                              lda folderpointer+1
- 1186 A:e89a  85 1d                              sta savepoint+1
- 1187 A:e89c                                    ; Now, for the copy
- 1188 A:e89c                                    ; Store the dirent temporaraly
- 1189 A:e89c  a0 00                              ldy #0
- 1190 A:e89e                           stlp      
- 1191 A:e89e  b1 48                              lda (zp_sd_address),y
- 1192 A:e8a0  99 00 02                           sta INPUT,y
- 1193 A:e8a3  c8                                 iny 
- 1194 A:e8a4  c0 20                              cpy #$20
- 1195 A:e8a6  d0 f6                              bne stlp
- 1196 A:e8a8                                    ; Now, mark it as a deleted file
- 1197 A:e8a8  20 f8 de                           jsr fat32_markdeleted
- 1198 A:e8ab  20 0f e0                           jsr fat32_open_cd
- 1199 A:e8ae                                    ; Find the directory
- 1200 A:e8ae                                    ;lda backdir
- 1201 A:e8ae                                    ;beq nono ;TODO CHECK
- 1202 A:e8ae                                    ;nono
- 1202 A:e8ae                                    
- 1203 A:e8ae                                    ;  ldx savepoint
- 1204 A:e8ae                                    ;  ldy savepoint+1
- 1205 A:e8ae                                    ;  jsr fat32_finddirent
- 1206 A:e8ae                                    ;  bcc mvgotdirent 
- 1207 A:e8ae                           mvfail    
- 1208 A:e8ae                                    ; The directory was not found
- 1209 A:e8ae  20 44 e3                           jsr rlerror
- 1210 A:e8b1  fa                                 plx 
- 1211 A:e8b2  60                                 rts 
- 1212 A:e8b3                           mvgotdirent 
- 1213 A:e8b3                                    ; It was, open it.
- 1214 A:e8b3  20 5a dd                           jsr fat32_opendirent
- 1215 A:e8b6                                    ; Ok. now we need to find a free entry
- 1216 A:e8b6                           mvlp      
- 1217 A:e8b6  20 ab de                           jsr fat32_readdirent
- 1218 A:e8b9  90 fb                              bcc mvlp
- 1219 A:e8bb                                    ; Got it. now paste the file here
- 1220 A:e8bb  a0 00                              ldy #0
- 1221 A:e8bd                           mvpaste   
- 1222 A:e8bd  b9 00 02                           lda INPUT,y
- 1223 A:e8c0  91 48                              sta (zp_sd_address),y
- 1224 A:e8c2  c8                                 iny 
- 1225 A:e8c3  c0 20                              cpy #$20
- 1226 A:e8c5  d0 f6                              bne mvpaste
- 1227 A:e8c7                                    ; Just to be sure, zero out the next entry.
- 1228 A:e8c7  a9 00                              lda #0
- 1229 A:e8c9  91 48                              sta (zp_sd_address),y
- 1230 A:e8cb                                    ; Now write the sector
- 1231 A:e8cb  20 81 de                           jsr fat32_wrcurrent
- 1232 A:e8ce                                    ; Done!
- 1233 A:e8ce  20 10 e3                           jsr refreshpath
- 1234 A:e8d1  fa                                 plx 
- 1235 A:e8d2  60                                 rts 
- 1236 A:e8d3                           overf     
- 1236 A:e8d3                                    
- 1237 A:e8d3                                    ; copy it to the buffer so we don't overwrite the foldername
- 1238 A:e8d3  a0 00                              ldy #0
- 1239 A:e8d5                           mvff      
- 1240 A:e8d5  b1 11                              lda (folderpointer),y
- 1241 A:e8d7  99 18 03                           sta fnstash,y
- 1242 A:e8da  c8                                 iny 
- 1243 A:e8db  c0 0d                              cpy #13
- 1244 A:e8dd  d0 f6                              bne mvff
- 1245 A:e8df                           mvdn      
- 1245 A:e8df                                    
- 1246 A:e8df                                    ; store location
- 1247 A:e8df  a9 18                              lda #<fnstash
- 1248 A:e8e1  85 11                              sta folderpointer
- 1249 A:e8e3  a9 03                              lda #>fnstash
- 1250 A:e8e5  85 12                              sta folderpointer+1
- 1251 A:e8e7  60                                 rts 
- 1252 A:e8e8                                     .) 
+ 1135 A:e84d                           mvcmd     
+ 1135 A:e84d                                    
+ 1136 A:e84d                                     .( 
+ 1137 A:e84d                                    ; Move a file.
+ 1138 A:e84d  da                                 phx 
+ 1139 A:e84e  ad 00 04                           lda path
+ 1140 A:e851  d0 03                              bne mv
+ 1141 A:e853  4c 38 e3                           jmp patherr
+ 1142 A:e856                           mv        
+ 1142 A:e856                                    
+ 1143 A:e856                                    ;; check arguments
+ 1144 A:e856  a5 20                              lda ARGINDEX
+ 1145 A:e858  c9 03                              cmp #3
+ 1146 A:e85a  f0 03                              beq proc
+ 1147 A:e85c  4c 07 e4                           jmp error
+ 1148 A:e85f                           proc      
+ 1148 A:e85f                                    
+ 1149 A:e85f                                    ; fetch first filename
+ 1150 A:e85f  18                                 clc 
+ 1151 A:e860  a9 00                              lda #<INPUT
+ 1152 A:e862  65 22                              adc ARGINDEX+2
+ 1153 A:e864  85 11                              sta folderpointer
+ 1154 A:e866  a9 02                              lda #>INPUT
+ 1155 A:e868  85 12                              sta folderpointer+1
+ 1156 A:e86a  20 d6 e8                           jsr overf
+ 1157 A:e86d                                    ; convert it to SHORT
+ 1158 A:e86d  20 cf e4                           jsr shortconvert
+ 1159 A:e870  a5 11                              lda folderpointer
+ 1160 A:e872  85 1c                              sta savepoint
+ 1161 A:e874  a5 12                              lda folderpointer+1
+ 1162 A:e876  85 1d                              sta savepoint+1
+ 1163 A:e878                                    ; path refresh
+ 1164 A:e878  20 0f e0                           jsr fat32_open_cd
+ 1165 A:e87b                                    ; load
+ 1166 A:e87b  a6 1c                              ldx savepoint
+ 1167 A:e87d  a4 1d                              ldy savepoint+1
+ 1168 A:e87f                                    ; find it
+ 1169 A:e87f  20 e1 de                           jsr fat32_finddirent
+ 1170 A:e882  90 03                              bcc gotit
+ 1171 A:e884  4c b1 e8                           jmp mvfail
+ 1172 A:e887                           gotit     
+ 1172 A:e887                                    
+ 1173 A:e887                                    ; carry already clear
+ 1174 A:e887                                    ; get the folder to move it to
+ 1175 A:e887  a9 00                              lda #<INPUT
+ 1176 A:e889  65 23                              adc ARGINDEX+3
+ 1177 A:e88b  85 11                              sta folderpointer
+ 1178 A:e88d  a9 02                              lda #>INPUT
+ 1179 A:e88f  85 12                              sta folderpointer+1
+ 1180 A:e891  20 d6 e8                           jsr overf
+ 1181 A:e894                                    ; convert it to SHORT
+ 1182 A:e894  20 cf e4                           jsr shortconvert
+ 1183 A:e897  a5 11                              lda folderpointer
+ 1184 A:e899  85 1c                              sta savepoint
+ 1185 A:e89b  a5 12                              lda folderpointer+1
+ 1186 A:e89d  85 1d                              sta savepoint+1
+ 1187 A:e89f                                    ; Now, for the copy
+ 1188 A:e89f                                    ; Store the dirent temporaraly
+ 1189 A:e89f  a0 00                              ldy #0
+ 1190 A:e8a1                           stlp      
+ 1191 A:e8a1  b1 48                              lda (zp_sd_address),y
+ 1192 A:e8a3  99 00 02                           sta INPUT,y
+ 1193 A:e8a6  c8                                 iny 
+ 1194 A:e8a7  c0 20                              cpy #$20
+ 1195 A:e8a9  d0 f6                              bne stlp
+ 1196 A:e8ab                                    ; Now, mark it as a deleted file
+ 1197 A:e8ab  20 f8 de                           jsr fat32_markdeleted
+ 1198 A:e8ae  20 0f e0                           jsr fat32_open_cd
+ 1199 A:e8b1                                    ; Find the directory
+ 1200 A:e8b1                                    ;lda backdir
+ 1201 A:e8b1                                    ;beq nono ;TODO CHECK
+ 1202 A:e8b1                                    ;nono
+ 1202 A:e8b1                                    
+ 1203 A:e8b1                                    ;  ldx savepoint
+ 1204 A:e8b1                                    ;  ldy savepoint+1
+ 1205 A:e8b1                                    ;  jsr fat32_finddirent
+ 1206 A:e8b1                                    ;  bcc mvgotdirent 
+ 1207 A:e8b1                           mvfail    
+ 1208 A:e8b1                                    ; The directory was not found
+ 1209 A:e8b1  20 41 e3                           jsr rlerror
+ 1210 A:e8b4  fa                                 plx 
+ 1211 A:e8b5  60                                 rts 
+ 1212 A:e8b6                           mvgotdirent 
+ 1213 A:e8b6                                    ; It was, open it.
+ 1214 A:e8b6  20 5a dd                           jsr fat32_opendirent
+ 1215 A:e8b9                                    ; Ok. now we need to find a free entry
+ 1216 A:e8b9                           mvlp      
+ 1217 A:e8b9  20 ab de                           jsr fat32_readdirent
+ 1218 A:e8bc  90 fb                              bcc mvlp
+ 1219 A:e8be                                    ; Got it. now paste the file here
+ 1220 A:e8be  a0 00                              ldy #0
+ 1221 A:e8c0                           mvpaste   
+ 1222 A:e8c0  b9 00 02                           lda INPUT,y
+ 1223 A:e8c3  91 48                              sta (zp_sd_address),y
+ 1224 A:e8c5  c8                                 iny 
+ 1225 A:e8c6  c0 20                              cpy #$20
+ 1226 A:e8c8  d0 f6                              bne mvpaste
+ 1227 A:e8ca                                    ; Just to be sure, zero out the next entry.
+ 1228 A:e8ca  a9 00                              lda #0
+ 1229 A:e8cc  91 48                              sta (zp_sd_address),y
+ 1230 A:e8ce                                    ; Now write the sector
+ 1231 A:e8ce  20 81 de                           jsr fat32_wrcurrent
+ 1232 A:e8d1                                    ; Done!
+ 1233 A:e8d1  20 0d e3                           jsr refreshpath
+ 1234 A:e8d4  fa                                 plx 
+ 1235 A:e8d5  60                                 rts 
+ 1236 A:e8d6                           overf     
+ 1236 A:e8d6                                    
+ 1237 A:e8d6                                    ; copy it to the buffer so we don't overwrite the foldername
+ 1238 A:e8d6  a0 00                              ldy #0
+ 1239 A:e8d8                           mvff      
+ 1240 A:e8d8  b1 11                              lda (folderpointer),y
+ 1241 A:e8da  99 18 03                           sta fnstash,y
+ 1242 A:e8dd  c8                                 iny 
+ 1243 A:e8de  c0 0d                              cpy #13
+ 1244 A:e8e0  d0 f6                              bne mvff
+ 1245 A:e8e2                           mvdn      
+ 1245 A:e8e2                                    
+ 1246 A:e8e2                                    ; store location
+ 1247 A:e8e2  a9 18                              lda #<fnstash
+ 1248 A:e8e4  85 11                              sta folderpointer
+ 1249 A:e8e6  a9 03                              lda #>fnstash
+ 1250 A:e8e8  85 12                              sta folderpointer+1
+ 1251 A:e8ea  60                                 rts 
+ 1252 A:e8eb                                     .) 
 
- 1254 A:e8e8                           submsg    
- 1255 A:e8e8  52 6f 6f 74 20 4e 6f ...           .byt "Root Not Found!",$0d,$0a,$00
- 1256 A:e8fa                           filmsg    
- 1257 A:e8fa  27 6c 6f 61 64 61 64 ...           .byt "'loadaddr.sar' Not Found!",$0d,$0a,$00
- 1258 A:e916                           filmsg2   
- 1259 A:e916  27 63 6f 64 65 2e 78 ...           .byt "'code.xpl' Not Found!",$0d,$0a,$00
- 1260 A:e92e                           lds       
- 1261 A:e92e  4c 6f 61 64 69 6e 67 ...           .byt "Loading SD Handler...",$00
- 1262 A:e944                           savemsg   
- 1262 A:e944                                    
- 1263 A:e944  53 61 76 69 6e 67 2e ...           .byt "Saving...",$00
- 1264 A:e94e                           ends      
- 1265 A:e94e  44 6f 6e 65 2e 0d 0a 00            .byt "Done.",$0d,$0a,$00
- 1266 A:e956                           femsg     
- 1266 A:e956                                    
- 1267 A:e956  46 69 6c 65 20 65 78 ...           .byt "File exists. Overwrite? (y/n): ",$00
- 1268 A:e976                           foldermsg 
- 1268 A:e976                                    
- 1269 A:e976  4e 6f 20 73 75 63 68 ...           .byt "No such file or directory.",$0d,$0a,$00
+ 1254 A:e8eb                           submsg    
+ 1255 A:e8eb  52 6f 6f 74 20 4e 6f ...           .byt "Root Not Found!",$0d,$0a,$00
+ 1256 A:e8fd                           filmsg    
+ 1257 A:e8fd  27 6c 6f 61 64 61 64 ...           .byt "'loadaddr.sar' Not Found!",$0d,$0a,$00
+ 1258 A:e919                           filmsg2   
+ 1259 A:e919  27 63 6f 64 65 2e 78 ...           .byt "'code.xpl' Not Found!",$0d,$0a,$00
+ 1260 A:e931                           lds       
+ 1261 A:e931  4c 6f 61 64 69 6e 67 ...           .byt "Loading SD Handler...",$00
+ 1262 A:e947                           savemsg   
+ 1262 A:e947                                    
+ 1263 A:e947  53 61 76 69 6e 67 2e ...           .byt "Saving...",$00
+ 1264 A:e951                           ends      
+ 1265 A:e951  44 6f 6e 65 2e 0d 0a 00            .byt "Done.",$0d,$0a,$00
+ 1266 A:e959                           femsg     
+ 1266 A:e959                                    
+ 1267 A:e959  46 69 6c 65 20 65 78 ...           .byt "File exists. Overwrite? (y/n): ",$00
+ 1268 A:e979                           foldermsg 
+ 1268 A:e979                                    
+ 1269 A:e979  4e 6f 20 73 75 63 68 ...           .byt "No such file or directory.",$0d,$0a,$00
 
- 1271 A:e993                                    ; THE FOLLOWING MESSAGES ARE ALREADY IN TAPE.A65!
- 1272 A:e993                                    ;loadedmsg
- 1272 A:e993                                    
- 1273 A:e993                                    ;  .byte "Loaded from ", $00
- 1274 A:e993                                    ;tomsg
- 1274 A:e993                                    
- 1275 A:e993                                    ;  .byte " to ", $00
+ 1271 A:e996                                    ; THE FOLLOWING MESSAGES ARE ALREADY IN TAPE.A65!
+ 1272 A:e996                                    ;loadedmsg
+ 1272 A:e996                                    
+ 1273 A:e996                                    ;  .byte "Loaded from ", $00
+ 1274 A:e996                                    ;tomsg
+ 1274 A:e996                                    
+ 1275 A:e996                                    ;  .byte " to ", $00
 
 main.a65
 
 
- 2648 A:e993                                    ; goofy ahh fake vi
+ 2648 A:e996                                    ; goofy ahh fake vi
 
 vi65s.a65
 
-    1 A:e993                                    ; VI
-    2 A:e993                                    ; requires xplDOS
-    3 A:e993                                    ;
+    1 A:e996                                    ; VI
+    2 A:e996                                    ; requires xplDOS
+    3 A:e996                                    ;
 
-    5 A:e993                           vicmd     
-    5 A:e993                                    
-    6 A:e993                                     .( 
-    7 A:e993  da                                 phx 
-    8 A:e994  20 5e e0                           jsr cleardisplay
-    9 A:e997  a9 0f                              lda #$0f
-   10 A:e999  20 71 e0                           jsr print_chara
-   11 A:e99c  a9 18                              lda #24
-   12 A:e99e  20 71 e0                           jsr print_chara
-   13 A:e9a1  a9 02                              lda #$02
-   14 A:e9a3  20 71 e0                           jsr print_chara
-   15 A:e9a6  a9 00                              lda #0
-   16 A:e9a8  20 71 e0                           jsr print_chara
-   17 A:e9ab                                    ;; check arguments
-   18 A:e9ab  a5 20                              lda ARGINDEX
-   19 A:e9ad  c9 02                              cmp #2             ; if there's two arguments, edit the typed file
-   20 A:e9af  f0 0c                              beq processparam
-   21 A:e9b1  a5 20                              lda ARGINDEX
-   22 A:e9b3  c9 01                              cmp #1             ; if there's only one argument, edit an unnamed file
-   23 A:e9b5  d0 03                              bne jer
-   24 A:e9b7  4c 2a ea                           jmp vnf
-   25 A:e9ba                           jer       
-   25 A:e9ba                                    
-   26 A:e9ba  4c 04 e4                           jmp error
-   27 A:e9bd                           processparam                  ; process the filename parameter
-   28 A:e9bd  18                                 clc 
-   29 A:e9be  a9 00                              lda #<INPUT
-   30 A:e9c0  65 22                              adc ARGINDEX+2
-   31 A:e9c2  85 11                              sta folderpointer
-   32 A:e9c4  aa                                 tax 
-   33 A:e9c5  a0 02                              ldy #>INPUT
-   34 A:e9c7  84 12                              sty folderpointer+1
-   35 A:e9c9  da                                 phx 
-   36 A:e9ca  5a                                 phy 
-   37 A:e9cb                                    ; print filename
-   38 A:e9cb  a9 22                              lda #$22
-   39 A:e9cd  20 71 e0                           jsr print_chara
-   40 A:e9d0  7a                                 ply 
-   41 A:e9d1  fa                                 plx 
-   42 A:e9d2  20 82 e0                           jsr w_acia_full
-   43 A:e9d5  a9 22                              lda #$22
-   44 A:e9d7  20 71 e0                           jsr print_chara
-   45 A:e9da  a9 20                              lda #$20
-   46 A:e9dc  20 71 e0                           jsr print_chara
-   47 A:e9df                                    ; convert to SHORT
-   48 A:e9df  20 cc e4                           jsr shortconvert
-   49 A:e9e2                                    ; refresh
-   50 A:e9e2  20 10 e3                           jsr refreshpath
-   51 A:e9e5                                    ; chech if the file exists
-   52 A:e9e5  a6 11                              ldx folderpointer
-   53 A:e9e7  a4 12                              ldy folderpointer+1
-   54 A:e9e9  20 e1 de                           jsr fat32_finddirent
-   55 A:e9ec  b0 3c                              bcs vnf
-   56 A:e9ee                                    ; if it exists, load it to $0900
-   57 A:e9ee                                    ; WARNING this will overwrite RAM! 
-   58 A:e9ee  20 5a dd                           jsr fat32_opendirent
-   59 A:e9f1  a9 09                              lda #$09
-   60 A:e9f3  85 5d                              sta fat32_address+1
-   61 A:e9f5  64 5c                              stz fat32_address
-   62 A:e9f7  20 a0 df                           jsr fat32_file_read
-   63 A:e9fa                                    ; now print first part to screen
-   64 A:e9fa                                    ; BUG files can go past the screen limit, and glitch the viewer.
-   65 A:e9fa  20 7a e0                           jsr ascii_home
-   66 A:e9fd  a2 00                              ldx #0
-   67 A:e9ff  a0 00                              ldy #0
-   68 A:ea01  64 1a                              stz viaddr
-   69 A:ea03  a9 09                              lda #$09
-   70 A:ea05  85 1b                              sta viaddr+1
-   71 A:ea07                           vcplp     
-   71 A:ea07                                    
-   72 A:ea07  b2 1a                              lda (viaddr)
-   73 A:ea09  f0 28                              beq veof
-   74 A:ea0b  c9 0d                              cmp #$0d
-   75 A:ea0d  f0 15                              beq cr
-   76 A:ea0f  c8                                 iny 
-   77 A:ea10  c0 50                              cpy #80
-   78 A:ea12  f0 10                              beq cr
-   79 A:ea14                           otherv    
-   79 A:ea14                                    
-   80 A:ea14  20 71 e0                           jsr print_chara
-   81 A:ea17  f0 3a                              beq startcsr                ; file displayed, no eof yet
-   82 A:ea19  e6 1a                              inc viaddr
-   83 A:ea1b  a5 1a                              lda viaddr
-   84 A:ea1d  d0 02                              bne nnon
-   85 A:ea1f  e6 1b                              inc viaddr+1
-   86 A:ea21                           nnon      
-   86 A:ea21                                    
-   87 A:ea21  4c 07 ea                           jmp vcplp
-   88 A:ea24                           cr        
-   88 A:ea24                                    
-   89 A:ea24  e8                                 inx 
-   90 A:ea25  a0 00                              ldy #0
-   91 A:ea27  4c 14 ea                           jmp otherv
-   92 A:ea2a                           vnf       
-   92 A:ea2a                                    
-   93 A:ea2a  a2 c2                              ldx #<nfm
-   94 A:ea2c  a0 ea                              ldy #>nfm
-   95 A:ea2e  20 82 e0                           jsr w_acia_full
-   96 A:ea31  a2 00                              ldx #0
-   97 A:ea33                           veof      
-   97 A:ea33                                    
-   98 A:ea33                                    ; eof reached. fill the screen with ~
-   99 A:ea33  e8                                 inx 
-  100 A:ea34  86 1e                              stx vif_end
-  101 A:ea36                           vinlp     
-  101 A:ea36                                    
-  102 A:ea36  a9 0f                              lda #$0f
-  103 A:ea38  20 71 e0                           jsr print_chara
-  104 A:ea3b  8a                                 txa 
-  105 A:ea3c  20 71 e0                           jsr print_chara
-  106 A:ea3f  a9 0e                              lda #$0e
-  107 A:ea41  20 71 e0                           jsr print_chara
-  108 A:ea44  a9 00                              lda #0
-  109 A:ea46  20 71 e0                           jsr print_chara
-  110 A:ea49  a9 7e                              lda #'~'
-  111 A:ea4b  20 71 e0                           jsr print_chara
-  112 A:ea4e  e8                                 inx 
-  113 A:ea4f  e0 18                              cpx #24
-  114 A:ea51  d0 e3                              bne vinlp
-  115 A:ea53                           startcsr  
-  115 A:ea53                                    
-  116 A:ea53  a9 0e                              lda #$0e
-  117 A:ea55  20 71 e0                           jsr print_chara
-  118 A:ea58  a9 46                              lda #70
-  119 A:ea5a  20 71 e0                           jsr print_chara
-  120 A:ea5d  a9 0f                              lda #$0f
-  121 A:ea5f  20 71 e0                           jsr print_chara
-  122 A:ea62  a9 18                              lda #24
-  123 A:ea64  20 71 e0                           jsr print_chara
-  124 A:ea67  a9 30                              lda #'0'
-  125 A:ea69  20 71 e0                           jsr print_chara
-  126 A:ea6c  a9 2c                              lda #','
-  127 A:ea6e  20 71 e0                           jsr print_chara
-  128 A:ea71  a9 30                              lda #'0'
-  129 A:ea73  20 71 e0                           jsr print_chara
-  130 A:ea76  20 7a e0                           jsr ascii_home
-  131 A:ea79  a9 02                              lda #$02
-  132 A:ea7b  20 71 e0                           jsr print_chara
-  133 A:ea7e  a9 db                              lda #$db
-  134 A:ea80  20 71 e0                           jsr print_chara
-  135 A:ea83  64 1c                              stz cursor_x
-  136 A:ea85  64 1d                              stz cursor_y
-  137 A:ea87                           vlp       
-  137 A:ea87                                    
-  138 A:ea87                                    ; wait until key pressed
-  139 A:ea87  20 44 f5                           jsr rxpoll
-  140 A:ea8a  ad 00 80                           lda $8000
-  141 A:ea8d                                    ; parse arrow keys
-  142 A:ea8d  c9 18                              cmp #$18
-  143 A:ea8f  f0 11                              beq vi_down
-  144 A:ea91  c9 05                              cmp #$05
-  145 A:ea93  f0 15                              beq vi_up
-  146 A:ea95  c9 10                              cmp #$10
-  147 A:ea97  f0 19                              beq vi_left
-  148 A:ea99  c9 04                              cmp #$04
-  149 A:ea9b  f0 1d                              beq vi_right
-  150 A:ea9d  4c 87 ea                           jmp vlp
-  151 A:eaa0  fa                                 plx 
-  152 A:eaa1  60                                 rts 
-  153 A:eaa2                           vi_down   
-  153 A:eaa2                                    
-  154 A:eaa2  a9 1f                              lda #$1f
-  155 A:eaa4  20 71 e0                           jsr print_chara
-  156 A:eaa7  4c 87 ea                           jmp vlp
-  157 A:eaaa                           vi_up     
-  157 A:eaaa                                    
-  158 A:eaaa  a9 1e                              lda #$1e
-  159 A:eaac  20 71 e0                           jsr print_chara
-  160 A:eaaf  4c 87 ea                           jmp vlp
-  161 A:eab2                           vi_left   
-  161 A:eab2                                    
-  162 A:eab2  a9 1d                              lda #$1d
-  163 A:eab4  20 71 e0                           jsr print_chara
-  164 A:eab7  4c 87 ea                           jmp vlp
-  165 A:eaba                           vi_right  
-  165 A:eaba                                    
-  166 A:eaba  a9 1c                              lda #$1c
-  167 A:eabc  20 71 e0                           jsr print_chara
-  168 A:eabf  4c 87 ea                           jmp vlp
-  169 A:eac2                                     .) 
+    5 A:e996                           vicmd     
+    5 A:e996                                    
+    6 A:e996                                     .( 
+    7 A:e996  da                                 phx 
+    8 A:e997  20 5e e0                           jsr cleardisplay
+    9 A:e99a  a9 0f                              lda #$0f
+   10 A:e99c  20 71 e0                           jsr print_chara
+   11 A:e99f  a9 18                              lda #24
+   12 A:e9a1  20 71 e0                           jsr print_chara
+   13 A:e9a4  a9 02                              lda #$02
+   14 A:e9a6  20 71 e0                           jsr print_chara
+   15 A:e9a9  a9 00                              lda #0
+   16 A:e9ab  20 71 e0                           jsr print_chara
+   17 A:e9ae                                    ;; check arguments
+   18 A:e9ae  a5 20                              lda ARGINDEX
+   19 A:e9b0  c9 02                              cmp #2             ; if there's two arguments, edit the typed file
+   20 A:e9b2  f0 0c                              beq processparam
+   21 A:e9b4  a5 20                              lda ARGINDEX
+   22 A:e9b6  c9 01                              cmp #1             ; if there's only one argument, edit an unnamed file
+   23 A:e9b8  d0 03                              bne jer
+   24 A:e9ba  4c 2d ea                           jmp vnf
+   25 A:e9bd                           jer       
+   25 A:e9bd                                    
+   26 A:e9bd  4c 07 e4                           jmp error
+   27 A:e9c0                           processparam                  ; process the filename parameter
+   28 A:e9c0  18                                 clc 
+   29 A:e9c1  a9 00                              lda #<INPUT
+   30 A:e9c3  65 22                              adc ARGINDEX+2
+   31 A:e9c5  85 11                              sta folderpointer
+   32 A:e9c7  aa                                 tax 
+   33 A:e9c8  a0 02                              ldy #>INPUT
+   34 A:e9ca  84 12                              sty folderpointer+1
+   35 A:e9cc  da                                 phx 
+   36 A:e9cd  5a                                 phy 
+   37 A:e9ce                                    ; print filename
+   38 A:e9ce  a9 22                              lda #$22
+   39 A:e9d0  20 71 e0                           jsr print_chara
+   40 A:e9d3  7a                                 ply 
+   41 A:e9d4  fa                                 plx 
+   42 A:e9d5  20 82 e0                           jsr w_acia_full
+   43 A:e9d8  a9 22                              lda #$22
+   44 A:e9da  20 71 e0                           jsr print_chara
+   45 A:e9dd  a9 20                              lda #$20
+   46 A:e9df  20 71 e0                           jsr print_chara
+   47 A:e9e2                                    ; convert to SHORT
+   48 A:e9e2  20 cf e4                           jsr shortconvert
+   49 A:e9e5                                    ; refresh
+   50 A:e9e5  20 0d e3                           jsr refreshpath
+   51 A:e9e8                                    ; chech if the file exists
+   52 A:e9e8  a6 11                              ldx folderpointer
+   53 A:e9ea  a4 12                              ldy folderpointer+1
+   54 A:e9ec  20 e1 de                           jsr fat32_finddirent
+   55 A:e9ef  b0 3c                              bcs vnf
+   56 A:e9f1                                    ; if it exists, load it to $0900
+   57 A:e9f1                                    ; WARNING this will overwrite RAM! 
+   58 A:e9f1  20 5a dd                           jsr fat32_opendirent
+   59 A:e9f4  a9 09                              lda #$09
+   60 A:e9f6  85 5d                              sta fat32_address+1
+   61 A:e9f8  64 5c                              stz fat32_address
+   62 A:e9fa  20 a0 df                           jsr fat32_file_read
+   63 A:e9fd                                    ; now print first part to screen
+   64 A:e9fd                                    ; BUG files can go past the screen limit, and glitch the viewer.
+   65 A:e9fd  20 7a e0                           jsr ascii_home
+   66 A:ea00  a2 00                              ldx #0
+   67 A:ea02  a0 00                              ldy #0
+   68 A:ea04  64 1a                              stz viaddr
+   69 A:ea06  a9 09                              lda #$09
+   70 A:ea08  85 1b                              sta viaddr+1
+   71 A:ea0a                           vcplp     
+   71 A:ea0a                                    
+   72 A:ea0a  b2 1a                              lda (viaddr)
+   73 A:ea0c  f0 28                              beq veof
+   74 A:ea0e  c9 0d                              cmp #$0d
+   75 A:ea10  f0 15                              beq cr
+   76 A:ea12  c8                                 iny 
+   77 A:ea13  c0 50                              cpy #80
+   78 A:ea15  f0 10                              beq cr
+   79 A:ea17                           otherv    
+   79 A:ea17                                    
+   80 A:ea17  20 71 e0                           jsr print_chara
+   81 A:ea1a  f0 3a                              beq startcsr                ; file displayed, no eof yet
+   82 A:ea1c  e6 1a                              inc viaddr
+   83 A:ea1e  a5 1a                              lda viaddr
+   84 A:ea20  d0 02                              bne nnon
+   85 A:ea22  e6 1b                              inc viaddr+1
+   86 A:ea24                           nnon      
+   86 A:ea24                                    
+   87 A:ea24  4c 0a ea                           jmp vcplp
+   88 A:ea27                           cr        
+   88 A:ea27                                    
+   89 A:ea27  e8                                 inx 
+   90 A:ea28  a0 00                              ldy #0
+   91 A:ea2a  4c 17 ea                           jmp otherv
+   92 A:ea2d                           vnf       
+   92 A:ea2d                                    
+   93 A:ea2d  a2 c5                              ldx #<nfm
+   94 A:ea2f  a0 ea                              ldy #>nfm
+   95 A:ea31  20 82 e0                           jsr w_acia_full
+   96 A:ea34  a2 00                              ldx #0
+   97 A:ea36                           veof      
+   97 A:ea36                                    
+   98 A:ea36                                    ; eof reached. fill the screen with ~
+   99 A:ea36  e8                                 inx 
+  100 A:ea37  86 1e                              stx vif_end
+  101 A:ea39                           vinlp     
+  101 A:ea39                                    
+  102 A:ea39  a9 0f                              lda #$0f
+  103 A:ea3b  20 71 e0                           jsr print_chara
+  104 A:ea3e  8a                                 txa 
+  105 A:ea3f  20 71 e0                           jsr print_chara
+  106 A:ea42  a9 0e                              lda #$0e
+  107 A:ea44  20 71 e0                           jsr print_chara
+  108 A:ea47  a9 00                              lda #0
+  109 A:ea49  20 71 e0                           jsr print_chara
+  110 A:ea4c  a9 7e                              lda #'~'
+  111 A:ea4e  20 71 e0                           jsr print_chara
+  112 A:ea51  e8                                 inx 
+  113 A:ea52  e0 18                              cpx #24
+  114 A:ea54  d0 e3                              bne vinlp
+  115 A:ea56                           startcsr  
+  115 A:ea56                                    
+  116 A:ea56  a9 0e                              lda #$0e
+  117 A:ea58  20 71 e0                           jsr print_chara
+  118 A:ea5b  a9 46                              lda #70
+  119 A:ea5d  20 71 e0                           jsr print_chara
+  120 A:ea60  a9 0f                              lda #$0f
+  121 A:ea62  20 71 e0                           jsr print_chara
+  122 A:ea65  a9 18                              lda #24
+  123 A:ea67  20 71 e0                           jsr print_chara
+  124 A:ea6a  a9 30                              lda #'0'
+  125 A:ea6c  20 71 e0                           jsr print_chara
+  126 A:ea6f  a9 2c                              lda #','
+  127 A:ea71  20 71 e0                           jsr print_chara
+  128 A:ea74  a9 30                              lda #'0'
+  129 A:ea76  20 71 e0                           jsr print_chara
+  130 A:ea79  20 7a e0                           jsr ascii_home
+  131 A:ea7c  a9 02                              lda #$02
+  132 A:ea7e  20 71 e0                           jsr print_chara
+  133 A:ea81  a9 db                              lda #$db
+  134 A:ea83  20 71 e0                           jsr print_chara
+  135 A:ea86  64 1c                              stz cursor_x
+  136 A:ea88  64 1d                              stz cursor_y
+  137 A:ea8a                           vlp       
+  137 A:ea8a                                    
+  138 A:ea8a                                    ; wait until key pressed
+  139 A:ea8a  20 47 f5                           jsr rxpoll
+  140 A:ea8d  ad 00 80                           lda $8000
+  141 A:ea90                                    ; parse arrow keys
+  142 A:ea90  c9 18                              cmp #$18
+  143 A:ea92  f0 11                              beq vi_down
+  144 A:ea94  c9 05                              cmp #$05
+  145 A:ea96  f0 15                              beq vi_up
+  146 A:ea98  c9 10                              cmp #$10
+  147 A:ea9a  f0 19                              beq vi_left
+  148 A:ea9c  c9 04                              cmp #$04
+  149 A:ea9e  f0 1d                              beq vi_right
+  150 A:eaa0  4c 8a ea                           jmp vlp
+  151 A:eaa3  fa                                 plx 
+  152 A:eaa4  60                                 rts 
+  153 A:eaa5                           vi_down   
+  153 A:eaa5                                    
+  154 A:eaa5  a9 1f                              lda #$1f
+  155 A:eaa7  20 71 e0                           jsr print_chara
+  156 A:eaaa  4c 8a ea                           jmp vlp
+  157 A:eaad                           vi_up     
+  157 A:eaad                                    
+  158 A:eaad  a9 1e                              lda #$1e
+  159 A:eaaf  20 71 e0                           jsr print_chara
+  160 A:eab2  4c 8a ea                           jmp vlp
+  161 A:eab5                           vi_left   
+  161 A:eab5                                    
+  162 A:eab5  a9 1d                              lda #$1d
+  163 A:eab7  20 71 e0                           jsr print_chara
+  164 A:eaba  4c 8a ea                           jmp vlp
+  165 A:eabd                           vi_right  
+  165 A:eabd                                    
+  166 A:eabd  a9 1c                              lda #$1c
+  167 A:eabf  20 71 e0                           jsr print_chara
+  168 A:eac2  4c 8a ea                           jmp vlp
+  169 A:eac5                                     .) 
 
-  171 A:eac2                           nfm       
-  171 A:eac2  5b 4e 65 77 20 46 69 ...           .byt "[New File]",0
+  171 A:eac5                           nfm       
+  171 A:eac5  5b 4e 65 77 20 46 69 ...           .byt "[New File]",0
 
 main.a65
 
 
- 2652 A:eacd                                    ;; memory copy
- 2653 A:eacd                                    ;; copies from (mem_source) to (mem_copy), all the way to (mem_end).
- 2654 A:eacd                           memcopy   
- 2654 A:eacd                                    
- 2655 A:eacd                                     .( 
- 2656 A:eacd  a0 00                              ldy #0
- 2657 A:eacf                           loopbring 
- 2658 A:eacf  b1 0a                              lda (mem_source),y  
- 2659 A:ead1  91 0c                              sta (mem_copy),y
- 2660 A:ead3  e6 0a                              inc mem_source
- 2661 A:ead5  d0 02                              bne dontinc
- 2662 A:ead7  e6 0b                              inc mem_source+1
- 2663 A:ead9                           dontinc   
- 2664 A:ead9  e6 0c                              inc mem_copy
- 2665 A:eadb  d0 02                              bne calc
- 2666 A:eadd  e6 0d                              inc mem_copy+1
- 2667 A:eadf                           calc      
- 2668 A:eadf  a5 0d                              lda mem_copy+1
- 2669 A:eae1  c5 0f                              cmp mem_end+1
- 2670 A:eae3  d0 ea                              bne loopbring
- 2671 A:eae5  a5 0c                              lda mem_copy
- 2672 A:eae7  c5 0e                              cmp mem_end
- 2673 A:eae9  d0 e4                              bne loopbring
- 2674 A:eaeb  60                                 rts 
- 2675 A:eaec                                     .) 
+ 2652 A:ead0                                    ;; memory copy
+ 2653 A:ead0                                    ;; copies from (mem_source) to (mem_copy), all the way to (mem_end).
+ 2654 A:ead0                           memcopy   
+ 2654 A:ead0                                    
+ 2655 A:ead0                                     .( 
+ 2656 A:ead0  a0 00                              ldy #0
+ 2657 A:ead2                           loopbring 
+ 2658 A:ead2  b1 0a                              lda (mem_source),y  
+ 2659 A:ead4  91 0c                              sta (mem_copy),y
+ 2660 A:ead6  e6 0a                              inc mem_source
+ 2661 A:ead8  d0 02                              bne dontinc
+ 2662 A:eada  e6 0b                              inc mem_source+1
+ 2663 A:eadc                           dontinc   
+ 2664 A:eadc  e6 0c                              inc mem_copy
+ 2665 A:eade  d0 02                              bne calc
+ 2666 A:eae0  e6 0d                              inc mem_copy+1
+ 2667 A:eae2                           calc      
+ 2668 A:eae2  a5 0d                              lda mem_copy+1
+ 2669 A:eae4  c5 0f                              cmp mem_end+1
+ 2670 A:eae6  d0 ea                              bne loopbring
+ 2671 A:eae8  a5 0c                              lda mem_copy
+ 2672 A:eaea  c5 0e                              cmp mem_end
+ 2673 A:eaec  d0 e4                              bne loopbring
+ 2674 A:eaee  60                                 rts 
+ 2675 A:eaef                                     .) 
 
- 2677 A:eaec                                    ;; memory test
- 2678 A:eaec                                    ;; the process is, for each page of memory (and MEMTESTBASE points
- 2679 A:eaec                                    ;; to the starting point), we write the number of that page into
- 2680 A:eaec                                    ;; each byte of that page (ie, each byte on page $1200 gets written
- 2681 A:eaec                                    ;; with $12, each byte on page $4600 gets written with $46).
- 2682 A:eaec                                    ;; then we read back and report errors. Leave the memory as it
- 2683 A:eaec                                    ;; is at the end of the test so that I can poke around with the
- 2684 A:eaec                                    ;; monitor later
- 2685 A:eaec                                    ;;
- 2686 A:eaec                           memtestcmd 
- 2687 A:eaec  da                                 phx                    ; preserve the stack, we're going to need x...
- 2688 A:eaed                                    ;; stage one is the write
- 2689 A:eaed                           writetest 
- 2690 A:eaed  64 46                              stz MEMTESTBASE
- 2691 A:eaef  a9 05                              lda #$05             ;; we start at page $05
- 2692 A:eaf1  85 47                              sta MEMTESTBASE+1
+ 2677 A:eaef                                    ;; memory test
+ 2678 A:eaef                                    ;; the process is, for each page of memory (and MEMTESTBASE points
+ 2679 A:eaef                                    ;; to the starting point), we write the number of that page into
+ 2680 A:eaef                                    ;; each byte of that page (ie, each byte on page $1200 gets written
+ 2681 A:eaef                                    ;; with $12, each byte on page $4600 gets written with $46).
+ 2682 A:eaef                                    ;; then we read back and report errors. Leave the memory as it
+ 2683 A:eaef                                    ;; is at the end of the test so that I can poke around with the
+ 2684 A:eaef                                    ;; monitor later
+ 2685 A:eaef                                    ;;
+ 2686 A:eaef                           memtestcmd 
+ 2687 A:eaef  da                                 phx                    ; preserve the stack, we're going to need x...
+ 2688 A:eaf0                                    ;; stage one is the write
+ 2689 A:eaf0                           writetest 
+ 2690 A:eaf0  64 46                              stz MEMTESTBASE
+ 2691 A:eaf2  a9 05                              lda #$05             ;; we start at page $05
+ 2692 A:eaf4  85 47                              sta MEMTESTBASE+1
 
- 2694 A:eaf3                                    ;; for page x, write x into each byte
- 2695 A:eaf3                                     .( 
- 2696 A:eaf3                           fillpage  
- 2697 A:eaf3  a0 00                              ldy #$00
- 2698 A:eaf5  a5 47                              lda MEMTESTBASE+1          ; load bit pattern
- 2699 A:eaf7                           loop      
- 2700 A:eaf7  91 46                              sta (MEMTESTBASE),y
- 2701 A:eaf9  c8                                 iny 
- 2702 A:eafa  d0 fb                              bne loop
+ 2694 A:eaf6                                    ;; for page x, write x into each byte
+ 2695 A:eaf6                                     .( 
+ 2696 A:eaf6                           fillpage  
+ 2697 A:eaf6  a0 00                              ldy #$00
+ 2698 A:eaf8  a5 47                              lda MEMTESTBASE+1          ; load bit pattern
+ 2699 A:eafa                           loop      
+ 2700 A:eafa  91 46                              sta (MEMTESTBASE),y
+ 2701 A:eafc  c8                                 iny 
+ 2702 A:eafd  d0 fb                              bne loop
 
- 2704 A:eafc                                    ;; move onto the next page, as long as we're still in the RAM
- 2705 A:eafc                           nextpage  
- 2706 A:eafc                                    ;lda BASE+1
- 2707 A:eafc  1a                                 inc                    ; accumulator still holds page numner
- 2708 A:eafd  c9 80                              cmp #$80             ; stop when we hit the upper half of memory
- 2709 A:eaff  f0 04                              beq readtest
- 2710 A:eb01  85 47                              sta MEMTESTBASE+1
- 2711 A:eb03  80 ee                              bra fillpage
- 2712 A:eb05                                     .) 
+ 2704 A:eaff                                    ;; move onto the next page, as long as we're still in the RAM
+ 2705 A:eaff                           nextpage  
+ 2706 A:eaff                                    ;lda BASE+1
+ 2707 A:eaff  1a                                 inc                    ; accumulator still holds page numner
+ 2708 A:eb00  c9 80                              cmp #$80             ; stop when we hit the upper half of memory
+ 2709 A:eb02  f0 04                              beq readtest
+ 2710 A:eb04  85 47                              sta MEMTESTBASE+1
+ 2711 A:eb06  80 ee                              bra fillpage
+ 2712 A:eb08                                     .) 
 
- 2714 A:eb05                                    ;; stage two. read it back and check.
- 2715 A:eb05                           readtest  
- 2716 A:eb05                                    ;; start at the beginning again
- 2717 A:eb05  64 46                              stz MEMTESTBASE
- 2718 A:eb07  a9 05                              lda #$05
- 2719 A:eb09  85 47                              sta MEMTESTBASE+1
+ 2714 A:eb08                                    ;; stage two. read it back and check.
+ 2715 A:eb08                           readtest  
+ 2716 A:eb08                                    ;; start at the beginning again
+ 2717 A:eb08  64 46                              stz MEMTESTBASE
+ 2718 A:eb0a  a9 05                              lda #$05
+ 2719 A:eb0c  85 47                              sta MEMTESTBASE+1
 
- 2721 A:eb0b                                     .( 
- 2722 A:eb0b                                    ;; each byte should be the same as the page
- 2723 A:eb0b                           nextpage  
- 2724 A:eb0b  a0 00                              ldy #$00
- 2725 A:eb0d                           loop      
- 2726 A:eb0d  b1 46                              lda (MEMTESTBASE),y
- 2727 A:eb0f  c5 47                              cmp MEMTESTBASE+1
- 2728 A:eb11  d0 0e                              bne testerr
- 2729 A:eb13  c8                                 iny 
- 2730 A:eb14  d0 f7                              bne loop
+ 2721 A:eb0e                                     .( 
+ 2722 A:eb0e                                    ;; each byte should be the same as the page
+ 2723 A:eb0e                           nextpage  
+ 2724 A:eb0e  a0 00                              ldy #$00
+ 2725 A:eb10                           loop      
+ 2726 A:eb10  b1 46                              lda (MEMTESTBASE),y
+ 2727 A:eb12  c5 47                              cmp MEMTESTBASE+1
+ 2728 A:eb14  d0 0e                              bne testerr
+ 2729 A:eb16  c8                                 iny 
+ 2730 A:eb17  d0 f7                              bne loop
 
- 2732 A:eb16  a5 47                              lda MEMTESTBASE+1
- 2733 A:eb18  1a                                 inc 
- 2734 A:eb19  c9 80                              cmp #$80
- 2735 A:eb1b  f0 10                              beq exit
- 2736 A:eb1d  85 47                              sta MEMTESTBASE+1
- 2737 A:eb1f  80 ea                              bra nextpage
- 2738 A:eb21                           testerr   
- 2739 A:eb21  a5 47                              lda MEMTESTBASE+1
- 2740 A:eb23  20 6d d6                           jsr putax
- 2741 A:eb26  98                                 tya 
- 2742 A:eb27  20 6d d6                           jsr putax
- 2743 A:eb2a  20 2f eb                           jsr memtesterr
- 2744 A:eb2d                           exit      
- 2745 A:eb2d  fa                                 plx 
- 2746 A:eb2e  60                                 rts 
- 2747 A:eb2f                                     .) 
+ 2732 A:eb19  a5 47                              lda MEMTESTBASE+1
+ 2733 A:eb1b  1a                                 inc 
+ 2734 A:eb1c  c9 80                              cmp #$80
+ 2735 A:eb1e  f0 10                              beq exit
+ 2736 A:eb20  85 47                              sta MEMTESTBASE+1
+ 2737 A:eb22  80 ea                              bra nextpage
+ 2738 A:eb24                           testerr   
+ 2739 A:eb24  a5 47                              lda MEMTESTBASE+1
+ 2740 A:eb26  20 6d d6                           jsr putax
+ 2741 A:eb29  98                                 tya 
+ 2742 A:eb2a  20 6d d6                           jsr putax
+ 2743 A:eb2d  20 32 eb                           jsr memtesterr
+ 2744 A:eb30                           exit      
+ 2745 A:eb30  fa                                 plx 
+ 2746 A:eb31  60                                 rts 
+ 2747 A:eb32                                     .) 
 
- 2750 A:eb2f                           memtesterr 
- 2751 A:eb2f  a0 00                              ldy #0
- 2752 A:eb31                                     .( 
- 2753 A:eb31                           next_char 
- 2754 A:eb31                           wait_txd_empty 
- 2755 A:eb31  ad 01 80                           lda ACIA_STATUS
- 2756 A:eb34  29 10                              and #$10
- 2757 A:eb36  f0 f9                              beq wait_txd_empty
- 2758 A:eb38  b9 96 f4                           lda memerrstr,y
- 2759 A:eb3b  f0 06                              beq endstr
- 2760 A:eb3d  8d 00 80                           sta ACIA_DATA
- 2761 A:eb40  c8                                 iny 
- 2762 A:eb41  80 ee                              bra next_char
- 2763 A:eb43                           endstr    
- 2764 A:eb43  20 45 d6                           jsr crlf
- 2765 A:eb46                                     .) 
- 2766 A:eb46  60                                 rts 
+ 2750 A:eb32                           memtesterr 
+ 2751 A:eb32  a0 00                              ldy #0
+ 2752 A:eb34                                     .( 
+ 2753 A:eb34                           next_char 
+ 2754 A:eb34                           wait_txd_empty 
+ 2755 A:eb34  ad 01 80                           lda ACIA_STATUS
+ 2756 A:eb37  29 10                              and #$10
+ 2757 A:eb39  f0 f9                              beq wait_txd_empty
+ 2758 A:eb3b  b9 99 f4                           lda memerrstr,y
+ 2759 A:eb3e  f0 06                              beq endstr
+ 2760 A:eb40  8d 00 80                           sta ACIA_DATA
+ 2761 A:eb43  c8                                 iny 
+ 2762 A:eb44  80 ee                              bra next_char
+ 2763 A:eb46                           endstr    
+ 2764 A:eb46  20 45 d6                           jsr crlf
+ 2765 A:eb49                                     .) 
+ 2766 A:eb49  60                                 rts 
 
- 2769 A:eb47                                    ;;; print the string pointed to at PRINTVEC
- 2770 A:eb47                                    ;;;
- 2771 A:eb47                           printvecstr 
- 2772 A:eb47  a0 00                              ldy #0
- 2773 A:eb49                                     .( 
- 2774 A:eb49                           next_char 
- 2775 A:eb49                           wait_txd_empty 
- 2776 A:eb49  ad 01 80                           lda ACIA_STATUS
- 2777 A:eb4c  29 10                              and #$10             ;; if you have a wdc 65c51 installed, replace this 
- 2778 A:eb4e  f0 f9                              beq wait_txd_empty                ;; with a loop.
- 2779 A:eb50  b1 42                              lda (PRINTVEC),y            ;;
- 2780 A:eb52  f0 06                              beq endstr                ;; be sure to also change the code in acia.a65!
- 2781 A:eb54  8d 00 80                           sta ACIA_DATA
- 2782 A:eb57  c8                                 iny 
- 2783 A:eb58  80 ef                              bra next_char
- 2784 A:eb5a                           endstr    
- 2785 A:eb5a                                     .) 
- 2786 A:eb5a  60                                 rts 
+ 2769 A:eb4a                                    ;;; print the string pointed to at PRINTVEC
+ 2770 A:eb4a                                    ;;;
+ 2771 A:eb4a                           printvecstr 
+ 2772 A:eb4a  a0 00                              ldy #0
+ 2773 A:eb4c                                     .( 
+ 2774 A:eb4c                           next_char 
+ 2775 A:eb4c                           wait_txd_empty 
+ 2776 A:eb4c  ad 01 80                           lda ACIA_STATUS
+ 2777 A:eb4f  29 10                              and #$10             ;; if you have a wdc 65c51 installed, replace this 
+ 2778 A:eb51  f0 f9                              beq wait_txd_empty                ;; with a loop.
+ 2779 A:eb53  b1 42                              lda (PRINTVEC),y            ;;
+ 2780 A:eb55  f0 06                              beq endstr                ;; be sure to also change the code in acia.a65!
+ 2781 A:eb57  8d 00 80                           sta ACIA_DATA
+ 2782 A:eb5a  c8                                 iny 
+ 2783 A:eb5b  80 ef                              bra next_char
+ 2784 A:eb5d                           endstr    
+ 2785 A:eb5d                                     .) 
+ 2786 A:eb5d  60                                 rts 
 
- 2788 A:eb5b                                    ;;; print a string bigger than 256 bytes. 
- 2789 A:eb5b                                    ;;; start at PRINTVEC and end at ENDVEC
- 2790 A:eb5b                                    ;;;
- 2791 A:eb5b                           printveclong 
- 2791 A:eb5b                                    
- 2792 A:eb5b                                     .( 
- 2793 A:eb5b  da                                 phx 
- 2794 A:eb5c                           lp        
- 2794 A:eb5c                                    
- 2795 A:eb5c  b2 42                              lda (PRINTVEC)
- 2796 A:eb5e  20 71 e0                           jsr print_chara
- 2797 A:eb61  e6 42                              inc PRINTVEC
- 2798 A:eb63  d0 02                              bne pvl
- 2799 A:eb65  e6 43                              inc PRINTVEC+1
- 2800 A:eb67                           pvl       
- 2800 A:eb67                                    
- 2801 A:eb67  a5 42                              lda PRINTVEC
- 2802 A:eb69  c5 0e                              cmp ENDVEC
- 2803 A:eb6b  d0 ef                              bne lp
- 2804 A:eb6d  a5 43                              lda PRINTVEC+1
- 2805 A:eb6f  c5 0f                              cmp ENDVEC+1
- 2806 A:eb71  d0 e9                              bne lp
- 2807 A:eb73  fa                                 plx 
- 2808 A:eb74  60                                 rts 
- 2809 A:eb75                                     .) 
+ 2788 A:eb5e                                    ;;; print a string bigger than 256 bytes. 
+ 2789 A:eb5e                                    ;;; start at PRINTVEC and end at ENDVEC
+ 2790 A:eb5e                                    ;;;
+ 2791 A:eb5e                           printveclong 
+ 2791 A:eb5e                                    
+ 2792 A:eb5e                                     .( 
+ 2793 A:eb5e  da                                 phx 
+ 2794 A:eb5f                           lp        
+ 2794 A:eb5f                                    
+ 2795 A:eb5f  b2 42                              lda (PRINTVEC)
+ 2796 A:eb61  20 71 e0                           jsr print_chara
+ 2797 A:eb64  e6 42                              inc PRINTVEC
+ 2798 A:eb66  d0 02                              bne pvl
+ 2799 A:eb68  e6 43                              inc PRINTVEC+1
+ 2800 A:eb6a                           pvl       
+ 2800 A:eb6a                                    
+ 2801 A:eb6a  a5 42                              lda PRINTVEC
+ 2802 A:eb6c  c5 0e                              cmp ENDVEC
+ 2803 A:eb6e  d0 ef                              bne lp
+ 2804 A:eb70  a5 43                              lda PRINTVEC+1
+ 2805 A:eb72  c5 0f                              cmp ENDVEC+1
+ 2806 A:eb74  d0 e9                              bne lp
+ 2807 A:eb76  fa                                 plx 
+ 2808 A:eb77  60                                 rts 
+ 2809 A:eb78                                     .) 
 
- 2812 A:eb75                                    ;;;
- 2813 A:eb75                                    ;;; Various string constants
- 2814 A:eb75                                    ;;;
+ 2812 A:eb78                                    ;;;
+ 2813 A:eb78                                    ;;; Various string constants
+ 2814 A:eb78                                    ;;;
 
- 2816 A:eb75                           hextable  
- 2816 A:eb75  30 31 32 33 34 35 36 ...           .byt "0123456789ABCDEF"
- 2817 A:eb85                           greeting  
- 2817 A:eb85  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor",$0d,$0a,$00
- 2818 A:eb96                           prompt    
- 2818 A:eb96  3e                                 .byt ">"
- 2819 A:eb97                           aboutstring 
- 2819 A:eb97  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor - a command prompt for the XPL-32.",$0d,$0a
- 2820 A:ebca  54 68 69 73 20 70 72 ...           .byt "This program was original developed by Paul Dourish, and it was called Mitemon.",$0d,$0a
- 2821 A:ec1b  49 6e 20 74 68 69 73 ...           .byt "In this version, I have added XPL-32 support, and a couple new commands.",$0d,$0a,$0d,$0a
- 2822 A:ec67  43 6f 70 79 72 69 67 ...           .byt "Copyright (C) 2023  Waverider & Paul Dourish",$0d,$0a,$0d,$0a
- 2823 A:ec97  54 68 69 73 20 70 72 ...           .byt "This program is free software: you can redistribute it and/or modify",$0d,$0a
- 2824 A:ecdd  69 74 20 75 6e 64 65 ...           .byt "it under the terms of the GNU General Public License as published by",$0d,$0a
- 2825 A:ed23  74 68 65 20 46 72 65 ...           .byt "the Free Software Foundation, either version 3 of the License, or",$0d,$0a
- 2826 A:ed66  28 61 74 20 79 6f 75 ...           .byt "(at your option) any later version.",$0d,$0a,$0d,$0a
- 2827 A:ed8d  54 68 69 73 20 70 72 ...           .byt "This program is distributed in the hope that it will be useful,",$0d,$0a
- 2828 A:edce  62 75 74 20 57 49 54 ...           .byt "but WITHOUT ANY WARRANTY",$3b," without even the implied warranty of",$0d,$0a
- 2829 A:ee0e  4d 45 52 43 48 41 4e ...           .byt "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",$0d,$0a
- 2830 A:ee4d  47 4e 55 20 47 65 6e ...           .byt "GNU General Public License for more details.",$0d,$0a,$0d,$0a
- 2831 A:ee7d  59 6f 75 20 73 68 6f ...           .byt "You should have received a copy of the GNU General Public License",$0d,$0a
- 2832 A:eec0  61 6c 6f 6e 67 20 77 ...           .byt "along with this program.  If not, see <https://www.gnu.org/licenses/>.",$0d,$0a
- 2833 A:ef08                           aboutstringend 
- 2833 A:ef08  00                                 .byt $00
- 2834 A:ef09                           helpstring 
- 2834 A:ef09  43 6f 6d 6d 61 6e 64 ...           .byt "Commands available:",$0d,$0a,$0d,$0a
- 2835 A:ef20  65 63 68 6f 09 20 2d ...           .byt "echo",$09," - Echos a string to the screen.",$0d,$0a
- 2836 A:ef47  68 65 6c 70 09 20 2d ...           .byt "help",$09," - displays this screen",$0d,$0a
- 2837 A:ef65  61 62 6f 75 74 09 20 ...           .byt "about",$09," - displays information about this software",$0d,$0a
- 2838 A:ef98  64 75 6d 70 09 20 2d ...           .byt "dump",$09," - dumps memory contents at a specific address",$0d,$0a
- 2839 A:efcd  70 6f 6b 65 09 20 2d ...           .byt "poke",$09," - puts a value at an address",$0d,$0a,$00
- 2840 A:eff2  7a 65 72 6f 09 20 2d ...           .byt "zero",$09," - fills a memory range with zeros",$0d,$0a
- 2841 A:f01b  67 6f 09 20 2d 20 6a ...           .byt "go",$09," - jumps to an address",$0d,$0a
- 2842 A:f036  78 72 65 63 65 69 76 ...           .byt "xreceive - receive from the serial port with xmodem to a specified address",$0d,$0a
- 2843 A:f082  64 69 73 09 20 2d 20 ...           .byt "dis",$09," - disassembles machine code a memory range into assembly, and prints that onto the screen",$0d,$0a,$00
- 2844 A:f0e3  69 6e 70 75 74 09 20 ...           .byt "input",$09," - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.",$0d,$0a
- 2845 A:f146  6d 65 6d 74 65 73 74 ...           .byt "memtest  - tests memory integrity",$0d,$0a
- 2846 A:f169                                    ;.byte "receive  - like xreceive, but no protocol is used", $0d, $0a
- 2847 A:f169  76 69 09 20 2d 20 65 ...           .byt "vi",$09," - edits a file on the sd card (NOT DONE)",$0d,$0a
- 2848 A:f197  6c 6f 61 64 09 20 2d ...           .byt "load",$09," - load a memory card's automatic loading system - also can load the specified file",$0d,$0a
- 2849 A:f1f1  73 61 76 65 09 20 2d ...           .byt "save",$09," - saves a file to the memory card",$0d,$0a
- 2850 A:f21a  6c 73 09 20 2d 20 6c ...           .byt "ls",$09," - list the current directory",$0d,$0a
- 2851 A:f23c  63 64 09 20 2d 20 63 ...           .byt "cd",$09," - change to the specified directory",$0d,$0a
- 2852 A:f265  63 61 74 09 20 2d 20 ...           .byt "cat",$09," - dumps a file directly to the screen",$0d,$0a
- 2853 A:f291  72 6d 09 20 2d 20 72 ...           .byt "rm",$09," - removes a file",$0d,$0a
- 2854 A:f2a7  6d 76 09 20 2d 20 6d ...           .byt "mv",$09," - moves a file",$0d,$0a
- 2855 A:f2bb  63 6c 65 61 72 09 20 ...           .byt "clear",$09," - clears the screen",$0d,$0a
- 2856 A:f2d7  74 6c 6f 61 64 09 20 ...           .byt "tload",$09," - loads a file from the tape system",$0d,$0a
- 2857 A:f303  74 73 61 76 65 09 20 ...           .byt "tsave",$09," - saves a file to the tape system",$0d,$0a
- 2858 A:f32d  72 74 69 09 20 2d 20 ...           .byt "rti",$09," - return from any pending interuppts. warning-might crash",$0d,$0a
- 2859 A:f36d                           helpstringend 
- 2859 A:f36d  00                                 .byt $00
- 2860 A:f36e                           nocmderrstr 
- 2860 A:f36e  43 6f 6d 6d 61 6e 64 ...           .byt "Command not recognized",$0d,$0a,$00
- 2861 A:f387                           implementstring 
- 2861 A:f387  4e 6f 74 20 79 65 74 ...           .byt "Not yet implemented",$0d,$0a,$00
- 2862 A:f39d                           dumperrstring 
- 2862 A:f39d  55 73 61 67 65 3a 20 ...           .byt "Usage: dump hexaddress [count:10]",$00
- 2863 A:f3bf                           pokeerrstring 
- 2863 A:f3bf  55 73 61 67 65 3a 20 ...           .byt "Usage: poke hexaddress hexvalue",$00
- 2864 A:f3df                           goerrstring 
- 2864 A:f3df  55 73 61 67 65 3a 20 ...           .byt "Usage: go hexaddress",$00
- 2865 A:f3f4                           zeroerrstring 
- 2865 A:f3f4  55 73 61 67 65 3a 20 ...           .byt "Usage: zero hexaddress [count:10]",$00
- 2866 A:f416                           xrecverrstring 
- 2866 A:f416  55 73 61 67 65 3a 20 ...           .byt "Usage: xreceive hexaddress",$00
- 2867 A:f431                           tsaveerrstring 
- 2867 A:f431  55 73 61 67 65 3a 20 ...           .byt "Usage: tsave startaddr endaddr",$00
- 2868 A:f450                           inputhelpstring 
- 2868 A:f450  45 6e 74 65 72 20 74 ...           .byt "Enter two-digit hex bytes. Blank line to end.",$00
- 2869 A:f47e                           inputerrstring 
- 2869 A:f47e  55 73 61 67 65 3a 20 ...           .byt "Usage: input hexaddress",$00
- 2870 A:f496                           memerrstr 
- 2870 A:f496  4d 65 6d 6f 72 79 20 ...           .byt "Memory test failed",$00
- 2871 A:f4a9                           diserrorstring 
- 2871 A:f4a9  55 73 61 67 65 3a 20 ...           .byt "Usage: dis hexaddress [count: 10]",$00
- 2872 A:f4cb                                    ; transferstring
- 2872 A:f4cb  53 65 72 69 61 6c 20 ...           .byt "Serial [S] or Memory Card [M] Transfer?",$0d,$0a,$00
- 2873 A:f4f5                           serialstring 
- 2873 A:f4f5  53 74 61 72 74 20 53 ...           .byt "Start Serial Load.",$0d,$0a,$00
- 2874 A:f50a                           loaddonestring 
- 2874 A:f50a  4c 6f 61 64 20 43 6f ...           .byt "Load Complete.",$0d,$0a,$00
- 2875 A:f51b                           char      
- 2875 A:f51b  2e                                 .byt "."
- 2876 A:f51c                           sd_error  
- 2876 A:f51c  53 44 20 43 61 72 64 ...           .byt "SD Card failed to initialize",$0d,$0a,$00
- 2877 A:f53b                           errormsg  
- 2877 A:f53b  45 72 72 6f 72 21 0d ...           .byt "Error!",$0d,$0a,$00
+ 2816 A:eb78                           hextable  
+ 2816 A:eb78  30 31 32 33 34 35 36 ...           .byt "0123456789ABCDEF"
+ 2817 A:eb88                           greeting  
+ 2817 A:eb88  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor",$0d,$0a,$00
+ 2818 A:eb99                           prompt    
+ 2818 A:eb99  3e                                 .byt ">"
+ 2819 A:eb9a                           aboutstring 
+ 2819 A:eb9a  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor - a command prompt for the XPL-32.",$0d,$0a
+ 2820 A:ebcd  54 68 69 73 20 70 72 ...           .byt "This program was original developed by Paul Dourish, and it was called Mitemon.",$0d,$0a
+ 2821 A:ec1e  49 6e 20 74 68 69 73 ...           .byt "In this version, I have added XPL-32 support, and a couple new commands.",$0d,$0a,$0d,$0a
+ 2822 A:ec6a  43 6f 70 79 72 69 67 ...           .byt "Copyright (C) 2023  Waverider & Paul Dourish",$0d,$0a,$0d,$0a
+ 2823 A:ec9a  54 68 69 73 20 70 72 ...           .byt "This program is free software: you can redistribute it and/or modify",$0d,$0a
+ 2824 A:ece0  69 74 20 75 6e 64 65 ...           .byt "it under the terms of the GNU General Public License as published by",$0d,$0a
+ 2825 A:ed26  74 68 65 20 46 72 65 ...           .byt "the Free Software Foundation, either version 3 of the License, or",$0d,$0a
+ 2826 A:ed69  28 61 74 20 79 6f 75 ...           .byt "(at your option) any later version.",$0d,$0a,$0d,$0a
+ 2827 A:ed90  54 68 69 73 20 70 72 ...           .byt "This program is distributed in the hope that it will be useful,",$0d,$0a
+ 2828 A:edd1  62 75 74 20 57 49 54 ...           .byt "but WITHOUT ANY WARRANTY",$3b," without even the implied warranty of",$0d,$0a
+ 2829 A:ee11  4d 45 52 43 48 41 4e ...           .byt "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",$0d,$0a
+ 2830 A:ee50  47 4e 55 20 47 65 6e ...           .byt "GNU General Public License for more details.",$0d,$0a,$0d,$0a
+ 2831 A:ee80  59 6f 75 20 73 68 6f ...           .byt "You should have received a copy of the GNU General Public License",$0d,$0a
+ 2832 A:eec3  61 6c 6f 6e 67 20 77 ...           .byt "along with this program.  If not, see <https://www.gnu.org/licenses/>.",$0d,$0a
+ 2833 A:ef0b                           aboutstringend 
+ 2833 A:ef0b  00                                 .byt $00
+ 2834 A:ef0c                           helpstring 
+ 2834 A:ef0c  43 6f 6d 6d 61 6e 64 ...           .byt "Commands available:",$0d,$0a,$0d,$0a
+ 2835 A:ef23  65 63 68 6f 09 20 2d ...           .byt "echo",$09," - Echos a string to the screen.",$0d,$0a
+ 2836 A:ef4a  68 65 6c 70 09 20 2d ...           .byt "help",$09," - displays this screen",$0d,$0a
+ 2837 A:ef68  61 62 6f 75 74 09 20 ...           .byt "about",$09," - displays information about this software",$0d,$0a
+ 2838 A:ef9b  64 75 6d 70 09 20 2d ...           .byt "dump",$09," - dumps memory contents at a specific address",$0d,$0a
+ 2839 A:efd0  70 6f 6b 65 09 20 2d ...           .byt "poke",$09," - puts a value at an address",$0d,$0a,$00
+ 2840 A:eff5  7a 65 72 6f 09 20 2d ...           .byt "zero",$09," - fills a memory range with zeros",$0d,$0a
+ 2841 A:f01e  67 6f 09 20 2d 20 6a ...           .byt "go",$09," - jumps to an address",$0d,$0a
+ 2842 A:f039  78 72 65 63 65 69 76 ...           .byt "xreceive - receive from the serial port with xmodem to a specified address",$0d,$0a
+ 2843 A:f085  64 69 73 09 20 2d 20 ...           .byt "dis",$09," - disassembles machine code a memory range into assembly, and prints that onto the screen",$0d,$0a,$00
+ 2844 A:f0e6  69 6e 70 75 74 09 20 ...           .byt "input",$09," - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.",$0d,$0a
+ 2845 A:f149  6d 65 6d 74 65 73 74 ...           .byt "memtest  - tests memory integrity",$0d,$0a
+ 2846 A:f16c                                    ;.byte "receive  - like xreceive, but no protocol is used", $0d, $0a
+ 2847 A:f16c  76 69 09 20 2d 20 65 ...           .byt "vi",$09," - edits a file on the sd card (NOT DONE)",$0d,$0a
+ 2848 A:f19a  6c 6f 61 64 09 20 2d ...           .byt "load",$09," - load a memory card's automatic loading system - also can load the specified file",$0d,$0a
+ 2849 A:f1f4  73 61 76 65 09 20 2d ...           .byt "save",$09," - saves a file to the memory card",$0d,$0a
+ 2850 A:f21d  6c 73 09 20 2d 20 6c ...           .byt "ls",$09," - list the current directory",$0d,$0a
+ 2851 A:f23f  63 64 09 20 2d 20 63 ...           .byt "cd",$09," - change to the specified directory",$0d,$0a
+ 2852 A:f268  63 61 74 09 20 2d 20 ...           .byt "cat",$09," - dumps a file directly to the screen",$0d,$0a
+ 2853 A:f294  72 6d 09 20 2d 20 72 ...           .byt "rm",$09," - removes a file",$0d,$0a
+ 2854 A:f2aa  6d 76 09 20 2d 20 6d ...           .byt "mv",$09," - moves a file",$0d,$0a
+ 2855 A:f2be  63 6c 65 61 72 09 20 ...           .byt "clear",$09," - clears the screen",$0d,$0a
+ 2856 A:f2da  74 6c 6f 61 64 09 20 ...           .byt "tload",$09," - loads a file from the tape system",$0d,$0a
+ 2857 A:f306  74 73 61 76 65 09 20 ...           .byt "tsave",$09," - saves a file to the tape system",$0d,$0a
+ 2858 A:f330  72 74 69 09 20 2d 20 ...           .byt "rti",$09," - return from any pending interuppts. warning-might crash",$0d,$0a
+ 2859 A:f370                           helpstringend 
+ 2859 A:f370  00                                 .byt $00
+ 2860 A:f371                           nocmderrstr 
+ 2860 A:f371  43 6f 6d 6d 61 6e 64 ...           .byt "Command not recognized",$0d,$0a,$00
+ 2861 A:f38a                           implementstring 
+ 2861 A:f38a  4e 6f 74 20 79 65 74 ...           .byt "Not yet implemented",$0d,$0a,$00
+ 2862 A:f3a0                           dumperrstring 
+ 2862 A:f3a0  55 73 61 67 65 3a 20 ...           .byt "Usage: dump hexaddress [count:10]",$00
+ 2863 A:f3c2                           pokeerrstring 
+ 2863 A:f3c2  55 73 61 67 65 3a 20 ...           .byt "Usage: poke hexaddress hexvalue",$00
+ 2864 A:f3e2                           goerrstring 
+ 2864 A:f3e2  55 73 61 67 65 3a 20 ...           .byt "Usage: go hexaddress",$00
+ 2865 A:f3f7                           zeroerrstring 
+ 2865 A:f3f7  55 73 61 67 65 3a 20 ...           .byt "Usage: zero hexaddress [count:10]",$00
+ 2866 A:f419                           xrecverrstring 
+ 2866 A:f419  55 73 61 67 65 3a 20 ...           .byt "Usage: xreceive hexaddress",$00
+ 2867 A:f434                           tsaveerrstring 
+ 2867 A:f434  55 73 61 67 65 3a 20 ...           .byt "Usage: tsave startaddr endaddr",$00
+ 2868 A:f453                           inputhelpstring 
+ 2868 A:f453  45 6e 74 65 72 20 74 ...           .byt "Enter two-digit hex bytes. Blank line to end.",$00
+ 2869 A:f481                           inputerrstring 
+ 2869 A:f481  55 73 61 67 65 3a 20 ...           .byt "Usage: input hexaddress",$00
+ 2870 A:f499                           memerrstr 
+ 2870 A:f499  4d 65 6d 6f 72 79 20 ...           .byt "Memory test failed",$00
+ 2871 A:f4ac                           diserrorstring 
+ 2871 A:f4ac  55 73 61 67 65 3a 20 ...           .byt "Usage: dis hexaddress [count: 10]",$00
+ 2872 A:f4ce                                    ; transferstring
+ 2872 A:f4ce  53 65 72 69 61 6c 20 ...           .byt "Serial [S] or Memory Card [M] Transfer?",$0d,$0a,$00
+ 2873 A:f4f8                           serialstring 
+ 2873 A:f4f8  53 74 61 72 74 20 53 ...           .byt "Start Serial Load.",$0d,$0a,$00
+ 2874 A:f50d                           loaddonestring 
+ 2874 A:f50d  4c 6f 61 64 20 43 6f ...           .byt "Load Complete.",$0d,$0a,$00
+ 2875 A:f51e                           char      
+ 2875 A:f51e  2e                                 .byt "."
+ 2876 A:f51f                           sd_error  
+ 2876 A:f51f  53 44 20 43 61 72 64 ...           .byt "SD Card failed to initialize",$0d,$0a,$00
+ 2877 A:f53e                           errormsg  
+ 2877 A:f53e  45 72 72 6f 72 21 0d ...           .byt "Error!",$0d,$0a,$00
 
- 2879 A:f544                           rxpoll    
- 2879 A:f544                                    
- 2880 A:f544  ad 01 80                           lda ACIA_STATUS
- 2881 A:f547  29 08                              and #$08
- 2882 A:f549  f0 f9                              beq rxpoll
- 2883 A:f54b  60                                 rts 
+ 2879 A:f547                           rxpoll    
+ 2879 A:f547                                    
+ 2880 A:f547  ad 01 80                           lda ACIA_STATUS
+ 2881 A:f54a  29 08                              and #$08
+ 2882 A:f54c  f0 f9                              beq rxpoll
+ 2883 A:f54e  60                                 rts 
 
- 2885 A:f54c                           interrupt 
- 2886 A:f54c  6c fe 7f                           jmp ($7ffe)
- 2887 A:f54f  40                                 rti 
+ 2885 A:f54f                           interrupt 
+ 2886 A:f54f  6c fe 7f                           jmp ($7ffe)
+ 2887 A:f552  40                                 rti 
 
- 2889 A:f550  00 ff 3e 0a 00 64 2c ...           .dsb 2622,$00
+ 2889 A:f553  00 ff 3b 0a 00 64 2c ...           .dsb 2619,$00
 
  2891 A:ff8e                                    ; ----KERNAL----
 
@@ -8476,13 +8475,13 @@ main.a65
  2912 A:ffa3                                    ; DOS commands
  2913 A:ffa3                           KERNAL_save 
  2913 A:ffa3                                    
- 2914 A:ffa3  4c 9f e7                           jmp savekernal
- 2915 A:ffa6                           KERNAL_BLANK 
+ 2914 A:ffa3  4c a2 e7                           jmp savekernal
+ 2915 A:ffa6                           KERNAL_cd 
  2915 A:ffa6                                    
- 2916 A:ffa6  6c fc ff                           jmp ($fffc)
+ 2916 A:ffa6  4c f0 e3                           jmp cdsub
  2917 A:ffa9                           KERNAL_ls 
  2917 A:ffa9                                    
- 2918 A:ffa9  4c c1 e5                           jmp list
+ 2918 A:ffa9  4c c4 e5                           jmp list
 
  2920 A:ffac                                    ; inits
 
@@ -8512,7 +8511,7 @@ main.a65
  2938 A:ffbe  4c 5e e0                           jmp cleardisplay
  2939 A:ffc1                           KERNAL_rxpoll 
  2939 A:ffc1                                    
- 2940 A:ffc1  4c 44 f5                           jmp rxpoll
+ 2940 A:ffc1  4c 47 f5                           jmp rxpoll
  2941 A:ffc4                           KERNAL_txpoll 
  2941 A:ffc4                                    
  2942 A:ffc4  4c 69 e0                           jmp txpoll
@@ -8568,7 +8567,7 @@ main.a65
 
  2981 A:fff1                           KERNAL_loadcmd 
  2981 A:fff1                                    
- 2982 A:fff1  4c 91 e6                           jmp loadone
+ 2982 A:fff1  4c 94 e6                           jmp loadone
  2983 A:fff4                           KERNAL_tsave 
  2983 A:fff4                                    
  2984 A:fff4  4c 04 ca                           jmp tsavecmd+94
@@ -8577,6 +8576,6 @@ main.a65
  2986 A:fff7  4c d3 cb                           jmp tload_kernal
 
  2988 A:fffa                                     *= $fffa
- 2989 A:fffa  4c f5                              .word interrupt
+ 2989 A:fffa  4f f5                              .word interrupt
  2990 A:fffc  00 c0                              .word reset
- 2991 A:fffe  4c f5                              .word interrupt
+ 2991 A:fffe  4f f5                              .word interrupt

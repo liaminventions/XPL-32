@@ -65,7 +65,7 @@ rootalias:
   sta folderpointer+1
   pla 
   sta folderpointer
-  jmp rtend
+  jmp resdone
 
 ral:
   .byte "ROOT       ", $00
@@ -75,7 +75,7 @@ parsepath:
   ; skip slashes
   ldy #0
   lda (folderpointer),y
-  beq ddone
+  beq resdone
   cmp #'/'
   bne buildseg
   inc folderpointer
@@ -145,9 +145,7 @@ goback:
   jsr backpath
   jmp parsepath
 
-ddone:
-  jsr refreshpath
-rtend:
+resdone:
   clc
   rts
 .)
@@ -303,7 +301,6 @@ ppdone:
 
 cdcmd:
 .(
-  phx
   lda path
   bne cdf
   jmp patherr
@@ -321,11 +318,14 @@ processparam           ; process the filename parameter
   lda #>INPUT
   sta folderpointer+1
 .)
-cdd:
+cdsub:
 .(
+  jsr stashpath
   jsr resolvepath
   jsr refreshpath
-  plx
+  bcc noerr
+  jsr restorepath
+noerr
   rts
 .)
 
@@ -675,7 +675,7 @@ processparam           ; process the filename parameter
   ;jsr jmpdir
   ;bcc dontcd
   ; now cd
-  jsr cdd
+  jsr cdsub
 ;dontcd:
   stz backdir
 .)
