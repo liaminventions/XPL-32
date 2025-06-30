@@ -229,7 +229,7 @@ main.a65
   181 A:c041                           table7    
   182 A:c041  4d c0                              .word table8
   183 A:c043  6d 65 6d 74 65 73 74 00            .byt "memtest",$00
-  184 A:c04b  fb ea                              .word memtestcmd
+  184 A:c04b  4c eb                              .word memtestcmd
   185 A:c04d                           table8    
   186 A:c04d  55 c0                              .word table9
   187 A:c04f  64 69 73 00                        .byt "dis",$00
@@ -253,11 +253,11 @@ main.a65
   205 A:c075                                    ;table13
   206 A:c075  7c c0                              .word table13
   207 A:c077  76 69 00                           .byt "vi",$00
-  208 A:c07a  a2 e9                              .word vicmd
+  208 A:c07a  f3 e9                              .word vicmd
   209 A:c07c                           table13   
   210 A:c07c  85 c0                              .word table14
   211 A:c07e  6c 6f 61 64 00                     .byt "load",$00
-  212 A:c083  31 e6                              .word loadcmd
+  212 A:c083  82 e6                              .word loadcmd
   213 A:c085                           table14   
   214 A:c085  8f c0                              .word table15
   215 A:c087  74 73 61 76 65 00                  .byt "tsave",$00
@@ -269,15 +269,15 @@ main.a65
   221 A:c099                           table16   
   222 A:c099  a0 c0                              .word table17
   223 A:c09b  6c 73 00                           .byt "ls",$00
-  224 A:c09e  91 e5                              .word lscmd
+  224 A:c09e  ea e5                              .word lscmd
   225 A:c0a0                           table17   
   226 A:c0a0  a7 c0                              .word table18
   227 A:c0a2  63 64 00                           .byt "cd",$00
-  228 A:c0a5  d4 e3                              .word cdcmd
+  228 A:c0a5  d7 e3                              .word cdcmd
   229 A:c0a7                           table18   
   230 A:c0a7  af c0                              .word table19
   231 A:c0a9  63 61 74 00                        .byt "cat",$00
-  232 A:c0ad  6f e4                              .word catcmd
+  232 A:c0ad  7a e4                              .word catcmd
   233 A:c0af                           table19   
   234 A:c0af  b9 c0                              .word table20
   235 A:c0b1  63 6c 65 61 72 00                  .byt "clear",$00
@@ -285,15 +285,15 @@ main.a65
   237 A:c0b9                           table20   
   238 A:c0b9  c2 c0                              .word table21
   239 A:c0bb  73 61 76 65 00                     .byt "save",$00
-  240 A:c0c0  4b e7                              .word savecmd
+  240 A:c0c0  9c e7                              .word savecmd
   241 A:c0c2                           table21   
   242 A:c0c2  c9 c0                              .word table22
   243 A:c0c4  72 6d 00                           .byt "rm",$00
-  244 A:c0c7  1b e8                              .word rmcmd
+  244 A:c0c7  6c e8                              .word rmcmd
   245 A:c0c9                           table22   
   246 A:c0c9  d0 c0                              .word table23
   247 A:c0cb  6d 76 00                           .byt "mv",$00
-  248 A:c0ce  59 e8                              .word mvcmd
+  248 A:c0ce  aa e8                              .word mvcmd
   249 A:c0d0                           table23   
   250 A:c0d0  00 00                              .word $00              ; this signals it's the last entry in the table
   251 A:c0d2  72 74 69 00                        .byt "rti",$00
@@ -1184,7 +1184,7 @@ startupsound.a65
    36 A:c3b9  a9 12                              lda #$12
    37 A:c3bb  85 0f                              sta mem_end+1
 
-   39 A:c3bd  20 dc ea                           jsr memcopy
+   39 A:c3bd  20 2d eb                           jsr memcopy
 
    41 A:c3c0                           runthesound 
    41 A:c3c0                                    ; thats done, now to play the sound
@@ -1290,7 +1290,7 @@ startupsound.a65
   134 A:c655  8d ff 7f                           sta $7fff
   135 A:c658  a9 fb                              lda #$fb
   136 A:c65a  8d fe 7f                           sta $7ffe
-  137 A:c65d  20 ed e0                           jsr clear_sid
+  137 A:c65d  20 f0 e0                           jsr clear_sid
   138 A:c660  a9 43                              lda #$43
   139 A:c662  8d fd 7f                           sta SEN
   140 A:c665                           ender     
@@ -1310,9 +1310,9 @@ main.a65
   300 A:c66d  8d 03 80                           sta ACIA_CONTROL
 
   302 A:c670  a9 02                              lda #$02
-  303 A:c672  20 71 e0                           jsr print_chara                ; set cursor to _
+  303 A:c672  20 74 e0                           jsr print_chara                ; set cursor to _
   304 A:c675  a9 5f                              lda #$5f
-  305 A:c677  20 71 e0                           jsr print_chara
+  305 A:c677  20 74 e0                           jsr print_chara
 
   307 A:c67a  20 f0 d6                           jsr via_init
   308 A:c67d  20 05 d7                           jsr sd_init
@@ -1324,25 +1324,25 @@ main.a65
   314 A:c68b  b0 1f                              bcs initerror
 
   316 A:c68d                                    ; Open root directory
-  317 A:c68d  20 f4 db                           jsr fat32_openroot
+  317 A:c68d  20 f7 db                           jsr fat32_openroot
 
   319 A:c690                                    ; Find subdirectory by name
-  320 A:c690  a2 1b                              ldx #<subdirname
+  320 A:c690  a2 1e                              ldx #<subdirname
   321 A:c692  a0 e2                              ldy #>subdirname
-  322 A:c694  20 e1 de                           jsr fat32_finddirent
+  322 A:c694  20 e4 de                           jsr fat32_finddirent
   323 A:c697  90 0d                              bcc foundsubdirr
 
   325 A:c699                                    ; Subdirectory not found
-  326 A:c699  a0 e8                              ldy #>submsg
-  327 A:c69b  a2 f7                              ldx #<submsg
-  328 A:c69d  20 82 e0                           jsr w_acia_full
+  326 A:c699  a0 e9                              ldy #>submsg
+  327 A:c69b  a2 48                              ldx #<submsg
+  328 A:c69d  20 85 e0                           jsr w_acia_full
   329 A:c6a0  9c 00 04                           stz path
   330 A:c6a3  4c db c6                           jmp initf
 
   332 A:c6a6                           foundsubdirr 
 
   334 A:c6a6                                    ; Open subdirectory
-  335 A:c6a6  20 5a dd                           jsr fat32_opendirent                ; open folder
+  335 A:c6a6  20 5d dd                           jsr fat32_opendirent                ; open folder
 
   337 A:c6a9  4c c7 c6                           jmp initdone
 
@@ -1350,21 +1350,21 @@ main.a65
   340 A:c6ac                                    ; Error during FAT32 initialization
 
   342 A:c6ac  a0 e2                              ldy #>fat_error
-  343 A:c6ae  a2 3c                              ldx #<fat_error
-  344 A:c6b0  20 82 e0                           jsr w_acia_full
+  343 A:c6ae  a2 3f                              ldx #<fat_error
+  344 A:c6b0  20 85 e0                           jsr w_acia_full
   345 A:c6b3  ad 62 00                           lda fat32_errorstage
-  346 A:c6b6  20 47 e0                           jsr print_hex_acia
+  346 A:c6b6  20 4a e0                           jsr print_hex_acia
   347 A:c6b9  a9 21                              lda #'!'
-  348 A:c6bb  20 71 e0                           jsr print_chara
+  348 A:c6bb  20 74 e0                           jsr print_chara
   349 A:c6be  9c 00 04                           stz path
-  350 A:c6c1  20 a5 e0                           jsr error_sound
+  350 A:c6c1  20 a8 e0                           jsr error_sound
   351 A:c6c4  4c db c6                           jmp initf
 
   353 A:c6c7                           initdone  
   354 A:c6c7  a2 00                              ldx #0
   355 A:c6c9                           inlp      
   355 A:c6c9                                    
-  356 A:c6c9  bd 1b e2                           lda subdirname,x
+  356 A:c6c9  bd 1e e2                           lda subdirname,x
   357 A:c6cc  9d 01 04                           sta path+1,x
   358 A:c6cf  e8                                 inx 
   359 A:c6d0  e0 0b                              cpx #11
@@ -1389,12 +1389,12 @@ main.a65
   377 A:c6dd                                    ;;; first just in case there's other gunk on the screen.
   378 A:c6dd                                    ;;;
   379 A:c6dd                           sayhello  
-  380 A:c6dd  a9 94                              lda #<greeting
+  380 A:c6dd  a9 e5                              lda #<greeting
   381 A:c6df  85 42                              sta PRINTVEC
   382 A:c6e1  a9 eb                              lda #>greeting
   383 A:c6e3  85 43                              sta PRINTVEC+1
   384 A:c6e5  a0 00                              ldy #0
-  385 A:c6e7  20 56 eb                           jsr printvecstr
+  385 A:c6e7  20 a7 eb                           jsr printvecstr
 
   387 A:c6ea                                    ;  ldy #0
   388 A:c6ea                                    ;.(
@@ -1422,13 +1422,13 @@ main.a65
   411 A:c6ea  ad 00 04                           lda path
   412 A:c6ed  f0 03                              beq wait_txd_empty
   413 A:c6ef                                    ;; if so, print the current directory.
-  414 A:c6ef  20 90 e3                           jsr printpath
+  414 A:c6ef  20 93 e3                           jsr printpath
   415 A:c6f2                                    ;; print the prompt
   416 A:c6f2                           wait_txd_empty 
   417 A:c6f2  ad 01 80                           lda ACIA_STATUS
   418 A:c6f5  29 10                              and #$10
   419 A:c6f7  f0 f9                              beq wait_txd_empty
-  420 A:c6f9  ad a5 eb                           lda prompt
+  420 A:c6f9  ad f6 eb                           lda prompt
   421 A:c6fc  8d 00 80                           sta ACIA_DATA
   422 A:c6ff                                     .) 
 
@@ -1603,11 +1603,11 @@ main.a65
   595 A:c78e                                    ;; ...
 
   597 A:c78e                           printerror 
-  598 A:c78e  a9 7d                              lda #<nocmderrstr
+  598 A:c78e  a9 ce                              lda #<nocmderrstr
   599 A:c790  85 42                              sta PRINTVEC
   600 A:c792  a9 f3                              lda #>nocmderrstr
   601 A:c794  85 43                              sta PRINTVEC+1
-  602 A:c796  20 56 eb                           jsr printvecstr
+  602 A:c796  20 a7 eb                           jsr printvecstr
   603 A:c799                                    ; no need for crlf
   604 A:c799                                    ;  ldy #0
   605 A:c799                                    ;.(
@@ -1633,33 +1633,33 @@ main.a65
   627 A:c79b                                    ;;;;;;;;;;;;;
 
   629 A:c79b                           aboutcmd  
-  630 A:c79b  a9 a6                              lda #<aboutstring
+  630 A:c79b  a9 f7                              lda #<aboutstring
   631 A:c79d  85 42                              sta PRINTVEC
   632 A:c79f  a9 eb                              lda #>aboutstring
   633 A:c7a1  85 43                              sta PRINTVEC+1
-  634 A:c7a3  a9 17                              lda #<aboutstringend
+  634 A:c7a3  a9 68                              lda #<aboutstringend
   635 A:c7a5  85 0e                              sta ENDVEC
   636 A:c7a7  a9 ef                              lda #>aboutstringend
   637 A:c7a9  85 0f                              sta ENDVEC+1
-  638 A:c7ab  4c 6a eb                           jmp printveclong
+  638 A:c7ab  4c bb eb                           jmp printveclong
 
   640 A:c7ae                           helpcmd   
-  641 A:c7ae  a9 18                              lda #<helpstring
+  641 A:c7ae  a9 69                              lda #<helpstring
   642 A:c7b0  85 42                              sta PRINTVEC
   643 A:c7b2  a9 ef                              lda #>helpstring
   644 A:c7b4  85 43                              sta PRINTVEC+1
-  645 A:c7b6  a9 7c                              lda #<helpstringend
+  645 A:c7b6  a9 cd                              lda #<helpstringend
   646 A:c7b8  85 0e                              sta ENDVEC
   647 A:c7ba  a9 f3                              lda #>helpstringend
   648 A:c7bc  85 0f                              sta ENDVEC+1
-  649 A:c7be  4c 6a eb                           jmp printveclong
+  649 A:c7be  4c bb eb                           jmp printveclong
 
   651 A:c7c1                           notimplcmd 
-  652 A:c7c1  a9 96                              lda #<implementstring
+  652 A:c7c1  a9 e7                              lda #<implementstring
   653 A:c7c3  85 42                              sta PRINTVEC
   654 A:c7c5  a9 f3                              lda #>implementstring
   655 A:c7c7  85 43                              sta PRINTVEC+1
-  656 A:c7c9  20 56 eb                           jsr printvecstr
+  656 A:c7c9  20 a7 eb                           jsr printvecstr
   657 A:c7cc  60                                 rts 
 
   659 A:c7cd                           echocmd   
@@ -1676,7 +1676,7 @@ main.a65
   670 A:c7da                                    ;; not using printvecstr for this because we're printing
   671 A:c7da                                    ;; directly out of the input buffer  
   672 A:c7da                           next_char 
-  673 A:c7da  20 69 e0                           jsr txpoll
+  673 A:c7da  20 6c e0                           jsr txpoll
   674 A:c7dd  bd 00 02                           lda INPUT,x
   675 A:c7e0  f0 07                              beq endofarg
   676 A:c7e2  8d 00 80                           sta ACIA_DATA
@@ -1723,11 +1723,11 @@ main.a65
   719 A:c82b  80 0b                              bra ende
 
   721 A:c82d                           error     
-  722 A:c82d  a9 ce                              lda #<pokeerrstring
+  722 A:c82d  a9 1f                              lda #<pokeerrstring
   723 A:c82f  85 42                              sta PRINTVEC
-  724 A:c831  a9 f3                              lda #>pokeerrstring
+  724 A:c831  a9 f4                              lda #>pokeerrstring
   725 A:c833  85 43                              sta PRINTVEC+1
-  726 A:c835  20 56 eb                           jsr printvecstr
+  726 A:c835  20 a7 eb                           jsr printvecstr
   727 A:c838                           ende      
   728 A:c838                                     .) 
   729 A:c838  20 45 d6                           jsr crlf
@@ -1869,11 +1869,11 @@ main.a65
   865 A:c8f8  4c 09 c9                           jmp enddumpcmd
 
   867 A:c8fb                           error     
-  868 A:c8fb  a9 ac                              lda #<dumperrstring
+  868 A:c8fb  a9 fd                              lda #<dumperrstring
   869 A:c8fd  85 42                              sta PRINTVEC
   870 A:c8ff  a9 f3                              lda #>dumperrstring
   871 A:c901  85 43                              sta PRINTVEC+1
-  872 A:c903  20 56 eb                           jsr printvecstr
+  872 A:c903  20 a7 eb                           jsr printvecstr
   873 A:c906                                    ;  ldy #0
   874 A:c906                                    ;  ;; do error
   875 A:c906                                    ;next_char
@@ -1956,11 +1956,11 @@ main.a65
 
   954 A:c960                           error     
   955 A:c960  a0 00                              ldy #0
-  956 A:c962  a9 03                              lda #<zeroerrstring
+  956 A:c962  a9 54                              lda #<zeroerrstring
   957 A:c964  85 42                              sta PRINTVEC
   958 A:c966  a9 f4                              lda #>zeroerrstring
   959 A:c968  85 43                              sta PRINTVEC+1
-  960 A:c96a  20 56 eb                           jsr printvecstr
+  960 A:c96a  20 a7 eb                           jsr printvecstr
   961 A:c96d                                    ;  ;; do error
   962 A:c96d                                    ;next_char
   963 A:c96d                                    ;wait_txd_empty  
@@ -2004,11 +2004,11 @@ main.a65
  1003 A:c991                                    ;; no rts here because we'll rts from the subroutine
 
  1005 A:c991                           error     
- 1006 A:c991  a9 ee                              lda #<goerrstring
+ 1006 A:c991  a9 3f                              lda #<goerrstring
  1007 A:c993  85 42                              sta PRINTVEC
- 1008 A:c995  a9 f3                              lda #>goerrstring
+ 1008 A:c995  a9 f4                              lda #>goerrstring
  1009 A:c997  85 43                              sta PRINTVEC+1
- 1010 A:c999  20 56 eb                           jsr printvecstr
+ 1010 A:c999  20 a7 eb                           jsr printvecstr
 
  1012 A:c99c  20 45 d6                           jsr crlf
  1013 A:c99f  60                                 rts 
@@ -2018,7 +2018,7 @@ main.a65
  1017 A:c9a0                           clearcmd  
  1017 A:c9a0                                    
  1018 A:c9a0  da                                 phx 
- 1019 A:c9a1  20 5e e0                           jsr cleardisplay
+ 1019 A:c9a1  20 61 e0                           jsr cleardisplay
  1020 A:c9a4  fa                                 plx 
  1021 A:c9a5  60                                 rts 
 
@@ -2121,14 +2121,14 @@ tape.a65
 
    89 A:ca2c  a2 4b                              ldx #<tsavemsg
    90 A:ca2e  a0 cb                              ldy #>tsavemsg              ; press rec and play
-   91 A:ca30  20 82 e0                           jsr w_acia_full
+   91 A:ca30  20 85 e0                           jsr w_acia_full
 
    93 A:ca33  a9 18                              lda #$18             ; 4 seconds
    94 A:ca35  20 3c cb                           jsr tape_delay                ; (ye fumble)
 
    96 A:ca38  a2 91                              ldx #<saving_msg              ; Saving...
    97 A:ca3a  a0 cb                              ldy #>saving_msg
-   98 A:ca3c  20 82 e0                           jsr w_acia_full
+   98 A:ca3c  20 85 e0                           jsr w_acia_full
 
   100 A:ca3f  a0 40                              ldy #$40
   101 A:ca41  20 d5 ca                           jsr inout                ; intro sound
@@ -2219,7 +2219,7 @@ tape.a65
   175 A:cacc                                    ; done
   176 A:cacc  a2 9b                              ldx #<msg2
   177 A:cace  a0 cb                              ldy #>msg2              ; "Done!"
-  178 A:cad0  20 82 e0                           jsr w_acia_full
+  178 A:cad0  20 85 e0                           jsr w_acia_full
 
   180 A:cad3  fa                                 plx 
   181 A:cad4  60                                 rts                    ; return
@@ -2290,11 +2290,11 @@ tape.a65
   237 A:cb17  4c f0 ca                           jmp bitd
 
   239 A:cb1a                           error     
-  240 A:cb1a  a9 40                              lda #<tsaveerrstring
+  240 A:cb1a  a9 91                              lda #<tsaveerrstring
   241 A:cb1c  85 42                              sta PRINTVEC
   242 A:cb1e  a9 f4                              lda #>tsaveerrstring
   243 A:cb20  85 43                              sta PRINTVEC+1
-  244 A:cb22  20 56 eb                           jsr printvecstr
+  244 A:cb22  20 a7 eb                           jsr printvecstr
 
   246 A:cb25  20 45 d6                           jsr crlf
   247 A:cb28  60                                 rts 
@@ -2402,14 +2402,14 @@ tape.a65
 
   332 A:cbe3  a2 6e                              ldx #<tloadmsg              ; PRESS PLAY ON TAPE
   333 A:cbe5  a0 cb                              ldy #>tloadmsg
-  334 A:cbe7  20 82 e0                           jsr w_acia_full
+  334 A:cbe7  20 85 e0                           jsr w_acia_full
 
   336 A:cbea  a9 18                              lda #$18             ; ye fumble
   337 A:cbec  20 3c cb                           jsr tape_delay                ; 4 second delay
 
   339 A:cbef  a2 86                              ldx #<loading_msg              ; Loading...
   340 A:cbf1  a0 cb                              ldy #>loading_msg
-  341 A:cbf3  20 82 e0                           jsr w_acia_full
+  341 A:cbf3  20 85 e0                           jsr w_acia_full
 
   343 A:cbf6  a0 00                              ldy #0
 
@@ -2497,18 +2497,18 @@ tape.a65
   415 A:cc6f                                    
   416 A:cc6f  a2 a5                              ldx #<loadedmsg              ; Loaded from X to Y
   417 A:cc71  a0 cb                              ldy #>loadedmsg
-  418 A:cc73  20 82 e0                           jsr w_acia_full
+  418 A:cc73  20 85 e0                           jsr w_acia_full
   419 A:cc76  68                                 pla 
-  420 A:cc77  20 47 e0                           jsr print_hex_acia
+  420 A:cc77  20 4a e0                           jsr print_hex_acia
   421 A:cc7a  68                                 pla 
-  422 A:cc7b  20 47 e0                           jsr print_hex_acia
+  422 A:cc7b  20 4a e0                           jsr print_hex_acia
   423 A:cc7e  a2 b2                              ldx #<tomsg
   424 A:cc80  a0 cb                              ldy #>tomsg
-  425 A:cc82  20 82 e0                           jsr w_acia_full
+  425 A:cc82  20 85 e0                           jsr w_acia_full
   426 A:cc85  a5 15                              lda len+1
-  427 A:cc87  20 47 e0                           jsr print_hex_acia
+  427 A:cc87  20 4a e0                           jsr print_hex_acia
   428 A:cc8a  a5 14                              lda len
-  429 A:cc8c  20 47 e0                           jsr print_hex_acia
+  429 A:cc8c  20 4a e0                           jsr print_hex_acia
   430 A:cc8f  20 45 d6                           jsr crlf
   431 A:cc92  fa                                 plx 
   432 A:cc93  60                                 rts 
@@ -2593,11 +2593,11 @@ main.a65
  1059 A:cce6  4c f7 cc                           jmp xmreturn
 
  1061 A:cce9                           xerror    
- 1062 A:cce9  a9 25                              lda #<xrecverrstring
+ 1062 A:cce9  a9 76                              lda #<xrecverrstring
  1063 A:cceb  85 42                              sta PRINTVEC
  1064 A:cced  a9 f4                              lda #>xrecverrstring+1
  1065 A:ccef  85 43                              sta PRINTVEC+1
- 1066 A:ccf1  20 56 eb                           jsr printvecstr
+ 1066 A:ccf1  20 a7 eb                           jsr printvecstr
  1067 A:ccf4  20 45 d6                           jsr crlf
 
  1069 A:ccf7                                     .) 
@@ -2901,11 +2901,11 @@ main.a65
 
  1091 A:ce88                           printhelp 
  1092 A:ce88                                    ;; print a help message
- 1093 A:ce88  a9 5f                              lda #<inputhelpstring
+ 1093 A:ce88  a9 b0                              lda #<inputhelpstring
  1094 A:ce8a  85 42                              sta PRINTVEC
  1095 A:ce8c  a9 f4                              lda #>inputhelpstring
  1096 A:ce8e  85 43                              sta PRINTVEC+1
- 1097 A:ce90  20 56 eb                           jsr printvecstr
+ 1097 A:ce90  20 a7 eb                           jsr printvecstr
  1098 A:ce93  20 45 d6                           jsr crlf
 
  1100 A:ce96                           processparam                  ; process the address parameter
@@ -2983,11 +2983,11 @@ main.a65
  1172 A:cf05  4c 16 cf                           jmp inputreturn
 
  1174 A:cf08                           inputerror 
- 1175 A:cf08  a9 8d                              lda #<inputerrstring
+ 1175 A:cf08  a9 de                              lda #<inputerrstring
  1176 A:cf0a  85 42                              sta PRINTVEC
  1177 A:cf0c  a9 f4                              lda #>inputerrstring+1
  1178 A:cf0e  85 43                              sta PRINTVEC+1
- 1179 A:cf10  20 56 eb                           jsr printvecstr
+ 1179 A:cf10  20 a7 eb                           jsr printvecstr
  1180 A:cf13  20 45 d6                           jsr crlf
  1181 A:cf16                           inputreturn 
  1182 A:cf16  60                                 rts                    ; return (x already restored)
@@ -3057,11 +3057,11 @@ main.a65
  1247 A:cf5d  4c 6e cf                           jmp begindis
 
  1249 A:cf60                           diserror  
- 1250 A:cf60  a9 b8                              lda #<diserrorstring
+ 1250 A:cf60  a9 09                              lda #<diserrorstring
  1251 A:cf62  85 42                              sta PRINTVEC
- 1252 A:cf64  a9 f4                              lda #>diserrorstring
+ 1252 A:cf64  a9 f5                              lda #>diserrorstring
  1253 A:cf66  85 43                              sta PRINTVEC+1
- 1254 A:cf68  20 56 eb                           jsr printvecstr
+ 1254 A:cf68  20 a7 eb                           jsr printvecstr
 
  1256 A:cf6b                           enddis    
  1257 A:cf6b  4c bf d4                           jmp exitdis
@@ -4130,7 +4130,7 @@ main.a65
  2328 A:d67d  6a                                 ror 
  2329 A:d67e  6a                                 ror 
  2330 A:d67f  a8                                 tay 
- 2331 A:d680  b9 84 eb                           lda hextable,y
+ 2331 A:d680  b9 d5 eb                           lda hextable,y
  2332 A:d683  8d 00 80                           sta ACIA_DATA
  2333 A:d686                           wait_txd_empty2 
  2334 A:d686  ad 01 80                           lda ACIA_STATUS
@@ -4140,7 +4140,7 @@ main.a65
  2338 A:d68e  18                                 clc 
  2339 A:d68f  29 0f                              and #$0f
  2340 A:d691  a8                                 tay 
- 2341 A:d692  b9 84 eb                           lda hextable,y
+ 2341 A:d692  b9 d5 eb                           lda hextable,y
  2342 A:d695  8d 00 80                           sta ACIA_DATA
  2343 A:d698                                     .) 
  2344 A:d698  7a                                 ply 
@@ -4637,7 +4637,7 @@ libsd.a65
 
   274 A:d837  a2 b6                              ldx #<failedmsg
   275 A:d839  a0 d8                              ldy #>failedmsg              ; Failed!
-  276 A:d83b  20 82 e0                           jsr w_acia_full
+  276 A:d83b  20 85 e0                           jsr w_acia_full
   277 A:d83e                           failloop  
   278 A:d83e  6c fc ff                           jmp ($fffc)
 
@@ -5170,3262 +5170,3325 @@ libfat32.a65
   420 A:daec                                    ; Save raw value for EOC check
   421 A:daec                                    ;lda fat32_nextcluster+3
   422 A:daec  c9 0f                              cmp #$0f
-  423 A:daee  90 16                              bcc notendofchain
+  423 A:daee  90 18                              bcc notendofchain
   424 A:daf0  a5 60                              lda fat32_nextcluster+2
   425 A:daf2  c9 ff                              cmp #$ff
-  426 A:daf4  d0 10                              bne notendofchain
+  426 A:daf4  d0 12                              bne notendofchain
   427 A:daf6  a5 5f                              lda fat32_nextcluster+1
   428 A:daf8  c9 ff                              cmp #$ff
-  429 A:dafa  d0 0a                              bne notendofchain
+  429 A:dafa  d0 0c                              bne notendofchain
   430 A:dafc  a5 5e                              lda fat32_nextcluster
   431 A:dafe  c9 f8                              cmp #$f8
-  432 A:db00  90 04                              bcc notendofchain
+  432 A:db00  90 06                              bcc notendofchain
 
   434 A:db02                                    ; It's EOC
   435 A:db02  a9 ff                              lda #$ff
   436 A:db04  85 61                              sta fat32_nextcluster+3
-  437 A:db06                           notendofchain 
-  437 A:db06                                    
-  438 A:db06  60                                 rts 
-  439 A:db07                                     .) 
-
-  442 A:db07                           fat32_readnextsector 
-  442 A:db07                                    
-  443 A:db07                                     .( 
-  444 A:db07                                    ; Reads the next sector from a cluster chain into the buffer at fat32_address.
-  445 A:db07                                    ;
-  446 A:db07                                    ; Advances the current sector ready for the next read and looks up the next cluster
-  447 A:db07                                    ; in the chain when necessary.
-  448 A:db07                                    ;
-  449 A:db07                                    ; On return, carry is clear if data was read, or set if the cluster chain has ended.
-
-  451 A:db07                                    ; Maybe there are pending sectors in the current cluster
-  452 A:db07  a5 5b                              lda fat32_pendingsectors
-  453 A:db09  d0 1f                              bne readsector
-
-  455 A:db0b                                    ; No pending sectors, check for end of cluster chain
-  456 A:db0b  a5 61                              lda fat32_nextcluster+3
-  457 A:db0d  c9 0f                              cmp #$0f
-  458 A:db0f  d0 15                              bne not_eoc
-  459 A:db11  a5 60                              lda fat32_nextcluster+2
-  460 A:db13  c9 ff                              cmp #$ff
-  461 A:db15  d0 0f                              bne not_eoc
-  462 A:db17  a5 5f                              lda fat32_nextcluster+1
-  463 A:db19  c9 ff                              cmp #$ff
-  464 A:db1b  d0 09                              bne not_eoc
-  465 A:db1d  a5 5e                              lda fat32_nextcluster
-  466 A:db1f  c9 f8                              cmp #$f8             ; EOC starts at F8
-  467 A:db21  90 03                              bcc not_eoc
-
-  469 A:db23  4c 47 db                           jmp endofchain
-
-  471 A:db26                           not_eoc   
-  471 A:db26                                    
-
-  473 A:db26                                    ; Prepare to read the next cluster
-  474 A:db26  38                                 sec 
-  475 A:db27  20 19 da                           jsr fat32_seekcluster
-
-  477 A:db2a                           readsector 
-  477 A:db2a                                    
-  478 A:db2a  c6 5b                              dec fat32_pendingsectors
-
-  480 A:db2c                                    ; Set up target address  
-  481 A:db2c  a5 5c                              lda fat32_address
-  482 A:db2e  85 48                              sta zp_sd_address
-  483 A:db30  a5 5d                              lda fat32_address+1
-  484 A:db32  85 49                              sta zp_sd_address+1
-
-  486 A:db34                                    ; Read the sector
-  487 A:db34  20 f6 d7                           jsr sd_readsector
-
-  489 A:db37                                    ; Advance to next sector
-  490 A:db37  e6 4a                              inc zp_sd_currentsector
-  491 A:db39  d0 0a                              bne sectorincrementdone
-  492 A:db3b  e6 4b                              inc zp_sd_currentsector+1
-  493 A:db3d  d0 06                              bne sectorincrementdone
-  494 A:db3f  e6 4c                              inc zp_sd_currentsector+2
-  495 A:db41  d0 02                              bne sectorincrementdone
-  496 A:db43  e6 4d                              inc zp_sd_currentsector+3
-  497 A:db45                           sectorincrementdone 
-  497 A:db45                                    
-
-  499 A:db45                                    ; Success - clear carry and return
-  500 A:db45  18                                 clc 
-  501 A:db46  60                                 rts 
-
-  503 A:db47                           endofchain 
-  503 A:db47                                    
-  504 A:db47                                    ; End of chain - set carry and return
-  505 A:db47  38                                 sec 
-  506 A:db48  60                                 rts 
-  507 A:db49                                     .) 
-
-  509 A:db49                           fat32_writenextsector 
-  509 A:db49                                    
-  510 A:db49                                     .( 
-  511 A:db49                                    ; Writes the next sector into the buffer at fat32_address.
-  512 A:db49                                    ;
-  513 A:db49                                    ; On return, carry is set if its the end of the chain. 
-
-  515 A:db49                                    ; Maybe there are pending sectors in the current cluster
-  516 A:db49  a5 5b                              lda fat32_pendingsectors
-  517 A:db4b  d0 1f                              bne wr
-
-  519 A:db4d                                    ; No pending sectors, check for end of cluster chain
-  520 A:db4d  a5 61                              lda fat32_nextcluster+3
-  521 A:db4f  c9 0f                              cmp #$0f
-  522 A:db51  d0 15                              bne not_eoc
-  523 A:db53  a5 60                              lda fat32_nextcluster+2
-  524 A:db55  c9 ff                              cmp #$ff
-  525 A:db57  d0 0f                              bne not_eoc
-  526 A:db59  a5 5f                              lda fat32_nextcluster+1
-  527 A:db5b  c9 ff                              cmp #$ff
-  528 A:db5d  d0 09                              bne not_eoc
-  529 A:db5f  a5 5e                              lda fat32_nextcluster
-  530 A:db61  c9 f8                              cmp #$f8             ; EOC starts at F8
-  531 A:db63  90 03                              bcc not_eoc
-
-  533 A:db65  4c 71 db                           jmp endofchain
-
-  535 A:db68                           not_eoc   
-  535 A:db68                                    
-
-  537 A:db68                                    ; Prepare to read the next cluster
-  538 A:db68  38                                 sec 
-  539 A:db69  20 19 da                           jsr fat32_seekcluster
-
-  541 A:db6c                           wr        
-  541 A:db6c                                    
-  542 A:db6c  20 76 db                           jsr writesector
-
-  544 A:db6f                                    ; Success - clear carry and return
-  545 A:db6f  18                                 clc 
-  546 A:db70  60                                 rts 
-
-  548 A:db71                           endofchain 
-  548 A:db71                                    
-  549 A:db71                                    ; End of chain - set carry and return
-  550 A:db71  20 76 db                           jsr writesector
-  551 A:db74  38                                 sec 
-  552 A:db75  60                                 rts 
-
-  554 A:db76                           writesector 
-  554 A:db76                                    
-  555 A:db76  c6 5b                              dec fat32_pendingsectors
-
-  557 A:db78                                    ; Set up target address
-  558 A:db78  a5 5c                              lda fat32_address
-  559 A:db7a  85 48                              sta zp_sd_address
-  560 A:db7c  a5 5d                              lda fat32_address+1
-  561 A:db7e  85 49                              sta zp_sd_address+1
-
-  563 A:db80                                    ; Write the sector
-  564 A:db80  20 4c d8                           jsr sd_writesector
-
-  566 A:db83                                    ; Advance to next sector
-  567 A:db83  e6 4a                              inc zp_sd_currentsector
-  568 A:db85  d0 0a                              bne nextsectorincrementdone
-  569 A:db87  e6 4b                              inc zp_sd_currentsector+1
-  570 A:db89  d0 06                              bne nextsectorincrementdone
-  571 A:db8b  e6 4c                              inc zp_sd_currentsector+2
-  572 A:db8d  d0 02                              bne nextsectorincrementdone
-  573 A:db8f  e6 4d                              inc zp_sd_currentsector+3
-  574 A:db91                           nextsectorincrementdone 
-  574 A:db91                                    
-  575 A:db91  60                                 rts 
-
-  577 A:db92                                     .) 
-
-  579 A:db92                           fat32_updatefat 
-  579 A:db92                                    
-  580 A:db92                                     .( 
-  581 A:db92                                    ; Preserve the current sector
-  582 A:db92  a5 4a                              lda zp_sd_currentsector
-  583 A:db94  48                                 pha 
-  584 A:db95  a5 4b                              lda zp_sd_currentsector+1
-  585 A:db97  48                                 pha 
-  586 A:db98  a5 4c                              lda zp_sd_currentsector+2
-  587 A:db9a  48                                 pha 
-  588 A:db9b  a5 4d                              lda zp_sd_currentsector+3
-  589 A:db9d  48                                 pha 
-
-  591 A:db9e                                    ; Write FAT sector
-  592 A:db9e  ad 04 03                           lda fat32_lastsector
-  593 A:dba1  85 4a                              sta zp_sd_currentsector
-  594 A:dba3  ad 05 03                           lda fat32_lastsector+1
-  595 A:dba6  85 4b                              sta zp_sd_currentsector+1
-  596 A:dba8  ad 06 03                           lda fat32_lastsector+2
-  597 A:dbab  85 4c                              sta zp_sd_currentsector+2
-  598 A:dbad  ad 07 03                           lda fat32_lastsector+3
-  599 A:dbb0  85 4d                              sta zp_sd_currentsector+3
-
-  601 A:dbb2                                    ; Target buffer
-  602 A:dbb2  a9 00                              lda #<fat32_readbuffer
-  603 A:dbb4  85 48                              sta zp_sd_address
-  604 A:dbb6  a9 05                              lda #>fat32_readbuffer
-  605 A:dbb8  85 49                              sta zp_sd_address+1
-
-  607 A:dbba                                    ; Write the FAT sector
-  608 A:dbba  20 4c d8                           jsr sd_writesector
-
-  610 A:dbbd                                    ; Check if FAT mirroring is enabled
-  611 A:dbbd  ad 08 03                           lda fat32_numfats
-  612 A:dbc0  c9 02                              cmp #2
-  613 A:dbc2  d0 23                              bne onefat
-
-  615 A:dbc4                                    ; Add the last sector to the amount of sectors per FAT
-  616 A:dbc4                                    ; (to get the second fat location)
-  617 A:dbc4  ad 04 03                           lda fat32_lastsector
-  618 A:dbc7  6d 0d 03                           adc fat32_sectorsperfat
-  619 A:dbca  85 4a                              sta zp_sd_currentsector
-  620 A:dbcc  ad 05 03                           lda fat32_lastsector+1
-  621 A:dbcf  6d 0e 03                           adc fat32_sectorsperfat+1
-  622 A:dbd2  85 4b                              sta zp_sd_currentsector+1
-  623 A:dbd4  ad 06 03                           lda fat32_lastsector+2
-  624 A:dbd7  6d 0f 03                           adc fat32_sectorsperfat+2
-  625 A:dbda  85 4c                              sta zp_sd_currentsector+2
-  626 A:dbdc  ad 07 03                           lda fat32_lastsector+3
-  627 A:dbdf  6d 10 03                           adc fat32_sectorsperfat+3
-  628 A:dbe2  85 4d                              sta zp_sd_currentsector+3
-
-  630 A:dbe4                                    ; Write the FAT sector
-  631 A:dbe4  20 4c d8                           jsr sd_writesector
-
-  633 A:dbe7                           onefat    
-  633 A:dbe7                                    
-  634 A:dbe7                                    ; Pull back the current sector
-  635 A:dbe7  68                                 pla 
-  636 A:dbe8  85 4d                              sta zp_sd_currentsector+3
-  637 A:dbea  68                                 pla 
-  638 A:dbeb  85 4c                              sta zp_sd_currentsector+2
-  639 A:dbed  68                                 pla 
-  640 A:dbee  85 4b                              sta zp_sd_currentsector+1
-  641 A:dbf0  68                                 pla 
-  642 A:dbf1  85 4a                              sta zp_sd_currentsector
-
-  644 A:dbf3  60                                 rts 
-  645 A:dbf4                                     .) 
-
-  648 A:dbf4                           fat32_openroot 
-  648 A:dbf4                                    
-  649 A:dbf4                                     .( 
-  650 A:dbf4                                    ; Prepare to read the root directory
-
-  652 A:dbf4  a5 56                              lda fat32_rootcluster
-  653 A:dbf6  85 5e                              sta fat32_nextcluster
-  654 A:dbf8  8d 11 03                           sta fat32_cdcluster
-  655 A:dbfb  a5 57                              lda fat32_rootcluster+1
-  656 A:dbfd  85 5f                              sta fat32_nextcluster+1
-  657 A:dbff  8d 12 03                           sta fat32_cdcluster+1
-  658 A:dc02  a5 58                              lda fat32_rootcluster+2
-  659 A:dc04  85 60                              sta fat32_nextcluster+2
-  660 A:dc06  8d 13 03                           sta fat32_cdcluster+2
-  661 A:dc09  a5 59                              lda fat32_rootcluster+3
-  662 A:dc0b  85 61                              sta fat32_nextcluster+3
-  663 A:dc0d  8d 14 03                           sta fat32_cdcluster+3
-
-  665 A:dc10  18                                 clc 
-  666 A:dc11  20 19 da                           jsr fat32_seekcluster
-
-  668 A:dc14                                    ; Set the pointer to a large value so we always read a sector the first time through
-  669 A:dc14  a9 ff                              lda #$ff
-  670 A:dc16  85 49                              sta zp_sd_address+1
-
-  672 A:dc18  60                                 rts 
-  673 A:dc19                                     .) 
-
-  675 A:dc19                           fat32_allocatecluster 
-  675 A:dc19                                    
-  676 A:dc19                                     .( 
-  677 A:dc19                                    ; Allocate the first cluster to store a file at.
-
-  679 A:dc19                                    ; Find a free cluster
-  680 A:dc19  20 0b dd                           jsr fat32_findnextfreecluster
-
-  682 A:dc1c                                    ; Cache the value so we can add the address of the next one later, if any
-  683 A:dc1c  a5 66                              lda fat32_lastfoundfreecluster
-  684 A:dc1e  8d 00 03                           sta fat32_lastcluster
-  685 A:dc21  8d 09 03                           sta fat32_filecluster
-  686 A:dc24  a5 67                              lda fat32_lastfoundfreecluster+1
-  687 A:dc26  8d 01 03                           sta fat32_lastcluster+1
-  688 A:dc29  8d 0a 03                           sta fat32_filecluster+1
-  689 A:dc2c  a5 68                              lda fat32_lastfoundfreecluster+2
-  690 A:dc2e  8d 02 03                           sta fat32_lastcluster+2
-  691 A:dc31  8d 0b 03                           sta fat32_filecluster+2
-  692 A:dc34  a5 69                              lda fat32_lastfoundfreecluster+3
-  693 A:dc36  8d 03 03                           sta fat32_lastcluster+3
-  694 A:dc39  8d 0c 03                           sta fat32_filecluster+3
-
-  696 A:dc3c                                    ; Add marker for the following routines, so we don't think this is free.
-  697 A:dc3c  a9 0f                              lda #$0f
-  698 A:dc3e  91 48                              sta (zp_sd_address),y
-
-  700 A:dc40  60                                 rts 
-  701 A:dc41                                     .) 
-
-  703 A:dc41                           fat32_allocatefile 
-  703 A:dc41                                    
-  704 A:dc41                                     .( 
-  705 A:dc41                                    ; Allocate an entire file in the FAT, with the
-  706 A:dc41                                    ; file's size in fat32_bytesremaining
-
-  708 A:dc41                                    ; We will read a new sector the first time around
-  709 A:dc41  9c 04 03                           stz fat32_lastsector
-  710 A:dc44  9c 05 03                           stz fat32_lastsector+1
-  711 A:dc47  9c 06 03                           stz fat32_lastsector+2
-  712 A:dc4a  9c 07 03                           stz fat32_lastsector+3
-
-  714 A:dc4d                                    ; BUG if we have a FAT enty at the end of a sector, it may be ignored! 
-
-  716 A:dc4d                                    ; Allocate the first cluster.
-  717 A:dc4d  20 19 dc                           jsr fat32_allocatecluster
-
-  719 A:dc50                                    ; We don't properly support 64k+ files, as it's unnecessary complication given
-  720 A:dc50                                    ; the 6502's small address space. So we'll just empty out the top two bytes.
-  721 A:dc50  a9 00                              lda #0
-  722 A:dc52  85 64                              sta fat32_bytesremaining+2
-  723 A:dc54  85 65                              sta fat32_bytesremaining+3
-
-  725 A:dc56                                    ; Stash filesize, as we will be clobbering it here
-  726 A:dc56  a5 62                              lda fat32_bytesremaining
-  727 A:dc58  48                                 pha 
-  728 A:dc59  a5 63                              lda fat32_bytesremaining+1
-  729 A:dc5b  48                                 pha 
-
-  731 A:dc5c                                    ; Round the size up to the next whole sector
-  732 A:dc5c  a5 62                              lda fat32_bytesremaining
-  733 A:dc5e  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
-  734 A:dc60  a5 63                              lda fat32_bytesremaining+1
-  735 A:dc62  69 00                              adc #0             ; add carry, if any
-  736 A:dc64  4a                                 lsr                    ; divide by 2
-  737 A:dc65  69 00                              adc #0             ; round up
-
-  739 A:dc67                                    ; No data?
-  740 A:dc67  d0 03                              bne nofail
-  741 A:dc69  4c 04 dd                           jmp fail
-
-  743 A:dc6c                           nofail    
-  743 A:dc6c                                    
-  744 A:dc6c                                    ; This will be clustersremaining now.
-  745 A:dc6c  85 62                              sta fat32_bytesremaining
-
-  747 A:dc6e                                    ; Divide by sectors per cluster (power of 2)
-  748 A:dc6e  a5 5a                              lda fat32_sectorspercluster
-  749 A:dc70                           cloop     
-  750 A:dc70  c9 01                              cmp #1
-  751 A:dc72  f0 08                              beq one
-  752 A:dc74  4a                                 lsr 
-  753 A:dc75  46 63                              lsr fat32_bytesremaining+1          ; high byte
-  754 A:dc77  66 62                              ror fat32_bytesremaining                ; low byte, with carry from high
-
-  756 A:dc79  4c 70 dc                           jmp cloop
-
-  758 A:dc7c                           one       
-
-  760 A:dc7c                                    ; We will be making a new cluster every time
-  761 A:dc7c  64 5b                              stz fat32_pendingsectors
-
-  763 A:dc7e                                    ; Find free clusters and allocate them for use for this file.
-  764 A:dc7e                           allocatelp 
-  765 A:dc7e                                    ; Check if it's the last cluster in the chain 
-  766 A:dc7e  a5 62                              lda fat32_bytesremaining
-  767 A:dc80  f0 04                              beq lastcluster
-  768 A:dc82  c9 01                              cmp #1             ; CHECK! is 1 the right amound for this?
-  769 A:dc84  90 2f                              bcc notlastcluster                ; clustersremaining <=1?
-
-  771 A:dc86                                    ; It is the last one.
-
-  773 A:dc86                           lastcluster 
-
-  775 A:dc86                                    ; go back the previous one
-  776 A:dc86  ad 00 03                           lda fat32_lastcluster
-  777 A:dc89  85 5e                              sta fat32_nextcluster
-  778 A:dc8b  ad 01 03                           lda fat32_lastcluster+1
-  779 A:dc8e  85 5f                              sta fat32_nextcluster+1
-  780 A:dc90  ad 02 03                           lda fat32_lastcluster+2
-  781 A:dc93  85 60                              sta fat32_nextcluster+2
-  782 A:dc95  ad 03 03                           lda fat32_lastcluster+3
-  783 A:dc98  85 61                              sta fat32_nextcluster+3
-
-  785 A:dc9a  38                                 sec 
-  786 A:dc9b  20 19 da                           jsr fat32_seekcluster
-
-  788 A:dc9e                                    ; Write 0x0FFFFFFE (EOC)
-  789 A:dc9e  a9 0f                              lda #$0f
-  790 A:dca0  91 48                              sta (zp_sd_address),y
-  791 A:dca2  88                                 dey 
-  792 A:dca3  a9 ff                              lda #$ff
-  793 A:dca5  91 48                              sta (zp_sd_address),y
-  794 A:dca7  88                                 dey 
-  795 A:dca8  91 48                              sta (zp_sd_address),y
-  796 A:dcaa  88                                 dey 
-  797 A:dcab  a9 fe                              lda #$fe
-  798 A:dcad  91 48                              sta (zp_sd_address),y
-
-  800 A:dcaf                                    ; Update the FAT
-  801 A:dcaf  20 92 db                           jsr fat32_updatefat
-
-  803 A:dcb2                                    ; End of chain - exit
-  804 A:dcb2  4c 04 dd                           jmp fail
-
-  806 A:dcb5                           notlastcluster 
-  807 A:dcb5                                    ; Wait! Is there exactly 1 cluster left?
-  808 A:dcb5  f0 cf                              beq lastcluster
-
-  810 A:dcb7                                    ; Find the next cluster
-  811 A:dcb7  20 0b dd                           jsr fat32_findnextfreecluster
-
-  813 A:dcba                                    ; Add marker so we don't think this is free.
-  814 A:dcba  a9 0f                              lda #$0f
-  815 A:dcbc  91 48                              sta (zp_sd_address),y
-
-  817 A:dcbe                                    ; Seek to the previous cluster
-  818 A:dcbe  ad 00 03                           lda fat32_lastcluster
-  819 A:dcc1  85 5e                              sta fat32_nextcluster
-  820 A:dcc3  ad 01 03                           lda fat32_lastcluster+1
-  821 A:dcc6  85 5f                              sta fat32_nextcluster+1
-  822 A:dcc8  ad 02 03                           lda fat32_lastcluster+2
-  823 A:dccb  85 60                              sta fat32_nextcluster+2
-  824 A:dccd  ad 03 03                           lda fat32_lastcluster+3
-  825 A:dcd0  85 61                              sta fat32_nextcluster+3
-
-  827 A:dcd2  38                                 sec 
-  828 A:dcd3  20 19 da                           jsr fat32_seekcluster
-
-  830 A:dcd6  5a                                 phy 
-  831 A:dcd7                                    ; Enter the address of the next one into the FAT
-  832 A:dcd7  a5 69                              lda fat32_lastfoundfreecluster+3
-  833 A:dcd9  8d 03 03                           sta fat32_lastcluster+3
-  834 A:dcdc  91 48                              sta (zp_sd_address),y
-  835 A:dcde  88                                 dey 
-  836 A:dcdf  a5 68                              lda fat32_lastfoundfreecluster+2
-  837 A:dce1  8d 02 03                           sta fat32_lastcluster+2
-  838 A:dce4  91 48                              sta (zp_sd_address),y
-  839 A:dce6  88                                 dey 
-  840 A:dce7  a5 67                              lda fat32_lastfoundfreecluster+1
-  841 A:dce9  8d 01 03                           sta fat32_lastcluster+1
-  842 A:dcec  91 48                              sta (zp_sd_address),y
-  843 A:dcee  88                                 dey 
-  844 A:dcef  a5 66                              lda fat32_lastfoundfreecluster
-  845 A:dcf1  8d 00 03                           sta fat32_lastcluster
-  846 A:dcf4  91 48                              sta (zp_sd_address),y
-  847 A:dcf6  7a                                 ply 
-
-  849 A:dcf7                                    ; Update the FAT
-  850 A:dcf7  20 92 db                           jsr fat32_updatefat
-
-  852 A:dcfa  a6 62                              ldx fat32_bytesremaining                ; note - actually loads clusters remaining
-  853 A:dcfc  ca                                 dex 
-  854 A:dcfd  86 62                              stx fat32_bytesremaining                ; note - actually stores clusters remaining
-
-  856 A:dcff  f0 03                              beq fail
-  857 A:dd01  4c 7e dc                           jmp allocatelp
-
-  859 A:dd04                                    ; Done!
-  860 A:dd04                           fail      
-  861 A:dd04                                    ; Pull the filesize back from the stack
-  862 A:dd04  68                                 pla 
-  863 A:dd05  85 63                              sta fat32_bytesremaining+1
-  864 A:dd07  68                                 pla 
-  865 A:dd08  85 62                              sta fat32_bytesremaining
-  866 A:dd0a  60                                 rts 
-
-  868 A:dd0b                                     .) 
-
-  870 A:dd0b                           fat32_findnextfreecluster 
-  870 A:dd0b                                    
-  871 A:dd0b                                     .( 
-  872 A:dd0b                                    ; Find next free cluster
-  873 A:dd0b                                    ; 
-  874 A:dd0b                                    ; This program will search the FAT for an empty entry, and
-  875 A:dd0b                                    ; save the 32-bit cluster number at fat32_lastfoundfreecluster.
-  876 A:dd0b                                    ;
-  877 A:dd0b                                    ; Also sets the carry bit if the SD card is full.
-  878 A:dd0b                                    ;
-
-  880 A:dd0b                                    ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
-  881 A:dd0b                                    ; skip reserved clusters
-  882 A:dd0b  a9 02                              lda #2
-  883 A:dd0d  85 5e                              sta fat32_nextcluster
-  884 A:dd0f  85 66                              sta fat32_lastfoundfreecluster
-  885 A:dd11  a9 00                              lda #0
-  886 A:dd13  85 5f                              sta fat32_nextcluster+1
-  887 A:dd15  85 67                              sta fat32_lastfoundfreecluster+1
-  888 A:dd17  85 60                              sta fat32_nextcluster+2
-  889 A:dd19  85 68                              sta fat32_lastfoundfreecluster+2
-  890 A:dd1b  85 61                              sta fat32_nextcluster+3
-  891 A:dd1d  85 69                              sta fat32_lastfoundfreecluster+3
-
-  893 A:dd1f                           searchclusters 
-
-  895 A:dd1f                                    ; Seek cluster
-  896 A:dd1f  38                                 sec 
-  897 A:dd20  20 19 da                           jsr fat32_seekcluster
-
-  899 A:dd23                                    ; Is the cluster free?
-  900 A:dd23  a5 5e                              lda fat32_nextcluster
-  901 A:dd25  05 5f                              ora fat32_nextcluster+1
-  902 A:dd27  05 60                              ora fat32_nextcluster+2
-  903 A:dd29  05 61                              ora fat32_nextcluster+3
-  904 A:dd2b  f0 29                              beq foundcluster
-
-  906 A:dd2d                                    ; No, increment the cluster count
-  907 A:dd2d  e6 66                              inc fat32_lastfoundfreecluster
-  908 A:dd2f  d0 10                              bne copycluster
-  909 A:dd31  e6 67                              inc fat32_lastfoundfreecluster+1
-  910 A:dd33  d0 0c                              bne copycluster
-  911 A:dd35  e6 68                              inc fat32_lastfoundfreecluster+2
-  912 A:dd37  d0 08                              bne copycluster
-  913 A:dd39  e6 69                              inc fat32_lastfoundfreecluster+3
-
-  915 A:dd3b  a5 66                              lda fat32_lastfoundfreecluster
-  916 A:dd3d  c9 10                              cmp #$10
-  917 A:dd3f  b0 17                              bcs sd_full
-
-  919 A:dd41                           copycluster 
-
-  921 A:dd41                                    ; Copy the cluster count to the next cluster
-  922 A:dd41  a5 66                              lda fat32_lastfoundfreecluster
-  923 A:dd43  85 5e                              sta fat32_nextcluster
-  924 A:dd45  a5 67                              lda fat32_lastfoundfreecluster+1
-  925 A:dd47  85 5f                              sta fat32_nextcluster+1
-  926 A:dd49  a5 68                              lda fat32_lastfoundfreecluster+2
-  927 A:dd4b  85 60                              sta fat32_nextcluster+2
-  928 A:dd4d  a5 69                              lda fat32_lastfoundfreecluster+3
-  929 A:dd4f  29 0f                              and #$0f
-  930 A:dd51  85 61                              sta fat32_nextcluster+3
-
-  932 A:dd53                                    ; Go again for another pass
-  933 A:dd53  4c 1f dd                           jmp searchclusters
-
-  935 A:dd56                           foundcluster 
-  936 A:dd56                                    ; done.
-  937 A:dd56  18                                 clc 
-  938 A:dd57  60                                 rts 
-
-  940 A:dd58                           sd_full   
-  941 A:dd58  38                                 sec 
-  942 A:dd59  60                                 rts 
-  943 A:dd5a                                     .) 
-
-  945 A:dd5a                           fat32_opendirent 
-  945 A:dd5a                                    
-  946 A:dd5a                                     .( 
-  947 A:dd5a                                    ; Prepare to read/write a file or directory based on a dirent
-  948 A:dd5a                                    ;
-  949 A:dd5a                                    ; Point zp_sd_address at the dirent
-
-  951 A:dd5a                                    ; Remember file size in bytes remaining
-  952 A:dd5a  a0 1c                              ldy #28
-  953 A:dd5c  b1 48                              lda (zp_sd_address),y
-  954 A:dd5e  85 62                              sta fat32_bytesremaining
-  955 A:dd60  c8                                 iny 
-  956 A:dd61  b1 48                              lda (zp_sd_address),y
-  957 A:dd63  85 63                              sta fat32_bytesremaining+1
-  958 A:dd65  c8                                 iny 
-  959 A:dd66  b1 48                              lda (zp_sd_address),y
-  960 A:dd68  85 64                              sta fat32_bytesremaining+2
-  961 A:dd6a  c8                                 iny 
-  962 A:dd6b  b1 48                              lda (zp_sd_address),y
-  963 A:dd6d  85 65                              sta fat32_bytesremaining+3
-
-  965 A:dd6f                                    ; Seek to first cluster
-  966 A:dd6f  a0 1a                              ldy #26
-  967 A:dd71  b1 48                              lda (zp_sd_address),y
-  968 A:dd73  85 5e                              sta fat32_nextcluster
-  969 A:dd75  c8                                 iny 
-  970 A:dd76  b1 48                              lda (zp_sd_address),y
-  971 A:dd78  85 5f                              sta fat32_nextcluster+1
-  972 A:dd7a  a0 14                              ldy #20
-  973 A:dd7c  b1 48                              lda (zp_sd_address),y
-  974 A:dd7e  85 60                              sta fat32_nextcluster+2
-  975 A:dd80  c8                                 iny 
-  976 A:dd81  b1 48                              lda (zp_sd_address),y
-  977 A:dd83  85 61                              sta fat32_nextcluster+3
-
-  979 A:dd85  18                                 clc 
-  980 A:dd86  a0 0b                              ldy #$0b
-  981 A:dd88  b1 48                              lda (zp_sd_address),Y
-  982 A:dd8a  29 10                              and #$10             ; is it a directory?
-  983 A:dd8c  f0 14                              beq fatskip_cd_cache
-
-  985 A:dd8e                                    ; If it's a directory, cache the cluster
-  986 A:dd8e  a5 5e                              lda fat32_nextcluster
-  987 A:dd90  8d 11 03                           sta fat32_cdcluster
-  988 A:dd93  a5 5f                              lda fat32_nextcluster+1
-  989 A:dd95  8d 12 03                           sta fat32_cdcluster+1
-  990 A:dd98  a5 60                              lda fat32_nextcluster+2
-  991 A:dd9a  8d 13 03                           sta fat32_cdcluster+2
-  992 A:dd9d  a5 61                              lda fat32_nextcluster+3
-  993 A:dd9f  8d 14 03                           sta fat32_cdcluster+3
-
-  995 A:dda2                           fatskip_cd_cache 
-  995 A:dda2                                    
-
-  997 A:dda2                                    ; if we're opening a directory entry with 0 cluster, use the root cluster
-  998 A:dda2  a5 61                              lda fat32_nextcluster+3
-  999 A:dda4  d0 13                              bne fseek
- 1000 A:dda6  a5 60                              lda fat32_nextcluster+2
- 1001 A:dda8  d0 0f                              bne fseek
- 1002 A:ddaa  a5 5f                              lda fat32_nextcluster+1
- 1003 A:ddac  d0 0b                              bne fseek
- 1004 A:ddae  a5 5e                              lda fat32_nextcluster
- 1005 A:ddb0  d0 07                              bne fseek
- 1006 A:ddb2  a5 56                              lda fat32_rootcluster
- 1007 A:ddb4  85 5e                              sta fat32_nextcluster
- 1008 A:ddb6  8d 11 03                           sta fat32_cdcluster
-
- 1010 A:ddb9                           fseek     
- 1010 A:ddb9                                    
- 1011 A:ddb9  18                                 clc 
- 1012 A:ddba  20 19 da                           jsr fat32_seekcluster
-
- 1014 A:ddbd                                    ; Set the pointer to a large value so we always read a sector the first time through
- 1015 A:ddbd  a9 ff                              lda #$ff
- 1016 A:ddbf  85 49                              sta zp_sd_address+1
-
- 1018 A:ddc1  60                                 rts 
- 1019 A:ddc2                                     .) 
-
- 1021 A:ddc2                           fat32_writedirent 
- 1021 A:ddc2                                    
- 1022 A:ddc2                                     .( 
- 1023 A:ddc2                                    ; Write a directory entry from the open directory
- 1024 A:ddc2                                    ; requires
- 1024 A:ddc2                                    
- 1025 A:ddc2                                    ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
-
- 1027 A:ddc2                                    ; Increment pointer by 32 to point to next entry
- 1028 A:ddc2  18                                 clc 
- 1029 A:ddc3  a5 48                              lda zp_sd_address
- 1030 A:ddc5  69 20                              adc #32
- 1031 A:ddc7  85 48                              sta zp_sd_address
- 1032 A:ddc9  a5 49                              lda zp_sd_address+1
- 1033 A:ddcb  69 00                              adc #0
- 1034 A:ddcd  85 49                              sta zp_sd_address+1
-
- 1036 A:ddcf                                    ; If it's not at the end of the buffer, we have data already
- 1037 A:ddcf  c9 07                              cmp #>(fat32_readbuffer+$0200)
- 1038 A:ddd1  90 0f                              bcc gotdirrent
-
- 1040 A:ddd3                                    ; Read another sector
- 1041 A:ddd3  a9 00                              lda #<fat32_readbuffer
- 1042 A:ddd5  85 5c                              sta fat32_address
- 1043 A:ddd7  a9 05                              lda #>fat32_readbuffer
- 1044 A:ddd9  85 5d                              sta fat32_address+1
-
- 1046 A:dddb  20 07 db                           jsr fat32_readnextsector
- 1047 A:ddde  90 02                              bcc gotdirrent
-
- 1049 A:dde0                           endofdirectorywrite 
- 1049 A:dde0                                    
- 1050 A:dde0  38                                 sec 
- 1051 A:dde1  60                                 rts 
-
- 1053 A:dde2                           gotdirrent 
- 1053 A:dde2                                    
- 1054 A:dde2                                    ; Check first character
- 1055 A:dde2  18                                 clc 
- 1056 A:dde3  a0 00                              ldy #0
- 1057 A:dde5  b1 48                              lda (zp_sd_address),y
- 1058 A:dde7  d0 d9                              bne fat32_writedirent                ; go again
- 1059 A:dde9                                    ; End of directory. Now make a new entry.
- 1060 A:dde9                           dloop     
- 1060 A:dde9                                    
- 1061 A:dde9  b1 6a                              lda (fat32_filenamepointer),y            ; copy filename
- 1062 A:ddeb  91 48                              sta (zp_sd_address),y
- 1063 A:dded  c8                                 iny 
- 1064 A:ddee  c0 0b                              cpy #$0b
- 1065 A:ddf0  d0 f7                              bne dloop
- 1066 A:ddf2                                    ; The full Short filename is #11 bytes long so,
- 1067 A:ddf2                                    ; this start at 0x0b - File type
- 1068 A:ddf2                                    ; BUG assumes that we are making a file, not a folder...
- 1069 A:ddf2  a9 20                              lda #$20             ; File Type
- 1069 A:ddf4                           ARCHIVE   
- 1070 A:ddf4  91 48                              sta (zp_sd_address),y
- 1071 A:ddf6  c8                                 iny                    ; 0x0c - Checksum/File accsess password
- 1072 A:ddf7  a9 10                              lda #$10             ; No checksum or password
- 1073 A:ddf9  91 48                              sta (zp_sd_address),y
- 1074 A:ddfb  c8                                 iny                    ; 0x0d - first char of deleted file - 0x7d for nothing
- 1075 A:ddfc  a9 7d                              lda #$7d
- 1076 A:ddfe  91 48                              sta (zp_sd_address),y
- 1077 A:de00  c8                                 iny                    ; 0x0e-0x11 - File creation time/date
- 1078 A:de01  a9 00                              lda #0
- 1079 A:de03                           empty     
- 1080 A:de03  91 48                              sta (zp_sd_address),y            ; No time/date because I don't have an RTC
- 1081 A:de05  c8                                 iny 
- 1082 A:de06  c0 14                              cpy #$14             ; also empty the user ID (0x12-0x13)
- 1083 A:de08  d0 f9                              bne empty
- 1084 A:de0a                                    ;sta (zp_sd_address),y
- 1085 A:de0a                                    ;iny
- 1086 A:de0a                                    ;sta (zp_sd_address),y
- 1087 A:de0a                                    ;iny
- 1088 A:de0a                                    ;sta (zp_sd_address),y
- 1089 A:de0a                                    ; if you have an RTC, refer to https
- 1089 A:de0a                                    
- 1090 A:de0a                                    ; show the "Directory entry" table and look at at 0x0E onward.
- 1091 A:de0a                                    ;iny   ; 0x12-0x13 - User ID
- 1092 A:de0a                                    ;lda #0
- 1093 A:de0a                                    ;sta (zp_sd_address),y ; No ID
- 1094 A:de0a                                    ;iny
- 1095 A:de0a                                    ;sta (zp_sd_address),y
- 1096 A:de0a                                    ;iny 
- 1097 A:de0a                                    ; 0x14-0x15 - File start cluster (high word)
- 1098 A:de0a  ad 0b 03                           lda fat32_filecluster+2
- 1099 A:de0d  91 48                              sta (zp_sd_address),y
- 1100 A:de0f  c8                                 iny 
- 1101 A:de10  ad 0c 03                           lda fat32_filecluster+3
- 1102 A:de13  91 48                              sta (zp_sd_address),y
- 1103 A:de15  c8                                 iny                    ; 0x16-0x19 - File modifiaction date
- 1104 A:de16  a9 00                              lda #0
- 1105 A:de18  91 48                              sta (zp_sd_address),y
- 1106 A:de1a  c8                                 iny 
- 1107 A:de1b  91 48                              sta (zp_sd_address),y            ; no rtc
- 1108 A:de1d  c8                                 iny 
- 1109 A:de1e  91 48                              sta (zp_sd_address),y
- 1110 A:de20  c8                                 iny 
- 1111 A:de21  91 48                              sta (zp_sd_address),y
- 1112 A:de23  c8                                 iny                    ; 0x1a-0x1b - File start cluster (low word)
- 1113 A:de24  ad 09 03                           lda fat32_filecluster
- 1114 A:de27  91 48                              sta (zp_sd_address),y
- 1115 A:de29  c8                                 iny 
- 1116 A:de2a  ad 0a 03                           lda fat32_filecluster+1
- 1117 A:de2d  91 48                              sta (zp_sd_address),y
- 1118 A:de2f  c8                                 iny                    ; 0x1c-0x1f File size in bytes
- 1119 A:de30  a5 62                              lda fat32_bytesremaining
- 1120 A:de32  91 48                              sta (zp_sd_address),y
- 1121 A:de34  c8                                 iny 
- 1122 A:de35  a5 63                              lda fat32_bytesremaining+1
- 1123 A:de37  91 48                              sta (zp_sd_address),y
- 1124 A:de39  c8                                 iny 
- 1125 A:de3a  a9 00                              lda #0
- 1126 A:de3c  91 48                              sta (zp_sd_address),y            ; No bigger that 64k
- 1127 A:de3e  c8                                 iny 
- 1128 A:de3f  91 48                              sta (zp_sd_address),y
- 1129 A:de41  c8                                 iny 
- 1130 A:de42                                    ; are we over the buffer?
- 1131 A:de42  a5 49                              lda zp_sd_address+1
- 1132 A:de44  c9 07                              cmp #>(fat32_readbuffer+$0200)
- 1133 A:de46  90 12                              bcc notoverbuffer
- 1134 A:de48  20 81 de                           jsr fat32_wrcurrent                ; if so, write the current sector
- 1135 A:de4b  20 07 db                           jsr fat32_readnextsector                ; then read the next one.
- 1136 A:de4e  b0 2f                              bcs dfail
- 1137 A:de50  a0 00                              ldy #0
- 1138 A:de52  a9 00                              lda #<fat32_readbuffer
- 1139 A:de54  85 48                              sta zp_sd_address
- 1140 A:de56  a9 05                              lda #>fat32_readbuffer
- 1141 A:de58  85 49                              sta zp_sd_address+1
- 1142 A:de5a                           notoverbuffer 
- 1143 A:de5a                                    ; next entry is 0 (end of dir)
- 1144 A:de5a  a9 00                              lda #0
- 1145 A:de5c  91 48                              sta (zp_sd_address),y
- 1146 A:de5e                                    ; write all the data...
- 1147 A:de5e  20 81 de                           jsr fat32_wrcurrent
-
- 1149 A:de61                                    ; Great, lets get this ready for other code to use.
-
- 1151 A:de61                                    ; Seek to first cluster
- 1152 A:de61  ad 09 03                           lda fat32_filecluster
- 1153 A:de64  85 5e                              sta fat32_nextcluster
- 1154 A:de66  ad 0a 03                           lda fat32_filecluster+1
- 1155 A:de69  85 5f                              sta fat32_nextcluster+1
- 1156 A:de6b  ad 0b 03                           lda fat32_filecluster+2
- 1157 A:de6e  85 60                              sta fat32_nextcluster+2
- 1158 A:de70  ad 0c 03                           lda fat32_filecluster+3
- 1159 A:de73  85 61                              sta fat32_nextcluster+3
-
- 1161 A:de75  18                                 clc 
- 1162 A:de76  20 19 da                           jsr fat32_seekcluster
-
- 1164 A:de79                                    ; Set the pointer to a large value so we always read a sector the first time through
- 1165 A:de79  a9 ff                              lda #$ff
- 1166 A:de7b  85 49                              sta zp_sd_address+1
-
- 1168 A:de7d  18                                 clc 
- 1169 A:de7e  60                                 rts 
-
- 1171 A:de7f                           dfail     
- 1171 A:de7f                                    
- 1172 A:de7f                                    ; Card Full
- 1173 A:de7f  38                                 sec 
- 1174 A:de80  60                                 rts 
- 1175 A:de81                                     .) 
-
- 1177 A:de81                           fat32_wrcurrent 
- 1177 A:de81                                    
- 1178 A:de81                                     .( 
- 1179 A:de81                                    ; decrement the sector so we write the current one (not the next one)
- 1180 A:de81  a5 4a                              lda zp_sd_currentsector
- 1181 A:de83  d0 0a                              bne skip
- 1182 A:de85  c6 4b                              dec zp_sd_currentsector+1
- 1183 A:de87  d0 06                              bne skip
- 1184 A:de89  c6 4c                              dec zp_sd_currentsector+2
- 1185 A:de8b  d0 02                              bne skip
- 1186 A:de8d  c6 4d                              dec zp_sd_currentsector+3
-
- 1188 A:de8f                           skip      
- 1189 A:de8f  c6 4a                              dec zp_sd_currentsector
-
- 1191 A:de91                           nodec     
-
- 1193 A:de91  a5 5c                              lda fat32_address
- 1194 A:de93  85 48                              sta zp_sd_address
- 1195 A:de95  a5 5d                              lda fat32_address+1
- 1196 A:de97  85 49                              sta zp_sd_address+1
-
- 1198 A:de99                                    ; Read the sector
- 1199 A:de99  20 4c d8                           jsr sd_writesector
-
- 1201 A:de9c                                    ; Advance to next sector
- 1202 A:de9c  e6 4a                              inc zp_sd_currentsector
- 1203 A:de9e  d0 0a                              bne sectorincrementdone
- 1204 A:dea0  e6 4b                              inc zp_sd_currentsector+1
- 1205 A:dea2  d0 06                              bne sectorincrementdone
- 1206 A:dea4  e6 4c                              inc zp_sd_currentsector+2
- 1207 A:dea6  d0 02                              bne sectorincrementdone
- 1208 A:dea8  e6 4d                              inc zp_sd_currentsector+3
-
- 1210 A:deaa                           sectorincrementdone 
- 1211 A:deaa  60                                 rts 
- 1212 A:deab                                     .) 
-
- 1214 A:deab                           fat32_readdirent 
- 1214 A:deab                                    
- 1215 A:deab                                     .( 
- 1216 A:deab                                    ; Read a directory entry from the open directory
- 1217 A:deab                                    ;
- 1218 A:deab                                    ; On exit the carry is set if there were no more directory entries.
- 1219 A:deab                                    ;
- 1220 A:deab                                    ; Otherwise, A is set to the file's attribute byte and
- 1221 A:deab                                    ; zp_sd_address points at the returned directory entry.
- 1222 A:deab                                    ; LFNs and empty entries are ignored automatically.
-
- 1224 A:deab                                    ; Increment pointer by 32 to point to next entry
- 1225 A:deab  18                                 clc 
- 1226 A:deac  a5 48                              lda zp_sd_address
- 1227 A:deae  69 20                              adc #32
- 1228 A:deb0  85 48                              sta zp_sd_address
- 1229 A:deb2  a5 49                              lda zp_sd_address+1
- 1230 A:deb4  69 00                              adc #0
- 1231 A:deb6  85 49                              sta zp_sd_address+1
-
- 1233 A:deb8                                    ; If it's not at the end of the buffer, we have data already
- 1234 A:deb8  c9 07                              cmp #>(fat32_readbuffer+$0200)
- 1235 A:deba  90 0f                              bcc gotdata
-
- 1237 A:debc                                    ; Read another sector
- 1238 A:debc  a9 00                              lda #<fat32_readbuffer
- 1239 A:debe  85 5c                              sta fat32_address
- 1240 A:dec0  a9 05                              lda #>fat32_readbuffer
- 1241 A:dec2  85 5d                              sta fat32_address+1
-
- 1243 A:dec4  20 07 db                           jsr fat32_readnextsector
- 1244 A:dec7  90 02                              bcc gotdata
-
- 1246 A:dec9                           endofdirectory 
- 1246 A:dec9                                    
- 1247 A:dec9  38                                 sec 
- 1248 A:deca  60                                 rts 
-
- 1250 A:decb                           gotdata   
- 1250 A:decb                                    
- 1251 A:decb                                    ; Check first character
- 1252 A:decb  a0 00                              ldy #0
- 1253 A:decd  b1 48                              lda (zp_sd_address),y
-
- 1255 A:decf                                    ; End of directory => abort
- 1256 A:decf  f0 f8                              beq endofdirectory
-
- 1258 A:ded1                                    ; Empty entry => start again
- 1259 A:ded1  c9 e5                              cmp #$e5
- 1260 A:ded3  f0 d6                              beq fat32_readdirent
-
- 1262 A:ded5                                    ; Check attributes
- 1263 A:ded5  a0 0b                              ldy #11
- 1264 A:ded7  b1 48                              lda (zp_sd_address),y
- 1265 A:ded9  29 3f                              and #$3f
- 1266 A:dedb  c9 0f                              cmp #$0f             ; LFN => start again
- 1267 A:dedd  f0 cc                              beq fat32_readdirent
-
- 1269 A:dedf                                    ; Yield this result
- 1270 A:dedf  18                                 clc 
- 1271 A:dee0  60                                 rts 
- 1272 A:dee1                                     .) 
-
- 1274 A:dee1                           fat32_finddirent 
- 1274 A:dee1                                    
- 1275 A:dee1                                     .( 
- 1276 A:dee1                                    ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
- 1277 A:dee1                                    ; The directory should already be open for iteration.
-
- 1279 A:dee1                                    ; Form ZP pointer to user's filename
- 1280 A:dee1  86 6a                              stx fat32_filenamepointer
- 1281 A:dee3  84 6b                              sty fat32_filenamepointer+1
-
- 1283 A:dee5                                    ; Iterate until name is found or end of directory
- 1284 A:dee5                           direntloop 
- 1284 A:dee5                                    
- 1285 A:dee5  20 ab de                           jsr fat32_readdirent
- 1286 A:dee8  a0 0a                              ldy #10
- 1287 A:deea  90 01                              bcc comparenameloop
- 1288 A:deec  60                                 rts                    ; with carry set
-
- 1290 A:deed                           comparenameloop 
- 1290 A:deed                                    
- 1291 A:deed  b1 48                              lda (zp_sd_address),y
- 1292 A:deef  d1 6a                              cmp (fat32_filenamepointer),y
- 1293 A:def1  d0 f2                              bne direntloop                ; no match
- 1294 A:def3  88                                 dey 
- 1295 A:def4  10 f7                              bpl comparenameloop
-
- 1297 A:def6                                    ; Found it
- 1298 A:def6  18                                 clc 
- 1299 A:def7  60                                 rts 
- 1300 A:def8                                     .) 
-
- 1302 A:def8                           fat32_markdeleted 
- 1302 A:def8                                    
- 1303 A:def8                                    ; Mark the file as deleted
- 1304 A:def8                                    ; We need to stash the first character at index 0x0D
- 1305 A:def8  a0 00                              ldy #$00
- 1306 A:defa  b1 48                              lda (zp_sd_address),y
- 1307 A:defc  a0 0d                              ldy #$0d
- 1308 A:defe  91 48                              sta (zp_sd_address),y
-
- 1310 A:df00                                    ; Now put 0xE5 at the first byte
- 1311 A:df00  a0 00                              ldy #$00
- 1312 A:df02  a9 e5                              lda #$e5
- 1313 A:df04  91 48                              sta (zp_sd_address),y
-
- 1315 A:df06                                    ; Get start cluster high word
- 1316 A:df06  a0 14                              ldy #$14
- 1317 A:df08  b1 48                              lda (zp_sd_address),y
- 1318 A:df0a  85 60                              sta fat32_nextcluster+2
- 1319 A:df0c  c8                                 iny 
- 1320 A:df0d  b1 48                              lda (zp_sd_address),y
- 1321 A:df0f  85 61                              sta fat32_nextcluster+3
-
- 1323 A:df11                                    ; And low word
- 1324 A:df11  a0 1a                              ldy #$1a
- 1325 A:df13  b1 48                              lda (zp_sd_address),y
- 1326 A:df15  85 5e                              sta fat32_nextcluster
- 1327 A:df17  c8                                 iny 
- 1328 A:df18  b1 48                              lda (zp_sd_address),y
- 1329 A:df1a  85 5f                              sta fat32_nextcluster+1
-
- 1331 A:df1c                                    ; Write the dirent
- 1332 A:df1c  20 81 de                           jsr fat32_wrcurrent
-
- 1334 A:df1f                                    ; Done
- 1335 A:df1f  18                                 clc 
- 1336 A:df20  60                                 rts 
-
- 1338 A:df21                           fat32_deletefile 
- 1338 A:df21                                    
- 1339 A:df21                                     .( 
- 1340 A:df21                                    ; Removes the open file from the SD card.
- 1341 A:df21                                    ; The directory needs to be open and
- 1342 A:df21                                    ; zp_sd_address pointed to the first byte of the file entry.
-
- 1344 A:df21                                    ; Mark the file as "Removed"
- 1345 A:df21  20 f8 de                           jsr fat32_markdeleted
-
- 1347 A:df24                                    ; We will read a new sector the first time around
- 1348 A:df24  9c 04 03                           stz fat32_lastsector
- 1349 A:df27  9c 05 03                           stz fat32_lastsector+1
- 1350 A:df2a  9c 06 03                           stz fat32_lastsector+2
- 1351 A:df2d  9c 07 03                           stz fat32_lastsector+3
-
- 1353 A:df30                                    ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
- 1354 A:df30  a0 00                              ldy #0
- 1355 A:df32                           chainloop 
- 1356 A:df32                                    ; Seek to cluster
- 1357 A:df32  38                                 sec 
- 1358 A:df33  20 19 da                           jsr fat32_seekcluster
-
- 1360 A:df36                                    ; Is this the end of the chain?
- 1361 A:df36  a5 61                              lda fat32_nextcluster+3
- 1362 A:df38  30 13                              bmi endofchain
-
- 1364 A:df3a                                    ; Zero it out
- 1365 A:df3a  a9 00                              lda #0
- 1366 A:df3c  91 48                              sta (zp_sd_address),y
- 1367 A:df3e  88                                 dey 
- 1368 A:df3f  91 48                              sta (zp_sd_address),y
- 1369 A:df41  88                                 dey 
- 1370 A:df42  91 48                              sta (zp_sd_address),y
- 1371 A:df44  88                                 dey 
- 1372 A:df45  91 48                              sta (zp_sd_address),y
-
- 1374 A:df47                                    ; Write the FAT
- 1375 A:df47  20 92 db                           jsr fat32_updatefat
-
- 1377 A:df4a                                    ; And go again for another pass.
- 1378 A:df4a  4c 32 df                           jmp chainloop
-
- 1380 A:df4d                           endofchain 
- 1381 A:df4d                                    ; This is the last cluster in the chain.
-
- 1383 A:df4d                                    ; Just zero it out,
- 1384 A:df4d  a9 00                              lda #0
- 1385 A:df4f  91 48                              sta (zp_sd_address),y
- 1386 A:df51  88                                 dey 
- 1387 A:df52  91 48                              sta (zp_sd_address),y
- 1388 A:df54  88                                 dey 
- 1389 A:df55  91 48                              sta (zp_sd_address),y
- 1390 A:df57  88                                 dey 
- 1391 A:df58  91 48                              sta (zp_sd_address),y
-
- 1393 A:df5a                                    ; Write the FAT
- 1394 A:df5a  20 92 db                           jsr fat32_updatefat
-
- 1396 A:df5d                                    ; And we're done!
- 1397 A:df5d  18                                 clc 
- 1398 A:df5e  60                                 rts 
- 1399 A:df5f                                     .) 
-
- 1401 A:df5f                           fat32_file_readbyte 
- 1401 A:df5f                                    
- 1402 A:df5f                                     .( 
- 1403 A:df5f                                    ; Read a byte from an open file
- 1404 A:df5f                                    ;
- 1405 A:df5f                                    ; The byte is returned in A with C clear; or if end-of-file was reached, C is set instead
-
- 1407 A:df5f  38                                 sec 
-
- 1409 A:df60                                    ; Is there any data to read at all?
- 1410 A:df60  a5 62                              lda fat32_bytesremaining
- 1411 A:df62  05 63                              ora fat32_bytesremaining+1
- 1412 A:df64  05 64                              ora fat32_bytesremaining+2
- 1413 A:df66  05 65                              ora fat32_bytesremaining+3
- 1414 A:df68  f0 35                              beq rtss
-
- 1416 A:df6a                                    ; Decrement the remaining byte count
- 1417 A:df6a  a5 62                              lda fat32_bytesremaining
- 1418 A:df6c  e9 01                              sbc #1
- 1419 A:df6e  85 62                              sta fat32_bytesremaining
- 1420 A:df70  a5 63                              lda fat32_bytesremaining+1
- 1421 A:df72  e9 00                              sbc #0
- 1422 A:df74  85 63                              sta fat32_bytesremaining+1
- 1423 A:df76  a5 64                              lda fat32_bytesremaining+2
- 1424 A:df78  e9 00                              sbc #0
- 1425 A:df7a  85 64                              sta fat32_bytesremaining+2
- 1426 A:df7c  a5 65                              lda fat32_bytesremaining+3
- 1427 A:df7e  e9 00                              sbc #0
- 1428 A:df80  85 65                              sta fat32_bytesremaining+3
-
- 1430 A:df82                                    ; Need to read a new sector?
- 1431 A:df82  a5 49                              lda zp_sd_address+1
- 1432 A:df84  c9 07                              cmp #>(fat32_readbuffer+$0200)
- 1433 A:df86  90 0d                              bcc gotdata
-
- 1435 A:df88                                    ; Read another sector
- 1436 A:df88  a9 00                              lda #<fat32_readbuffer
- 1437 A:df8a  85 5c                              sta fat32_address
- 1438 A:df8c  a9 05                              lda #>fat32_readbuffer
- 1439 A:df8e  85 5d                              sta fat32_address+1
-
- 1441 A:df90  20 07 db                           jsr fat32_readnextsector
- 1442 A:df93  b0 0a                              bcs rtss
-
- 1444 A:df95                           gotdata   
- 1444 A:df95                                    
- 1445 A:df95  a0 00                              ldy #0
- 1446 A:df97  b1 48                              lda (zp_sd_address),y
-
- 1448 A:df99  e6 48                              inc zp_sd_address
- 1449 A:df9b  d0 02                              bne rtss
- 1450 A:df9d  e6 49                              inc zp_sd_address+1
-
- 1452 A:df9f                           rtss      
- 1452 A:df9f                                    
- 1453 A:df9f  60                                 rts 
- 1454 A:dfa0                                     .) 
-
- 1456 A:dfa0                           fat32_file_read 
- 1456 A:dfa0                                    
- 1457 A:dfa0                                     .( 
- 1458 A:dfa0                                    ; Read a whole file into memory.  It's assumed the file has just been opened 
- 1459 A:dfa0                                    ; and no data has been read yet.
- 1460 A:dfa0                                    ;
- 1461 A:dfa0                                    ; Also we read whole sectors, so data in the target region beyond the end of the 
- 1462 A:dfa0                                    ; file may get overwritten, up to the next 512-byte boundary.
- 1463 A:dfa0                                    ;
- 1464 A:dfa0                                    ; And we don't properly support 64k+ files, as it's unnecessary complication given
- 1465 A:dfa0                                    ; the 6502's small address space
-
- 1467 A:dfa0                                    ; Round the size up to the next whole sector
- 1468 A:dfa0  a5 62                              lda fat32_bytesremaining
- 1469 A:dfa2  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
- 1470 A:dfa4  a5 63                              lda fat32_bytesremaining+1
- 1471 A:dfa6  69 00                              adc #0             ; add carry, if any
- 1472 A:dfa8  4a                                 lsr                    ; divide by 2
- 1473 A:dfa9  69 00                              adc #0             ; round up
-
- 1475 A:dfab                                    ; No data?
- 1476 A:dfab  f0 12                              beq donee
-
- 1478 A:dfad                                    ; Store sector count - not a byte count any more
- 1479 A:dfad  85 62                              sta fat32_bytesremaining
-
- 1481 A:dfaf                                    ; Read entire sectors to the user-supplied buffer
- 1482 A:dfaf                           wholesectorreadloop 
- 1482 A:dfaf                                    
- 1483 A:dfaf                                    ; Read a sector to fat32_address
- 1484 A:dfaf  20 07 db                           jsr fat32_readnextsector
-
- 1486 A:dfb2                                    ; Advance fat32_address by 512 bytes
- 1487 A:dfb2  a5 5d                              lda fat32_address+1
- 1488 A:dfb4  69 02                              adc #2             ; carry already clear
- 1489 A:dfb6  85 5d                              sta fat32_address+1
-
- 1491 A:dfb8  a6 62                              ldx fat32_bytesremaining                ; note - actually loads sectors remaining
- 1492 A:dfba  ca                                 dex 
- 1493 A:dfbb  86 62                              stx fat32_bytesremaining                ; note - actually stores sectors remaining
-
- 1495 A:dfbd  d0 f0                              bne wholesectorreadloop
-
- 1497 A:dfbf                           donee     
- 1497 A:dfbf                                    
- 1498 A:dfbf  60                                 rts 
- 1499 A:dfc0                                     .) 
-
- 1501 A:dfc0                           fat32_file_write 
- 1501 A:dfc0                                    
- 1502 A:dfc0                                     .( 
- 1503 A:dfc0                                    ; Write a whole file from memory.  It's assumed the file has just been opened 
- 1504 A:dfc0                                    ; and no data has been written yet.
-
- 1506 A:dfc0                                    ; Start at the first cluster for this file
- 1507 A:dfc0  ad 09 03                           lda fat32_filecluster
- 1508 A:dfc3  8d 00 03                           sta fat32_lastcluster
- 1509 A:dfc6  ad 0a 03                           lda fat32_filecluster+1
- 1510 A:dfc9  8d 01 03                           sta fat32_lastcluster+1
- 1511 A:dfcc  ad 0b 03                           lda fat32_filecluster+2
- 1512 A:dfcf  8d 02 03                           sta fat32_lastcluster+2
- 1513 A:dfd2  ad 0c 03                           lda fat32_filecluster+3
- 1514 A:dfd5  8d 03 03                           sta fat32_lastcluster+3
-
- 1516 A:dfd8  ad 09 03                           lda fat32_filecluster
- 1517 A:dfdb  85 5e                              sta fat32_nextcluster
- 1518 A:dfdd  ad 0a 03                           lda fat32_filecluster+1
- 1519 A:dfe0  85 5f                              sta fat32_nextcluster+1
- 1520 A:dfe2  ad 0b 03                           lda fat32_filecluster+2
- 1521 A:dfe5  85 60                              sta fat32_nextcluster+2
- 1522 A:dfe7  ad 0c 03                           lda fat32_filecluster+3
- 1523 A:dfea  85 61                              sta fat32_nextcluster+3
-
- 1525 A:dfec                                    ; Round the size up to the next whole sector
- 1526 A:dfec  a5 62                              lda fat32_bytesremaining
- 1527 A:dfee  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
- 1528 A:dff0  a5 63                              lda fat32_bytesremaining+1
- 1529 A:dff2  69 00                              adc #0             ; add carry, if any
- 1530 A:dff4  4a                                 lsr                    ; divide by 2
- 1531 A:dff5  69 00                              adc #0             ; round up
-
- 1533 A:dff7                                    ; No data?
- 1534 A:dff7  f0 15                              beq fail
-
- 1536 A:dff9                                    ; Store sector count - not a byte count anymore.
- 1537 A:dff9  85 62                              sta fat32_bytesremaining
-
- 1539 A:dffb                                    ; We will be making a new cluster the first time around
- 1540 A:dffb  64 5b                              stz fat32_pendingsectors
-
- 1542 A:dffd                                    ; Write entire sectors from the user-supplied buffer
- 1543 A:dffd                           wholesectorwriteloop 
- 1543 A:dffd                                    
- 1544 A:dffd                                    ; Write a sector from fat32_address
- 1545 A:dffd  20 49 db                           jsr fat32_writenextsector
- 1546 A:e000                                    ;bcs fail ; this shouldn't happen
-
- 1548 A:e000  18                                 clc 
- 1549 A:e001                                    ; Advance fat32_address by 512 bytes
- 1550 A:e001  a5 5d                              lda fat32_address+1
- 1551 A:e003  69 02                              adc #2             ; carry already clear
- 1552 A:e005  85 5d                              sta fat32_address+1
-
- 1554 A:e007  a6 62                              ldx fat32_bytesremaining                ; note - actually loads sectors remaining
- 1555 A:e009  ca                                 dex 
- 1556 A:e00a  86 62                              stx fat32_bytesremaining                ; note - actually stores sectors remaining
-
- 1558 A:e00c  d0 ef                              bne wholesectorwriteloop
-
- 1560 A:e00e                                    ; Done!
- 1561 A:e00e                           fail      
- 1562 A:e00e  60                                 rts 
- 1563 A:e00f                                     .) 
-
- 1565 A:e00f                           fat32_open_cd 
- 1565 A:e00f                                    
- 1566 A:e00f                                    ; Prepare to read from a file or directory based on a dirent
- 1567 A:e00f                                    ;
-
- 1569 A:e00f  48                                 pha 
- 1570 A:e010  da                                 phx 
- 1571 A:e011  5a                                 phy 
-
- 1573 A:e012                                    ; Seek to first cluster of current directory
- 1574 A:e012  ad 11 03                           lda fat32_cdcluster
- 1575 A:e015  85 5e                              sta fat32_nextcluster
- 1576 A:e017  ad 12 03                           lda fat32_cdcluster+1
- 1577 A:e01a  85 5f                              sta fat32_nextcluster+1
- 1578 A:e01c  ad 13 03                           lda fat32_cdcluster+2
- 1579 A:e01f  85 60                              sta fat32_nextcluster+2
- 1580 A:e021  ad 14 03                           lda fat32_cdcluster+3
- 1581 A:e024  85 61                              sta fat32_nextcluster+3
-
- 1583 A:e026  a9 00                              lda #<fat32_readbuffer
- 1584 A:e028  85 5c                              sta fat32_address
- 1585 A:e02a  a9 05                              lda #>fat32_readbuffer
- 1586 A:e02c  85 5d                              sta fat32_address+1
-
- 1588 A:e02e  18                                 clc 
- 1589 A:e02f  20 19 da                           jsr fat32_seekcluster
-
- 1591 A:e032                                    ; Set the pointer to a large value so we always read a sector the first time through
- 1592 A:e032  a9 ff                              lda #$ff
- 1593 A:e034  85 49                              sta zp_sd_address+1
-
- 1595 A:e036  7a                                 ply 
- 1596 A:e037  fa                                 plx 
- 1597 A:e038  68                                 pla 
- 1598 A:e039  60                                 rts 
+  437 A:db06  38                                 sec 
+  438 A:db07  60                                 rts 
+  439 A:db08                           notendofchain 
+  439 A:db08                                    
+  440 A:db08  18                                 clc 
+  441 A:db09  60                                 rts 
+  442 A:db0a                                     .) 
+
+  445 A:db0a                           fat32_readnextsector 
+  445 A:db0a                                    
+  446 A:db0a                                     .( 
+  447 A:db0a                                    ; Reads the next sector from a cluster chain into the buffer at fat32_address.
+  448 A:db0a                                    ;
+  449 A:db0a                                    ; Advances the current sector ready for the next read and looks up the next cluster
+  450 A:db0a                                    ; in the chain when necessary.
+  451 A:db0a                                    ;
+  452 A:db0a                                    ; On return, carry is clear if data was read, or set if the cluster chain has ended.
+
+  454 A:db0a                                    ; Maybe there are pending sectors in the current cluster
+  455 A:db0a  a5 5b                              lda fat32_pendingsectors
+  456 A:db0c  d0 1f                              bne readsector
+
+  458 A:db0e                                    ; No pending sectors, check for end of cluster chain
+  459 A:db0e  a5 61                              lda fat32_nextcluster+3
+  460 A:db10  c9 0f                              cmp #$0f
+  461 A:db12  d0 15                              bne not_eoc
+  462 A:db14  a5 60                              lda fat32_nextcluster+2
+  463 A:db16  c9 ff                              cmp #$ff
+  464 A:db18  d0 0f                              bne not_eoc
+  465 A:db1a  a5 5f                              lda fat32_nextcluster+1
+  466 A:db1c  c9 ff                              cmp #$ff
+  467 A:db1e  d0 09                              bne not_eoc
+  468 A:db20  a5 5e                              lda fat32_nextcluster
+  469 A:db22  c9 f8                              cmp #$f8             ; EOC starts at F8
+  470 A:db24  90 03                              bcc not_eoc
+
+  472 A:db26  4c 4a db                           jmp endofchain
+
+  474 A:db29                           not_eoc   
+  474 A:db29                                    
+
+  476 A:db29                                    ; Prepare to read the next cluster
+  477 A:db29  38                                 sec 
+  478 A:db2a  20 19 da                           jsr fat32_seekcluster
+
+  480 A:db2d                           readsector 
+  480 A:db2d                                    
+  481 A:db2d  c6 5b                              dec fat32_pendingsectors
+
+  483 A:db2f                                    ; Set up target address  
+  484 A:db2f  a5 5c                              lda fat32_address
+  485 A:db31  85 48                              sta zp_sd_address
+  486 A:db33  a5 5d                              lda fat32_address+1
+  487 A:db35  85 49                              sta zp_sd_address+1
+
+  489 A:db37                                    ; Read the sector
+  490 A:db37  20 f6 d7                           jsr sd_readsector
+
+  492 A:db3a                                    ; Advance to next sector
+  493 A:db3a  e6 4a                              inc zp_sd_currentsector
+  494 A:db3c  d0 0a                              bne sectorincrementdone
+  495 A:db3e  e6 4b                              inc zp_sd_currentsector+1
+  496 A:db40  d0 06                              bne sectorincrementdone
+  497 A:db42  e6 4c                              inc zp_sd_currentsector+2
+  498 A:db44  d0 02                              bne sectorincrementdone
+  499 A:db46  e6 4d                              inc zp_sd_currentsector+3
+  500 A:db48                           sectorincrementdone 
+  500 A:db48                                    
+
+  502 A:db48                                    ; Success - clear carry and return
+  503 A:db48  18                                 clc 
+  504 A:db49  60                                 rts 
+
+  506 A:db4a                           endofchain 
+  506 A:db4a                                    
+  507 A:db4a                                    ; End of chain - set carry and return
+  508 A:db4a  38                                 sec 
+  509 A:db4b  60                                 rts 
+  510 A:db4c                                     .) 
+
+  512 A:db4c                           fat32_writenextsector 
+  512 A:db4c                                    
+  513 A:db4c                                     .( 
+  514 A:db4c                                    ; Writes the next sector into the buffer at fat32_address.
+  515 A:db4c                                    ;
+  516 A:db4c                                    ; On return, carry is set if its the end of the chain. 
+
+  518 A:db4c                                    ; Maybe there are pending sectors in the current cluster
+  519 A:db4c  a5 5b                              lda fat32_pendingsectors
+  520 A:db4e  d0 1f                              bne wr
+
+  522 A:db50                                    ; No pending sectors, check for end of cluster chain
+  523 A:db50  a5 61                              lda fat32_nextcluster+3
+  524 A:db52  c9 0f                              cmp #$0f
+  525 A:db54  d0 15                              bne not_eoc
+  526 A:db56  a5 60                              lda fat32_nextcluster+2
+  527 A:db58  c9 ff                              cmp #$ff
+  528 A:db5a  d0 0f                              bne not_eoc
+  529 A:db5c  a5 5f                              lda fat32_nextcluster+1
+  530 A:db5e  c9 ff                              cmp #$ff
+  531 A:db60  d0 09                              bne not_eoc
+  532 A:db62  a5 5e                              lda fat32_nextcluster
+  533 A:db64  c9 f8                              cmp #$f8             ; EOC starts at F8
+  534 A:db66  90 03                              bcc not_eoc
+
+  536 A:db68  4c 74 db                           jmp endofchain
+
+  538 A:db6b                           not_eoc   
+  538 A:db6b                                    
+
+  540 A:db6b                                    ; Prepare to read the next cluster
+  541 A:db6b  38                                 sec 
+  542 A:db6c  20 19 da                           jsr fat32_seekcluster
+
+  544 A:db6f                           wr        
+  544 A:db6f                                    
+  545 A:db6f  20 79 db                           jsr writesector
+
+  547 A:db72                                    ; Success - clear carry and return
+  548 A:db72  18                                 clc 
+  549 A:db73  60                                 rts 
+
+  551 A:db74                           endofchain 
+  551 A:db74                                    
+  552 A:db74                                    ; End of chain - set carry and return
+  553 A:db74  20 79 db                           jsr writesector
+  554 A:db77  38                                 sec 
+  555 A:db78  60                                 rts 
+
+  557 A:db79                           writesector 
+  557 A:db79                                    
+  558 A:db79  c6 5b                              dec fat32_pendingsectors
+
+  560 A:db7b                                    ; Set up target address
+  561 A:db7b  a5 5c                              lda fat32_address
+  562 A:db7d  85 48                              sta zp_sd_address
+  563 A:db7f  a5 5d                              lda fat32_address+1
+  564 A:db81  85 49                              sta zp_sd_address+1
+
+  566 A:db83                                    ; Write the sector
+  567 A:db83  20 4c d8                           jsr sd_writesector
+
+  569 A:db86                                    ; Advance to next sector
+  570 A:db86  e6 4a                              inc zp_sd_currentsector
+  571 A:db88  d0 0a                              bne nextsectorincrementdone
+  572 A:db8a  e6 4b                              inc zp_sd_currentsector+1
+  573 A:db8c  d0 06                              bne nextsectorincrementdone
+  574 A:db8e  e6 4c                              inc zp_sd_currentsector+2
+  575 A:db90  d0 02                              bne nextsectorincrementdone
+  576 A:db92  e6 4d                              inc zp_sd_currentsector+3
+  577 A:db94                           nextsectorincrementdone 
+  577 A:db94                                    
+  578 A:db94  60                                 rts 
+
+  580 A:db95                                     .) 
+
+  582 A:db95                           fat32_updatefat 
+  582 A:db95                                    
+  583 A:db95                                     .( 
+  584 A:db95                                    ; Preserve the current sector
+  585 A:db95  a5 4a                              lda zp_sd_currentsector
+  586 A:db97  48                                 pha 
+  587 A:db98  a5 4b                              lda zp_sd_currentsector+1
+  588 A:db9a  48                                 pha 
+  589 A:db9b  a5 4c                              lda zp_sd_currentsector+2
+  590 A:db9d  48                                 pha 
+  591 A:db9e  a5 4d                              lda zp_sd_currentsector+3
+  592 A:dba0  48                                 pha 
+
+  594 A:dba1                                    ; Write FAT sector
+  595 A:dba1  ad 04 03                           lda fat32_lastsector
+  596 A:dba4  85 4a                              sta zp_sd_currentsector
+  597 A:dba6  ad 05 03                           lda fat32_lastsector+1
+  598 A:dba9  85 4b                              sta zp_sd_currentsector+1
+  599 A:dbab  ad 06 03                           lda fat32_lastsector+2
+  600 A:dbae  85 4c                              sta zp_sd_currentsector+2
+  601 A:dbb0  ad 07 03                           lda fat32_lastsector+3
+  602 A:dbb3  85 4d                              sta zp_sd_currentsector+3
+
+  604 A:dbb5                                    ; Target buffer
+  605 A:dbb5  a9 00                              lda #<fat32_readbuffer
+  606 A:dbb7  85 48                              sta zp_sd_address
+  607 A:dbb9  a9 05                              lda #>fat32_readbuffer
+  608 A:dbbb  85 49                              sta zp_sd_address+1
+
+  610 A:dbbd                                    ; Write the FAT sector
+  611 A:dbbd  20 4c d8                           jsr sd_writesector
+
+  613 A:dbc0                                    ; Check if FAT mirroring is enabled
+  614 A:dbc0  ad 08 03                           lda fat32_numfats
+  615 A:dbc3  c9 02                              cmp #2
+  616 A:dbc5  d0 23                              bne onefat
+
+  618 A:dbc7                                    ; Add the last sector to the amount of sectors per FAT
+  619 A:dbc7                                    ; (to get the second fat location)
+  620 A:dbc7  ad 04 03                           lda fat32_lastsector
+  621 A:dbca  6d 0d 03                           adc fat32_sectorsperfat
+  622 A:dbcd  85 4a                              sta zp_sd_currentsector
+  623 A:dbcf  ad 05 03                           lda fat32_lastsector+1
+  624 A:dbd2  6d 0e 03                           adc fat32_sectorsperfat+1
+  625 A:dbd5  85 4b                              sta zp_sd_currentsector+1
+  626 A:dbd7  ad 06 03                           lda fat32_lastsector+2
+  627 A:dbda  6d 0f 03                           adc fat32_sectorsperfat+2
+  628 A:dbdd  85 4c                              sta zp_sd_currentsector+2
+  629 A:dbdf  ad 07 03                           lda fat32_lastsector+3
+  630 A:dbe2  6d 10 03                           adc fat32_sectorsperfat+3
+  631 A:dbe5  85 4d                              sta zp_sd_currentsector+3
+
+  633 A:dbe7                                    ; Write the FAT sector
+  634 A:dbe7  20 4c d8                           jsr sd_writesector
+
+  636 A:dbea                           onefat    
+  636 A:dbea                                    
+  637 A:dbea                                    ; Pull back the current sector
+  638 A:dbea  68                                 pla 
+  639 A:dbeb  85 4d                              sta zp_sd_currentsector+3
+  640 A:dbed  68                                 pla 
+  641 A:dbee  85 4c                              sta zp_sd_currentsector+2
+  642 A:dbf0  68                                 pla 
+  643 A:dbf1  85 4b                              sta zp_sd_currentsector+1
+  644 A:dbf3  68                                 pla 
+  645 A:dbf4  85 4a                              sta zp_sd_currentsector
+
+  647 A:dbf6  60                                 rts 
+  648 A:dbf7                                     .) 
+
+  651 A:dbf7                           fat32_openroot 
+  651 A:dbf7                                    
+  652 A:dbf7                                     .( 
+  653 A:dbf7                                    ; Prepare to read the root directory
+
+  655 A:dbf7  a5 56                              lda fat32_rootcluster
+  656 A:dbf9  85 5e                              sta fat32_nextcluster
+  657 A:dbfb  8d 11 03                           sta fat32_cdcluster
+  658 A:dbfe  a5 57                              lda fat32_rootcluster+1
+  659 A:dc00  85 5f                              sta fat32_nextcluster+1
+  660 A:dc02  8d 12 03                           sta fat32_cdcluster+1
+  661 A:dc05  a5 58                              lda fat32_rootcluster+2
+  662 A:dc07  85 60                              sta fat32_nextcluster+2
+  663 A:dc09  8d 13 03                           sta fat32_cdcluster+2
+  664 A:dc0c  a5 59                              lda fat32_rootcluster+3
+  665 A:dc0e  85 61                              sta fat32_nextcluster+3
+  666 A:dc10  8d 14 03                           sta fat32_cdcluster+3
+
+  668 A:dc13  18                                 clc 
+  669 A:dc14  20 19 da                           jsr fat32_seekcluster
+
+  671 A:dc17                                    ; Set the pointer to a large value so we always read a sector the first time through
+  672 A:dc17  a9 ff                              lda #$ff
+  673 A:dc19  85 49                              sta zp_sd_address+1
+
+  675 A:dc1b  60                                 rts 
+  676 A:dc1c                                     .) 
+
+  678 A:dc1c                           fat32_allocatecluster 
+  678 A:dc1c                                    
+  679 A:dc1c                                     .( 
+  680 A:dc1c                                    ; Allocate the first cluster to store a file at.
+
+  682 A:dc1c                                    ; Find a free cluster
+  683 A:dc1c  20 0e dd                           jsr fat32_findnextfreecluster
+
+  685 A:dc1f                                    ; Cache the value so we can add the address of the next one later, if any
+  686 A:dc1f  a5 66                              lda fat32_lastfoundfreecluster
+  687 A:dc21  8d 00 03                           sta fat32_lastcluster
+  688 A:dc24  8d 09 03                           sta fat32_filecluster
+  689 A:dc27  a5 67                              lda fat32_lastfoundfreecluster+1
+  690 A:dc29  8d 01 03                           sta fat32_lastcluster+1
+  691 A:dc2c  8d 0a 03                           sta fat32_filecluster+1
+  692 A:dc2f  a5 68                              lda fat32_lastfoundfreecluster+2
+  693 A:dc31  8d 02 03                           sta fat32_lastcluster+2
+  694 A:dc34  8d 0b 03                           sta fat32_filecluster+2
+  695 A:dc37  a5 69                              lda fat32_lastfoundfreecluster+3
+  696 A:dc39  8d 03 03                           sta fat32_lastcluster+3
+  697 A:dc3c  8d 0c 03                           sta fat32_filecluster+3
+
+  699 A:dc3f                                    ; Add marker for the following routines, so we don't think this is free.
+  700 A:dc3f  a9 0f                              lda #$0f
+  701 A:dc41  91 48                              sta (zp_sd_address),y
+
+  703 A:dc43  60                                 rts 
+  704 A:dc44                                     .) 
+
+  706 A:dc44                           fat32_allocatefile 
+  706 A:dc44                                    
+  707 A:dc44                                     .( 
+  708 A:dc44                                    ; Allocate an entire file in the FAT, with the
+  709 A:dc44                                    ; file's size in fat32_bytesremaining
+
+  711 A:dc44                                    ; We will read a new sector the first time around
+  712 A:dc44  9c 04 03                           stz fat32_lastsector
+  713 A:dc47  9c 05 03                           stz fat32_lastsector+1
+  714 A:dc4a  9c 06 03                           stz fat32_lastsector+2
+  715 A:dc4d  9c 07 03                           stz fat32_lastsector+3
+
+  717 A:dc50                                    ; BUG if we have a FAT enty at the end of a sector, it may be ignored! 
+
+  719 A:dc50                                    ; Allocate the first cluster.
+  720 A:dc50  20 1c dc                           jsr fat32_allocatecluster
+
+  722 A:dc53                                    ; We don't properly support 64k+ files, as it's unnecessary complication given
+  723 A:dc53                                    ; the 6502's small address space. So we'll just empty out the top two bytes.
+  724 A:dc53  a9 00                              lda #0
+  725 A:dc55  85 64                              sta fat32_bytesremaining+2
+  726 A:dc57  85 65                              sta fat32_bytesremaining+3
+
+  728 A:dc59                                    ; Stash filesize, as we will be clobbering it here
+  729 A:dc59  a5 62                              lda fat32_bytesremaining
+  730 A:dc5b  48                                 pha 
+  731 A:dc5c  a5 63                              lda fat32_bytesremaining+1
+  732 A:dc5e  48                                 pha 
+
+  734 A:dc5f                                    ; Round the size up to the next whole sector
+  735 A:dc5f  a5 62                              lda fat32_bytesremaining
+  736 A:dc61  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
+  737 A:dc63  a5 63                              lda fat32_bytesremaining+1
+  738 A:dc65  69 00                              adc #0             ; add carry, if any
+  739 A:dc67  4a                                 lsr                    ; divide by 2
+  740 A:dc68  69 00                              adc #0             ; round up
+
+  742 A:dc6a                                    ; No data?
+  743 A:dc6a  d0 03                              bne nofail
+  744 A:dc6c  4c 07 dd                           jmp fail
+
+  746 A:dc6f                           nofail    
+  746 A:dc6f                                    
+  747 A:dc6f                                    ; This will be clustersremaining now.
+  748 A:dc6f  85 62                              sta fat32_bytesremaining
+
+  750 A:dc71                                    ; Divide by sectors per cluster (power of 2)
+  751 A:dc71  a5 5a                              lda fat32_sectorspercluster
+  752 A:dc73                           cloop     
+  753 A:dc73  c9 01                              cmp #1
+  754 A:dc75  f0 08                              beq one
+  755 A:dc77  4a                                 lsr 
+  756 A:dc78  46 63                              lsr fat32_bytesremaining+1          ; high byte
+  757 A:dc7a  66 62                              ror fat32_bytesremaining                ; low byte, with carry from high
+
+  759 A:dc7c  4c 73 dc                           jmp cloop
+
+  761 A:dc7f                           one       
+
+  763 A:dc7f                                    ; We will be making a new cluster every time
+  764 A:dc7f  64 5b                              stz fat32_pendingsectors
+
+  766 A:dc81                                    ; Find free clusters and allocate them for use for this file.
+  767 A:dc81                           allocatelp 
+  768 A:dc81                                    ; Check if it's the last cluster in the chain 
+  769 A:dc81  a5 62                              lda fat32_bytesremaining
+  770 A:dc83  f0 04                              beq lastcluster
+  771 A:dc85  c9 01                              cmp #1             ; CHECK! is 1 the right amound for this?
+  772 A:dc87  90 2f                              bcc notlastcluster                ; clustersremaining <=1?
+
+  774 A:dc89                                    ; It is the last one.
+
+  776 A:dc89                           lastcluster 
+
+  778 A:dc89                                    ; go back the previous one
+  779 A:dc89  ad 00 03                           lda fat32_lastcluster
+  780 A:dc8c  85 5e                              sta fat32_nextcluster
+  781 A:dc8e  ad 01 03                           lda fat32_lastcluster+1
+  782 A:dc91  85 5f                              sta fat32_nextcluster+1
+  783 A:dc93  ad 02 03                           lda fat32_lastcluster+2
+  784 A:dc96  85 60                              sta fat32_nextcluster+2
+  785 A:dc98  ad 03 03                           lda fat32_lastcluster+3
+  786 A:dc9b  85 61                              sta fat32_nextcluster+3
+
+  788 A:dc9d  38                                 sec 
+  789 A:dc9e  20 19 da                           jsr fat32_seekcluster
+
+  791 A:dca1                                    ; Write 0x0FFFFFFE (EOC)
+  792 A:dca1  a9 0f                              lda #$0f
+  793 A:dca3  91 48                              sta (zp_sd_address),y
+  794 A:dca5  88                                 dey 
+  795 A:dca6  a9 ff                              lda #$ff
+  796 A:dca8  91 48                              sta (zp_sd_address),y
+  797 A:dcaa  88                                 dey 
+  798 A:dcab  91 48                              sta (zp_sd_address),y
+  799 A:dcad  88                                 dey 
+  800 A:dcae  a9 fe                              lda #$fe
+  801 A:dcb0  91 48                              sta (zp_sd_address),y
+
+  803 A:dcb2                                    ; Update the FAT
+  804 A:dcb2  20 95 db                           jsr fat32_updatefat
+
+  806 A:dcb5                                    ; End of chain - exit
+  807 A:dcb5  4c 07 dd                           jmp fail
+
+  809 A:dcb8                           notlastcluster 
+  810 A:dcb8                                    ; Wait! Is there exactly 1 cluster left?
+  811 A:dcb8  f0 cf                              beq lastcluster
+
+  813 A:dcba                                    ; Find the next cluster
+  814 A:dcba  20 0e dd                           jsr fat32_findnextfreecluster
+
+  816 A:dcbd                                    ; Add marker so we don't think this is free.
+  817 A:dcbd  a9 0f                              lda #$0f
+  818 A:dcbf  91 48                              sta (zp_sd_address),y
+
+  820 A:dcc1                                    ; Seek to the previous cluster
+  821 A:dcc1  ad 00 03                           lda fat32_lastcluster
+  822 A:dcc4  85 5e                              sta fat32_nextcluster
+  823 A:dcc6  ad 01 03                           lda fat32_lastcluster+1
+  824 A:dcc9  85 5f                              sta fat32_nextcluster+1
+  825 A:dccb  ad 02 03                           lda fat32_lastcluster+2
+  826 A:dcce  85 60                              sta fat32_nextcluster+2
+  827 A:dcd0  ad 03 03                           lda fat32_lastcluster+3
+  828 A:dcd3  85 61                              sta fat32_nextcluster+3
+
+  830 A:dcd5  38                                 sec 
+  831 A:dcd6  20 19 da                           jsr fat32_seekcluster
+
+  833 A:dcd9  5a                                 phy 
+  834 A:dcda                                    ; Enter the address of the next one into the FAT
+  835 A:dcda  a5 69                              lda fat32_lastfoundfreecluster+3
+  836 A:dcdc  8d 03 03                           sta fat32_lastcluster+3
+  837 A:dcdf  91 48                              sta (zp_sd_address),y
+  838 A:dce1  88                                 dey 
+  839 A:dce2  a5 68                              lda fat32_lastfoundfreecluster+2
+  840 A:dce4  8d 02 03                           sta fat32_lastcluster+2
+  841 A:dce7  91 48                              sta (zp_sd_address),y
+  842 A:dce9  88                                 dey 
+  843 A:dcea  a5 67                              lda fat32_lastfoundfreecluster+1
+  844 A:dcec  8d 01 03                           sta fat32_lastcluster+1
+  845 A:dcef  91 48                              sta (zp_sd_address),y
+  846 A:dcf1  88                                 dey 
+  847 A:dcf2  a5 66                              lda fat32_lastfoundfreecluster
+  848 A:dcf4  8d 00 03                           sta fat32_lastcluster
+  849 A:dcf7  91 48                              sta (zp_sd_address),y
+  850 A:dcf9  7a                                 ply 
+
+  852 A:dcfa                                    ; Update the FAT
+  853 A:dcfa  20 95 db                           jsr fat32_updatefat
+
+  855 A:dcfd  a6 62                              ldx fat32_bytesremaining                ; note - actually loads clusters remaining
+  856 A:dcff  ca                                 dex 
+  857 A:dd00  86 62                              stx fat32_bytesremaining                ; note - actually stores clusters remaining
+
+  859 A:dd02  f0 03                              beq fail
+  860 A:dd04  4c 81 dc                           jmp allocatelp
+
+  862 A:dd07                                    ; Done!
+  863 A:dd07                           fail      
+  864 A:dd07                                    ; Pull the filesize back from the stack
+  865 A:dd07  68                                 pla 
+  866 A:dd08  85 63                              sta fat32_bytesremaining+1
+  867 A:dd0a  68                                 pla 
+  868 A:dd0b  85 62                              sta fat32_bytesremaining
+  869 A:dd0d  60                                 rts 
+
+  871 A:dd0e                                     .) 
+
+  873 A:dd0e                           fat32_findnextfreecluster 
+  873 A:dd0e                                    
+  874 A:dd0e                                     .( 
+  875 A:dd0e                                    ; Find next free cluster
+  876 A:dd0e                                    ; 
+  877 A:dd0e                                    ; This program will search the FAT for an empty entry, and
+  878 A:dd0e                                    ; save the 32-bit cluster number at fat32_lastfoundfreecluster.
+  879 A:dd0e                                    ;
+  880 A:dd0e                                    ; Also sets the carry bit if the SD card is full.
+  881 A:dd0e                                    ;
+
+  883 A:dd0e                                    ; Find a free cluster and store it's location in fat32_lastfoundfreecluster
+  884 A:dd0e                                    ; skip reserved clusters
+  885 A:dd0e  a9 02                              lda #2
+  886 A:dd10  85 5e                              sta fat32_nextcluster
+  887 A:dd12  85 66                              sta fat32_lastfoundfreecluster
+  888 A:dd14  a9 00                              lda #0
+  889 A:dd16  85 5f                              sta fat32_nextcluster+1
+  890 A:dd18  85 67                              sta fat32_lastfoundfreecluster+1
+  891 A:dd1a  85 60                              sta fat32_nextcluster+2
+  892 A:dd1c  85 68                              sta fat32_lastfoundfreecluster+2
+  893 A:dd1e  85 61                              sta fat32_nextcluster+3
+  894 A:dd20  85 69                              sta fat32_lastfoundfreecluster+3
+
+  896 A:dd22                           searchclusters 
+
+  898 A:dd22                                    ; Seek cluster
+  899 A:dd22  38                                 sec 
+  900 A:dd23  20 19 da                           jsr fat32_seekcluster
+
+  902 A:dd26                                    ; Is the cluster free?
+  903 A:dd26  a5 5e                              lda fat32_nextcluster
+  904 A:dd28  05 5f                              ora fat32_nextcluster+1
+  905 A:dd2a  05 60                              ora fat32_nextcluster+2
+  906 A:dd2c  05 61                              ora fat32_nextcluster+3
+  907 A:dd2e  f0 29                              beq foundcluster
+
+  909 A:dd30                                    ; No, increment the cluster count
+  910 A:dd30  e6 66                              inc fat32_lastfoundfreecluster
+  911 A:dd32  d0 10                              bne copycluster
+  912 A:dd34  e6 67                              inc fat32_lastfoundfreecluster+1
+  913 A:dd36  d0 0c                              bne copycluster
+  914 A:dd38  e6 68                              inc fat32_lastfoundfreecluster+2
+  915 A:dd3a  d0 08                              bne copycluster
+  916 A:dd3c  e6 69                              inc fat32_lastfoundfreecluster+3
+
+  918 A:dd3e  a5 66                              lda fat32_lastfoundfreecluster
+  919 A:dd40  c9 10                              cmp #$10
+  920 A:dd42  b0 17                              bcs sd_full
+
+  922 A:dd44                           copycluster 
+
+  924 A:dd44                                    ; Copy the cluster count to the next cluster
+  925 A:dd44  a5 66                              lda fat32_lastfoundfreecluster
+  926 A:dd46  85 5e                              sta fat32_nextcluster
+  927 A:dd48  a5 67                              lda fat32_lastfoundfreecluster+1
+  928 A:dd4a  85 5f                              sta fat32_nextcluster+1
+  929 A:dd4c  a5 68                              lda fat32_lastfoundfreecluster+2
+  930 A:dd4e  85 60                              sta fat32_nextcluster+2
+  931 A:dd50  a5 69                              lda fat32_lastfoundfreecluster+3
+  932 A:dd52  29 0f                              and #$0f
+  933 A:dd54  85 61                              sta fat32_nextcluster+3
+
+  935 A:dd56                                    ; Go again for another pass
+  936 A:dd56  4c 22 dd                           jmp searchclusters
+
+  938 A:dd59                           foundcluster 
+  939 A:dd59                                    ; done.
+  940 A:dd59  18                                 clc 
+  941 A:dd5a  60                                 rts 
+
+  943 A:dd5b                           sd_full   
+  944 A:dd5b  38                                 sec 
+  945 A:dd5c  60                                 rts 
+  946 A:dd5d                                     .) 
+
+  948 A:dd5d                           fat32_opendirent 
+  948 A:dd5d                                    
+  949 A:dd5d                                     .( 
+  950 A:dd5d                                    ; Prepare to read/write a file or directory based on a dirent
+  951 A:dd5d                                    ;
+  952 A:dd5d                                    ; Point zp_sd_address at the dirent
+
+  954 A:dd5d                                    ; Remember file size in bytes remaining
+  955 A:dd5d  a0 1c                              ldy #28
+  956 A:dd5f  b1 48                              lda (zp_sd_address),y
+  957 A:dd61  85 62                              sta fat32_bytesremaining
+  958 A:dd63  c8                                 iny 
+  959 A:dd64  b1 48                              lda (zp_sd_address),y
+  960 A:dd66  85 63                              sta fat32_bytesremaining+1
+  961 A:dd68  c8                                 iny 
+  962 A:dd69  b1 48                              lda (zp_sd_address),y
+  963 A:dd6b  85 64                              sta fat32_bytesremaining+2
+  964 A:dd6d  c8                                 iny 
+  965 A:dd6e  b1 48                              lda (zp_sd_address),y
+  966 A:dd70  85 65                              sta fat32_bytesremaining+3
+
+  968 A:dd72                                    ; Seek to first cluster
+  969 A:dd72  a0 1a                              ldy #26
+  970 A:dd74  b1 48                              lda (zp_sd_address),y
+  971 A:dd76  85 5e                              sta fat32_nextcluster
+  972 A:dd78  c8                                 iny 
+  973 A:dd79  b1 48                              lda (zp_sd_address),y
+  974 A:dd7b  85 5f                              sta fat32_nextcluster+1
+  975 A:dd7d  a0 14                              ldy #20
+  976 A:dd7f  b1 48                              lda (zp_sd_address),y
+  977 A:dd81  85 60                              sta fat32_nextcluster+2
+  978 A:dd83  c8                                 iny 
+  979 A:dd84  b1 48                              lda (zp_sd_address),y
+  980 A:dd86  85 61                              sta fat32_nextcluster+3
+
+  982 A:dd88  18                                 clc 
+  983 A:dd89  a0 0b                              ldy #$0b
+  984 A:dd8b  b1 48                              lda (zp_sd_address),Y
+  985 A:dd8d  29 10                              and #$10             ; is it a directory?
+  986 A:dd8f  f0 14                              beq fatskip_cd_cache
+
+  988 A:dd91                                    ; If it's a directory, cache the cluster
+  989 A:dd91  a5 5e                              lda fat32_nextcluster
+  990 A:dd93  8d 11 03                           sta fat32_cdcluster
+  991 A:dd96  a5 5f                              lda fat32_nextcluster+1
+  992 A:dd98  8d 12 03                           sta fat32_cdcluster+1
+  993 A:dd9b  a5 60                              lda fat32_nextcluster+2
+  994 A:dd9d  8d 13 03                           sta fat32_cdcluster+2
+  995 A:dda0  a5 61                              lda fat32_nextcluster+3
+  996 A:dda2  8d 14 03                           sta fat32_cdcluster+3
+
+  998 A:dda5                           fatskip_cd_cache 
+  998 A:dda5                                    
+
+ 1000 A:dda5                                    ; if we're opening a directory entry with 0 cluster, use the root cluster
+ 1001 A:dda5  a5 61                              lda fat32_nextcluster+3
+ 1002 A:dda7  d0 13                              bne fseek
+ 1003 A:dda9  a5 60                              lda fat32_nextcluster+2
+ 1004 A:ddab  d0 0f                              bne fseek
+ 1005 A:ddad  a5 5f                              lda fat32_nextcluster+1
+ 1006 A:ddaf  d0 0b                              bne fseek
+ 1007 A:ddb1  a5 5e                              lda fat32_nextcluster
+ 1008 A:ddb3  d0 07                              bne fseek
+ 1009 A:ddb5  a5 56                              lda fat32_rootcluster
+ 1010 A:ddb7  85 5e                              sta fat32_nextcluster
+ 1011 A:ddb9  8d 11 03                           sta fat32_cdcluster
+
+ 1013 A:ddbc                           fseek     
+ 1013 A:ddbc                                    
+ 1014 A:ddbc  18                                 clc 
+ 1015 A:ddbd  20 19 da                           jsr fat32_seekcluster
+
+ 1017 A:ddc0                                    ; Set the pointer to a large value so we always read a sector the first time through
+ 1018 A:ddc0  a9 ff                              lda #$ff
+ 1019 A:ddc2  85 49                              sta zp_sd_address+1
+
+ 1021 A:ddc4  60                                 rts 
+ 1022 A:ddc5                                     .) 
+
+ 1024 A:ddc5                           fat32_writedirent 
+ 1024 A:ddc5                                    
+ 1025 A:ddc5                                     .( 
+ 1026 A:ddc5                                    ; Write a directory entry from the open directory
+ 1027 A:ddc5                                    ; requires
+ 1027 A:ddc5                                    
+ 1028 A:ddc5                                    ;   fat32bytesremaining (2 bytes) = file size in bytes (little endian)
+
+ 1030 A:ddc5                                    ; Increment pointer by 32 to point to next entry
+ 1031 A:ddc5  18                                 clc 
+ 1032 A:ddc6  a5 48                              lda zp_sd_address
+ 1033 A:ddc8  69 20                              adc #32
+ 1034 A:ddca  85 48                              sta zp_sd_address
+ 1035 A:ddcc  a5 49                              lda zp_sd_address+1
+ 1036 A:ddce  69 00                              adc #0
+ 1037 A:ddd0  85 49                              sta zp_sd_address+1
+
+ 1039 A:ddd2                                    ; If it's not at the end of the buffer, we have data already
+ 1040 A:ddd2  c9 07                              cmp #>(fat32_readbuffer+$0200)
+ 1041 A:ddd4  90 0f                              bcc gotdirrent
+
+ 1043 A:ddd6                                    ; Read another sector
+ 1044 A:ddd6  a9 00                              lda #<fat32_readbuffer
+ 1045 A:ddd8  85 5c                              sta fat32_address
+ 1046 A:ddda  a9 05                              lda #>fat32_readbuffer
+ 1047 A:dddc  85 5d                              sta fat32_address+1
+
+ 1049 A:ddde  20 0a db                           jsr fat32_readnextsector
+ 1050 A:dde1  90 02                              bcc gotdirrent
+
+ 1052 A:dde3                           endofdirectorywrite 
+ 1052 A:dde3                                    
+ 1053 A:dde3  38                                 sec 
+ 1054 A:dde4  60                                 rts 
+
+ 1056 A:dde5                           gotdirrent 
+ 1056 A:dde5                                    
+ 1057 A:dde5                                    ; Check first character
+ 1058 A:dde5  18                                 clc 
+ 1059 A:dde6  a0 00                              ldy #0
+ 1060 A:dde8  b1 48                              lda (zp_sd_address),y
+ 1061 A:ddea  d0 d9                              bne fat32_writedirent                ; go again
+ 1062 A:ddec                                    ; End of directory. Now make a new entry.
+ 1063 A:ddec                           dloop     
+ 1063 A:ddec                                    
+ 1064 A:ddec  b1 6a                              lda (fat32_filenamepointer),y            ; copy filename
+ 1065 A:ddee  91 48                              sta (zp_sd_address),y
+ 1066 A:ddf0  c8                                 iny 
+ 1067 A:ddf1  c0 0b                              cpy #$0b
+ 1068 A:ddf3  d0 f7                              bne dloop
+ 1069 A:ddf5                                    ; The full Short filename is #11 bytes long so,
+ 1070 A:ddf5                                    ; this start at 0x0b - File type
+ 1071 A:ddf5                                    ; BUG assumes that we are making a file, not a folder...
+ 1072 A:ddf5  a9 20                              lda #$20             ; File Type
+ 1072 A:ddf7                           ARCHIVE   
+ 1073 A:ddf7  91 48                              sta (zp_sd_address),y
+ 1074 A:ddf9  c8                                 iny                    ; 0x0c - Checksum/File accsess password
+ 1075 A:ddfa  a9 10                              lda #$10             ; No checksum or password
+ 1076 A:ddfc  91 48                              sta (zp_sd_address),y
+ 1077 A:ddfe  c8                                 iny                    ; 0x0d - first char of deleted file - 0x7d for nothing
+ 1078 A:ddff  a9 7d                              lda #$7d
+ 1079 A:de01  91 48                              sta (zp_sd_address),y
+ 1080 A:de03  c8                                 iny                    ; 0x0e-0x11 - File creation time/date
+ 1081 A:de04  a9 00                              lda #0
+ 1082 A:de06                           empty     
+ 1083 A:de06  91 48                              sta (zp_sd_address),y            ; No time/date because I don't have an RTC
+ 1084 A:de08  c8                                 iny 
+ 1085 A:de09  c0 14                              cpy #$14             ; also empty the user ID (0x12-0x13)
+ 1086 A:de0b  d0 f9                              bne empty
+ 1087 A:de0d                                    ;sta (zp_sd_address),y
+ 1088 A:de0d                                    ;iny
+ 1089 A:de0d                                    ;sta (zp_sd_address),y
+ 1090 A:de0d                                    ;iny
+ 1091 A:de0d                                    ;sta (zp_sd_address),y
+ 1092 A:de0d                                    ; if you have an RTC, refer to https
+ 1092 A:de0d                                    
+ 1093 A:de0d                                    ; show the "Directory entry" table and look at at 0x0E onward.
+ 1094 A:de0d                                    ;iny   ; 0x12-0x13 - User ID
+ 1095 A:de0d                                    ;lda #0
+ 1096 A:de0d                                    ;sta (zp_sd_address),y ; No ID
+ 1097 A:de0d                                    ;iny
+ 1098 A:de0d                                    ;sta (zp_sd_address),y
+ 1099 A:de0d                                    ;iny 
+ 1100 A:de0d                                    ; 0x14-0x15 - File start cluster (high word)
+ 1101 A:de0d  ad 0b 03                           lda fat32_filecluster+2
+ 1102 A:de10  91 48                              sta (zp_sd_address),y
+ 1103 A:de12  c8                                 iny 
+ 1104 A:de13  ad 0c 03                           lda fat32_filecluster+3
+ 1105 A:de16  91 48                              sta (zp_sd_address),y
+ 1106 A:de18  c8                                 iny                    ; 0x16-0x19 - File modifiaction date
+ 1107 A:de19  a9 00                              lda #0
+ 1108 A:de1b  91 48                              sta (zp_sd_address),y
+ 1109 A:de1d  c8                                 iny 
+ 1110 A:de1e  91 48                              sta (zp_sd_address),y            ; no rtc
+ 1111 A:de20  c8                                 iny 
+ 1112 A:de21  91 48                              sta (zp_sd_address),y
+ 1113 A:de23  c8                                 iny 
+ 1114 A:de24  91 48                              sta (zp_sd_address),y
+ 1115 A:de26  c8                                 iny                    ; 0x1a-0x1b - File start cluster (low word)
+ 1116 A:de27  ad 09 03                           lda fat32_filecluster
+ 1117 A:de2a  91 48                              sta (zp_sd_address),y
+ 1118 A:de2c  c8                                 iny 
+ 1119 A:de2d  ad 0a 03                           lda fat32_filecluster+1
+ 1120 A:de30  91 48                              sta (zp_sd_address),y
+ 1121 A:de32  c8                                 iny                    ; 0x1c-0x1f File size in bytes
+ 1122 A:de33  a5 62                              lda fat32_bytesremaining
+ 1123 A:de35  91 48                              sta (zp_sd_address),y
+ 1124 A:de37  c8                                 iny 
+ 1125 A:de38  a5 63                              lda fat32_bytesremaining+1
+ 1126 A:de3a  91 48                              sta (zp_sd_address),y
+ 1127 A:de3c  c8                                 iny 
+ 1128 A:de3d  a9 00                              lda #0
+ 1129 A:de3f  91 48                              sta (zp_sd_address),y            ; No bigger that 64k
+ 1130 A:de41  c8                                 iny 
+ 1131 A:de42  91 48                              sta (zp_sd_address),y
+ 1132 A:de44  c8                                 iny 
+ 1133 A:de45                                    ; are we over the buffer?
+ 1134 A:de45  a5 49                              lda zp_sd_address+1
+ 1135 A:de47  c9 07                              cmp #>(fat32_readbuffer+$0200)
+ 1136 A:de49  90 12                              bcc notoverbuffer
+ 1137 A:de4b  20 84 de                           jsr fat32_wrcurrent                ; if so, write the current sector
+ 1138 A:de4e  20 0a db                           jsr fat32_readnextsector                ; then read the next one.
+ 1139 A:de51  b0 2f                              bcs dfail
+ 1140 A:de53  a0 00                              ldy #0
+ 1141 A:de55  a9 00                              lda #<fat32_readbuffer
+ 1142 A:de57  85 48                              sta zp_sd_address
+ 1143 A:de59  a9 05                              lda #>fat32_readbuffer
+ 1144 A:de5b  85 49                              sta zp_sd_address+1
+ 1145 A:de5d                           notoverbuffer 
+ 1146 A:de5d                                    ; next entry is 0 (end of dir)
+ 1147 A:de5d  a9 00                              lda #0
+ 1148 A:de5f  91 48                              sta (zp_sd_address),y
+ 1149 A:de61                                    ; write all the data...
+ 1150 A:de61  20 84 de                           jsr fat32_wrcurrent
+
+ 1152 A:de64                                    ; Great, lets get this ready for other code to use.
+
+ 1154 A:de64                                    ; Seek to first cluster
+ 1155 A:de64  ad 09 03                           lda fat32_filecluster
+ 1156 A:de67  85 5e                              sta fat32_nextcluster
+ 1157 A:de69  ad 0a 03                           lda fat32_filecluster+1
+ 1158 A:de6c  85 5f                              sta fat32_nextcluster+1
+ 1159 A:de6e  ad 0b 03                           lda fat32_filecluster+2
+ 1160 A:de71  85 60                              sta fat32_nextcluster+2
+ 1161 A:de73  ad 0c 03                           lda fat32_filecluster+3
+ 1162 A:de76  85 61                              sta fat32_nextcluster+3
+
+ 1164 A:de78  18                                 clc 
+ 1165 A:de79  20 19 da                           jsr fat32_seekcluster
+
+ 1167 A:de7c                                    ; Set the pointer to a large value so we always read a sector the first time through
+ 1168 A:de7c  a9 ff                              lda #$ff
+ 1169 A:de7e  85 49                              sta zp_sd_address+1
+
+ 1171 A:de80  18                                 clc 
+ 1172 A:de81  60                                 rts 
+
+ 1174 A:de82                           dfail     
+ 1174 A:de82                                    
+ 1175 A:de82                                    ; Card Full
+ 1176 A:de82  38                                 sec 
+ 1177 A:de83  60                                 rts 
+ 1178 A:de84                                     .) 
+
+ 1180 A:de84                           fat32_wrcurrent 
+ 1180 A:de84                                    
+ 1181 A:de84                                     .( 
+ 1182 A:de84                                    ; decrement the sector so we write the current one (not the next one)
+ 1183 A:de84  a5 4a                              lda zp_sd_currentsector
+ 1184 A:de86  d0 0a                              bne skip
+ 1185 A:de88  c6 4b                              dec zp_sd_currentsector+1
+ 1186 A:de8a  d0 06                              bne skip
+ 1187 A:de8c  c6 4c                              dec zp_sd_currentsector+2
+ 1188 A:de8e  d0 02                              bne skip
+ 1189 A:de90  c6 4d                              dec zp_sd_currentsector+3
+
+ 1191 A:de92                           skip      
+ 1192 A:de92  c6 4a                              dec zp_sd_currentsector
+
+ 1194 A:de94                           nodec     
+
+ 1196 A:de94  a5 5c                              lda fat32_address
+ 1197 A:de96  85 48                              sta zp_sd_address
+ 1198 A:de98  a5 5d                              lda fat32_address+1
+ 1199 A:de9a  85 49                              sta zp_sd_address+1
+
+ 1201 A:de9c                                    ; Read the sector
+ 1202 A:de9c  20 4c d8                           jsr sd_writesector
+
+ 1204 A:de9f                                    ; Advance to next sector
+ 1205 A:de9f  e6 4a                              inc zp_sd_currentsector
+ 1206 A:dea1  d0 0a                              bne sectorincrementdone
+ 1207 A:dea3  e6 4b                              inc zp_sd_currentsector+1
+ 1208 A:dea5  d0 06                              bne sectorincrementdone
+ 1209 A:dea7  e6 4c                              inc zp_sd_currentsector+2
+ 1210 A:dea9  d0 02                              bne sectorincrementdone
+ 1211 A:deab  e6 4d                              inc zp_sd_currentsector+3
+
+ 1213 A:dead                           sectorincrementdone 
+ 1214 A:dead  60                                 rts 
+ 1215 A:deae                                     .) 
+
+ 1217 A:deae                           fat32_readdirent 
+ 1217 A:deae                                    
+ 1218 A:deae                                     .( 
+ 1219 A:deae                                    ; Read a directory entry from the open directory
+ 1220 A:deae                                    ;
+ 1221 A:deae                                    ; On exit the carry is set if there were no more directory entries.
+ 1222 A:deae                                    ;
+ 1223 A:deae                                    ; Otherwise, A is set to the file's attribute byte and
+ 1224 A:deae                                    ; zp_sd_address points at the returned directory entry.
+ 1225 A:deae                                    ; LFNs and empty entries are ignored automatically.
+
+ 1227 A:deae                                    ; Increment pointer by 32 to point to next entry
+ 1228 A:deae  18                                 clc 
+ 1229 A:deaf  a5 48                              lda zp_sd_address
+ 1230 A:deb1  69 20                              adc #32
+ 1231 A:deb3  85 48                              sta zp_sd_address
+ 1232 A:deb5  a5 49                              lda zp_sd_address+1
+ 1233 A:deb7  69 00                              adc #0
+ 1234 A:deb9  85 49                              sta zp_sd_address+1
+
+ 1236 A:debb                                    ; If it's not at the end of the buffer, we have data already
+ 1237 A:debb  c9 07                              cmp #>(fat32_readbuffer+$0200)
+ 1238 A:debd  90 0f                              bcc gotdata
+
+ 1240 A:debf                                    ; Read another sector
+ 1241 A:debf  a9 00                              lda #<fat32_readbuffer
+ 1242 A:dec1  85 5c                              sta fat32_address
+ 1243 A:dec3  a9 05                              lda #>fat32_readbuffer
+ 1244 A:dec5  85 5d                              sta fat32_address+1
+
+ 1246 A:dec7  20 0a db                           jsr fat32_readnextsector
+ 1247 A:deca  90 02                              bcc gotdata
+
+ 1249 A:decc                           endofdirectory 
+ 1249 A:decc                                    
+ 1250 A:decc  38                                 sec 
+ 1251 A:decd  60                                 rts 
+
+ 1253 A:dece                           gotdata   
+ 1253 A:dece                                    
+ 1254 A:dece                                    ; Check first character
+ 1255 A:dece  a0 00                              ldy #0
+ 1256 A:ded0  b1 48                              lda (zp_sd_address),y
+
+ 1258 A:ded2                                    ; End of directory => abort
+ 1259 A:ded2  f0 f8                              beq endofdirectory
+
+ 1261 A:ded4                                    ; Empty entry => start again
+ 1262 A:ded4  c9 e5                              cmp #$e5
+ 1263 A:ded6  f0 d6                              beq fat32_readdirent
+
+ 1265 A:ded8                                    ; Check attributes
+ 1266 A:ded8  a0 0b                              ldy #11
+ 1267 A:deda  b1 48                              lda (zp_sd_address),y
+ 1268 A:dedc  29 3f                              and #$3f
+ 1269 A:dede  c9 0f                              cmp #$0f             ; LFN => start again
+ 1270 A:dee0  f0 cc                              beq fat32_readdirent
+
+ 1272 A:dee2                                    ; Yield this result
+ 1273 A:dee2  18                                 clc 
+ 1274 A:dee3  60                                 rts 
+ 1275 A:dee4                                     .) 
+
+ 1277 A:dee4                           fat32_finddirent 
+ 1277 A:dee4                                    
+ 1278 A:dee4                                     .( 
+ 1279 A:dee4                                    ; Finds a particular directory entry. X,Y point to the 11-character filename to seek.
+ 1280 A:dee4                                    ; The directory should already be open for iteration.
+
+ 1282 A:dee4                                    ; Form ZP pointer to user's filename
+ 1283 A:dee4  86 6a                              stx fat32_filenamepointer
+ 1284 A:dee6  84 6b                              sty fat32_filenamepointer+1
+
+ 1286 A:dee8                                    ; Iterate until name is found or end of directory
+ 1287 A:dee8                           direntloop 
+ 1287 A:dee8                                    
+ 1288 A:dee8  20 ae de                           jsr fat32_readdirent
+ 1289 A:deeb  a0 0a                              ldy #10
+ 1290 A:deed  90 01                              bcc comparenameloop
+ 1291 A:deef  60                                 rts                    ; with carry set
+
+ 1293 A:def0                           comparenameloop 
+ 1293 A:def0                                    
+ 1294 A:def0  b1 48                              lda (zp_sd_address),y
+ 1295 A:def2  d1 6a                              cmp (fat32_filenamepointer),y
+ 1296 A:def4  d0 f2                              bne direntloop                ; no match
+ 1297 A:def6  88                                 dey 
+ 1298 A:def7  10 f7                              bpl comparenameloop
+
+ 1300 A:def9                                    ; Found it
+ 1301 A:def9  18                                 clc 
+ 1302 A:defa  60                                 rts 
+ 1303 A:defb                                     .) 
+
+ 1305 A:defb                           fat32_markdeleted 
+ 1305 A:defb                                    
+ 1306 A:defb                                    ; Mark the file as deleted
+ 1307 A:defb                                    ; We need to stash the first character at index 0x0D
+ 1308 A:defb  a0 00                              ldy #$00
+ 1309 A:defd  b1 48                              lda (zp_sd_address),y
+ 1310 A:deff  a0 0d                              ldy #$0d
+ 1311 A:df01  91 48                              sta (zp_sd_address),y
+
+ 1313 A:df03                                    ; Now put 0xE5 at the first byte
+ 1314 A:df03  a0 00                              ldy #$00
+ 1315 A:df05  a9 e5                              lda #$e5
+ 1316 A:df07  91 48                              sta (zp_sd_address),y
+
+ 1318 A:df09                                    ; Get start cluster high word
+ 1319 A:df09  a0 14                              ldy #$14
+ 1320 A:df0b  b1 48                              lda (zp_sd_address),y
+ 1321 A:df0d  85 60                              sta fat32_nextcluster+2
+ 1322 A:df0f  c8                                 iny 
+ 1323 A:df10  b1 48                              lda (zp_sd_address),y
+ 1324 A:df12  85 61                              sta fat32_nextcluster+3
+
+ 1326 A:df14                                    ; And low word
+ 1327 A:df14  a0 1a                              ldy #$1a
+ 1328 A:df16  b1 48                              lda (zp_sd_address),y
+ 1329 A:df18  85 5e                              sta fat32_nextcluster
+ 1330 A:df1a  c8                                 iny 
+ 1331 A:df1b  b1 48                              lda (zp_sd_address),y
+ 1332 A:df1d  85 5f                              sta fat32_nextcluster+1
+
+ 1334 A:df1f                                    ; Write the dirent
+ 1335 A:df1f  20 84 de                           jsr fat32_wrcurrent
+
+ 1337 A:df22                                    ; Done
+ 1338 A:df22  18                                 clc 
+ 1339 A:df23  60                                 rts 
+
+ 1341 A:df24                           fat32_deletefile 
+ 1341 A:df24                                    
+ 1342 A:df24                                     .( 
+ 1343 A:df24                                    ; Removes the open file from the SD card.
+ 1344 A:df24                                    ; The directory needs to be open and
+ 1345 A:df24                                    ; zp_sd_address pointed to the first byte of the file entry.
+
+ 1347 A:df24                                    ; Mark the file as "Removed"
+ 1348 A:df24  20 fb de                           jsr fat32_markdeleted
+
+ 1350 A:df27                                    ; We will read a new sector the first time around
+ 1351 A:df27  9c 04 03                           stz fat32_lastsector
+ 1352 A:df2a  9c 05 03                           stz fat32_lastsector+1
+ 1353 A:df2d  9c 06 03                           stz fat32_lastsector+2
+ 1354 A:df30  9c 07 03                           stz fat32_lastsector+3
+
+ 1356 A:df33                                    ; Now we need to iterate through this file's cluster chain, and remove it from the FAT.
+ 1357 A:df33  a0 00                              ldy #0
+ 1358 A:df35                           chainloop 
+ 1359 A:df35                                    ; Seek to cluster
+ 1360 A:df35  38                                 sec 
+ 1361 A:df36  20 19 da                           jsr fat32_seekcluster
+
+ 1363 A:df39                                    ; Is this the end of the chain?
+ 1364 A:df39  a5 61                              lda fat32_nextcluster+3
+ 1365 A:df3b  30 13                              bmi endofchain
+
+ 1367 A:df3d                                    ; Zero it out
+ 1368 A:df3d  a9 00                              lda #0
+ 1369 A:df3f  91 48                              sta (zp_sd_address),y
+ 1370 A:df41  88                                 dey 
+ 1371 A:df42  91 48                              sta (zp_sd_address),y
+ 1372 A:df44  88                                 dey 
+ 1373 A:df45  91 48                              sta (zp_sd_address),y
+ 1374 A:df47  88                                 dey 
+ 1375 A:df48  91 48                              sta (zp_sd_address),y
+
+ 1377 A:df4a                                    ; Write the FAT
+ 1378 A:df4a  20 95 db                           jsr fat32_updatefat
+
+ 1380 A:df4d                                    ; And go again for another pass.
+ 1381 A:df4d  4c 35 df                           jmp chainloop
+
+ 1383 A:df50                           endofchain 
+ 1384 A:df50                                    ; This is the last cluster in the chain.
+
+ 1386 A:df50                                    ; Just zero it out,
+ 1387 A:df50  a9 00                              lda #0
+ 1388 A:df52  91 48                              sta (zp_sd_address),y
+ 1389 A:df54  88                                 dey 
+ 1390 A:df55  91 48                              sta (zp_sd_address),y
+ 1391 A:df57  88                                 dey 
+ 1392 A:df58  91 48                              sta (zp_sd_address),y
+ 1393 A:df5a  88                                 dey 
+ 1394 A:df5b  91 48                              sta (zp_sd_address),y
+
+ 1396 A:df5d                                    ; Write the FAT
+ 1397 A:df5d  20 95 db                           jsr fat32_updatefat
+
+ 1399 A:df60                                    ; And we're done!
+ 1400 A:df60  18                                 clc 
+ 1401 A:df61  60                                 rts 
+ 1402 A:df62                                     .) 
+
+ 1404 A:df62                           fat32_file_readbyte 
+ 1404 A:df62                                    
+ 1405 A:df62                                     .( 
+ 1406 A:df62                                    ; Read a byte from an open file
+ 1407 A:df62                                    ;
+ 1408 A:df62                                    ; The byte is returned in A with C clear; or if end-of-file was reached, C is set instead
+
+ 1410 A:df62  38                                 sec 
+
+ 1412 A:df63                                    ; Is there any data to read at all?
+ 1413 A:df63  a5 62                              lda fat32_bytesremaining
+ 1414 A:df65  05 63                              ora fat32_bytesremaining+1
+ 1415 A:df67  05 64                              ora fat32_bytesremaining+2
+ 1416 A:df69  05 65                              ora fat32_bytesremaining+3
+ 1417 A:df6b  f0 35                              beq rtss
+
+ 1419 A:df6d                                    ; Decrement the remaining byte count
+ 1420 A:df6d  a5 62                              lda fat32_bytesremaining
+ 1421 A:df6f  e9 01                              sbc #1
+ 1422 A:df71  85 62                              sta fat32_bytesremaining
+ 1423 A:df73  a5 63                              lda fat32_bytesremaining+1
+ 1424 A:df75  e9 00                              sbc #0
+ 1425 A:df77  85 63                              sta fat32_bytesremaining+1
+ 1426 A:df79  a5 64                              lda fat32_bytesremaining+2
+ 1427 A:df7b  e9 00                              sbc #0
+ 1428 A:df7d  85 64                              sta fat32_bytesremaining+2
+ 1429 A:df7f  a5 65                              lda fat32_bytesremaining+3
+ 1430 A:df81  e9 00                              sbc #0
+ 1431 A:df83  85 65                              sta fat32_bytesremaining+3
+
+ 1433 A:df85                                    ; Need to read a new sector?
+ 1434 A:df85  a5 49                              lda zp_sd_address+1
+ 1435 A:df87  c9 07                              cmp #>(fat32_readbuffer+$0200)
+ 1436 A:df89  90 0d                              bcc gotdata
+
+ 1438 A:df8b                                    ; Read another sector
+ 1439 A:df8b  a9 00                              lda #<fat32_readbuffer
+ 1440 A:df8d  85 5c                              sta fat32_address
+ 1441 A:df8f  a9 05                              lda #>fat32_readbuffer
+ 1442 A:df91  85 5d                              sta fat32_address+1
+
+ 1444 A:df93  20 0a db                           jsr fat32_readnextsector
+ 1445 A:df96  b0 0a                              bcs rtss
+
+ 1447 A:df98                           gotdata   
+ 1447 A:df98                                    
+ 1448 A:df98  a0 00                              ldy #0
+ 1449 A:df9a  b1 48                              lda (zp_sd_address),y
+
+ 1451 A:df9c  e6 48                              inc zp_sd_address
+ 1452 A:df9e  d0 02                              bne rtss
+ 1453 A:dfa0  e6 49                              inc zp_sd_address+1
+
+ 1455 A:dfa2                           rtss      
+ 1455 A:dfa2                                    
+ 1456 A:dfa2  60                                 rts 
+ 1457 A:dfa3                                     .) 
+
+ 1459 A:dfa3                           fat32_file_read 
+ 1459 A:dfa3                                    
+ 1460 A:dfa3                                     .( 
+ 1461 A:dfa3                                    ; Read a whole file into memory.  It's assumed the file has just been opened 
+ 1462 A:dfa3                                    ; and no data has been read yet.
+ 1463 A:dfa3                                    ;
+ 1464 A:dfa3                                    ; Also we read whole sectors, so data in the target region beyond the end of the 
+ 1465 A:dfa3                                    ; file may get overwritten, up to the next 512-byte boundary.
+ 1466 A:dfa3                                    ;
+ 1467 A:dfa3                                    ; And we don't properly support 64k+ files, as it's unnecessary complication given
+ 1468 A:dfa3                                    ; the 6502's small address space
+
+ 1470 A:dfa3                                    ; Round the size up to the next whole sector
+ 1471 A:dfa3  a5 62                              lda fat32_bytesremaining
+ 1472 A:dfa5  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
+ 1473 A:dfa7  a5 63                              lda fat32_bytesremaining+1
+ 1474 A:dfa9  69 00                              adc #0             ; add carry, if any
+ 1475 A:dfab  4a                                 lsr                    ; divide by 2
+ 1476 A:dfac  69 00                              adc #0             ; round up
+
+ 1478 A:dfae                                    ; No data?
+ 1479 A:dfae  f0 12                              beq donee
+
+ 1481 A:dfb0                                    ; Store sector count - not a byte count any more
+ 1482 A:dfb0  85 62                              sta fat32_bytesremaining
+
+ 1484 A:dfb2                                    ; Read entire sectors to the user-supplied buffer
+ 1485 A:dfb2                           wholesectorreadloop 
+ 1485 A:dfb2                                    
+ 1486 A:dfb2                                    ; Read a sector to fat32_address
+ 1487 A:dfb2  20 0a db                           jsr fat32_readnextsector
+
+ 1489 A:dfb5                                    ; Advance fat32_address by 512 bytes
+ 1490 A:dfb5  a5 5d                              lda fat32_address+1
+ 1491 A:dfb7  69 02                              adc #2             ; carry already clear
+ 1492 A:dfb9  85 5d                              sta fat32_address+1
+
+ 1494 A:dfbb  a6 62                              ldx fat32_bytesremaining                ; note - actually loads sectors remaining
+ 1495 A:dfbd  ca                                 dex 
+ 1496 A:dfbe  86 62                              stx fat32_bytesremaining                ; note - actually stores sectors remaining
+
+ 1498 A:dfc0  d0 f0                              bne wholesectorreadloop
+
+ 1500 A:dfc2                           donee     
+ 1500 A:dfc2                                    
+ 1501 A:dfc2  60                                 rts 
+ 1502 A:dfc3                                     .) 
+
+ 1504 A:dfc3                           fat32_file_write 
+ 1504 A:dfc3                                    
+ 1505 A:dfc3                                     .( 
+ 1506 A:dfc3                                    ; Write a whole file from memory.  It's assumed the file has just been opened 
+ 1507 A:dfc3                                    ; and no data has been written yet.
+
+ 1509 A:dfc3                                    ; Start at the first cluster for this file
+ 1510 A:dfc3  ad 09 03                           lda fat32_filecluster
+ 1511 A:dfc6  8d 00 03                           sta fat32_lastcluster
+ 1512 A:dfc9  ad 0a 03                           lda fat32_filecluster+1
+ 1513 A:dfcc  8d 01 03                           sta fat32_lastcluster+1
+ 1514 A:dfcf  ad 0b 03                           lda fat32_filecluster+2
+ 1515 A:dfd2  8d 02 03                           sta fat32_lastcluster+2
+ 1516 A:dfd5  ad 0c 03                           lda fat32_filecluster+3
+ 1517 A:dfd8  8d 03 03                           sta fat32_lastcluster+3
+
+ 1519 A:dfdb  ad 09 03                           lda fat32_filecluster
+ 1520 A:dfde  85 5e                              sta fat32_nextcluster
+ 1521 A:dfe0  ad 0a 03                           lda fat32_filecluster+1
+ 1522 A:dfe3  85 5f                              sta fat32_nextcluster+1
+ 1523 A:dfe5  ad 0b 03                           lda fat32_filecluster+2
+ 1524 A:dfe8  85 60                              sta fat32_nextcluster+2
+ 1525 A:dfea  ad 0c 03                           lda fat32_filecluster+3
+ 1526 A:dfed  85 61                              sta fat32_nextcluster+3
+
+ 1528 A:dfef                                    ; Round the size up to the next whole sector
+ 1529 A:dfef  a5 62                              lda fat32_bytesremaining
+ 1530 A:dff1  c9 01                              cmp #1             ; set carry if bottom 8 bits not zero
+ 1531 A:dff3  a5 63                              lda fat32_bytesremaining+1
+ 1532 A:dff5  69 00                              adc #0             ; add carry, if any
+ 1533 A:dff7  4a                                 lsr                    ; divide by 2
+ 1534 A:dff8  69 00                              adc #0             ; round up
+
+ 1536 A:dffa                                    ; No data?
+ 1537 A:dffa  f0 15                              beq fail
+
+ 1539 A:dffc                                    ; Store sector count - not a byte count anymore.
+ 1540 A:dffc  85 62                              sta fat32_bytesremaining
+
+ 1542 A:dffe                                    ; We will be making a new cluster the first time around
+ 1543 A:dffe  64 5b                              stz fat32_pendingsectors
+
+ 1545 A:e000                                    ; Write entire sectors from the user-supplied buffer
+ 1546 A:e000                           wholesectorwriteloop 
+ 1546 A:e000                                    
+ 1547 A:e000                                    ; Write a sector from fat32_address
+ 1548 A:e000  20 4c db                           jsr fat32_writenextsector
+ 1549 A:e003                                    ;bcs fail ; this shouldn't happen
+
+ 1551 A:e003  18                                 clc 
+ 1552 A:e004                                    ; Advance fat32_address by 512 bytes
+ 1553 A:e004  a5 5d                              lda fat32_address+1
+ 1554 A:e006  69 02                              adc #2             ; carry already clear
+ 1555 A:e008  85 5d                              sta fat32_address+1
+
+ 1557 A:e00a  a6 62                              ldx fat32_bytesremaining                ; note - actually loads sectors remaining
+ 1558 A:e00c  ca                                 dex 
+ 1559 A:e00d  86 62                              stx fat32_bytesremaining                ; note - actually stores sectors remaining
+
+ 1561 A:e00f  d0 ef                              bne wholesectorwriteloop
+
+ 1563 A:e011                                    ; Done!
+ 1564 A:e011                           fail      
+ 1565 A:e011  60                                 rts 
+ 1566 A:e012                                     .) 
+
+ 1568 A:e012                           fat32_open_cd 
+ 1568 A:e012                                    
+ 1569 A:e012                                    ; Prepare to read from a file or directory based on a dirent
+ 1570 A:e012                                    ;
+
+ 1572 A:e012  48                                 pha 
+ 1573 A:e013  da                                 phx 
+ 1574 A:e014  5a                                 phy 
+
+ 1576 A:e015                                    ; Seek to first cluster of current directory
+ 1577 A:e015  ad 11 03                           lda fat32_cdcluster
+ 1578 A:e018  85 5e                              sta fat32_nextcluster
+ 1579 A:e01a  ad 12 03                           lda fat32_cdcluster+1
+ 1580 A:e01d  85 5f                              sta fat32_nextcluster+1
+ 1581 A:e01f  ad 13 03                           lda fat32_cdcluster+2
+ 1582 A:e022  85 60                              sta fat32_nextcluster+2
+ 1583 A:e024  ad 14 03                           lda fat32_cdcluster+3
+ 1584 A:e027  85 61                              sta fat32_nextcluster+3
+
+ 1586 A:e029  a9 00                              lda #<fat32_readbuffer
+ 1587 A:e02b  85 5c                              sta fat32_address
+ 1588 A:e02d  a9 05                              lda #>fat32_readbuffer
+ 1589 A:e02f  85 5d                              sta fat32_address+1
+
+ 1591 A:e031  18                                 clc 
+ 1592 A:e032  20 19 da                           jsr fat32_seekcluster
+
+ 1594 A:e035                                    ; Set the pointer to a large value so we always read a sector the first time through
+ 1595 A:e035  a9 ff                              lda #$ff
+ 1596 A:e037  85 49                              sta zp_sd_address+1
+
+ 1598 A:e039  7a                                 ply 
+ 1599 A:e03a  fa                                 plx 
+ 1600 A:e03b  68                                 pla 
+ 1601 A:e03c  60                                 rts 
 
 main.a65
 
 
- 2565 A:e03a                                    ; include ACIA library
+ 2565 A:e03d                                    ; include ACIA library
 
 acia.a65
 
-    1 A:e03a                                    ;;;       ------------------ 6551 ACIA Subroutine Library -------------------
-    2 A:e03a                                    ;;; Includes
-    2 A:e03a                                    
-    3 A:e03a                                    ;;; acia_init       - Initializes the ACIA
-    4 A:e03a                                    ;;; print_hex_acia  - Prints a hex value in A
-    5 A:e03a                                    ;;; clear_display   - Sends a <CLS> command
-    6 A:e03a                                    ;;; txpoll          - Polls the TX bit to see if the ACIA is ready
-    7 A:e03a                                    ;;; print_chara     - Prints a Character that is stored in A
-    8 A:e03a                                    ;;; print_char_acia - Same as print_chara
-    9 A:e03a                                    ;;; ascii_home      - Home the cursor
-   10 A:e03a                                    ;;; w_acia_full     - Print a NULL-Termintated String with >HIGH in Y and <LOW in X
+    1 A:e03d                                    ;;;       ------------------ 6551 ACIA Subroutine Library -------------------
+    2 A:e03d                                    ;;; Includes
+    2 A:e03d                                    
+    3 A:e03d                                    ;;; acia_init       - Initializes the ACIA
+    4 A:e03d                                    ;;; print_hex_acia  - Prints a hex value in A
+    5 A:e03d                                    ;;; clear_display   - Sends a <CLS> command
+    6 A:e03d                                    ;;; txpoll          - Polls the TX bit to see if the ACIA is ready
+    7 A:e03d                                    ;;; print_chara     - Prints a Character that is stored in A
+    8 A:e03d                                    ;;; print_char_acia - Same as print_chara
+    9 A:e03d                                    ;;; ascii_home      - Home the cursor
+   10 A:e03d                                    ;;; w_acia_full     - Print a NULL-Termintated String with >HIGH in Y and <LOW in X
 
-   12 A:e03a                           acia_init 
-   13 A:e03a  48                                 pha 
-   14 A:e03b  a9 0b                              lda #%00001011             ; No parity, no echo, no interrupt
-   15 A:e03d  8d 02 80                           sta $8002
-   16 A:e040  a9 1f                              lda #%00011111             ; 1 stop bit, 8 data bits, 19200 baud
-   17 A:e042  8d 03 80                           sta $8003
-   18 A:e045  68                                 pla 
-   19 A:e046  60                                 rts 
+   12 A:e03d                           acia_init 
+   13 A:e03d  48                                 pha 
+   14 A:e03e  a9 0b                              lda #%00001011             ; No parity, no echo, no interrupt
+   15 A:e040  8d 02 80                           sta $8002
+   16 A:e043  a9 1f                              lda #%00011111             ; 1 stop bit, 8 data bits, 19200 baud
+   17 A:e045  8d 03 80                           sta $8003
+   18 A:e048  68                                 pla 
+   19 A:e049  60                                 rts 
 
-   21 A:e047                           print_hex_acia 
-   22 A:e047  48                                 pha 
-   23 A:e048  6a                                 ror 
-   24 A:e049  6a                                 ror 
-   25 A:e04a  6a                                 ror 
-   26 A:e04b  6a                                 ror 
-   27 A:e04c  20 50 e0                           jsr print_nybble                ; This is just som usful hex cod
-   28 A:e04f  68                                 pla 
-   29 A:e050                           print_nybble 
-   30 A:e050  29 0f                              and #15
-   31 A:e052  c9 0a                              cmp #10
-   32 A:e054  30 02                              bmi skipletter
-   33 A:e056  69 06                              adc #6
-   34 A:e058                           skipletter 
-   35 A:e058  69 30                              adc #48
-   36 A:e05a                                    ; jsr print_char
-   37 A:e05a  20 71 e0                           jsr print_chara
-   38 A:e05d  60                                 rts 
+   21 A:e04a                           print_hex_acia 
+   22 A:e04a  48                                 pha 
+   23 A:e04b  6a                                 ror 
+   24 A:e04c  6a                                 ror 
+   25 A:e04d  6a                                 ror 
+   26 A:e04e  6a                                 ror 
+   27 A:e04f  20 53 e0                           jsr print_nybble                ; This is just som usful hex cod
+   28 A:e052  68                                 pla 
+   29 A:e053                           print_nybble 
+   30 A:e053  29 0f                              and #15
+   31 A:e055  c9 0a                              cmp #10
+   32 A:e057  30 02                              bmi skipletter
+   33 A:e059  69 06                              adc #6
+   34 A:e05b                           skipletter 
+   35 A:e05b  69 30                              adc #48
+   36 A:e05d                                    ; jsr print_char
+   37 A:e05d  20 74 e0                           jsr print_chara
+   38 A:e060  60                                 rts 
 
-   40 A:e05e                           cleardisplay 
-   41 A:e05e  48                                 pha 
-   42 A:e05f  20 69 e0                           jsr txpoll                ; Poll the TX bit
-   43 A:e062  a9 0c                              lda #12             ; Print decimal 12 (CLS)
-   44 A:e064  8d 00 80                           sta $8000
-   45 A:e067  68                                 pla 
-   46 A:e068  60                                 rts 
+   40 A:e061                           cleardisplay 
+   41 A:e061  48                                 pha 
+   42 A:e062  20 6c e0                           jsr txpoll                ; Poll the TX bit
+   43 A:e065  a9 0c                              lda #12             ; Print decimal 12 (CLS)
+   44 A:e067  8d 00 80                           sta $8000
+   45 A:e06a  68                                 pla 
+   46 A:e06b  60                                 rts 
 
-   48 A:e069                           txpoll    
-   49 A:e069  ad 01 80                           lda $8001
-   50 A:e06c  29 10                              and #$10             ; Poll the TX bit
-   51 A:e06e  f0 f9                              beq txpoll
-   52 A:e070  60                                 rts 
+   48 A:e06c                           txpoll    
+   49 A:e06c  ad 01 80                           lda $8001
+   50 A:e06f  29 10                              and #$10             ; Poll the TX bit
+   51 A:e071  f0 f9                              beq txpoll
+   52 A:e073  60                                 rts 
 
-   54 A:e071                           print_char_acia                  ; same command
-   55 A:e071                           print_chara 
-   56 A:e071  48                                 pha 
-   57 A:e072  20 69 e0                           jsr txpoll                ; Poll the TX bit
-   58 A:e075  68                                 pla 
-   59 A:e076  8d 00 80                           sta $8000              ; Print character from A
-   60 A:e079  60                                 rts 
+   54 A:e074                           print_char_acia                  ; same command
+   55 A:e074                           print_chara 
+   56 A:e074  48                                 pha 
+   57 A:e075  20 6c e0                           jsr txpoll                ; Poll the TX bit
+   58 A:e078  68                                 pla 
+   59 A:e079  8d 00 80                           sta $8000              ; Print character from A
+   60 A:e07c  60                                 rts 
 
-   62 A:e07a                           ascii_home 
-   63 A:e07a  48                                 pha 
-   64 A:e07b  a9 01                              lda #1
-   65 A:e07d  20 71 e0                           jsr print_chara                ; Print 1 (HOME)
-   66 A:e080  68                                 pla 
-   67 A:e081  60                                 rts 
+   62 A:e07d                           ascii_home 
+   63 A:e07d  48                                 pha 
+   64 A:e07e  a9 01                              lda #1
+   65 A:e080  20 74 e0                           jsr print_chara                ; Print 1 (HOME)
+   66 A:e083  68                                 pla 
+   67 A:e084  60                                 rts 
 
-   69 A:e082                                    ; TODO FIX VARIABLES
+   69 A:e085                                    ; TODO FIX VARIABLES
 
-   71 A:e082                           w_acia_full 
-   72 A:e082  48                                 pha 
-   73 A:e083  a5 ff                              lda $ff
-   74 A:e085  48                                 pha                    ; Push Previous States onto the stack
-   75 A:e086  a5 fe                              lda $fe
-   76 A:e088  48                                 pha 
-   77 A:e089  84 ff                              sty $ff              ; Set Y as the Upper Address (8-15)
-   78 A:e08b  86 fe                              stx $fe              ; Set X as the Lower Adderss (0-7)
-   79 A:e08d  a0 00                              ldy #0
-   80 A:e08f                           acia_man  
-   81 A:e08f  20 69 e0                           jsr txpoll                ; Poll TX
-   82 A:e092  b1 fe                              lda ($fe),y          ; Load the Address
-   83 A:e094  8d 00 80                           sta $8000              ; Print what is at the address
-   84 A:e097  f0 04                              beq endwacia                ; If Done, End
-   85 A:e099  c8                                 iny                    ; Next Character
-   86 A:e09a  4c 8f e0                           jmp acia_man                ; Back to the top
-   87 A:e09d                           endwacia  
-   88 A:e09d  68                                 pla 
-   89 A:e09e  85 fe                              sta $fe
-   90 A:e0a0  68                                 pla                    ; Restore Variables
-   91 A:e0a1  85 ff                              sta $ff
-   92 A:e0a3  68                                 pla 
-   93 A:e0a4  60                                 rts 
+   71 A:e085                           w_acia_full 
+   72 A:e085  48                                 pha 
+   73 A:e086  a5 ff                              lda $ff
+   74 A:e088  48                                 pha                    ; Push Previous States onto the stack
+   75 A:e089  a5 fe                              lda $fe
+   76 A:e08b  48                                 pha 
+   77 A:e08c  84 ff                              sty $ff              ; Set Y as the Upper Address (8-15)
+   78 A:e08e  86 fe                              stx $fe              ; Set X as the Lower Adderss (0-7)
+   79 A:e090  a0 00                              ldy #0
+   80 A:e092                           acia_man  
+   81 A:e092  20 6c e0                           jsr txpoll                ; Poll TX
+   82 A:e095  b1 fe                              lda ($fe),y          ; Load the Address
+   83 A:e097  8d 00 80                           sta $8000              ; Print what is at the address
+   84 A:e09a  f0 04                              beq endwacia                ; If Done, End
+   85 A:e09c  c8                                 iny                    ; Next Character
+   86 A:e09d  4c 92 e0                           jmp acia_man                ; Back to the top
+   87 A:e0a0                           endwacia  
+   88 A:e0a0  68                                 pla 
+   89 A:e0a1  85 fe                              sta $fe
+   90 A:e0a3  68                                 pla                    ; Restore Variables
+   91 A:e0a4  85 ff                              sta $ff
+   92 A:e0a6  68                                 pla 
+   93 A:e0a7  60                                 rts 
 
 main.a65
 
 
- 2568 A:e0a5                                    ; error sound
- 2569 A:e0a5                           error_sound 
- 2569 A:e0a5                                    
- 2570 A:e0a5  20 ed e0                           jsr clear_sid
- 2571 A:e0a8  a9 06                              lda #$06
- 2572 A:e0aa  85 0c                              sta mem_copy
- 2573 A:e0ac  a9 10                              lda #$10
- 2574 A:e0ae  85 0d                              sta mem_copy+1
- 2575 A:e0b0  a9 09                              lda #<sounddata
- 2576 A:e0b2  85 0a                              sta mem_source
- 2577 A:e0b4  a9 c4                              lda #>sounddata
- 2578 A:e0b6  85 0b                              sta mem_source+1
- 2579 A:e0b8  a9 0a                              lda #$0a
- 2580 A:e0ba  85 0e                              sta mem_end
- 2581 A:e0bc  a9 11                              lda #$11
- 2582 A:e0be  85 0f                              sta mem_end+1
- 2583 A:e0c0  20 dc ea                           jsr memcopy
- 2584 A:e0c3  a9 0a                              lda #$0a
- 2585 A:e0c5  85 0c                              sta mem_copy
- 2586 A:e0c7  a9 11                              lda #$11
- 2587 A:e0c9  85 0d                              sta mem_copy+1
- 2588 A:e0cb  a9 f6                              lda #<errordat
- 2589 A:e0cd  85 0a                              sta mem_source
- 2590 A:e0cf  a9 e0                              lda #>errordat
- 2591 A:e0d1  85 0b                              sta mem_source+1
- 2592 A:e0d3  a9 2e                              lda #$2e
- 2593 A:e0d5  85 0e                              sta mem_end
- 2594 A:e0d7  a9 12                              lda #$12
- 2595 A:e0d9  85 0f                              sta mem_end+1
- 2596 A:e0db  20 dc ea                           jsr memcopy
- 2597 A:e0de  a9 55                              lda #$55
- 2598 A:e0e0  85 00                              sta donefact
- 2599 A:e0e2  64 01                              stz irqcount
- 2600 A:e0e4  a9 0f                              lda #$0f
- 2601 A:e0e6  8d 18 b8                           sta $b818
- 2602 A:e0e9  20 c0 c3                           jsr runthesound
- 2603 A:e0ec  60                                 rts 
+ 2568 A:e0a8                                    ; error sound
+ 2569 A:e0a8                           error_sound 
+ 2569 A:e0a8                                    
+ 2570 A:e0a8  20 f0 e0                           jsr clear_sid
+ 2571 A:e0ab  a9 06                              lda #$06
+ 2572 A:e0ad  85 0c                              sta mem_copy
+ 2573 A:e0af  a9 10                              lda #$10
+ 2574 A:e0b1  85 0d                              sta mem_copy+1
+ 2575 A:e0b3  a9 09                              lda #<sounddata
+ 2576 A:e0b5  85 0a                              sta mem_source
+ 2577 A:e0b7  a9 c4                              lda #>sounddata
+ 2578 A:e0b9  85 0b                              sta mem_source+1
+ 2579 A:e0bb  a9 0a                              lda #$0a
+ 2580 A:e0bd  85 0e                              sta mem_end
+ 2581 A:e0bf  a9 11                              lda #$11
+ 2582 A:e0c1  85 0f                              sta mem_end+1
+ 2583 A:e0c3  20 2d eb                           jsr memcopy
+ 2584 A:e0c6  a9 0a                              lda #$0a
+ 2585 A:e0c8  85 0c                              sta mem_copy
+ 2586 A:e0ca  a9 11                              lda #$11
+ 2587 A:e0cc  85 0d                              sta mem_copy+1
+ 2588 A:e0ce  a9 f9                              lda #<errordat
+ 2589 A:e0d0  85 0a                              sta mem_source
+ 2590 A:e0d2  a9 e0                              lda #>errordat
+ 2591 A:e0d4  85 0b                              sta mem_source+1
+ 2592 A:e0d6  a9 2e                              lda #$2e
+ 2593 A:e0d8  85 0e                              sta mem_end
+ 2594 A:e0da  a9 12                              lda #$12
+ 2595 A:e0dc  85 0f                              sta mem_end+1
+ 2596 A:e0de  20 2d eb                           jsr memcopy
+ 2597 A:e0e1  a9 55                              lda #$55
+ 2598 A:e0e3  85 00                              sta donefact
+ 2599 A:e0e5  64 01                              stz irqcount
+ 2600 A:e0e7  a9 0f                              lda #$0f
+ 2601 A:e0e9  8d 18 b8                           sta $b818
+ 2602 A:e0ec  20 c0 c3                           jsr runthesound
+ 2603 A:e0ef  60                                 rts 
 
- 2605 A:e0ed                           clear_sid 
- 2606 A:e0ed  a2 17                              ldx #$17
- 2607 A:e0ef                           csid      
- 2608 A:e0ef  9e 00 b8                           stz $b800,x
- 2609 A:e0f2  ca                                 dex 
- 2610 A:e0f3  d0 fa                              bne csid
- 2611 A:e0f5  60                                 rts 
+ 2605 A:e0f0                           clear_sid 
+ 2606 A:e0f0  a2 17                              ldx #$17
+ 2607 A:e0f2                           csid      
+ 2608 A:e0f2  9e 00 b8                           stz $b800,x
+ 2609 A:e0f5  ca                                 dex 
+ 2610 A:e0f6  d0 fa                              bne csid
+ 2611 A:e0f8  60                                 rts 
 
- 2613 A:e0f6                                    ; error sound
- 2614 A:e0f6                           errordat  
- 2614 A:e0f6                                    
- 2615 A:e0f6  f0 0f 77 11 01 00                  .byt $f0,$0f,$77,$11,$01,$00
- 2616 A:e0fc  12 0d 04 05 0b 14 08 ...           .byt $12,$0d,$04,$05,$0b,$14,$08,$09,$07,$06,$0c,$03,$0e,$0f,$10,$11
- 2617 A:e10c  17 13 0a 15 16 18 02 ...           .byt $17,$13,$0a,$15,$16,$18,$02,$00,$b6,$00,$6e,$b6,$01,$16,$ff,$3e
- 2618 A:e11c  03 20 f0 41 08 20 ff ...           .byt $03,$20,$f0,$41,$08,$20,$ff,$f0,$00,$fd,$00,$00,$00,$07,$ff,$00
- 2619 A:e12c  00 fd 07 00 00 07 1e ...           .byt $00,$fd,$07,$00,$00,$07,$1e,$00,$00,$0f,$fd,$06,$16,$6e,$06,$3e
- 2620 A:e13c  03 ff 16 6e 08 00 08 ...           .byt $03,$ff,$16,$6e,$08,$00,$08,$00,$08,$63,$00,$00,$00,$40,$00,$ff
- 2621 A:e14c  3e 03 20 f0 41 08 20 ...           .byt $3e,$03,$20,$f0,$41,$08,$20,$9f,$f0,$00,$fd,$00,$07,$bf,$00,$00
- 2622 A:e15c  fd 07 00 07 0e 00 00 ...           .byt $fd,$07,$00,$07,$0e,$00,$00,$0f,$11,$2d,$00,$fd,$11,$4a,$a0,$11
- 2623 A:e16c  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
- 2624 A:e17c  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
- 2625 A:e18c  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
- 2626 A:e19c  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
- 2627 A:e1ac  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
- 2628 A:e1bc  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
- 2629 A:e1cc  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
- 2630 A:e1dc  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
- 2631 A:e1ec  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
- 2632 A:e1fc  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
- 2633 A:e20c  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a2,$00,$fe
+ 2613 A:e0f9                                    ; error sound
+ 2614 A:e0f9                           errordat  
+ 2614 A:e0f9                                    
+ 2615 A:e0f9  f0 0f 77 11 01 00                  .byt $f0,$0f,$77,$11,$01,$00
+ 2616 A:e0ff  12 0d 04 05 0b 14 08 ...           .byt $12,$0d,$04,$05,$0b,$14,$08,$09,$07,$06,$0c,$03,$0e,$0f,$10,$11
+ 2617 A:e10f  17 13 0a 15 16 18 02 ...           .byt $17,$13,$0a,$15,$16,$18,$02,$00,$b6,$00,$6e,$b6,$01,$16,$ff,$3e
+ 2618 A:e11f  03 20 f0 41 08 20 ff ...           .byt $03,$20,$f0,$41,$08,$20,$ff,$f0,$00,$fd,$00,$00,$00,$07,$ff,$00
+ 2619 A:e12f  00 fd 07 00 00 07 1e ...           .byt $00,$fd,$07,$00,$00,$07,$1e,$00,$00,$0f,$fd,$06,$16,$6e,$06,$3e
+ 2620 A:e13f  03 ff 16 6e 08 00 08 ...           .byt $03,$ff,$16,$6e,$08,$00,$08,$00,$08,$63,$00,$00,$00,$40,$00,$ff
+ 2621 A:e14f  3e 03 20 f0 41 08 20 ...           .byt $3e,$03,$20,$f0,$41,$08,$20,$9f,$f0,$00,$fd,$00,$07,$bf,$00,$00
+ 2622 A:e15f  fd 07 00 07 0e 00 00 ...           .byt $fd,$07,$00,$07,$0e,$00,$00,$0f,$11,$2d,$00,$fd,$11,$4a,$a0,$11
+ 2623 A:e16f  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+ 2624 A:e17f  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+ 2625 A:e18f  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+ 2626 A:e19f  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+ 2627 A:e1af  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+ 2628 A:e1bf  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+ 2629 A:e1cf  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+ 2630 A:e1df  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0
+ 2631 A:e1ef  11 4a a0 11 4a a0 11 ...           .byt $11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11
+ 2632 A:e1ff  4a a0 11 4a a0 11 4a ...           .byt $4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a
+ 2633 A:e20f  a0 11 4a a0 11 4a a0 ...           .byt $a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a0,$11,$4a,$a2,$00,$fe
 
- 2635 A:e21b                           subdirname 
- 2636 A:e21b  52 4f 4f 54 20 20 20 ...           .byt "ROOT       "
- 2637 A:e226                           filename  
- 2638 A:e226  43 4f 44 45 20 20 20 ...           .byt "CODE    XPL"
- 2639 A:e231                           loadname  
- 2640 A:e231  4c 4f 41 44 41 44 44 ...           .byt "LOADADDRSAR"
- 2641 A:e23c                           fat_error 
- 2642 A:e23c  46 41 54 33 32 20 45 ...           .byt "FAT32 Error At Stage ",$00
+ 2635 A:e21e                           subdirname 
+ 2636 A:e21e  52 4f 4f 54 20 20 20 ...           .byt "ROOT       "
+ 2637 A:e229                           filename  
+ 2638 A:e229  43 4f 44 45 20 20 20 ...           .byt "CODE    XPL"
+ 2639 A:e234                           loadname  
+ 2640 A:e234  4c 4f 41 44 41 44 44 ...           .byt "LOADADDRSAR"
+ 2641 A:e23f                           fat_error 
+ 2642 A:e23f  46 41 54 33 32 20 45 ...           .byt "FAT32 Error At Stage ",$00
 
- 2644 A:e252                                    ; include xplDOS system
+ 2644 A:e255                                    ; include xplDOS system
 
 xpldos.a65
 
-    1 A:e252                                    ;; xplDOS
-    2 A:e252                                    ;; *NIX-esque SD Card Navigation system.
-    3 A:e252                                    ;;
-    4 A:e252                                    ;; the first byte of path is 0 if there was an init error.
-    5 A:e252                                    ;; otherwise it is a index to PATH for the empty space after the last foldername
-    6 A:e252                                    ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use
-    6 A:e252                                    
-    7 A:e252                                    ;; v = 11f+1
-    8 A:e252                                    ;; for example
-    8 A:e252                                    
-    9 A:e252                                    ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
-   10 A:e252                                    ;; BUG root usage is not possible, thus, it is required that we are in a folder (ls does not seem to like reading the SD root.)
-   11 A:e252                                    ;; TODO add path support to a typed command
-   12 A:e252                                    ;; TODO need to add /path support to file-based commands  
-   13 A:e252                                    ;; Commands
-   13 A:e252                                    
-   14 A:e252                                    ;; CD
-   15 A:e252                                    ;; LS
-   16 A:e252                                    ;; LOAD
-   17 A:e252                                    ;; CAT
-   18 A:e252                                    ;; SAVE
-   19 A:e252                                    ;; RM
-   20 A:e252                                    ;; MV
-   21 A:e252                                    ;; upcoming commands (TODO)
-   21 A:e252                                    
-   22 A:e252                                    ;; MKDIR
-   23 A:e252                                    ;; CP
-   24 A:e252                                    ;; TAR?
-   25 A:e252                                    ;; MAN?
+    1 A:e255                                    ;; xplDOS
+    2 A:e255                                    ;; *NIX-esque SD Card Navigation system.
+    3 A:e255                                    ;;
+    4 A:e255                                    ;; the first byte of path is 0 if there was an init error.
+    5 A:e255                                    ;; otherwise it is a index to PATH for the empty space after the last foldername
+    6 A:e255                                    ;; to calculate what value 0 is when v is PATH+0 and f is the amount of folders, use
+    6 A:e255                                    
+    7 A:e255                                    ;; v = 11f+1
+    8 A:e255                                    ;; for example
+    8 A:e255                                    
+    9 A:e255                                    ;; 23,"FOLDER     ", "TEST       ", $00 <--path points here (11+11+1=23)
+   10 A:e255                                    ;; BUG root usage is not possible, thus, it is required that we are in a folder (ls does not seem to like reading the SD root.)
+   11 A:e255                                    ;; TODO add path support to a typed command
+   12 A:e255                                    ;; TODO need to add /path support to file-based commands  
+   13 A:e255                                    ;; Commands
+   13 A:e255                                    
+   14 A:e255                                    ;; CD
+   15 A:e255                                    ;; LS
+   16 A:e255                                    ;; LOAD
+   17 A:e255                                    ;; CAT
+   18 A:e255                                    ;; SAVE
+   19 A:e255                                    ;; RM
+   20 A:e255                                    ;; MV
+   21 A:e255                                    ;; upcoming commands (TODO)
+   21 A:e255                                    
+   22 A:e255                                    ;; MKDIR
+   23 A:e255                                    ;; CP
+   24 A:e255                                    ;; TAR?
+   25 A:e255                                    ;; MAN?
 
-   27 A:e252                                    ;; resolvepath 
-   28 A:e252                                    ;; Handles absolute and relative paths
+   27 A:e255                                    ;; resolvepath 
+   28 A:e255                                    ;; Handles absolute and relative paths
 
-   30 A:e252                           resolvepath 
-   30 A:e252                                    
-   31 A:e252                                     .( 
-   32 A:e252  a0 00                              ldy #0
-   33 A:e254  b1 11                              lda (folderpointer),y
-   34 A:e256  c9 2f                              cmp #'/'             ; absolute path?
-   35 A:e258  d0 3d                              bne parsepath
+   30 A:e255                           resolvepath 
+   30 A:e255                                    
+   31 A:e255                                     .( 
+   32 A:e255  a0 00                              ldy #0
+   33 A:e257  b1 11                              lda (folderpointer),y
+   34 A:e259  c9 2f                              cmp #'/'             ; absolute path?
+   35 A:e25b  d0 3d                              bne parsepath
 
-   37 A:e25a                                    ; absolute path, clear PATH
-   38 A:e25a  a9 01                              lda #1
-   39 A:e25c  8d 00 04                           sta path
-   40 A:e25f  20 71 e2                           jsr rootalias
+   37 A:e25d                                    ; absolute path, clear PATH
+   38 A:e25d  a9 01                              lda #1
+   39 A:e25f  8d 00 04                           sta path
+   40 A:e262  20 74 e2                           jsr rootalias
 
-   42 A:e262                                    ; check if path is just "/" (i.e., empty after slash)
-   43 A:e262  a0 01                              ldy #1
-   44 A:e264  98                                 tya 
-   45 A:e265  18                                 clc 
-   46 A:e266  65 11                              adc folderpointer
-   47 A:e268  85 11                              sta folderpointer
-   48 A:e26a  90 02                              bcc qp
-   49 A:e26c  e6 12                              inc folderpointer+1
-   50 A:e26e                           qp        
-   50 A:e26e                                    
-   51 A:e26e  4c 97 e2                           jmp parsepath
+   42 A:e265                                    ; check if path is just "/" (i.e., empty after slash)
+   43 A:e265  a0 01                              ldy #1
+   44 A:e267  98                                 tya 
+   45 A:e268  18                                 clc 
+   46 A:e269  65 11                              adc folderpointer
+   47 A:e26b  85 11                              sta folderpointer
+   48 A:e26d  90 02                              bcc qp
+   49 A:e26f  e6 12                              inc folderpointer+1
+   50 A:e271                           qp        
+   50 A:e271                                    
+   51 A:e271  4c 9a e2                           jmp parsepath
 
-   53 A:e271                           rootalias 
-   53 A:e271                                    
-   54 A:e271                                    ; /ROOT
-   55 A:e271  a5 11                              lda folderpointer
-   56 A:e273  48                                 pha 
-   57 A:e274  a9 8b                              lda #<ral
-   58 A:e276  85 11                              sta folderpointer
-   59 A:e278  a5 12                              lda folderpointer+1
-   60 A:e27a  48                                 pha 
-   61 A:e27b  a9 e2                              lda #>ral
-   62 A:e27d  85 12                              sta folderpointer+1
-   63 A:e27f  20 4d e3                           jsr addpath
-   64 A:e282  68                                 pla 
-   65 A:e283  85 12                              sta folderpointer+1
-   66 A:e285  68                                 pla 
-   67 A:e286  85 11                              sta folderpointer
-   68 A:e288  4c 0b e3                           jmp resdone
+   53 A:e274                           rootalias 
+   53 A:e274                                    
+   54 A:e274                                    ; /ROOT
+   55 A:e274  a5 11                              lda folderpointer
+   56 A:e276  48                                 pha 
+   57 A:e277  a9 8e                              lda #<ral
+   58 A:e279  85 11                              sta folderpointer
+   59 A:e27b  a5 12                              lda folderpointer+1
+   60 A:e27d  48                                 pha 
+   61 A:e27e  a9 e2                              lda #>ral
+   62 A:e280  85 12                              sta folderpointer+1
+   63 A:e282  20 50 e3                           jsr addpath
+   64 A:e285  68                                 pla 
+   65 A:e286  85 12                              sta folderpointer+1
+   66 A:e288  68                                 pla 
+   67 A:e289  85 11                              sta folderpointer
+   68 A:e28b  4c 0e e3                           jmp resdone
 
-   70 A:e28b                           ral       
-   70 A:e28b                                    
-   71 A:e28b  52 4f 4f 54 20 20 20 ...           .byt "ROOT       ",$00
+   70 A:e28e                           ral       
+   70 A:e28e                                    
+   71 A:e28e  52 4f 4f 54 20 20 20 ...           .byt "ROOT       ",$00
 
-   73 A:e297                                    ; relative path, start from current directory
-   74 A:e297                           parsepath 
-   74 A:e297                                    
-   75 A:e297                                    ; skip slashes
-   76 A:e297  a0 00                              ldy #0
-   77 A:e299  b1 11                              lda (folderpointer),y
-   78 A:e29b  f0 6e                              beq resdone
-   79 A:e29d  c9 2f                              cmp #'/'
-   80 A:e29f  d0 09                              bne buildseg
-   81 A:e2a1  e6 11                              inc folderpointer
-   82 A:e2a3  d0 f2                              bne parsepath
-   83 A:e2a5  e6 12                              inc folderpointer+1
-   84 A:e2a7  4c 97 e2                           jmp parsepath
+   73 A:e29a                                    ; relative path, start from current directory
+   74 A:e29a                           parsepath 
+   74 A:e29a                                    
+   75 A:e29a                                    ; skip slashes
+   76 A:e29a  a0 00                              ldy #0
+   77 A:e29c  b1 11                              lda (folderpointer),y
+   78 A:e29e  f0 6e                              beq resdone
+   79 A:e2a0  c9 2f                              cmp #'/'
+   80 A:e2a2  d0 09                              bne buildseg
+   81 A:e2a4  e6 11                              inc folderpointer
+   82 A:e2a6  d0 f2                              bne parsepath
+   83 A:e2a8  e6 12                              inc folderpointer+1
+   84 A:e2aa  4c 9a e2                           jmp parsepath
 
-   86 A:e2aa                           buildseg  
-   86 A:e2aa                                    
-   87 A:e2aa  a2 00                              ldx #0
-   88 A:e2ac                           segloop   
-   88 A:e2ac                                    
-   89 A:e2ac  b1 11                              lda (folderpointer),y
-   90 A:e2ae  f0 0d                              beq endseg
-   91 A:e2b0  c9 2f                              cmp #'/'
-   92 A:e2b2  f0 09                              beq endseg
-   93 A:e2b4  9d 18 03                           sta fnstash,x
-   94 A:e2b7  e8                                 inx 
-   95 A:e2b8  c8                                 iny 
-   96 A:e2b9  e0 0c                              cpx #12
-   97 A:e2bb  d0 ef                              bne segloop
+   86 A:e2ad                           buildseg  
+   86 A:e2ad                                    
+   87 A:e2ad  a2 00                              ldx #0
+   88 A:e2af                           segloop   
+   88 A:e2af                                    
+   89 A:e2af  b1 11                              lda (folderpointer),y
+   90 A:e2b1  f0 0d                              beq endseg
+   91 A:e2b3  c9 2f                              cmp #'/'
+   92 A:e2b5  f0 09                              beq endseg
+   93 A:e2b7  9d 18 03                           sta fnstash,x
+   94 A:e2ba  e8                                 inx 
+   95 A:e2bb  c8                                 iny 
+   96 A:e2bc  e0 0c                              cpx #12
+   97 A:e2be  d0 ef                              bne segloop
 
-   99 A:e2bd                           endseg    
-   99 A:e2bd                                    
-  100 A:e2bd  a9 00                              lda #0
-  101 A:e2bf  9d 18 03                           sta fnstash,x              ; null-terminate
+   99 A:e2c0                           endseg    
+   99 A:e2c0                                    
+  100 A:e2c0  a9 00                              lda #0
+  101 A:e2c2  9d 18 03                           sta fnstash,x              ; null-terminate
 
-  103 A:e2c2  98                                 tya 
-  104 A:e2c3  18                                 clc 
-  105 A:e2c4  65 11                              adc folderpointer
-  106 A:e2c6  85 11                              sta folderpointer
-  107 A:e2c8  90 02                              bcc fldr
-  108 A:e2ca  e6 12                              inc folderpointer+1
-  109 A:e2cc                           fldr      
-  109 A:e2cc                                    
+  103 A:e2c5  98                                 tya 
+  104 A:e2c6  18                                 clc 
+  105 A:e2c7  65 11                              adc folderpointer
+  106 A:e2c9  85 11                              sta folderpointer
+  107 A:e2cb  90 02                              bcc fldr
+  108 A:e2cd  e6 12                              inc folderpointer+1
+  109 A:e2cf                           fldr      
+  109 A:e2cf                                    
 
-  111 A:e2cc                                    ; Check for . and ..
-  112 A:e2cc  a0 00                              ldy #0
-  113 A:e2ce  b9 18 03                           lda fnstash,y
-  114 A:e2d1  c9 2e                              cmp #'.'
-  115 A:e2d3  d0 13                              bne notdot
-  116 A:e2d5  c8                                 iny 
-  117 A:e2d6  b9 18 03                           lda fnstash,y
-  118 A:e2d9  f0 bc                              beq parsepath                ; just '.', skip
-  119 A:e2db  c9 2e                              cmp #'.'
-  120 A:e2dd  d0 b8                              bne parsepath                ; not '..'
-  121 A:e2df  c8                                 iny 
-  122 A:e2e0  b9 18 03                           lda fnstash,y
-  123 A:e2e3  f0 20                              beq goback                ; confirmed '..'
-  124 A:e2e5  4c 97 e2                           jmp parsepath                ; invalid (e.g., '...'), ignore
+  111 A:e2cf                                    ; Check for . and ..
+  112 A:e2cf  a0 00                              ldy #0
+  113 A:e2d1  b9 18 03                           lda fnstash,y
+  114 A:e2d4  c9 2e                              cmp #'.'
+  115 A:e2d6  d0 13                              bne notdot
+  116 A:e2d8  c8                                 iny 
+  117 A:e2d9  b9 18 03                           lda fnstash,y
+  118 A:e2dc  f0 bc                              beq parsepath                ; just '.', skip
+  119 A:e2de  c9 2e                              cmp #'.'
+  120 A:e2e0  d0 b8                              bne parsepath                ; not '..'
+  121 A:e2e2  c8                                 iny 
+  122 A:e2e3  b9 18 03                           lda fnstash,y
+  123 A:e2e6  f0 20                              beq goback                ; confirmed '..'
+  124 A:e2e8  4c 9a e2                           jmp parsepath                ; invalid (e.g., '...'), ignore
 
-  126 A:e2e8                           notdot    
-  126 A:e2e8                                    
-  127 A:e2e8                                    ; CD into this segment
-  128 A:e2e8  a5 11                              lda folderpointer
-  129 A:e2ea  48                                 pha 
-  130 A:e2eb  a9 18                              lda #<fnstash
-  131 A:e2ed  85 11                              sta folderpointer
-  132 A:e2ef  a5 12                              lda folderpointer+1
-  133 A:e2f1  48                                 pha 
-  134 A:e2f2  a9 03                              lda #>fnstash
-  135 A:e2f4  85 12                              sta folderpointer+1
-  136 A:e2f6  20 cf e4                           jsr shortconvert
-  137 A:e2f9  20 4d e3                           jsr addpath
-  138 A:e2fc  68                                 pla 
-  139 A:e2fd  85 12                              sta folderpointer+1
-  140 A:e2ff  68                                 pla 
-  141 A:e300  85 11                              sta folderpointer
-  142 A:e302  4c 97 e2                           jmp parsepath
+  126 A:e2eb                           notdot    
+  126 A:e2eb                                    
+  127 A:e2eb                                    ; CD into this segment
+  128 A:e2eb  a5 11                              lda folderpointer
+  129 A:e2ed  48                                 pha 
+  130 A:e2ee  a9 18                              lda #<fnstash
+  131 A:e2f0  85 11                              sta folderpointer
+  132 A:e2f2  a5 12                              lda folderpointer+1
+  133 A:e2f4  48                                 pha 
+  134 A:e2f5  a9 03                              lda #>fnstash
+  135 A:e2f7  85 12                              sta folderpointer+1
+  136 A:e2f9  20 28 e5                           jsr shortconvert
+  137 A:e2fc  20 50 e3                           jsr addpath
+  138 A:e2ff  68                                 pla 
+  139 A:e300  85 12                              sta folderpointer+1
+  140 A:e302  68                                 pla 
+  141 A:e303  85 11                              sta folderpointer
+  142 A:e305  4c 9a e2                           jmp parsepath
 
-  144 A:e305                           goback    
-  144 A:e305                                    
-  145 A:e305  20 6a e3                           jsr backpath
-  146 A:e308  4c 97 e2                           jmp parsepath
+  144 A:e308                           goback    
+  144 A:e308                                    
+  145 A:e308  20 6d e3                           jsr backpath
+  146 A:e30b  4c 9a e2                           jmp parsepath
 
-  148 A:e30b                           resdone   
-  148 A:e30b                                    
-  149 A:e30b  18                                 clc 
-  150 A:e30c  60                                 rts 
-  151 A:e30d                                     .) 
+  148 A:e30e                           resdone   
+  148 A:e30e                                    
+  149 A:e30e  18                                 clc 
+  150 A:e30f  60                                 rts 
+  151 A:e310                                     .) 
 
-  153 A:e30d                                    ; PATH refresh
-  154 A:e30d                                    ; goes to the ROOT directory, and CDs to the directory at PATH.
-  155 A:e30d                                    ;
-  156 A:e30d                                    ; this is probably equivilent to "Refresh" in Microsoft Windows.
-  157 A:e30d                           refreshpath 
-  157 A:e30d                                    
-  158 A:e30d                                     .( 
-  159 A:e30d                                    ; No memory card?
-  160 A:e30d  ad 00 04                           lda path
-  161 A:e310  f0 26                              beq patherr
-  162 A:e312  a9 01                              lda #1             ; path+1 because path+0 is the path size variable
-  163 A:e314  85 16                              sta pathindex
-  164 A:e316                                    ; If memory card, then goto dir
-  165 A:e316  20 f4 db                           jsr fat32_openroot
-  166 A:e319                           rloop     
-  166 A:e319                                    
-  167 A:e319                                    ; Open the directory
-  168 A:e319  a6 16                              ldx pathindex
-  169 A:e31b  a0 04                              ldy #>path
-  170 A:e31d  20 e1 de                           jsr fat32_finddirent
-  171 A:e320  90 03                              bcc fine
-  172 A:e322  4c 41 e3                           jmp rlerror
-  173 A:e325                           fine      
-  173 A:e325                                    
-  174 A:e325  20 5a dd                           jsr fat32_opendirent
-  175 A:e328                                    ; advance to the next directory
-  176 A:e328  18                                 clc 
-  177 A:e329  a5 16                              lda pathindex
-  178 A:e32b  69 0b                              adc #11
-  179 A:e32d  85 16                              sta pathindex
-  180 A:e32f                                    ;lda (pathindex) ; end of path?
-  181 A:e32f  ad 00 04                           lda path
-  182 A:e332  c5 16                              cmp pathindex
-  183 A:e334  d0 e3                              bne rloop                ; if not, cd to the next directory
-  184 A:e336  18                                 clc 
-  185 A:e337  60                                 rts 
-  186 A:e338                                     .) 
-  187 A:e338                           patherr   
-  187 A:e338                                    
-  188 A:e338  a2 7e                              ldx #<patherror
-  189 A:e33a  a0 e3                              ldy #>patherror
-  190 A:e33c  20 82 e0                           jsr w_acia_full
-  191 A:e33f  38                                 sec 
-  192 A:e340  60                                 rts 
-  193 A:e341                           rlerror   
-  193 A:e341                                    
-  194 A:e341  a2 85                              ldx #<foldermsg
-  195 A:e343  a0 e9                              ldy #>foldermsg
-  196 A:e345  20 82 e0                           jsr w_acia_full
-  197 A:e348  20 a5 e0                           jsr error_sound
-  198 A:e34b  38                                 sec 
-  199 A:e34c  60                                 rts 
+  153 A:e310                                    ; PATH refresh
+  154 A:e310                                    ; goes to the ROOT directory, and CDs to the directory at PATH.
+  155 A:e310                                    ;
+  156 A:e310                                    ; this is probably equivilent to "Refresh" in Microsoft Windows.
+  157 A:e310                           refreshpath 
+  157 A:e310                                    
+  158 A:e310                                     .( 
+  159 A:e310                                    ; No memory card?
+  160 A:e310  ad 00 04                           lda path
+  161 A:e313  f0 26                              beq patherr
+  162 A:e315  a9 01                              lda #1             ; path+1 because path+0 is the path size variable
+  163 A:e317  85 16                              sta pathindex
+  164 A:e319                                    ; If memory card, then goto dir
+  165 A:e319  20 f7 db                           jsr fat32_openroot
+  166 A:e31c                           rloop     
+  166 A:e31c                                    
+  167 A:e31c                                    ; Open the directory
+  168 A:e31c  a6 16                              ldx pathindex
+  169 A:e31e  a0 04                              ldy #>path
+  170 A:e320  20 e4 de                           jsr fat32_finddirent
+  171 A:e323  90 03                              bcc fine
+  172 A:e325  4c 44 e3                           jmp rlerror
+  173 A:e328                           fine      
+  173 A:e328                                    
+  174 A:e328  20 5d dd                           jsr fat32_opendirent
+  175 A:e32b                                    ; advance to the next directory
+  176 A:e32b  18                                 clc 
+  177 A:e32c  a5 16                              lda pathindex
+  178 A:e32e  69 0b                              adc #11
+  179 A:e330  85 16                              sta pathindex
+  180 A:e332                                    ;lda (pathindex) ; end of path?
+  181 A:e332  ad 00 04                           lda path
+  182 A:e335  c5 16                              cmp pathindex
+  183 A:e337  d0 e3                              bne rloop                ; if not, cd to the next directory
+  184 A:e339  18                                 clc 
+  185 A:e33a  60                                 rts 
+  186 A:e33b                                     .) 
+  187 A:e33b                           patherr   
+  187 A:e33b                                    
+  188 A:e33b  a2 81                              ldx #<patherror
+  189 A:e33d  a0 e3                              ldy #>patherror
+  190 A:e33f  20 85 e0                           jsr w_acia_full
+  191 A:e342  38                                 sec 
+  192 A:e343  60                                 rts 
+  193 A:e344                           rlerror   
+  193 A:e344                                    
+  194 A:e344  a2 d6                              ldx #<foldermsg
+  195 A:e346  a0 e9                              ldy #>foldermsg
+  196 A:e348  20 85 e0                           jsr w_acia_full
+  197 A:e34b  20 a8 e0                           jsr error_sound
+  198 A:e34e  38                                 sec 
+  199 A:e34f  60                                 rts 
 
-  201 A:e34d                                    ; add PATH
-  202 A:e34d                                    ; adds a SHORT formatted folder at (folderpointer) to the PATH variable.
-  203 A:e34d                           addpath   
-  203 A:e34d                                    
-  204 A:e34d                                     .( 
-  205 A:e34d  48                                 pha 
-  206 A:e34e  da                                 phx 
-  207 A:e34f  5a                                 phy 
-  208 A:e350  a0 00                              ldy #0
-  209 A:e352  ae 00 04                           ldx path
-  210 A:e355                           aplp      
-  210 A:e355                                    
-  211 A:e355  b1 11                              lda (folderpointer),y
-  212 A:e357  9d 00 04                           sta path,x
-  213 A:e35a  c8                                 iny 
-  214 A:e35b  e8                                 inx 
-  215 A:e35c  c0 0b                              cpy #11
-  216 A:e35e  d0 f5                              bne aplp
-  217 A:e360  9e 00 04                           stz path,x
-  218 A:e363  8e 00 04                           stx path
-  219 A:e366  7a                                 ply 
-  220 A:e367  fa                                 plx 
-  221 A:e368  68                                 pla 
-  222 A:e369  60                                 rts 
-  223 A:e36a                                     .) 
+  201 A:e350                                    ; add PATH
+  202 A:e350                                    ; adds a SHORT formatted folder at (folderpointer) to the PATH variable.
+  203 A:e350                           addpath   
+  203 A:e350                                    
+  204 A:e350                                     .( 
+  205 A:e350  48                                 pha 
+  206 A:e351  da                                 phx 
+  207 A:e352  5a                                 phy 
+  208 A:e353  a0 00                              ldy #0
+  209 A:e355  ae 00 04                           ldx path
+  210 A:e358                           aplp      
+  210 A:e358                                    
+  211 A:e358  b1 11                              lda (folderpointer),y
+  212 A:e35a  9d 00 04                           sta path,x
+  213 A:e35d  c8                                 iny 
+  214 A:e35e  e8                                 inx 
+  215 A:e35f  c0 0b                              cpy #11
+  216 A:e361  d0 f5                              bne aplp
+  217 A:e363  9e 00 04                           stz path,x
+  218 A:e366  8e 00 04                           stx path
+  219 A:e369  7a                                 ply 
+  220 A:e36a  fa                                 plx 
+  221 A:e36b  68                                 pla 
+  222 A:e36c  60                                 rts 
+  223 A:e36d                                     .) 
 
-  225 A:e36a                                    ; delete PATH
-  226 A:e36a                                    ; goes back a directory, used in cd ..
-  227 A:e36a                           backpath  
-  227 A:e36a                                    
-  228 A:e36a                                     .( 
-  229 A:e36a  da                                 phx 
-  230 A:e36b  48                                 pha 
-  231 A:e36c  38                                 sec 
-  232 A:e36d  ad 00 04                           lda path
-  233 A:e370  e9 0b                              sbc #11             ; remove dir
-  234 A:e372  8d 00 04                           sta path
-  235 A:e375  ae 00 04                           ldx path
-  236 A:e378  9e 00 04                           stz path,x
-  237 A:e37b  68                                 pla 
-  238 A:e37c  fa                                 plx 
-  239 A:e37d  60                                 rts 
-  240 A:e37e                                     .) 
+  225 A:e36d                                    ; delete PATH
+  226 A:e36d                                    ; goes back a directory, used in cd ..
+  227 A:e36d                           backpath  
+  227 A:e36d                                    
+  228 A:e36d                                     .( 
+  229 A:e36d  da                                 phx 
+  230 A:e36e  48                                 pha 
+  231 A:e36f  38                                 sec 
+  232 A:e370  ad 00 04                           lda path
+  233 A:e373  e9 0b                              sbc #11             ; remove dir
+  234 A:e375  8d 00 04                           sta path
+  235 A:e378  ae 00 04                           ldx path
+  236 A:e37b  9e 00 04                           stz path,x
+  237 A:e37e  68                                 pla 
+  238 A:e37f  fa                                 plx 
+  239 A:e380  60                                 rts 
+  240 A:e381                                     .) 
 
-  242 A:e37e                           patherror 
-  242 A:e37e                                    
-  243 A:e37e  4e 6f 20 4d 65 6d 6f ...           .byt "No Memory Card.",$0d,$0a,$00
+  242 A:e381                           patherror 
+  242 A:e381                                    
+  243 A:e381  4e 6f 20 4d 65 6d 6f ...           .byt "No Memory Card.",$0d,$0a,$00
 
-  245 A:e390                                    ;; print PATH
-  246 A:e390                                    ;; prints the current directory, like *NIX
-  247 A:e390                                    ;; for example
-  247 A:e390                                    
-  248 A:e390                                    ;; /test/ >_
-  249 A:e390                                    ;; or
-  249 A:e390                                    
-  250 A:e390                                    ;; / >_
-  251 A:e390                                    ;;
-  252 A:e390                           printpath 
-  252 A:e390                                    
-  253 A:e390                                     .( 
-  254 A:e390                                    ; No memory card?
-  255 A:e390  ad 00 04                           lda path
-  256 A:e393  d0 02                              bne pp
-  257 A:e395  38                                 sec 
-  258 A:e396  60                                 rts 
-  259 A:e397                           pp        
-  260 A:e397  a9 2f                              lda #'/'
-  261 A:e399  20 71 e0                           jsr print_chara
-  262 A:e39c  a9 0c                              lda #12             ; path+12 because we already showed the root
-  263 A:e39e  85 16                              sta pathindex
-  264 A:e3a0  a9 04                              lda #>path
-  265 A:e3a2  85 17                              sta pathindex+1
-  266 A:e3a4  a0 00                              ldy #0
-  267 A:e3a6                           pplp      
-  267 A:e3a6                                    
-  268 A:e3a6                                    ; loop through path and print the folder, in lowercase
-  269 A:e3a6  b1 16                              lda (pathindex),y
-  270 A:e3a8  f0 23                              beq ppdone                ; exit if only root
-  271 A:e3aa  c9 20                              cmp #$20             ; space?
-  272 A:e3ac  f0 09                              beq ppd
-  273 A:e3ae  09 20                              ora #$20             ; if not, print (in lowercase)
-  274 A:e3b0  20 71 e0                           jsr print_chara
-  275 A:e3b3  c8                                 iny 
-  276 A:e3b4  4c a6 e3                           jmp pplp
-  277 A:e3b7                           ppd       
-  277 A:e3b7                                    
-  278 A:e3b7  a9 2f                              lda #'/'             ; if space, dir done.
-  279 A:e3b9  20 71 e0                           jsr print_chara
-  280 A:e3bc                           ppdl      
-  280 A:e3bc                                    
-  281 A:e3bc  b1 16                              lda (pathindex),y            ; look for the next entry.
-  282 A:e3be  c9 20                              cmp #$20
-  283 A:e3c0  d0 04                              bne notspace
-  284 A:e3c2  c8                                 iny 
-  285 A:e3c3  4c bc e3                           jmp ppdl
-  286 A:e3c6                           notspace  
-  286 A:e3c6                                    
-  287 A:e3c6  b1 16                              lda (pathindex),y            ; end of path?
-  288 A:e3c8  f0 03                              beq ppdone
-  289 A:e3ca  4c a6 e3                           jmp pplp                ; no, print another folder name.
-  290 A:e3cd                           ppdone    
-  290 A:e3cd                                    
-  291 A:e3cd                                    ; Print a space for good spacing
-  292 A:e3cd  a9 20                              lda #$20
-  293 A:e3cf  20 71 e0                           jsr print_chara
-  294 A:e3d2  18                                 clc 
-  295 A:e3d3  60                                 rts                    ; done!
-  296 A:e3d4                                     .) 
+  245 A:e393                                    ;; print PATH
+  246 A:e393                                    ;; prints the current directory, like *NIX
+  247 A:e393                                    ;; for example
+  247 A:e393                                    
+  248 A:e393                                    ;; /test/ >_
+  249 A:e393                                    ;; or
+  249 A:e393                                    
+  250 A:e393                                    ;; / >_
+  251 A:e393                                    ;;
+  252 A:e393                           printpath 
+  252 A:e393                                    
+  253 A:e393                                     .( 
+  254 A:e393                                    ; No memory card?
+  255 A:e393  ad 00 04                           lda path
+  256 A:e396  d0 02                              bne pp
+  257 A:e398  38                                 sec 
+  258 A:e399  60                                 rts 
+  259 A:e39a                           pp        
+  260 A:e39a  a9 2f                              lda #'/'
+  261 A:e39c  20 74 e0                           jsr print_chara
+  262 A:e39f  a9 0c                              lda #12             ; path+12 because we already showed the root
+  263 A:e3a1  85 16                              sta pathindex
+  264 A:e3a3  a9 04                              lda #>path
+  265 A:e3a5  85 17                              sta pathindex+1
+  266 A:e3a7  a0 00                              ldy #0
+  267 A:e3a9                           pplp      
+  267 A:e3a9                                    
+  268 A:e3a9                                    ; loop through path and print the folder, in lowercase
+  269 A:e3a9  b1 16                              lda (pathindex),y
+  270 A:e3ab  f0 23                              beq ppdone                ; exit if only root
+  271 A:e3ad  c9 20                              cmp #$20             ; space?
+  272 A:e3af  f0 09                              beq ppd
+  273 A:e3b1  09 20                              ora #$20             ; if not, print (in lowercase)
+  274 A:e3b3  20 74 e0                           jsr print_chara
+  275 A:e3b6  c8                                 iny 
+  276 A:e3b7  4c a9 e3                           jmp pplp
+  277 A:e3ba                           ppd       
+  277 A:e3ba                                    
+  278 A:e3ba  a9 2f                              lda #'/'             ; if space, dir done.
+  279 A:e3bc  20 74 e0                           jsr print_chara
+  280 A:e3bf                           ppdl      
+  280 A:e3bf                                    
+  281 A:e3bf  b1 16                              lda (pathindex),y            ; look for the next entry.
+  282 A:e3c1  c9 20                              cmp #$20
+  283 A:e3c3  d0 04                              bne notspace
+  284 A:e3c5  c8                                 iny 
+  285 A:e3c6  4c bf e3                           jmp ppdl
+  286 A:e3c9                           notspace  
+  286 A:e3c9                                    
+  287 A:e3c9  b1 16                              lda (pathindex),y            ; end of path?
+  288 A:e3cb  f0 03                              beq ppdone
+  289 A:e3cd  4c a9 e3                           jmp pplp                ; no, print another folder name.
+  290 A:e3d0                           ppdone    
+  290 A:e3d0                                    
+  291 A:e3d0                                    ; Print a space for good spacing
+  292 A:e3d0  a9 20                              lda #$20
+  293 A:e3d2  20 74 e0                           jsr print_chara
+  294 A:e3d5  18                                 clc 
+  295 A:e3d6  60                                 rts                    ; done!
+  296 A:e3d7                                     .) 
 
-  298 A:e3d4                                    ;; CD
-  299 A:e3d4                                    ;; Change the directory
-  300 A:e3d4                                    ;; if you use cdsub, folderpointer holds the address of the folder name
+  298 A:e3d7                                    ;; CD
+  299 A:e3d7                                    ;; Change the directory
+  300 A:e3d7                                    ;; if you use cdsub, folderpointer holds the address of the folder name
 
-  302 A:e3d4                           cdcmd     
-  302 A:e3d4                                    
-  303 A:e3d4                                     .( 
-  304 A:e3d4  ad 00 04                           lda path
-  305 A:e3d7  d0 03                              bne cdf
-  306 A:e3d9  4c 38 e3                           jmp patherr
-  307 A:e3dc                           cdf       
-  307 A:e3dc                                    
-  308 A:e3dc                                    ;; check arguments
-  309 A:e3dc  a5 20                              lda ARGINDEX
-  310 A:e3de  c9 02                              cmp #2             ; if there's two arguments, change to the specified directory
-  311 A:e3e0  f0 03                              beq processparam
-  312 A:e3e2  4c 07 e4                           jmp error
-  313 A:e3e5                           processparam                  ; process the filename parameter
-  314 A:e3e5  18                                 clc 
-  315 A:e3e6  a9 00                              lda #<INPUT
-  316 A:e3e8  65 22                              adc ARGINDEX+2
-  317 A:e3ea  85 11                              sta folderpointer
-  318 A:e3ec  a9 02                              lda #>INPUT
-  319 A:e3ee  85 12                              sta folderpointer+1
-  320 A:e3f0                                     .) 
-  321 A:e3f0                           cdsub     
-  321 A:e3f0                                    
-  322 A:e3f0                                     .( 
-  323 A:e3f0  20 0f e4                           jsr stashpath
-  324 A:e3f3  20 52 e2                           jsr resolvepath
-  325 A:e3f6  20 0d e3                           jsr refreshpath
-  326 A:e3f9  90 03                              bcc noerr
-  327 A:e3fb  20 22 e4                           jsr restorepath
-  328 A:e3fe                           noerr     
-  329 A:e3fe  60                                 rts 
-  330 A:e3ff                                     .) 
+  302 A:e3d7                           cdcmd     
+  302 A:e3d7                                    
+  303 A:e3d7                                     .( 
+  304 A:e3d7  ad 00 04                           lda path
+  305 A:e3da  d0 03                              bne cdf
+  306 A:e3dc  4c 3b e3                           jmp patherr
+  307 A:e3df                           cdf       
+  307 A:e3df                                    
+  308 A:e3df                                    ;; check arguments
+  309 A:e3df  a5 20                              lda ARGINDEX
+  310 A:e3e1  c9 02                              cmp #2             ; if there's two arguments, change to the specified directory
+  311 A:e3e3  f0 03                              beq processparam
+  312 A:e3e5  4c 0a e4                           jmp error
+  313 A:e3e8                           processparam                  ; process the filename parameter
+  314 A:e3e8  18                                 clc 
+  315 A:e3e9  a9 00                              lda #<INPUT
+  316 A:e3eb  65 22                              adc ARGINDEX+2
+  317 A:e3ed  85 11                              sta folderpointer
+  318 A:e3ef  a9 02                              lda #>INPUT
+  319 A:e3f1  85 12                              sta folderpointer+1
+  320 A:e3f3                                     .) 
+  321 A:e3f3                           cdsub     
+  321 A:e3f3                                    
+  322 A:e3f3                                     .( 
+  323 A:e3f3  20 12 e4                           jsr stashpath
+  324 A:e3f6  20 55 e2                           jsr resolvepath
+  325 A:e3f9  20 10 e3                           jsr refreshpath
+  326 A:e3fc  90 03                              bcc noerr
+  327 A:e3fe  20 25 e4                           jsr restorepath
+  328 A:e401                           noerr     
+  329 A:e401  60                                 rts 
+  330 A:e402                                     .) 
 
-  332 A:e3ff                           fileerror 
-  333 A:e3ff                                    ; no such folder
-  334 A:e3ff  a2 85                              ldx #<foldermsg
-  335 A:e401  a0 e9                              ldy #>foldermsg
-  336 A:e403  20 82 e0                           jsr w_acia_full
-  337 A:e406  60                                 rts 
+  332 A:e402                           fileerror 
+  333 A:e402                                    ; no such folder
+  334 A:e402  a2 d6                              ldx #<foldermsg
+  335 A:e404  a0 e9                              ldy #>foldermsg
+  336 A:e406  20 85 e0                           jsr w_acia_full
+  337 A:e409  60                                 rts 
 
-  339 A:e407                           error     
-  340 A:e407  a2 4a                              ldx #<errormsg
-  341 A:e409  a0 f5                              ldy #>errormsg
-  342 A:e40b  20 82 e0                           jsr w_acia_full
-  343 A:e40e  60                                 rts 
+  339 A:e40a                           error     
+  340 A:e40a  a2 9b                              ldx #<errormsg
+  341 A:e40c  a0 f5                              ldy #>errormsg
+  342 A:e40e  20 85 e0                           jsr w_acia_full
+  343 A:e411  60                                 rts 
 
-  345 A:e40f                           stashpath 
-  345 A:e40f                                    
-  346 A:e40f                                     .( 
-  347 A:e40f  48                                 pha 
-  348 A:e410  da                                 phx 
-  349 A:e411  a2 00                              ldx #0
-  350 A:e413                           lp        
-  351 A:e413  bd 00 04                           lda path,x
-  352 A:e416  9d 00 07                           sta buffer,x
-  353 A:e419  f0 04                              beq st
-  354 A:e41b  e8                                 inx 
-  355 A:e41c  4c 13 e4                           jmp lp
-  356 A:e41f                           st        
-  357 A:e41f  fa                                 plx 
-  358 A:e420  68                                 pla 
-  359 A:e421  60                                 rts 
-  360 A:e422                                     .) 
+  345 A:e412                           stashpath 
+  345 A:e412                                    
+  346 A:e412                                     .( 
+  347 A:e412  48                                 pha 
+  348 A:e413  da                                 phx 
+  349 A:e414  a2 00                              ldx #0
+  350 A:e416                           lp        
+  351 A:e416  bd 00 04                           lda path,x
+  352 A:e419  9d 00 07                           sta buffer,x
+  353 A:e41c  f0 04                              beq st
+  354 A:e41e  e8                                 inx 
+  355 A:e41f  4c 16 e4                           jmp lp
+  356 A:e422                           st        
+  357 A:e422  fa                                 plx 
+  358 A:e423  68                                 pla 
+  359 A:e424  60                                 rts 
+  360 A:e425                                     .) 
 
-  362 A:e422                           restorepath 
-  362 A:e422                                    
-  363 A:e422                                     .( 
-  364 A:e422  48                                 pha 
-  365 A:e423  da                                 phx 
-  366 A:e424  a2 00                              ldx #0
-  367 A:e426                           lp        
-  368 A:e426  bd 00 07                           lda buffer,x
-  369 A:e429  9d 00 04                           sta path,x
-  370 A:e42c  f0 04                              beq st
-  371 A:e42e  e8                                 inx 
-  372 A:e42f  4c 26 e4                           jmp lp
-  373 A:e432                           st        
-  374 A:e432  fa                                 plx 
-  375 A:e433  68                                 pla 
-  376 A:e434  60                                 rts 
-  377 A:e435                                     .) 
+  362 A:e425                           restorepath 
+  362 A:e425                                    
+  363 A:e425                                     .( 
+  364 A:e425  48                                 pha 
+  365 A:e426  da                                 phx 
+  366 A:e427  a2 00                              ldx #0
+  367 A:e429                           lp        
+  368 A:e429  bd 00 07                           lda buffer,x
+  369 A:e42c  9d 00 04                           sta path,x
+  370 A:e42f  f0 04                              beq st
+  371 A:e431  e8                                 inx 
+  372 A:e432  4c 29 e4                           jmp lp
+  373 A:e435                           st        
+  374 A:e435  fa                                 plx 
+  375 A:e436  68                                 pla 
+  376 A:e437  60                                 rts 
+  377 A:e438                                     .) 
 
-  379 A:e435                                    ; checks if we are in the same dir
-  380 A:e435                           cmppath   
-  380 A:e435                                    
-  381 A:e435                                     .( 
-  382 A:e435  da                                 phx 
-  383 A:e436  48                                 pha 
-  384 A:e437  a2 00                              ldx #0
-  385 A:e439                           lp        
-  386 A:e439  bd 00 04                           lda path,x
-  387 A:e43c  dd 00 07                           cmp buffer,x
-  388 A:e43f  d0 08                              bne ne
-  389 A:e441                           cn        
-  390 A:e441  c9 00                              cmp #0
-  391 A:e443  d0 f4                              bne lp
-  392 A:e445                           eq        
-  393 A:e445  68                                 pla 
-  394 A:e446  fa                                 plx 
-  395 A:e447  38                                 sec 
-  396 A:e448  60                                 rts 
-  397 A:e449                           ne        
-  398 A:e449  68                                 pla 
-  399 A:e44a  fa                                 plx 
-  400 A:e44b  18                                 clc 
-  401 A:e44c  60                                 rts 
-  402 A:e44d                                     .) 
+  379 A:e438                                    ; checks if we are in the same dir
+  380 A:e438                           cmppath   
+  380 A:e438                                    
+  381 A:e438                                     .( 
+  382 A:e438  da                                 phx 
+  383 A:e439  48                                 pha 
+  384 A:e43a  a2 ff                              ldx #$ff
+  385 A:e43c                           lp        
+  386 A:e43c  e8                                 inx 
+  387 A:e43d  bd 00 04                           lda path,x
+  388 A:e440  dd 00 07                           cmp buffer,x
+  389 A:e443  d0 08                              bne ne
+  390 A:e445                           cn        
+  391 A:e445  c9 00                              cmp #0
+  392 A:e447  d0 f3                              bne lp
+  393 A:e449                           eq        
+  394 A:e449  68                                 pla 
+  395 A:e44a  fa                                 plx 
+  396 A:e44b  38                                 sec 
+  397 A:e44c  60                                 rts 
+  398 A:e44d                           ne        
+  399 A:e44d  68                                 pla 
+  400 A:e44e  fa                                 plx 
+  401 A:e44f  18                                 clc 
+  402 A:e450  60                                 rts 
+  403 A:e451                                     .) 
 
-  404 A:e44d                                    ; strips the file off of the input path 
-  405 A:e44d                                    ; (eg. /test/folder/myfile.txt -> /test/folder/)
-  406 A:e44d                                    ; set carry if in same folder
-  407 A:e44d                           stripfile 
-  407 A:e44d                                    
-  408 A:e44d                                     .( 
-  409 A:e44d                                    ; find the last slash
-  410 A:e44d  a2 00                              ldx #0
-  411 A:e44f  a0 00                              ldy #0
-  412 A:e451                           find_last_slash 
-  412 A:e451                                    
-  413 A:e451  b5 11                              lda folderpointer,x
-  414 A:e453  f0 0c                              beq stdn                ; end of string
-  415 A:e455  c9 2f                              cmp #'/'             ; is it a slash?
-  416 A:e457  d0 05                              bne not_slash
-  417 A:e459  a0 01                              ldy #1
-  418 A:e45b  8e 38 03                           stx last_slash_pos                ; save last slash index
-  419 A:e45e                           not_slash 
-  419 A:e45e                                    
-  420 A:e45e  e8                                 inx 
-  421 A:e45f  d0 f0                              bne find_last_slash                ; loop
+  405 A:e451                                    ; strips the file off of the input path 
+  406 A:e451                                    ; (eg. /test/folder/myfile.txt -> /test/folder/)
+  407 A:e451                                    ; set carry if in same folder (eg. file.txt)
+  408 A:e451                                    ; also stores the last slash pos in last_slash_pos
+  409 A:e451                                    ; this can be used if you want to get the file name 
+  410 A:e451                                    ; by adding 1 do this value
+  411 A:e451                                    ; and then using that as an index to the file name
 
-  423 A:e461                           stdn      
-  423 A:e461                                    
-  424 A:e461                                    ; overwrite the character after the last slash with null terminator
-  425 A:e461  ae 38 03                           ldx last_slash_pos
-  426 A:e464  a9 00                              lda #0
-  427 A:e466  95 11                              sta folderpointer,x
-  428 A:e468  98                                 tya 
-  429 A:e469  f0 02                              beq ogg
-  430 A:e46b  18                                 clc 
-  431 A:e46c  60                                 rts 
-  432 A:e46d                           ogg       
-  432 A:e46d                                    
-  433 A:e46d  38                                 sec 
-  434 A:e46e  60                                 rts 
-  435 A:e46f                                     .) 
+  413 A:e451                           stripfile 
+  413 A:e451                                    
+  414 A:e451                                     .( 
+  415 A:e451  a0 00                              ldy #0
+  416 A:e453  a9 ff                              lda #$ff
+  417 A:e455  8d 38 03                           sta last_slash_pos                ; default = not found
 
-  437 A:e46f                                    ;; CAT
-  438 A:e46f                                    ;; prints out a file
+  419 A:e458                           find_slash 
+  419 A:e458                                    
+  420 A:e458  b1 11                              lda (folderpointer),y
+  421 A:e45a  f0 0b                              beq check_result
+  422 A:e45c  c9 2f                              cmp #'/'
+  423 A:e45e  d0 04                              bne not_slash
+  424 A:e460  98                                 tya 
+  425 A:e461  8d 38 03                           sta last_slash_pos                ; save Y as last slash position
 
-  440 A:e46f                           catcmd    
-  440 A:e46f                                    
-  441 A:e46f                                     .( 
-  442 A:e46f  ad 00 04                           lda path
-  443 A:e472  d0 03                              bne cdf
-  444 A:e474  4c 38 e3                           jmp patherr
-  445 A:e477                           cdf       
-  445 A:e477                                    
-  446 A:e477                                    ;; check arguments
-  447 A:e477  a5 20                              lda ARGINDEX
-  448 A:e479  c9 02                              cmp #2
-  449 A:e47b  d0 8a                              bne error
-  450 A:e47d  18                                 clc 
-  451 A:e47e  a9 00                              lda #<INPUT
-  452 A:e480  65 22                              adc ARGINDEX+2
-  453 A:e482  85 11                              sta folderpointer
-  454 A:e484  a9 02                              lda #>INPUT
-  455 A:e486  85 12                              sta folderpointer+1
-  456 A:e488                                    ; Convert to SHORT
-  457 A:e488  20 cf e4                           jsr shortconvert
-  458 A:e48b                                    ; Refresh Path
-  459 A:e48b  20 0f e0                           jsr fat32_open_cd
-  460 A:e48e                                    ; Find the file
-  461 A:e48e  a6 11                              ldx folderpointer
-  462 A:e490  a4 12                              ldy folderpointer+1
-  463 A:e492  20 e1 de                           jsr fat32_finddirent
-  464 A:e495  b0 35                              bcs jmperror
+  427 A:e464                           not_slash 
+  427 A:e464                                    
+  428 A:e464  c8                                 iny 
+  429 A:e465  d0 f1                              bne find_slash
 
-  466 A:e497                                    ; Open the file
-  467 A:e497  20 5a dd                           jsr fat32_opendirent
-  468 A:e49a                                    ; Read file contents into buffer
-  469 A:e49a  a9 00                              lda #<buffer
-  470 A:e49c  85 5c                              sta fat32_address
-  471 A:e49e  a9 07                              lda #>buffer
-  472 A:e4a0  85 5d                              sta fat32_address+1
-  473 A:e4a2                           redlp     
-  473 A:e4a2                                    
-  474 A:e4a2  20 5f df                           jsr fat32_file_readbyte
-  475 A:e4a5  f0 21                              beq catd
-  476 A:e4a7  c9 0d                              cmp #$0d
-  477 A:e4a9  f0 17                              beq notunix
-  478 A:e4ab  4c b3 e4                           jmp unixloop
-  479 A:e4ae                           unix      
-  479 A:e4ae                                    
-  480 A:e4ae  20 5f df                           jsr fat32_file_readbyte
-  481 A:e4b1  f0 15                              beq catd
-  482 A:e4b3                           unixloop  
-  482 A:e4b3                                    
-  483 A:e4b3  c9 0a                              cmp #$0a
-  484 A:e4b5  d0 05                              bne notcr
-  485 A:e4b7  20 71 e0                           jsr print_chara
-  486 A:e4ba  a9 0d                              lda #$0d
-  487 A:e4bc                           notcr     
-  487 A:e4bc                                    
-  488 A:e4bc  20 71 e0                           jsr print_chara
-  489 A:e4bf  4c ae e4                           jmp unix
-  490 A:e4c2                           notunix   
-  490 A:e4c2                                    
-  491 A:e4c2  20 71 e0                           jsr print_chara
-  492 A:e4c5  4c a2 e4                           jmp redlp
-  493 A:e4c8                           catd      
-  493 A:e4c8                                    
-  494 A:e4c8                                    ; CR+LF
-  495 A:e4c8  20 45 d6                           jsr crlf
-  496 A:e4cb  60                                 rts 
-  497 A:e4cc                           jmperror  
-  497 A:e4cc                                    
-  498 A:e4cc  4c 07 e4                           jmp error
-  499 A:e4cf                                     .) 
+  431 A:e467                           check_result 
+  431 A:e467                                    
+  432 A:e467  ad 38 03                           lda last_slash_pos
+  433 A:e46a  c9 ff                              cmp #$ff
+  434 A:e46c  f0 0a                              beq no_slash_found                ; no slash → SEC, RTS
 
-  501 A:e4cf                           shortconvert 
-  501 A:e4cf                                    
-  502 A:e4cf                                     .( 
-  503 A:e4cf                                    ; loop through the null-terminated string at (folderpointer)
-  504 A:e4cf                                    ; and convert it to SHORT format.
-  505 A:e4cf                                    ; ex. "file.xpl",0 --> "FILE    XPL"
-  506 A:e4cf                                    ; check for . or ..
-  507 A:e4cf  a0 00                              ldy #0
-  508 A:e4d1  b1 11                              lda (folderpointer),y
-  509 A:e4d3  c9 2e                              cmp #$2e
-  510 A:e4d5  f0 07                              beq dotf
-  511 A:e4d7  a9 ff                              lda #$ff
-  512 A:e4d9  85 18                              sta backdir
-  513 A:e4db  4c f0 e4                           jmp nopd
-  514 A:e4de                           dotf      
-  514 A:e4de                                    
-  515 A:e4de  c8                                 iny 
-  516 A:e4df  b1 11                              lda (folderpointer),y
-  517 A:e4e1  c9 2e                              cmp #$2e
-  518 A:e4e3  f0 05                              beq backdire
-  519 A:e4e5  a9 55                              lda #$55
-  520 A:e4e7  85 18                              sta backdir
-  521 A:e4e9  60                                 rts                    ; do nothing if "."
-  522 A:e4ea                           backdire  
-  522 A:e4ea                                    
-  523 A:e4ea                                    ; ".." means go back
-  524 A:e4ea  20 6a e3                           jsr backpath
-  525 A:e4ed  64 18                              stz backdir
-  526 A:e4ef                                    ;jsr refreshpath
-  527 A:e4ef  60                                 rts 
-  528 A:e4f0                           nopd      
-  528 A:e4f0                                    
-  529 A:e4f0  a0 18                              ldy #24
-  530 A:e4f2  a9 00                              lda #0
-  531 A:e4f4  91 11                              sta (folderpointer),y
-  532 A:e4f6  a9 15                              lda #21
-  533 A:e4f8  85 14                              sta fileext
-  534 A:e4fa  a0 00                              ldy #0
-  535 A:e4fc                           shortlp   
-  535 A:e4fc                                    
-  536 A:e4fc  b1 11                              lda (folderpointer),y
-  537 A:e4fe  f0 08                              beq nodot
-  538 A:e500  c9 2e                              cmp #$2e             ; find the dot 
-  539 A:e502  f0 20                              beq extst
-  540 A:e504  c8                                 iny 
-  541 A:e505  4c fc e4                           jmp shortlp
-  542 A:e508                           nodot     
-  543 A:e508                                    ; no dot, this is a folder
-  544 A:e508                                    ; empty out the extension
-  545 A:e508  84 19                              sty sc
-  546 A:e50a  18                                 clc 
-  547 A:e50b  a5 19                              lda sc
-  548 A:e50d  69 0d                              adc #13
-  549 A:e50f  85 19                              sta sc
-  550 A:e511  a9 0d                              lda #13
-  551 A:e513  85 14                              sta fileext
-  552 A:e515  a9 20                              lda #$20
-  553 A:e517  a0 15                              ldy #21
-  554 A:e519  91 11                              sta (folderpointer),y
-  555 A:e51b  c8                                 iny 
-  556 A:e51c  91 11                              sta (folderpointer),y
-  557 A:e51e  c8                                 iny 
-  558 A:e51f  91 11                              sta (folderpointer),y
-  559 A:e521  4c 45 e5                           jmp mvname                ; ok, go ahead and copy the name
-  560 A:e524                           extst     
-  560 A:e524                                    
-  561 A:e524  84 19                              sty sc                ; now move the file extension
-  562 A:e526                           ext       
-  562 A:e526                                    
-  563 A:e526  c8                                 iny 
-  564 A:e527  b1 11                              lda (folderpointer),y
-  565 A:e529  5a                                 phy 
-  566 A:e52a  a4 14                              ldy fileext
-  567 A:e52c  91 11                              sta (folderpointer),y
-  568 A:e52e  c8                                 iny 
-  569 A:e52f  84 14                              sty fileext
-  570 A:e531  c0 18                              cpy #24
-  571 A:e533  f0 04                              beq extd
-  572 A:e535  7a                                 ply 
-  573 A:e536  4c 26 e5                           jmp ext
-  574 A:e539                           extd      
-  574 A:e539                                    
-  575 A:e539  7a                                 ply 
-  576 A:e53a  18                                 clc 
-  577 A:e53b  a5 19                              lda sc                ; add to sc
-  578 A:e53d  69 0d                              adc #13
-  579 A:e53f  85 19                              sta sc
-  580 A:e541  a9 0d                              lda #13
-  581 A:e543  85 14                              sta fileext
-  582 A:e545                           mvname    
-  582 A:e545                                    
-  583 A:e545                                    ; move name
-  584 A:e545  a0 00                              ldy #0
-  585 A:e547                           mvlp      
-  585 A:e547                                    
-  586 A:e547  b1 11                              lda (folderpointer),y
-  587 A:e549  5a                                 phy 
-  588 A:e54a  a4 14                              ldy fileext
-  589 A:e54c  c4 19                              cpy sc
-  590 A:e54e  f0 0a                              beq ad2sc
-  591 A:e550  91 11                              sta (folderpointer),y
-  592 A:e552  c8                                 iny 
-  593 A:e553  84 14                              sty fileext
-  594 A:e555  7a                                 ply 
-  595 A:e556  c8                                 iny 
-  596 A:e557  4c 47 e5                           jmp mvlp
-  597 A:e55a                           ad2sc     
-  597 A:e55a                                    
-  598 A:e55a  7a                                 ply 
-  599 A:e55b  a4 19                              ldy sc
-  600 A:e55d                                    ; the file extention is moved, now pad spaces from the end of the name
-  601 A:e55d                                    ; to the start of the extension.
-  602 A:e55d                           fill      
-  602 A:e55d                                    
-  603 A:e55d  a9 20                              lda #$20
-  604 A:e55f  c0 15                              cpy #21
-  605 A:e561  f0 07                              beq notfill
-  606 A:e563                           filllp    
-  606 A:e563                                    
-  607 A:e563  91 11                              sta (folderpointer),y
-  608 A:e565  c8                                 iny 
-  609 A:e566  c0 15                              cpy #21             ; stop if index is 20, we don't want to overwrite the file extension
-  610 A:e568  d0 f9                              bne filllp
-  611 A:e56a                           notfill   
-  612 A:e56a                                    ; add 11 to folderpointer
-  613 A:e56a  18                                 clc 
-  614 A:e56b  a5 11                              lda folderpointer
-  615 A:e56d  69 0d                              adc #13
-  616 A:e56f  85 11                              sta folderpointer
-  617 A:e571                                    ; now we need to convert lowercase to uppercase
-  618 A:e571  a0 00                              ldy #0
-  619 A:e573                           ldlp      
-  619 A:e573                                    
-  620 A:e573  b1 11                              lda (folderpointer),y
-  621 A:e575  f0 10                              beq ldd                ; if null, stop.
-  622 A:e577  c9 40                              cmp #$40             ; if numbers/symbols/space, skip.
-  623 A:e579  90 08                              bcc dontl
-  624 A:e57b  c9 5f                              cmp #$5f             ; if _ skip
-  625 A:e57d  f0 04                              beq dontl
-  626 A:e57f  29 df                              and #$df             ; otherwise convert to uppercase
-  627 A:e581  91 11                              sta (folderpointer),y
-  628 A:e583                           dontl     
-  628 A:e583                                    
-  629 A:e583  c8                                 iny 
-  630 A:e584  4c 73 e5                           jmp ldlp
-  631 A:e587                           ldd       
-  631 A:e587                                    
-  632 A:e587                                    ; ok! now we have a SHORT formatted filename at (folderpointer).
-  633 A:e587  60                                 rts 
-  634 A:e588                                     .) 
+  436 A:e46e  ad 38 03                           lda last_slash_pos
+  437 A:e471  a8                                 tay                    ; restore index of last slash
+  438 A:e472  a9 00                              lda #0
+  439 A:e474  91 11                              sta (folderpointer),y
+  440 A:e476  18                                 clc 
+  441 A:e477  60                                 rts 
 
-  636 A:e588                           other     
-  636 A:e588                                    
-  637 A:e588                                    ; Write a letter of the filename currently being read
-  638 A:e588  b1 48                              lda (zp_sd_address),y
-  639 A:e58a  09 20                              ora #$20             ; convert uppercase to lowercase
-  640 A:e58c  20 71 e0                           jsr print_chara
-  641 A:e58f  c8                                 iny 
-  642 A:e590  60                                 rts 
+  443 A:e478                           no_slash_found 
+  443 A:e478                                    
+  444 A:e478  38                                 sec 
+  445 A:e479  60                                 rts 
+  446 A:e47a                                     .) 
 
-  644 A:e591                                    ;; LS
-  645 A:e591                                    ;; print a directory listing
+  448 A:e47a                                    ;; CAT
+  449 A:e47a                                    ;; prints out a file
 
-  647 A:e591                           lscmd     
-  647 A:e591                                    
-  648 A:e591                                     .( 
-  649 A:e591  ad 00 04                           lda path
-  650 A:e594  d0 03                              bne cdf
-  651 A:e596  4c 38 e3                           jmp patherr
-  652 A:e599                           cdf       
-  652 A:e599                                    
-  653 A:e599                                    ;; check arguments
-  654 A:e599  a5 20                              lda ARGINDEX
-  655 A:e59b  c9 02                              cmp #2             ; if there's two arguments, list the specified directory
-  656 A:e59d  f0 12                              beq processparam
-  657 A:e59f  a5 20                              lda ARGINDEX
-  658 A:e5a1  c9 01                              cmp #1             ; if there's only one argument (ls) then list current directory 
-  659 A:e5a3  d0 09                              bne jmperror
-  660 A:e5a5  20 0f e0                           jsr fat32_open_cd
-  661 A:e5a8  20 db e5                           jsr list
-  662 A:e5ab  4c 0f e0                           jmp fat32_open_cd
-  663 A:e5ae                           jmperror  
-  663 A:e5ae                                    
-  664 A:e5ae  4c 07 e4                           jmp error
-  665 A:e5b1                           processparam                  ; process the filename parameter
-  666 A:e5b1  64 18                              stz backdir
-  667 A:e5b3  18                                 clc 
-  668 A:e5b4  a9 00                              lda #<INPUT
-  669 A:e5b6  65 22                              adc ARGINDEX+2
-  670 A:e5b8  85 11                              sta folderpointer
-  671 A:e5ba  a9 02                              lda #>INPUT
-  672 A:e5bc  85 12                              sta folderpointer+1
-  673 A:e5be  20 0f e4                           jsr stashpath
-  674 A:e5c1  20 52 e2                           jsr resolvepath
-  675 A:e5c4  20 35 e4                           jsr cmppath
-  676 A:e5c7  b0 06                              bcs listres
-  677 A:e5c9  20 0d e3                           jsr refreshpath
-  678 A:e5cc  4c d2 e5                           jmp dolist
-  679 A:e5cf                           listres   
-  680 A:e5cf  20 0f e0                           jsr fat32_open_cd
-  681 A:e5d2                           dolist    
-  682 A:e5d2  20 db e5                           jsr list
-  683 A:e5d5  20 22 e4                           jsr restorepath
-  684 A:e5d8  4c 0d e3                           jmp refreshpath
-  685 A:e5db                                     .) 
+  451 A:e47a                           catcmd    
+  451 A:e47a                                    
+  452 A:e47a                                     .( 
+  453 A:e47a  ad 00 04                           lda path
+  454 A:e47d  d0 03                              bne cdf
+  455 A:e47f  4c 3b e3                           jmp patherr
+  456 A:e482                           cdf       
+  456 A:e482                                    
+  457 A:e482                                    ;; check arguments
+  458 A:e482  a5 20                              lda ARGINDEX
+  459 A:e484  c9 02                              cmp #2
+  460 A:e486  d0 82                              bne error
+  461 A:e488  18                                 clc 
+  462 A:e489  a9 00                              lda #<INPUT
+  463 A:e48b  65 22                              adc ARGINDEX+2
+  464 A:e48d  85 11                              sta folderpointer
+  465 A:e48f  a9 02                              lda #>INPUT
+  466 A:e491  85 12                              sta folderpointer+1
 
-  687 A:e5db                           list      
-  687 A:e5db                                    ; list file dir
-  688 A:e5db                                     .( 
-  689 A:e5db  20 ab de                           jsr fat32_readdirent                ; files?
-  690 A:e5de  b0 47                              bcs nofiles
-  691 A:e5e0                           ebut      
+  468 A:e493  20 51 e4                           jsr stripfile
+  469 A:e496  90 09                              bcc path_has_slash
+  470 A:e498                           same_folder 
+  471 A:e498                                    ; normal operation
+  472 A:e498  20 28 e5                           jsr shortconvert
+  473 A:e49b  20 10 e3                           jsr refreshpath
+  474 A:e49e  90 47                              bcc find_and_print_file
+  475 A:e4a0  60                                 rts 
+  476 A:e4a1                           path_has_slash 
+  477 A:e4a1                                    ; there's a slash 
+  478 A:e4a1                                    ; in the path. 
+  479 A:e4a1  a5 11                              lda folderpointer
+  480 A:e4a3  85 80                              sta stackaccess
+  481 A:e4a5  a5 12                              lda folderpointer+1
+  482 A:e4a7  85 81                              sta stackaccess+1
+  483 A:e4a9  20 db c0                           jsr push16
+
+  485 A:e4ac  20 12 e4                           jsr stashpath
+  486 A:e4af  20 55 e2                           jsr resolvepath
+  487 A:e4b2  20 38 e4                           jsr cmppath
+  488 A:e4b5  90 0e                              bcc different_folder
+
+  490 A:e4b7                                    ; same folder
+  491 A:e4b7                                    ; restore pointer
+  492 A:e4b7  20 e6 c0                           jsr pop16
+  493 A:e4ba  a5 80                              lda stackaccess
+  494 A:e4bc  85 11                              sta folderpointer
+  495 A:e4be  a5 81                              lda stackaccess+1
+  496 A:e4c0  85 12                              sta folderpointer+1
+  497 A:e4c2  4c 98 e4                           jmp same_folder
+
+  499 A:e4c5                           different_folder 
+  499 A:e4c5                                    
+  500 A:e4c5  20 10 e3                           jsr refreshpath
+  501 A:e4c8  20 d4 e4                           jsr extract_and_list
+  502 A:e4cb  20 25 e4                           jsr restorepath
+  503 A:e4ce  20 10 e3                           jsr refreshpath
+  504 A:e4d1  4c e6 c0                           jmp pop16
+
+  506 A:e4d4                           extract_and_list 
+  506 A:e4d4                                    
+  507 A:e4d4  e6 11                              inc folderpointer
+  508 A:e4d6  18                                 clc 
+  509 A:e4d7  a5 11                              lda folderpointer
+  510 A:e4d9  6d 38 03                           adc last_slash_pos
+  511 A:e4dc  85 11                              sta folderpointer
+  512 A:e4de  a5 12                              lda folderpointer+1
+  513 A:e4e0  69 00                              adc #0
+  514 A:e4e2  85 12                              sta folderpointer+1
+  515 A:e4e4  20 28 e5                           jsr shortconvert
+  516 A:e4e7                                    ; pass through
+  517 A:e4e7                           find_and_print_file 
+  517 A:e4e7                                    
+  518 A:e4e7                                    ; Find the file
+  519 A:e4e7  a6 11                              ldx folderpointer
+  520 A:e4e9  a4 12                              ldy folderpointer+1
+  521 A:e4eb  20 e4 de                           jsr fat32_finddirent
+  522 A:e4ee  b0 35                              bcs jmperror
+
+  524 A:e4f0                                    ; Open the file
+  525 A:e4f0  20 5d dd                           jsr fat32_opendirent
+
+  527 A:e4f3                                    ; Read file contents into buffer
+  528 A:e4f3  a9 00                              lda #<buffer
+  529 A:e4f5  85 5c                              sta fat32_address
+  530 A:e4f7  a9 07                              lda #>buffer
+  531 A:e4f9  85 5d                              sta fat32_address+1
+
+  533 A:e4fb                           readlp    
+  533 A:e4fb                                    
+  534 A:e4fb  20 62 df                           jsr fat32_file_readbyte
+  535 A:e4fe  f0 21                              beq catd
+  536 A:e500  c9 0d                              cmp #$0d
+  537 A:e502  f0 17                              beq notunix
+  538 A:e504  4c 0c e5                           jmp unixloop
+  539 A:e507                           unix      
+  539 A:e507                                    
+  540 A:e507  20 62 df                           jsr fat32_file_readbyte
+  541 A:e50a  f0 15                              beq catd
+  542 A:e50c                           unixloop  
+  542 A:e50c                                    
+  543 A:e50c  c9 0a                              cmp #$0a
+  544 A:e50e  d0 05                              bne notcr
+  545 A:e510  20 74 e0                           jsr print_chara
+  546 A:e513  a9 0d                              lda #$0d
+  547 A:e515                           notcr     
+  547 A:e515                                    
+  548 A:e515  20 74 e0                           jsr print_chara
+  549 A:e518  4c 07 e5                           jmp unix
+  550 A:e51b                           notunix   
+  550 A:e51b                                    
+  551 A:e51b  20 74 e0                           jsr print_chara
+  552 A:e51e  4c fb e4                           jmp readlp
+  553 A:e521                           catd      
+  553 A:e521                                    
+  554 A:e521                                    ; CR+LF
+  555 A:e521  20 45 d6                           jsr crlf
+  556 A:e524  60                                 rts 
+  557 A:e525                           jmperror  
+  557 A:e525                                    
+  558 A:e525  4c 0a e4                           jmp error
+  559 A:e528                                     .) 
+
+  561 A:e528                           shortconvert 
+  561 A:e528                                    
+  562 A:e528                                     .( 
+  563 A:e528                                    ; loop through the null-terminated string at (folderpointer)
+  564 A:e528                                    ; and convert it to SHORT format.
+  565 A:e528                                    ; ex. "file.xpl",0 --> "FILE    XPL"
+  566 A:e528                                    ; check for . or ..
+  567 A:e528  a0 00                              ldy #0
+  568 A:e52a  b1 11                              lda (folderpointer),y
+  569 A:e52c  c9 2e                              cmp #$2e
+  570 A:e52e  f0 07                              beq dotf
+  571 A:e530  a9 ff                              lda #$ff
+  572 A:e532  85 18                              sta backdir
+  573 A:e534  4c 49 e5                           jmp nopd
+  574 A:e537                           dotf      
+  574 A:e537                                    
+  575 A:e537  c8                                 iny 
+  576 A:e538  b1 11                              lda (folderpointer),y
+  577 A:e53a  c9 2e                              cmp #$2e
+  578 A:e53c  f0 05                              beq backdire
+  579 A:e53e  a9 55                              lda #$55
+  580 A:e540  85 18                              sta backdir
+  581 A:e542  60                                 rts                    ; do nothing if "."
+  582 A:e543                           backdire  
+  582 A:e543                                    
+  583 A:e543                                    ; ".." means go back
+  584 A:e543  20 6d e3                           jsr backpath
+  585 A:e546  64 18                              stz backdir
+  586 A:e548                                    ;jsr refreshpath
+  587 A:e548  60                                 rts 
+  588 A:e549                           nopd      
+  588 A:e549                                    
+  589 A:e549  a0 18                              ldy #24
+  590 A:e54b  a9 00                              lda #0
+  591 A:e54d  91 11                              sta (folderpointer),y
+  592 A:e54f  a9 15                              lda #21
+  593 A:e551  85 14                              sta fileext
+  594 A:e553  a0 00                              ldy #0
+  595 A:e555                           shortlp   
+  595 A:e555                                    
+  596 A:e555  b1 11                              lda (folderpointer),y
+  597 A:e557  f0 08                              beq nodot
+  598 A:e559  c9 2e                              cmp #$2e             ; find the dot 
+  599 A:e55b  f0 20                              beq extst
+  600 A:e55d  c8                                 iny 
+  601 A:e55e  4c 55 e5                           jmp shortlp
+  602 A:e561                           nodot     
+  603 A:e561                                    ; no dot, this is a folder
+  604 A:e561                                    ; empty out the extension
+  605 A:e561  84 19                              sty sc
+  606 A:e563  18                                 clc 
+  607 A:e564  a5 19                              lda sc
+  608 A:e566  69 0d                              adc #13
+  609 A:e568  85 19                              sta sc
+  610 A:e56a  a9 0d                              lda #13
+  611 A:e56c  85 14                              sta fileext
+  612 A:e56e  a9 20                              lda #$20
+  613 A:e570  a0 15                              ldy #21
+  614 A:e572  91 11                              sta (folderpointer),y
+  615 A:e574  c8                                 iny 
+  616 A:e575  91 11                              sta (folderpointer),y
+  617 A:e577  c8                                 iny 
+  618 A:e578  91 11                              sta (folderpointer),y
+  619 A:e57a  4c 9e e5                           jmp mvname                ; ok, go ahead and copy the name
+  620 A:e57d                           extst     
+  620 A:e57d                                    
+  621 A:e57d  84 19                              sty sc                ; now move the file extension
+  622 A:e57f                           ext       
+  622 A:e57f                                    
+  623 A:e57f  c8                                 iny 
+  624 A:e580  b1 11                              lda (folderpointer),y
+  625 A:e582  5a                                 phy 
+  626 A:e583  a4 14                              ldy fileext
+  627 A:e585  91 11                              sta (folderpointer),y
+  628 A:e587  c8                                 iny 
+  629 A:e588  84 14                              sty fileext
+  630 A:e58a  c0 18                              cpy #24
+  631 A:e58c  f0 04                              beq extd
+  632 A:e58e  7a                                 ply 
+  633 A:e58f  4c 7f e5                           jmp ext
+  634 A:e592                           extd      
+  634 A:e592                                    
+  635 A:e592  7a                                 ply 
+  636 A:e593  18                                 clc 
+  637 A:e594  a5 19                              lda sc                ; add to sc
+  638 A:e596  69 0d                              adc #13
+  639 A:e598  85 19                              sta sc
+  640 A:e59a  a9 0d                              lda #13
+  641 A:e59c  85 14                              sta fileext
+  642 A:e59e                           mvname    
+  642 A:e59e                                    
+  643 A:e59e                                    ; move name
+  644 A:e59e  a0 00                              ldy #0
+  645 A:e5a0                           mvlp      
+  645 A:e5a0                                    
+  646 A:e5a0  b1 11                              lda (folderpointer),y
+  647 A:e5a2  5a                                 phy 
+  648 A:e5a3  a4 14                              ldy fileext
+  649 A:e5a5  c4 19                              cpy sc
+  650 A:e5a7  f0 0a                              beq ad2sc
+  651 A:e5a9  91 11                              sta (folderpointer),y
+  652 A:e5ab  c8                                 iny 
+  653 A:e5ac  84 14                              sty fileext
+  654 A:e5ae  7a                                 ply 
+  655 A:e5af  c8                                 iny 
+  656 A:e5b0  4c a0 e5                           jmp mvlp
+  657 A:e5b3                           ad2sc     
+  657 A:e5b3                                    
+  658 A:e5b3  7a                                 ply 
+  659 A:e5b4  a4 19                              ldy sc
+  660 A:e5b6                                    ; the file extention is moved, now pad spaces from the end of the name
+  661 A:e5b6                                    ; to the start of the extension.
+  662 A:e5b6                           fill      
+  662 A:e5b6                                    
+  663 A:e5b6  a9 20                              lda #$20
+  664 A:e5b8  c0 15                              cpy #21
+  665 A:e5ba  f0 07                              beq notfill
+  666 A:e5bc                           filllp    
+  666 A:e5bc                                    
+  667 A:e5bc  91 11                              sta (folderpointer),y
+  668 A:e5be  c8                                 iny 
+  669 A:e5bf  c0 15                              cpy #21             ; stop if index is 20, we don't want to overwrite the file extension
+  670 A:e5c1  d0 f9                              bne filllp
+  671 A:e5c3                           notfill   
+  672 A:e5c3                                    ; add 11 to folderpointer
+  673 A:e5c3  18                                 clc 
+  674 A:e5c4  a5 11                              lda folderpointer
+  675 A:e5c6  69 0d                              adc #13
+  676 A:e5c8  85 11                              sta folderpointer
+  677 A:e5ca                                    ; now we need to convert lowercase to uppercase
+  678 A:e5ca  a0 00                              ldy #0
+  679 A:e5cc                           ldlp      
+  679 A:e5cc                                    
+  680 A:e5cc  b1 11                              lda (folderpointer),y
+  681 A:e5ce  f0 10                              beq ldd                ; if null, stop.
+  682 A:e5d0  c9 40                              cmp #$40             ; if numbers/symbols/space, skip.
+  683 A:e5d2  90 08                              bcc dontl
+  684 A:e5d4  c9 5f                              cmp #$5f             ; if _ skip
+  685 A:e5d6  f0 04                              beq dontl
+  686 A:e5d8  29 df                              and #$df             ; otherwise convert to uppercase
+  687 A:e5da  91 11                              sta (folderpointer),y
+  688 A:e5dc                           dontl     
+  688 A:e5dc                                    
+  689 A:e5dc  c8                                 iny 
+  690 A:e5dd  4c cc e5                           jmp ldlp
+  691 A:e5e0                           ldd       
   691 A:e5e0                                    
-  692 A:e5e0  a2 00                              ldx #0
-  693 A:e5e2  a0 08                              ldy #8
-  694 A:e5e4                           chklp     
-  694 A:e5e4                                    
-  695 A:e5e4  c0 0b                              cpy #11
-  696 A:e5e6  f0 0b                              beq no
-  697 A:e5e8  b1 48                              lda (zp_sd_address),y
-  698 A:e5ea  c9 20                              cmp #$20
-  699 A:e5ec  d0 01                              bne chky
-  700 A:e5ee  e8                                 inx 
-  701 A:e5ef                           chky      
-  701 A:e5ef                                    
-  702 A:e5ef  c8                                 iny 
-  703 A:e5f0  4c e4 e5                           jmp chklp
-  704 A:e5f3                           no        
-  704 A:e5f3                                    
-  705 A:e5f3  e0 03                              cpx #3
-  706 A:e5f5  d0 07                              bne arc
-  707 A:e5f7                           dir       
-  707 A:e5f7                                    
-  708 A:e5f7  a9 ff                              lda #$ff
-  709 A:e5f9  85 15                              sta filetype                ; directorys show up as 
-  710 A:e5fb  4c 00 e6                           jmp name                ; yourfilename     test      folder  ...Etc
-  711 A:e5fe                           arc       
-  711 A:e5fe                                    
-  712 A:e5fe  64 15                              stz filetype                ; files show up as
-  713 A:e600                           name      
-  713 A:e600                                    ; test.xpl         music.xpl        file.bin  ...Etc
-  714 A:e600                                    ; At this point, we know that there are no files, files, or a suddir
-  715 A:e600                                    ; Now for the name
-  716 A:e600  a0 00                              ldy #0
-  717 A:e602                           nameloop  
-  717 A:e602                                    
-  718 A:e602  c0 08                              cpy #8
-  719 A:e604  f0 06                              beq dot
-  720 A:e606  20 88 e5                           jsr other
-  721 A:e609  4c 02 e6                           jmp nameloop
-  722 A:e60c                           dot       
-  722 A:e60c                                    
-  723 A:e60c  a5 15                              lda filetype
-  724 A:e60e  d0 0f                              bne endthat                ; if it's a file,
-  725 A:e610  a9 2e                              lda #$2e             ; shows its file extention
-  726 A:e612  20 71 e0                           jsr print_chara
-  727 A:e615                           lopii     
-  727 A:e615                                    
-  728 A:e615  c0 0b                              cpy #11
-  729 A:e617  f0 06                              beq endthat                ; print 3-letter file extention
-  730 A:e619  20 88 e5                           jsr other
-  731 A:e61c  4c 15 e6                           jmp lopii
-  732 A:e61f                           endthat   
-  732 A:e61f                                    
-  733 A:e61f  a9 09                              lda #$09             ; Tab
-  734 A:e621  20 71 e0                           jsr print_chara                ; tab
-  735 A:e624  4c db e5                           jmp list                ; go again ; next file if there are any left
-  736 A:e627                           nofiles   
-  736 A:e627                                    ; if not,
-  737 A:e627                           endlist   
-  737 A:e627                                    ; exit listing code
-  738 A:e627  20 45 d6                           jsr crlf
-  739 A:e62a  60                                 rts 
-  740 A:e62b                           jumptolist 
-  740 A:e62b                                    
-  741 A:e62b  20 45 d6                           jsr crlf
-  742 A:e62e  4c db e5                           jmp list
-  743 A:e631                                     .) 
+  692 A:e5e0                                    ; ok! now we have a SHORT formatted filename at (folderpointer).
+  693 A:e5e0  60                                 rts 
+  694 A:e5e1                                     .) 
 
-  745 A:e631                                    ;; load
-  746 A:e631                                    ;; Here we load a file from the SD card.
-  747 A:e631                                    ;; .SAR stands for Start AddRess.
+  696 A:e5e1                           other     
+  696 A:e5e1                                    
+  697 A:e5e1                                    ; Write a letter of the filename currently being read
+  698 A:e5e1  b1 48                              lda (zp_sd_address),y
+  699 A:e5e3  09 20                              ora #$20             ; convert uppercase to lowercase
+  700 A:e5e5  20 74 e0                           jsr print_chara
+  701 A:e5e8  c8                                 iny 
+  702 A:e5e9  60                                 rts 
 
-  749 A:e631                           loadcmd   
-  750 A:e631                                     .( 
-  751 A:e631  ad 00 04                           lda path
-  752 A:e634  d0 03                              bne cdf
-  753 A:e636  4c 38 e3                           jmp patherr
-  754 A:e639                           cdf       
-  754 A:e639                                    
-  755 A:e639                                    ;; check arguments
-  756 A:e639  a5 20                              lda ARGINDEX
-  757 A:e63b  c9 02                              cmp #2             ; if there's two arguments, load the specified file
-  758 A:e63d  f0 0e                              beq lprocessparam
-  759 A:e63f  a5 20                              lda ARGINDEX
-  760 A:e641  c9 01                              cmp #1             ; if there's only one argument, do a handeler load.
-  761 A:e643  f0 5b                              beq loadone
-  762 A:e645                                     .) 
-  763 A:e645                           lderror   
-  763 A:e645                                    
-  764 A:e645  a2 85                              ldx #<foldermsg              ; if it was not found, error and return.
-  765 A:e647  a0 e9                              ldy #>foldermsg
-  766 A:e649  20 82 e0                           jsr w_acia_full
-  767 A:e64c  60                                 rts 
-  768 A:e64d                           lprocessparam                  ; the user specified a file, process the filename parameter.
-  769 A:e64d  18                                 clc 
-  770 A:e64e  a9 00                              lda #<INPUT
-  771 A:e650  65 22                              adc ARGINDEX+2
-  772 A:e652  85 11                              sta folderpointer
-  773 A:e654  a9 02                              lda #>INPUT              ; argument buffer under 256 bytes, so no adc #0.
-  774 A:e656  85 12                              sta folderpointer+1
-  775 A:e658                           loadlc    
-  775 A:e658                                    
-  776 A:e658                                     .( 
-  777 A:e658                                    ; convert string
-  778 A:e658  20 cf e4                           jsr shortconvert
-  779 A:e65b                                    ; is this a .XPL file?
-  780 A:e65b  a0 08                              ldy #$08
-  781 A:e65d  b1 11                              lda (folderpointer),y
-  782 A:e65f  c9 58                              cmp #'X'
-  783 A:e661  d0 14                              bne ldp
-  784 A:e663  c8                                 iny 
-  785 A:e664  b1 11                              lda (folderpointer),y
-  786 A:e666  c9 50                              cmp #'P'
-  787 A:e668  d0 0d                              bne ldp
-  788 A:e66a  c8                                 iny 
-  789 A:e66b  b1 11                              lda (folderpointer),y
-  790 A:e66d  c9 4c                              cmp #'L'
-  791 A:e66f  d0 06                              bne ldp
-  792 A:e671  9c 04 07                           stz buffer+4
-  793 A:e674  4c 7c e6                           jmp ldp2
-  794 A:e677                           ldp       
-  794 A:e677                                    
-  795 A:e677  a9 ff                              lda #$ff
-  796 A:e679  8d 04 07                           sta buffer+4
-  797 A:e67c                           ldp2      
-  797 A:e67c                                    
-  798 A:e67c                                     .) 
-  799 A:e67c                           loadpath  
-  799 A:e67c                                    
-  800 A:e67c                                     .( 
-  801 A:e67c                                    ; Refresh
-  802 A:e67c  20 0f e0                           jsr fat32_open_cd
-  803 A:e67f                                    ; Loading..
-  804 A:e67f  a2 86                              ldx #<loading_msg
-  805 A:e681  a0 cb                              ldy #>loading_msg
-  806 A:e683  20 82 e0                           jsr w_acia_full
-  807 A:e686                                    ; BUG i need to add a start address header to the .XPL file format...
-  808 A:e686                                    ; at the moment it is assumed that the file will load and run at $0F00
-  809 A:e686  9c 00 07                           stz buffer
-  810 A:e689  9c 02 07                           stz buffer+2
-  811 A:e68c  a9 0f                              lda #$0f             ; $0F00
-  812 A:e68e  8d 01 07                           sta buffer+1
-  813 A:e691  8d 03 07                           sta buffer+3
-  814 A:e694  a6 11                              ldx folderpointer
-  815 A:e696  a4 12                              ldy folderpointer+1          ; find the file
-  816 A:e698  20 e1 de                           jsr fat32_finddirent
-  817 A:e69b  90 47                              bcc loadfoundcode
-  818 A:e69d  4c 45 e6                           jmp lderror
-  819 A:e6a0                                     .) 
-  820 A:e6a0                           loadone   
-  820 A:e6a0                                    
-  821 A:e6a0                                     .( 
-  822 A:e6a0                                    ; the user has not specified a filename, so load the SD card handeler program.
+  704 A:e5ea                                    ;; LS
+  705 A:e5ea                                    ;; print a directory listing
 
-  824 A:e6a0  20 32 e7                           jsr loadf
+  707 A:e5ea                           lscmd     
+  707 A:e5ea                                    
+  708 A:e5ea                                     .( 
+  709 A:e5ea  ad 00 04                           lda path
+  710 A:e5ed  d0 03                              bne cdf
+  711 A:e5ef  4c 3b e3                           jmp patherr
+  712 A:e5f2                           cdf       
+  712 A:e5f2                                    
+  713 A:e5f2                                    ;; check arguments
+  714 A:e5f2  a5 20                              lda ARGINDEX
+  715 A:e5f4  c9 02                              cmp #2             ; if there's two arguments, list the specified directory
+  716 A:e5f6  f0 12                              beq processparam
+  717 A:e5f8  a5 20                              lda ARGINDEX
+  718 A:e5fa  c9 01                              cmp #1             ; if there's only one argument (ls) then list current directory 
+  719 A:e5fc  d0 09                              bne jmperror
+  720 A:e5fe                           ll        
+  720 A:e5fe                                    
+  721 A:e5fe  20 12 e0                           jsr fat32_open_cd
+  722 A:e601  20 2c e6                           jsr list
+  723 A:e604  4c 12 e0                           jmp fat32_open_cd
+  724 A:e607                           jmperror  
+  724 A:e607                                    
+  725 A:e607  4c 0a e4                           jmp error
+  726 A:e60a                           processparam                  ; process the filename parameter
+  727 A:e60a  18                                 clc 
+  728 A:e60b  a9 00                              lda #<INPUT
+  729 A:e60d  65 22                              adc ARGINDEX+2
+  730 A:e60f  85 11                              sta folderpointer
+  731 A:e611  a9 02                              lda #>INPUT
+  732 A:e613  85 12                              sta folderpointer+1
+  733 A:e615  20 12 e4                           jsr stashpath
+  734 A:e618  20 55 e2                           jsr resolvepath
+  735 A:e61b  20 38 e4                           jsr cmppath
+  736 A:e61e  b0 de                              bcs ll
+  737 A:e620  20 10 e3                           jsr refreshpath
+  738 A:e623  20 2c e6                           jsr list
+  739 A:e626  20 25 e4                           jsr restorepath
+  740 A:e629  4c 10 e3                           jmp refreshpath
+  741 A:e62c                                     .) 
 
-  826 A:e6a3                                    ; Find file by name
-  827 A:e6a3  a2 31                              ldx #<loadname
-  828 A:e6a5  a0 e2                              ldy #>loadname              ; this is LOADADDR.SAR, which is what I plan 
-  829 A:e6a7  20 e1 de                           jsr fat32_finddirent                ; to merge into a header of .XPL files.
-  830 A:e6aa  90 0a                              bcc foundfile                ; it holds the load address and jump address
-  831 A:e6ac                                    ; of CODE.XPL.
-  832 A:e6ac                                    ; File not found
-  833 A:e6ac  a0 e9                              ldy #>filmsg
-  834 A:e6ae  a2 09                              ldx #<filmsg
-  835 A:e6b0  20 82 e0                           jsr w_acia_full
-  836 A:e6b3  4c a5 e0                           jmp error_sound
+  743 A:e62c                           list      
+  743 A:e62c                                    ; list file dir
+  744 A:e62c                                     .( 
+  745 A:e62c  20 ae de                           jsr fat32_readdirent                ; files?
+  746 A:e62f  b0 47                              bcs nofiles
+  747 A:e631                           ebut      
+  747 A:e631                                    
+  748 A:e631  a2 00                              ldx #0
+  749 A:e633  a0 08                              ldy #8
+  750 A:e635                           chklp     
+  750 A:e635                                    
+  751 A:e635  c0 0b                              cpy #11
+  752 A:e637  f0 0b                              beq no
+  753 A:e639  b1 48                              lda (zp_sd_address),y
+  754 A:e63b  c9 20                              cmp #$20
+  755 A:e63d  d0 01                              bne chky
+  756 A:e63f  e8                                 inx 
+  757 A:e640                           chky      
+  757 A:e640                                    
+  758 A:e640  c8                                 iny 
+  759 A:e641  4c 35 e6                           jmp chklp
+  760 A:e644                           no        
+  760 A:e644                                    
+  761 A:e644  e0 03                              cpx #3
+  762 A:e646  d0 07                              bne arc
+  763 A:e648                           dir       
+  763 A:e648                                    
+  764 A:e648  a9 ff                              lda #$ff
+  765 A:e64a  85 15                              sta filetype                ; directorys show up as 
+  766 A:e64c  4c 51 e6                           jmp name                ; yourfilename     test      folder  ...Etc
+  767 A:e64f                           arc       
+  767 A:e64f                                    
+  768 A:e64f  64 15                              stz filetype                ; files show up as
+  769 A:e651                           name      
+  769 A:e651                                    ; test.xpl         music.xpl        file.bin  ...Etc
+  770 A:e651                                    ; At this point, we know that there are no files, files, or a suddir
+  771 A:e651                                    ; Now for the name
+  772 A:e651  a0 00                              ldy #0
+  773 A:e653                           nameloop  
+  773 A:e653                                    
+  774 A:e653  c0 08                              cpy #8
+  775 A:e655  f0 06                              beq dot
+  776 A:e657  20 e1 e5                           jsr other
+  777 A:e65a  4c 53 e6                           jmp nameloop
+  778 A:e65d                           dot       
+  778 A:e65d                                    
+  779 A:e65d  a5 15                              lda filetype
+  780 A:e65f  d0 0f                              bne endthat                ; if it's a file,
+  781 A:e661  a9 2e                              lda #$2e             ; shows its file extention
+  782 A:e663  20 74 e0                           jsr print_chara
+  783 A:e666                           lopii     
+  783 A:e666                                    
+  784 A:e666  c0 0b                              cpy #11
+  785 A:e668  f0 06                              beq endthat                ; print 3-letter file extention
+  786 A:e66a  20 e1 e5                           jsr other
+  787 A:e66d  4c 66 e6                           jmp lopii
+  788 A:e670                           endthat   
+  788 A:e670                                    
+  789 A:e670  a9 09                              lda #$09             ; Tab
+  790 A:e672  20 74 e0                           jsr print_chara                ; tab
+  791 A:e675  4c 2c e6                           jmp list                ; go again ; next file if there are any left
+  792 A:e678                           nofiles   
+  792 A:e678                                    ; if not,
+  793 A:e678                           endlist   
+  793 A:e678                                    ; exit listing code
+  794 A:e678  20 45 d6                           jsr crlf
+  795 A:e67b  60                                 rts 
+  796 A:e67c                           jumptolist 
+  796 A:e67c                                    
+  797 A:e67c  20 45 d6                           jsr crlf
+  798 A:e67f  4c 2c e6                           jmp list
+  799 A:e682                                     .) 
 
-  838 A:e6b6                           foundfile 
+  801 A:e682                                    ;; load
+  802 A:e682                                    ;; Here we load a file from the SD card.
+  803 A:e682                                    ;; .SAR stands for Start AddRess.
 
-  840 A:e6b6                                    ; Open file
-  841 A:e6b6  20 5a dd                           jsr fat32_opendirent
+  805 A:e682                           loadcmd   
+  806 A:e682                                     .( 
+  807 A:e682  ad 00 04                           lda path
+  808 A:e685  d0 03                              bne cdf
+  809 A:e687  4c 3b e3                           jmp patherr
+  810 A:e68a                           cdf       
+  810 A:e68a                                    
+  811 A:e68a                                    ;; check arguments
+  812 A:e68a  a5 20                              lda ARGINDEX
+  813 A:e68c  c9 02                              cmp #2             ; if there's two arguments, load the specified file
+  814 A:e68e  f0 0e                              beq lprocessparam
+  815 A:e690  a5 20                              lda ARGINDEX
+  816 A:e692  c9 01                              cmp #1             ; if there's only one argument, do a handeler load.
+  817 A:e694  f0 5b                              beq loadone
+  818 A:e696                                     .) 
+  819 A:e696                           lderror   
+  819 A:e696                                    
+  820 A:e696  a2 d6                              ldx #<foldermsg              ; if it was not found, error and return.
+  821 A:e698  a0 e9                              ldy #>foldermsg
+  822 A:e69a  20 85 e0                           jsr w_acia_full
+  823 A:e69d  60                                 rts 
+  824 A:e69e                           lprocessparam                  ; the user specified a file, process the filename parameter.
+  825 A:e69e  18                                 clc 
+  826 A:e69f  a9 00                              lda #<INPUT
+  827 A:e6a1  65 22                              adc ARGINDEX+2
+  828 A:e6a3  85 11                              sta folderpointer
+  829 A:e6a5  a9 02                              lda #>INPUT              ; argument buffer under 256 bytes, so no adc #0.
+  830 A:e6a7  85 12                              sta folderpointer+1
+  831 A:e6a9                           loadlc    
+  831 A:e6a9                                    
+  832 A:e6a9                                     .( 
+  833 A:e6a9                                    ; convert string
+  834 A:e6a9  20 28 e5                           jsr shortconvert
+  835 A:e6ac                                    ; is this a .XPL file?
+  836 A:e6ac  a0 08                              ldy #$08
+  837 A:e6ae  b1 11                              lda (folderpointer),y
+  838 A:e6b0  c9 58                              cmp #'X'
+  839 A:e6b2  d0 14                              bne ldp
+  840 A:e6b4  c8                                 iny 
+  841 A:e6b5  b1 11                              lda (folderpointer),y
+  842 A:e6b7  c9 50                              cmp #'P'
+  843 A:e6b9  d0 0d                              bne ldp
+  844 A:e6bb  c8                                 iny 
+  845 A:e6bc  b1 11                              lda (folderpointer),y
+  846 A:e6be  c9 4c                              cmp #'L'
+  847 A:e6c0  d0 06                              bne ldp
+  848 A:e6c2  9c 04 07                           stz buffer+4
+  849 A:e6c5  4c cd e6                           jmp ldp2
+  850 A:e6c8                           ldp       
+  850 A:e6c8                                    
+  851 A:e6c8  a9 ff                              lda #$ff
+  852 A:e6ca  8d 04 07                           sta buffer+4
+  853 A:e6cd                           ldp2      
+  853 A:e6cd                                    
+  854 A:e6cd                                     .) 
+  855 A:e6cd                           loadpath  
+  855 A:e6cd                                    
+  856 A:e6cd                                     .( 
+  857 A:e6cd                                    ; Refresh
+  858 A:e6cd  20 12 e0                           jsr fat32_open_cd
+  859 A:e6d0                                    ; Loading..
+  860 A:e6d0  a2 86                              ldx #<loading_msg
+  861 A:e6d2  a0 cb                              ldy #>loading_msg
+  862 A:e6d4  20 85 e0                           jsr w_acia_full
+  863 A:e6d7                                    ; BUG i need to add a start address header to the .XPL file format...
+  864 A:e6d7                                    ; at the moment it is assumed that the file will load and run at $0F00
+  865 A:e6d7  9c 00 07                           stz buffer
+  866 A:e6da  9c 02 07                           stz buffer+2
+  867 A:e6dd  a9 0f                              lda #$0f             ; $0F00
+  868 A:e6df  8d 01 07                           sta buffer+1
+  869 A:e6e2  8d 03 07                           sta buffer+3
+  870 A:e6e5  a6 11                              ldx folderpointer
+  871 A:e6e7  a4 12                              ldy folderpointer+1          ; find the file
+  872 A:e6e9  20 e4 de                           jsr fat32_finddirent
+  873 A:e6ec  90 47                              bcc loadfoundcode
+  874 A:e6ee  4c 96 e6                           jmp lderror
+  875 A:e6f1                                     .) 
+  876 A:e6f1                           loadone   
+  876 A:e6f1                                    
+  877 A:e6f1                                     .( 
+  878 A:e6f1                                    ; the user has not specified a filename, so load the SD card handeler program.
 
-  843 A:e6b9                                    ; Read file contents into buffer
-  844 A:e6b9  a9 00                              lda #<buffer
-  845 A:e6bb  85 5c                              sta fat32_address
-  846 A:e6bd  a9 07                              lda #>buffer
-  847 A:e6bf  85 5d                              sta fat32_address+1
+  880 A:e6f1  20 83 e7                           jsr loadf
 
-  849 A:e6c1  20 a0 df                           jsr fat32_file_read
+  882 A:e6f4                                    ; Find file by name
+  883 A:e6f4  a2 34                              ldx #<loadname
+  884 A:e6f6  a0 e2                              ldy #>loadname              ; this is LOADADDR.SAR, which is what I plan 
+  885 A:e6f8  20 e4 de                           jsr fat32_finddirent                ; to merge into a header of .XPL files.
+  886 A:e6fb  90 0a                              bcc foundfile                ; it holds the load address and jump address
+  887 A:e6fd                                    ; of CODE.XPL.
+  888 A:e6fd                                    ; File not found
+  889 A:e6fd  a0 e9                              ldy #>filmsg
+  890 A:e6ff  a2 5a                              ldx #<filmsg
+  891 A:e701  20 85 e0                           jsr w_acia_full
+  892 A:e704  4c a8 e0                           jmp error_sound
 
-  851 A:e6c4  9c 04 07                           stz buffer+4
+  894 A:e707                           foundfile 
 
-  853 A:e6c7  20 32 e7                           jsr loadf                ; BUG really?
+  896 A:e707                                    ; Open file
+  897 A:e707  20 5d dd                           jsr fat32_opendirent
 
-  855 A:e6ca  a0 e9                              ldy #>lds
-  856 A:e6cc  a2 3d                              ldx #<lds
-  857 A:e6ce  20 82 e0                           jsr w_acia_full
+  899 A:e70a                                    ; Read file contents into buffer
+  900 A:e70a  a9 00                              lda #<buffer
+  901 A:e70c  85 5c                              sta fat32_address
+  902 A:e70e  a9 07                              lda #>buffer
+  903 A:e710  85 5d                              sta fat32_address+1
 
-  859 A:e6d1  a2 26                              ldx #<filename              ; CODE.XPL is the sd card's loader
-  860 A:e6d3  a0 e2                              ldy #>filename
-  861 A:e6d5  20 e1 de                           jsr fat32_finddirent
-  862 A:e6d8  90 0a                              bcc loadfoundcode
+  905 A:e712  20 a3 df                           jsr fat32_file_read
 
-  864 A:e6da  a0 e9                              ldy #>filmsg2
-  865 A:e6dc  a2 25                              ldx #<filmsg2
-  866 A:e6de  20 82 e0                           jsr w_acia_full
-  867 A:e6e1  4c a5 e0                           jmp error_sound
-  868 A:e6e4                                     .) 
-  869 A:e6e4                           loadfoundcode 
-  870 A:e6e4                                     .( 
-  871 A:e6e4                                    ; backup file size 
-  872 A:e6e4  a0 1c                              ldy #28
-  873 A:e6e6  b1 48                              lda (zp_sd_address),y
-  874 A:e6e8  18                                 clc 
-  875 A:e6e9  6d 00 07                           adc buffer
-  876 A:e6ec  48                                 pha 
-  877 A:e6ed  c8                                 iny 
-  878 A:e6ee  b1 48                              lda (zp_sd_address),y
-  879 A:e6f0  6d 01 07                           adc buffer+1
-  880 A:e6f3  48                                 pha 
+  907 A:e715  9c 04 07                           stz buffer+4
 
-  882 A:e6f4  20 5a dd                           jsr fat32_opendirent                ; open the file
+  909 A:e718  20 83 e7                           jsr loadf                ; BUG really?
 
-  884 A:e6f7  ad 00 07                           lda buffer                ; and load it to the address
-  885 A:e6fa  85 5c                              sta fat32_address                ; from LOADADDR.SAR
-  886 A:e6fc  ad 01 07                           lda buffer+1
-  887 A:e6ff  85 5d                              sta fat32_address+1
+  911 A:e71b  a0 e9                              ldy #>lds
+  912 A:e71d  a2 8e                              ldx #<lds
+  913 A:e71f  20 85 e0                           jsr w_acia_full
 
-  889 A:e701  20 a0 df                           jsr fat32_file_read
+  915 A:e722  a2 29                              ldx #<filename              ; CODE.XPL is the sd card's loader
+  916 A:e724  a0 e2                              ldy #>filename
+  917 A:e726  20 e4 de                           jsr fat32_finddirent
+  918 A:e729  90 0a                              bcc loadfoundcode
 
-  891 A:e704                                    ; All done.
+  920 A:e72b  a0 e9                              ldy #>filmsg2
+  921 A:e72d  a2 76                              ldx #<filmsg2
+  922 A:e72f  20 85 e0                           jsr w_acia_full
+  923 A:e732  4c a8 e0                           jmp error_sound
+  924 A:e735                                     .) 
+  925 A:e735                           loadfoundcode 
+  926 A:e735                                     .( 
+  927 A:e735                                    ; backup file size 
+  928 A:e735  a0 1c                              ldy #28
+  929 A:e737  b1 48                              lda (zp_sd_address),y
+  930 A:e739  18                                 clc 
+  931 A:e73a  6d 00 07                           adc buffer
+  932 A:e73d  48                                 pha 
+  933 A:e73e  c8                                 iny 
+  934 A:e73f  b1 48                              lda (zp_sd_address),y
+  935 A:e741  6d 01 07                           adc buffer+1
+  936 A:e744  48                                 pha 
 
-  893 A:e704                                    ;ldy #>ends
-  894 A:e704                                    ;ldx #<ends
-  895 A:e704                                    ;jsr w_acia_full
-  896 A:e704  a2 a5                              ldx #<loadedmsg
-  897 A:e706  a0 cb                              ldy #>loadedmsg
-  898 A:e708  20 82 e0                           jsr w_acia_full
-  899 A:e70b  ad 01 07                           lda buffer+1
-  900 A:e70e  20 47 e0                           jsr print_hex_acia
-  901 A:e711  ad 00 07                           lda buffer
-  902 A:e714  20 47 e0                           jsr print_hex_acia
-  903 A:e717  a2 b2                              ldx #<tomsg
-  904 A:e719  a0 cb                              ldy #>tomsg
-  905 A:e71b  20 82 e0                           jsr w_acia_full
-  906 A:e71e  68                                 pla 
-  907 A:e71f  20 47 e0                           jsr print_hex_acia
-  908 A:e722  68                                 pla 
-  909 A:e723  20 47 e0                           jsr print_hex_acia
-  910 A:e726  20 45 d6                           jsr crlf
+  938 A:e745  20 5d dd                           jsr fat32_opendirent                ; open the file
 
-  912 A:e729                                    ; Is this a XPL file?
-  913 A:e729  ad 04 07                           lda buffer+4
-  914 A:e72c  d0 03                              bne lo
+  940 A:e748  ad 00 07                           lda buffer                ; and load it to the address
+  941 A:e74b  85 5c                              sta fat32_address                ; from LOADADDR.SAR
+  942 A:e74d  ad 01 07                           lda buffer+1
+  943 A:e750  85 5d                              sta fat32_address+1
 
-  916 A:e72e  6c 02 07                           jmp (buffer+2)        ; jump to start address from LOADADDR
+  945 A:e752  20 a3 df                           jsr fat32_file_read
 
-  918 A:e731                           lo        
-  918 A:e731                                    
-  919 A:e731  60                                 rts 
-  920 A:e732                                     .) 
+  947 A:e755                                    ; All done.
 
-  922 A:e732                           loadf     
-  922 A:e732                                    
-  923 A:e732                                    ; Open root directory
-  924 A:e732  20 f4 db                           jsr fat32_openroot
+  949 A:e755                                    ;ldy #>ends
+  950 A:e755                                    ;ldx #<ends
+  951 A:e755                                    ;jsr w_acia_full
+  952 A:e755  a2 a5                              ldx #<loadedmsg
+  953 A:e757  a0 cb                              ldy #>loadedmsg
+  954 A:e759  20 85 e0                           jsr w_acia_full
+  955 A:e75c  ad 01 07                           lda buffer+1
+  956 A:e75f  20 4a e0                           jsr print_hex_acia
+  957 A:e762  ad 00 07                           lda buffer
+  958 A:e765  20 4a e0                           jsr print_hex_acia
+  959 A:e768  a2 b2                              ldx #<tomsg
+  960 A:e76a  a0 cb                              ldy #>tomsg
+  961 A:e76c  20 85 e0                           jsr w_acia_full
+  962 A:e76f  68                                 pla 
+  963 A:e770  20 4a e0                           jsr print_hex_acia
+  964 A:e773  68                                 pla 
+  965 A:e774  20 4a e0                           jsr print_hex_acia
+  966 A:e777  20 45 d6                           jsr crlf
 
-  926 A:e735                                    ; Find subdirectory by name
-  927 A:e735  a2 1b                              ldx #<subdirname
-  928 A:e737  a0 e2                              ldy #>subdirname
-  929 A:e739  20 e1 de                           jsr fat32_finddirent
-  930 A:e73c  90 0a                              bcc foundsubdir
+  968 A:e77a                                    ; Is this a XPL file?
+  969 A:e77a  ad 04 07                           lda buffer+4
+  970 A:e77d  d0 03                              bne lo
 
-  932 A:e73e                                    ; Subdirectory not found
-  933 A:e73e  a0 e8                              ldy #>submsg
-  934 A:e740  a2 f7                              ldx #<submsg
-  935 A:e742  20 82 e0                           jsr w_acia_full
-  936 A:e745  4c a5 e0                           jmp error_sound
+  972 A:e77f  6c 02 07                           jmp (buffer+2)        ; jump to start address from LOADADDR
 
-  938 A:e748                           foundsubdir 
+  974 A:e782                           lo        
+  974 A:e782                                    
+  975 A:e782  60                                 rts 
+  976 A:e783                                     .) 
 
-  940 A:e748                                    ; Open subdirectory
-  941 A:e748  4c 5a dd                           jmp fat32_opendirent
+  978 A:e783                           loadf     
+  978 A:e783                                    
+  979 A:e783                                    ; Open root directory
+  980 A:e783  20 f7 db                           jsr fat32_openroot
 
-  943 A:e74b                           savecmd   
-  943 A:e74b                                    
-  944 A:e74b                                     .( 
-  945 A:e74b                                    ; Save a file.
-  946 A:e74b  da                                 phx 
-  947 A:e74c  ad 00 04                           lda path
-  948 A:e74f  d0 03                              bne sv
-  949 A:e751  4c 38 e3                           jmp patherr
-  950 A:e754                           sv        
-  950 A:e754                                    
-  951 A:e754  a5 20                              lda ARGINDEX
-  952 A:e756  c9 04                              cmp #4
-  953 A:e758  f0 03                              beq proc
-  954 A:e75a  4c 07 e4                           jmp error
-  955 A:e75d                           proc      
-  955 A:e75d                                    
-  956 A:e75d                                    ; filename
-  957 A:e75d  18                                 clc 
-  958 A:e75e  a9 00                              lda #<INPUT
-  959 A:e760  65 24                              adc ARGINDEX+4
-  960 A:e762  85 11                              sta folderpointer
-  961 A:e764  a9 02                              lda #>INPUT
-  962 A:e766  85 12                              sta folderpointer+1
-  963 A:e768                                    ; convert it to SHORT
-  964 A:e768  20 cf e4                           jsr shortconvert
-  965 A:e76b  a5 11                              lda folderpointer
-  966 A:e76d  85 1c                              sta savepoint
-  967 A:e76f  a5 12                              lda folderpointer+1
-  968 A:e771  85 1d                              sta savepoint+1
-  969 A:e773                                    ; second addr parameter
-  970 A:e773  18                                 clc 
-  971 A:e774  a9 00                              lda #<INPUT
-  972 A:e776  65 23                              adc ARGINDEX+3
-  973 A:e778  85 80                              sta stackaccess
-  974 A:e77a  a9 02                              lda #>INPUT
-  975 A:e77c  85 81                              sta stackaccess+1
-  976 A:e77e  20 db c0                           jsr push16
-  977 A:e781  20 76 c2                           jsr read16hex
-  978 A:e784                                    ; first address parameter
-  979 A:e784  18                                 clc 
-  980 A:e785  a9 00                              lda #<INPUT
-  981 A:e787  65 22                              adc ARGINDEX+2
-  982 A:e789  85 80                              sta stackaccess
-  983 A:e78b  a9 02                              lda #>INPUT
-  984 A:e78d  85 81                              sta stackaccess+1
-  985 A:e78f  20 db c0                           jsr push16
-  986 A:e792  20 76 c2                           jsr read16hex
-  987 A:e795                                    ; stash them
-  988 A:e795  20 e6 c0                           jsr pop16
-  989 A:e798  a5 80                              lda stackaccess
-  990 A:e79a  85 1a                              sta savestart
-  991 A:e79c  a5 81                              lda stackaccess+1
-  992 A:e79e  85 1b                              sta savestart+1
-  993 A:e7a0  20 e6 c0                           jsr pop16
-  994 A:e7a3  a5 80                              lda stackaccess
-  995 A:e7a5  85 10                              sta saveend
-  996 A:e7a7  a5 81                              lda stackaccess+1
-  997 A:e7a9  85 11                              sta saveend+1
-  998 A:e7ab  4c af e7                           jmp sg
-  999 A:e7ae                                     .) 
- 1000 A:e7ae                           savekernal 
- 1000 A:e7ae                                    
- 1001 A:e7ae  da                                 phx 
- 1002 A:e7af                           sg        
- 1002 A:e7af                                    
- 1003 A:e7af                                     .( 
- 1004 A:e7af                                    ; now lets begin 
- 1005 A:e7af                                    ; Refresh PATH
- 1006 A:e7af  20 0d e3                           jsr refreshpath
- 1007 A:e7b2                                    ; Open the filename
- 1008 A:e7b2  a6 1c                              ldx savepoint
- 1009 A:e7b4  a4 1d                              ldy savepoint+1
- 1010 A:e7b6                                    ; Check if the file exists
- 1011 A:e7b6  20 e1 de                           jsr fat32_finddirent
- 1012 A:e7b9  90 03                              bcc fileexists
- 1013 A:e7bb  4c da e7                           jmp nf
- 1014 A:e7be                           fileexists 
- 1014 A:e7be                                    
- 1015 A:e7be                                    ; If so, ask the user if they would like to overwrite the file.
- 1016 A:e7be  a2 65                              ldx #<femsg
- 1017 A:e7c0  a0 e9                              ldy #>femsg
- 1018 A:e7c2  20 82 e0                           jsr w_acia_full
- 1019 A:e7c5  20 53 f5                           jsr rxpoll
- 1020 A:e7c8  ad 00 80                           lda $8000
- 1021 A:e7cb  c9 79                              cmp #'y'             ; response = 'y'?
- 1022 A:e7cd  f0 05                              beq yes
- 1023 A:e7cf  20 45 d6                           jsr crlf                ; no, cancel save
- 1024 A:e7d2  fa                                 plx 
- 1025 A:e7d3  60                                 rts 
- 1026 A:e7d4                           yes       
- 1027 A:e7d4                                    ; we would like to overwrite the file.
- 1028 A:e7d4  20 45 d6                           jsr crlf
- 1029 A:e7d7                                    ; delete it to clean the FAT
- 1030 A:e7d7  20 21 df                           jsr fat32_deletefile
- 1031 A:e7da                           nf        
- 1031 A:e7da                                    
- 1032 A:e7da                                    ;jsr fat32_open_cd
- 1033 A:e7da  a2 53                              ldx #<savemsg
- 1034 A:e7dc  a0 e9                              ldy #>savemsg
- 1035 A:e7de  20 82 e0                           jsr w_acia_full
- 1036 A:e7e1                                    ; Calculate file size (end - start)
- 1037 A:e7e1  38                                 sec 
- 1038 A:e7e2  a5 10                              lda saveend
- 1039 A:e7e4  e5 1a                              sbc savestart
- 1040 A:e7e6  85 62                              sta fat32_bytesremaining
- 1041 A:e7e8  48                                 pha 
- 1042 A:e7e9  a5 11                              lda saveend+1
- 1043 A:e7eb  e5 1b                              sbc savestart+1
- 1044 A:e7ed  85 63                              sta fat32_bytesremaining+1
- 1045 A:e7ef  48                                 pha 
- 1046 A:e7f0                                    ; Allocate all the clusters for this file
- 1047 A:e7f0  20 41 dc                           jsr fat32_allocatefile
- 1048 A:e7f3                                    ; Refresh
- 1049 A:e7f3  20 0d e3                           jsr refreshpath
- 1050 A:e7f6                                    ; Put the filename at fat32_filenamepointer
- 1051 A:e7f6  a5 1c                              lda savepoint
- 1052 A:e7f8  85 6a                              sta fat32_filenamepointer
- 1053 A:e7fa  a5 1d                              lda savepoint+1
- 1054 A:e7fc  85 6b                              sta fat32_filenamepointer+1
- 1055 A:e7fe  68                                 pla 
- 1056 A:e7ff  85 63                              sta fat32_bytesremaining+1
- 1057 A:e801  68                                 pla 
- 1058 A:e802  85 62                              sta fat32_bytesremaining
- 1059 A:e804                                    ; Write a directory entry for this file
- 1060 A:e804  20 c2 dd                           jsr fat32_writedirent
- 1061 A:e807                                    ; Now, to actually write the file...
- 1062 A:e807  a5 1a                              lda savestart
- 1063 A:e809  85 5c                              sta fat32_address
- 1064 A:e80b  a5 1b                              lda savestart+1
- 1065 A:e80d  85 5d                              sta fat32_address+1
- 1066 A:e80f  20 c0 df                           jsr fat32_file_write
- 1067 A:e812                                    ; All Done!
- 1068 A:e812  a2 5d                              ldx #<ends
- 1069 A:e814  a0 e9                              ldy #>ends
- 1070 A:e816  20 82 e0                           jsr w_acia_full
- 1071 A:e819                           saveexit  
- 1071 A:e819                                    
- 1072 A:e819  fa                                 plx 
- 1073 A:e81a  60                                 rts 
- 1074 A:e81b                                     .) 
+  982 A:e786                                    ; Find subdirectory by name
+  983 A:e786  a2 1e                              ldx #<subdirname
+  984 A:e788  a0 e2                              ldy #>subdirname
+  985 A:e78a  20 e4 de                           jsr fat32_finddirent
+  986 A:e78d  90 0a                              bcc foundsubdir
 
- 1076 A:e81b                           rmcmd     
- 1076 A:e81b                                    
- 1077 A:e81b                                     .( 
- 1078 A:e81b                                    ; Remove a file
- 1079 A:e81b  da                                 phx 
- 1080 A:e81c  ad 00 04                           lda path
- 1081 A:e81f  d0 03                              bne rm
- 1082 A:e821  4c 38 e3                           jmp patherr
- 1083 A:e824                           rm        
- 1083 A:e824                                    
- 1084 A:e824                                    ;; check arguments
- 1085 A:e824  a5 20                              lda ARGINDEX
- 1086 A:e826  c9 02                              cmp #2             ; if there's two arguments, load the specified file
- 1087 A:e828  f0 03                              beq proc
- 1088 A:e82a  4c 07 e4                           jmp error
- 1089 A:e82d                           proc      
- 1089 A:e82d                                    
- 1090 A:e82d                                    ; filename
- 1091 A:e82d  18                                 clc 
- 1092 A:e82e  a9 00                              lda #<INPUT
- 1093 A:e830  65 22                              adc ARGINDEX+2
- 1094 A:e832  85 11                              sta folderpointer
- 1095 A:e834  a9 02                              lda #>INPUT
- 1096 A:e836  85 12                              sta folderpointer+1
- 1097 A:e838                                    ; convert it to SHORT
- 1098 A:e838  20 cf e4                           jsr shortconvert
- 1099 A:e83b  a5 11                              lda folderpointer
- 1100 A:e83d  85 1c                              sta savepoint
- 1101 A:e83f  a5 12                              lda folderpointer+1
- 1102 A:e841  85 1d                              sta savepoint+1
- 1103 A:e843                                    ; path refresh
- 1104 A:e843  20 0f e0                           jsr fat32_open_cd
- 1105 A:e846                                    ; load
- 1106 A:e846  a6 1c                              ldx savepoint
- 1107 A:e848  a4 1d                              ldy savepoint+1
- 1108 A:e84a                                    ; find it
- 1109 A:e84a  20 e1 de                           jsr fat32_finddirent
- 1110 A:e84d  90 05                              bcc foundfile
- 1111 A:e84f  20 41 e3                           jsr rlerror
- 1112 A:e852  fa                                 plx 
- 1113 A:e853  60                                 rts 
- 1114 A:e854                           foundfile 
- 1114 A:e854                                    
- 1115 A:e854  20 21 df                           jsr fat32_deletefile
- 1116 A:e857                                    ; done
- 1117 A:e857  fa                                 plx 
- 1118 A:e858  60                                 rts 
- 1119 A:e859                                     .) 
+  988 A:e78f                                    ; Subdirectory not found
+  989 A:e78f  a0 e9                              ldy #>submsg
+  990 A:e791  a2 48                              ldx #<submsg
+  991 A:e793  20 85 e0                           jsr w_acia_full
+  992 A:e796  4c a8 e0                           jmp error_sound
 
- 1121 A:e859                           mvcmd     
- 1121 A:e859                                    
- 1122 A:e859                                     .( 
- 1123 A:e859                                    ; Move a file.
- 1124 A:e859  da                                 phx 
- 1125 A:e85a  ad 00 04                           lda path
- 1126 A:e85d  d0 03                              bne mv
- 1127 A:e85f  4c 38 e3                           jmp patherr
- 1128 A:e862                           mv        
- 1128 A:e862                                    
- 1129 A:e862                                    ;; check arguments
- 1130 A:e862  a5 20                              lda ARGINDEX
- 1131 A:e864  c9 03                              cmp #3
- 1132 A:e866  f0 03                              beq proc
- 1133 A:e868  4c 07 e4                           jmp error
- 1134 A:e86b                           proc      
- 1134 A:e86b                                    
- 1135 A:e86b                                    ; fetch first filename
- 1136 A:e86b  18                                 clc 
- 1137 A:e86c  a9 00                              lda #<INPUT
- 1138 A:e86e  65 22                              adc ARGINDEX+2
- 1139 A:e870  85 11                              sta folderpointer
- 1140 A:e872  a9 02                              lda #>INPUT
- 1141 A:e874  85 12                              sta folderpointer+1
- 1142 A:e876  20 e2 e8                           jsr overf
- 1143 A:e879                                    ; convert it to SHORT
- 1144 A:e879  20 cf e4                           jsr shortconvert
- 1145 A:e87c  a5 11                              lda folderpointer
- 1146 A:e87e  85 1c                              sta savepoint
- 1147 A:e880  a5 12                              lda folderpointer+1
- 1148 A:e882  85 1d                              sta savepoint+1
- 1149 A:e884                                    ; path refresh
- 1150 A:e884  20 0f e0                           jsr fat32_open_cd
- 1151 A:e887                                    ; load
- 1152 A:e887  a6 1c                              ldx savepoint
- 1153 A:e889  a4 1d                              ldy savepoint+1
- 1154 A:e88b                                    ; find it
- 1155 A:e88b  20 e1 de                           jsr fat32_finddirent
- 1156 A:e88e  90 03                              bcc gotit
- 1157 A:e890  4c bd e8                           jmp mvfail
- 1158 A:e893                           gotit     
- 1158 A:e893                                    
- 1159 A:e893                                    ; carry already clear
- 1160 A:e893                                    ; get the folder to move it to
- 1161 A:e893  a9 00                              lda #<INPUT
- 1162 A:e895  65 23                              adc ARGINDEX+3
- 1163 A:e897  85 11                              sta folderpointer
- 1164 A:e899  a9 02                              lda #>INPUT
- 1165 A:e89b  85 12                              sta folderpointer+1
- 1166 A:e89d  20 e2 e8                           jsr overf
- 1167 A:e8a0                                    ; convert it to SHORT
- 1168 A:e8a0  20 cf e4                           jsr shortconvert
- 1169 A:e8a3  a5 11                              lda folderpointer
- 1170 A:e8a5  85 1c                              sta savepoint
- 1171 A:e8a7  a5 12                              lda folderpointer+1
- 1172 A:e8a9  85 1d                              sta savepoint+1
- 1173 A:e8ab                                    ; Now, for the copy
- 1174 A:e8ab                                    ; Store the dirent temporaraly
- 1175 A:e8ab  a0 00                              ldy #0
- 1176 A:e8ad                           stlp      
- 1177 A:e8ad  b1 48                              lda (zp_sd_address),y
- 1178 A:e8af  99 00 02                           sta INPUT,y
- 1179 A:e8b2  c8                                 iny 
- 1180 A:e8b3  c0 20                              cpy #$20
- 1181 A:e8b5  d0 f6                              bne stlp
- 1182 A:e8b7                                    ; Now, mark it as a deleted file
- 1183 A:e8b7  20 f8 de                           jsr fat32_markdeleted
- 1184 A:e8ba  20 0f e0                           jsr fat32_open_cd
- 1185 A:e8bd                                    ; Find the directory
- 1186 A:e8bd                                    ;lda backdir
- 1187 A:e8bd                                    ;beq nono ;TODO CHECK
- 1188 A:e8bd                                    ;nono
- 1188 A:e8bd                                    
- 1189 A:e8bd                                    ;  ldx savepoint
- 1190 A:e8bd                                    ;  ldy savepoint+1
- 1191 A:e8bd                                    ;  jsr fat32_finddirent
- 1192 A:e8bd                                    ;  bcc mvgotdirent 
- 1193 A:e8bd                           mvfail    
- 1194 A:e8bd                                    ; The directory was not found
- 1195 A:e8bd  20 41 e3                           jsr rlerror
- 1196 A:e8c0  fa                                 plx 
- 1197 A:e8c1  60                                 rts 
- 1198 A:e8c2                           mvgotdirent 
- 1199 A:e8c2                                    ; It was, open it.
- 1200 A:e8c2  20 5a dd                           jsr fat32_opendirent
- 1201 A:e8c5                                    ; Ok. now we need to find a free entry
- 1202 A:e8c5                           mvlp      
- 1203 A:e8c5  20 ab de                           jsr fat32_readdirent
- 1204 A:e8c8  90 fb                              bcc mvlp
- 1205 A:e8ca                                    ; Got it. now paste the file here
- 1206 A:e8ca  a0 00                              ldy #0
- 1207 A:e8cc                           mvpaste   
- 1208 A:e8cc  b9 00 02                           lda INPUT,y
- 1209 A:e8cf  91 48                              sta (zp_sd_address),y
- 1210 A:e8d1  c8                                 iny 
- 1211 A:e8d2  c0 20                              cpy #$20
- 1212 A:e8d4  d0 f6                              bne mvpaste
- 1213 A:e8d6                                    ; Just to be sure, zero out the next entry.
- 1214 A:e8d6  a9 00                              lda #0
- 1215 A:e8d8  91 48                              sta (zp_sd_address),y
- 1216 A:e8da                                    ; Now write the sector
- 1217 A:e8da  20 81 de                           jsr fat32_wrcurrent
- 1218 A:e8dd                                    ; Done!
- 1219 A:e8dd  20 0d e3                           jsr refreshpath
- 1220 A:e8e0  fa                                 plx 
- 1221 A:e8e1  60                                 rts 
- 1222 A:e8e2                           overf     
- 1222 A:e8e2                                    
- 1223 A:e8e2                                    ; copy it to the buffer so we don't overwrite the foldername
- 1224 A:e8e2  a0 00                              ldy #0
- 1225 A:e8e4                           mvff      
- 1226 A:e8e4  b1 11                              lda (folderpointer),y
- 1227 A:e8e6  99 18 03                           sta fnstash,y
- 1228 A:e8e9  c8                                 iny 
- 1229 A:e8ea  c0 0d                              cpy #13
- 1230 A:e8ec  d0 f6                              bne mvff
- 1231 A:e8ee                           mvdn      
- 1231 A:e8ee                                    
- 1232 A:e8ee                                    ; store location
- 1233 A:e8ee  a9 18                              lda #<fnstash
- 1234 A:e8f0  85 11                              sta folderpointer
- 1235 A:e8f2  a9 03                              lda #>fnstash
- 1236 A:e8f4  85 12                              sta folderpointer+1
- 1237 A:e8f6  60                                 rts 
- 1238 A:e8f7                                     .) 
+  994 A:e799                           foundsubdir 
 
- 1240 A:e8f7                           submsg    
- 1241 A:e8f7  52 6f 6f 74 20 4e 6f ...           .byt "Root Not Found!",$0d,$0a,$00
- 1242 A:e909                           filmsg    
- 1243 A:e909  27 6c 6f 61 64 61 64 ...           .byt "'loadaddr.sar' Not Found!",$0d,$0a,$00
- 1244 A:e925                           filmsg2   
- 1245 A:e925  27 63 6f 64 65 2e 78 ...           .byt "'code.xpl' Not Found!",$0d,$0a,$00
- 1246 A:e93d                           lds       
- 1247 A:e93d  4c 6f 61 64 69 6e 67 ...           .byt "Loading SD Handler...",$00
- 1248 A:e953                           savemsg   
- 1248 A:e953                                    
- 1249 A:e953  53 61 76 69 6e 67 2e ...           .byt "Saving...",$00
- 1250 A:e95d                           ends      
- 1251 A:e95d  44 6f 6e 65 2e 0d 0a 00            .byt "Done.",$0d,$0a,$00
- 1252 A:e965                           femsg     
- 1252 A:e965                                    
- 1253 A:e965  46 69 6c 65 20 65 78 ...           .byt "File exists. Overwrite? (y/n): ",$00
- 1254 A:e985                           foldermsg 
- 1254 A:e985                                    
- 1255 A:e985  4e 6f 20 73 75 63 68 ...           .byt "No such file or directory.",$0d,$0a,$00
+  996 A:e799                                    ; Open subdirectory
+  997 A:e799  4c 5d dd                           jmp fat32_opendirent
 
- 1257 A:e9a2                                    ; THE FOLLOWING MESSAGES ARE ALREADY IN TAPE.A65!
- 1258 A:e9a2                                    ;loadedmsg
- 1258 A:e9a2                                    
- 1259 A:e9a2                                    ;  .byte "Loaded from ", $00
- 1260 A:e9a2                                    ;tomsg
- 1260 A:e9a2                                    
- 1261 A:e9a2                                    ;  .byte " to ", $00
+  999 A:e79c                           savecmd   
+  999 A:e79c                                    
+ 1000 A:e79c                                     .( 
+ 1001 A:e79c                                    ; Save a file.
+ 1002 A:e79c  da                                 phx 
+ 1003 A:e79d  ad 00 04                           lda path
+ 1004 A:e7a0  d0 03                              bne sv
+ 1005 A:e7a2  4c 3b e3                           jmp patherr
+ 1006 A:e7a5                           sv        
+ 1006 A:e7a5                                    
+ 1007 A:e7a5  a5 20                              lda ARGINDEX
+ 1008 A:e7a7  c9 04                              cmp #4
+ 1009 A:e7a9  f0 03                              beq proc
+ 1010 A:e7ab  4c 0a e4                           jmp error
+ 1011 A:e7ae                           proc      
+ 1011 A:e7ae                                    
+ 1012 A:e7ae                                    ; filename
+ 1013 A:e7ae  18                                 clc 
+ 1014 A:e7af  a9 00                              lda #<INPUT
+ 1015 A:e7b1  65 24                              adc ARGINDEX+4
+ 1016 A:e7b3  85 11                              sta folderpointer
+ 1017 A:e7b5  a9 02                              lda #>INPUT
+ 1018 A:e7b7  85 12                              sta folderpointer+1
+ 1019 A:e7b9                                    ; convert it to SHORT
+ 1020 A:e7b9  20 28 e5                           jsr shortconvert
+ 1021 A:e7bc  a5 11                              lda folderpointer
+ 1022 A:e7be  85 1c                              sta savepoint
+ 1023 A:e7c0  a5 12                              lda folderpointer+1
+ 1024 A:e7c2  85 1d                              sta savepoint+1
+ 1025 A:e7c4                                    ; second addr parameter
+ 1026 A:e7c4  18                                 clc 
+ 1027 A:e7c5  a9 00                              lda #<INPUT
+ 1028 A:e7c7  65 23                              adc ARGINDEX+3
+ 1029 A:e7c9  85 80                              sta stackaccess
+ 1030 A:e7cb  a9 02                              lda #>INPUT
+ 1031 A:e7cd  85 81                              sta stackaccess+1
+ 1032 A:e7cf  20 db c0                           jsr push16
+ 1033 A:e7d2  20 76 c2                           jsr read16hex
+ 1034 A:e7d5                                    ; first address parameter
+ 1035 A:e7d5  18                                 clc 
+ 1036 A:e7d6  a9 00                              lda #<INPUT
+ 1037 A:e7d8  65 22                              adc ARGINDEX+2
+ 1038 A:e7da  85 80                              sta stackaccess
+ 1039 A:e7dc  a9 02                              lda #>INPUT
+ 1040 A:e7de  85 81                              sta stackaccess+1
+ 1041 A:e7e0  20 db c0                           jsr push16
+ 1042 A:e7e3  20 76 c2                           jsr read16hex
+ 1043 A:e7e6                                    ; stash them
+ 1044 A:e7e6  20 e6 c0                           jsr pop16
+ 1045 A:e7e9  a5 80                              lda stackaccess
+ 1046 A:e7eb  85 1a                              sta savestart
+ 1047 A:e7ed  a5 81                              lda stackaccess+1
+ 1048 A:e7ef  85 1b                              sta savestart+1
+ 1049 A:e7f1  20 e6 c0                           jsr pop16
+ 1050 A:e7f4  a5 80                              lda stackaccess
+ 1051 A:e7f6  85 10                              sta saveend
+ 1052 A:e7f8  a5 81                              lda stackaccess+1
+ 1053 A:e7fa  85 11                              sta saveend+1
+ 1054 A:e7fc  4c 00 e8                           jmp sg
+ 1055 A:e7ff                                     .) 
+ 1056 A:e7ff                           savekernal 
+ 1056 A:e7ff                                    
+ 1057 A:e7ff  da                                 phx 
+ 1058 A:e800                           sg        
+ 1058 A:e800                                    
+ 1059 A:e800                                     .( 
+ 1060 A:e800                                    ; now lets begin 
+ 1061 A:e800                                    ; Refresh PATH
+ 1062 A:e800  20 10 e3                           jsr refreshpath
+ 1063 A:e803                                    ; Open the filename
+ 1064 A:e803  a6 1c                              ldx savepoint
+ 1065 A:e805  a4 1d                              ldy savepoint+1
+ 1066 A:e807                                    ; Check if the file exists
+ 1067 A:e807  20 e4 de                           jsr fat32_finddirent
+ 1068 A:e80a  90 03                              bcc fileexists
+ 1069 A:e80c  4c 2b e8                           jmp nf
+ 1070 A:e80f                           fileexists 
+ 1070 A:e80f                                    
+ 1071 A:e80f                                    ; If so, ask the user if they would like to overwrite the file.
+ 1072 A:e80f  a2 b6                              ldx #<femsg
+ 1073 A:e811  a0 e9                              ldy #>femsg
+ 1074 A:e813  20 85 e0                           jsr w_acia_full
+ 1075 A:e816  20 a4 f5                           jsr rxpoll
+ 1076 A:e819  ad 00 80                           lda $8000
+ 1077 A:e81c  c9 79                              cmp #'y'             ; response = 'y'?
+ 1078 A:e81e  f0 05                              beq yes
+ 1079 A:e820  20 45 d6                           jsr crlf                ; no, cancel save
+ 1080 A:e823  fa                                 plx 
+ 1081 A:e824  60                                 rts 
+ 1082 A:e825                           yes       
+ 1083 A:e825                                    ; we would like to overwrite the file.
+ 1084 A:e825  20 45 d6                           jsr crlf
+ 1085 A:e828                                    ; delete it to clean the FAT
+ 1086 A:e828  20 24 df                           jsr fat32_deletefile
+ 1087 A:e82b                           nf        
+ 1087 A:e82b                                    
+ 1088 A:e82b                                    ;jsr fat32_open_cd
+ 1089 A:e82b  a2 a4                              ldx #<savemsg
+ 1090 A:e82d  a0 e9                              ldy #>savemsg
+ 1091 A:e82f  20 85 e0                           jsr w_acia_full
+ 1092 A:e832                                    ; Calculate file size (end - start)
+ 1093 A:e832  38                                 sec 
+ 1094 A:e833  a5 10                              lda saveend
+ 1095 A:e835  e5 1a                              sbc savestart
+ 1096 A:e837  85 62                              sta fat32_bytesremaining
+ 1097 A:e839  48                                 pha 
+ 1098 A:e83a  a5 11                              lda saveend+1
+ 1099 A:e83c  e5 1b                              sbc savestart+1
+ 1100 A:e83e  85 63                              sta fat32_bytesremaining+1
+ 1101 A:e840  48                                 pha 
+ 1102 A:e841                                    ; Allocate all the clusters for this file
+ 1103 A:e841  20 44 dc                           jsr fat32_allocatefile
+ 1104 A:e844                                    ; Refresh
+ 1105 A:e844  20 10 e3                           jsr refreshpath
+ 1106 A:e847                                    ; Put the filename at fat32_filenamepointer
+ 1107 A:e847  a5 1c                              lda savepoint
+ 1108 A:e849  85 6a                              sta fat32_filenamepointer
+ 1109 A:e84b  a5 1d                              lda savepoint+1
+ 1110 A:e84d  85 6b                              sta fat32_filenamepointer+1
+ 1111 A:e84f  68                                 pla 
+ 1112 A:e850  85 63                              sta fat32_bytesremaining+1
+ 1113 A:e852  68                                 pla 
+ 1114 A:e853  85 62                              sta fat32_bytesremaining
+ 1115 A:e855                                    ; Write a directory entry for this file
+ 1116 A:e855  20 c5 dd                           jsr fat32_writedirent
+ 1117 A:e858                                    ; Now, to actually write the file...
+ 1118 A:e858  a5 1a                              lda savestart
+ 1119 A:e85a  85 5c                              sta fat32_address
+ 1120 A:e85c  a5 1b                              lda savestart+1
+ 1121 A:e85e  85 5d                              sta fat32_address+1
+ 1122 A:e860  20 c3 df                           jsr fat32_file_write
+ 1123 A:e863                                    ; All Done!
+ 1124 A:e863  a2 ae                              ldx #<ends
+ 1125 A:e865  a0 e9                              ldy #>ends
+ 1126 A:e867  20 85 e0                           jsr w_acia_full
+ 1127 A:e86a                           saveexit  
+ 1127 A:e86a                                    
+ 1128 A:e86a  fa                                 plx 
+ 1129 A:e86b  60                                 rts 
+ 1130 A:e86c                                     .) 
+
+ 1132 A:e86c                           rmcmd     
+ 1132 A:e86c                                    
+ 1133 A:e86c                                     .( 
+ 1134 A:e86c                                    ; Remove a file
+ 1135 A:e86c  da                                 phx 
+ 1136 A:e86d  ad 00 04                           lda path
+ 1137 A:e870  d0 03                              bne rm
+ 1138 A:e872  4c 3b e3                           jmp patherr
+ 1139 A:e875                           rm        
+ 1139 A:e875                                    
+ 1140 A:e875                                    ;; check arguments
+ 1141 A:e875  a5 20                              lda ARGINDEX
+ 1142 A:e877  c9 02                              cmp #2             ; if there's two arguments, load the specified file
+ 1143 A:e879  f0 03                              beq proc
+ 1144 A:e87b  4c 0a e4                           jmp error
+ 1145 A:e87e                           proc      
+ 1145 A:e87e                                    
+ 1146 A:e87e                                    ; filename
+ 1147 A:e87e  18                                 clc 
+ 1148 A:e87f  a9 00                              lda #<INPUT
+ 1149 A:e881  65 22                              adc ARGINDEX+2
+ 1150 A:e883  85 11                              sta folderpointer
+ 1151 A:e885  a9 02                              lda #>INPUT
+ 1152 A:e887  85 12                              sta folderpointer+1
+ 1153 A:e889                                    ; convert it to SHORT
+ 1154 A:e889  20 28 e5                           jsr shortconvert
+ 1155 A:e88c  a5 11                              lda folderpointer
+ 1156 A:e88e  85 1c                              sta savepoint
+ 1157 A:e890  a5 12                              lda folderpointer+1
+ 1158 A:e892  85 1d                              sta savepoint+1
+ 1159 A:e894                                    ; path refresh
+ 1160 A:e894  20 12 e0                           jsr fat32_open_cd
+ 1161 A:e897                                    ; load
+ 1162 A:e897  a6 1c                              ldx savepoint
+ 1163 A:e899  a4 1d                              ldy savepoint+1
+ 1164 A:e89b                                    ; find it
+ 1165 A:e89b  20 e4 de                           jsr fat32_finddirent
+ 1166 A:e89e  90 05                              bcc foundfile
+ 1167 A:e8a0  20 44 e3                           jsr rlerror
+ 1168 A:e8a3  fa                                 plx 
+ 1169 A:e8a4  60                                 rts 
+ 1170 A:e8a5                           foundfile 
+ 1170 A:e8a5                                    
+ 1171 A:e8a5  20 24 df                           jsr fat32_deletefile
+ 1172 A:e8a8                                    ; done
+ 1173 A:e8a8  fa                                 plx 
+ 1174 A:e8a9  60                                 rts 
+ 1175 A:e8aa                                     .) 
+
+ 1177 A:e8aa                           mvcmd     
+ 1177 A:e8aa                                    
+ 1178 A:e8aa                                     .( 
+ 1179 A:e8aa                                    ; Move a file.
+ 1180 A:e8aa  da                                 phx 
+ 1181 A:e8ab  ad 00 04                           lda path
+ 1182 A:e8ae  d0 03                              bne mv
+ 1183 A:e8b0  4c 3b e3                           jmp patherr
+ 1184 A:e8b3                           mv        
+ 1184 A:e8b3                                    
+ 1185 A:e8b3                                    ;; check arguments
+ 1186 A:e8b3  a5 20                              lda ARGINDEX
+ 1187 A:e8b5  c9 03                              cmp #3
+ 1188 A:e8b7  f0 03                              beq proc
+ 1189 A:e8b9  4c 0a e4                           jmp error
+ 1190 A:e8bc                           proc      
+ 1190 A:e8bc                                    
+ 1191 A:e8bc                                    ; fetch first filename
+ 1192 A:e8bc  18                                 clc 
+ 1193 A:e8bd  a9 00                              lda #<INPUT
+ 1194 A:e8bf  65 22                              adc ARGINDEX+2
+ 1195 A:e8c1  85 11                              sta folderpointer
+ 1196 A:e8c3  a9 02                              lda #>INPUT
+ 1197 A:e8c5  85 12                              sta folderpointer+1
+ 1198 A:e8c7  20 33 e9                           jsr overf
+ 1199 A:e8ca                                    ; convert it to SHORT
+ 1200 A:e8ca  20 28 e5                           jsr shortconvert
+ 1201 A:e8cd  a5 11                              lda folderpointer
+ 1202 A:e8cf  85 1c                              sta savepoint
+ 1203 A:e8d1  a5 12                              lda folderpointer+1
+ 1204 A:e8d3  85 1d                              sta savepoint+1
+ 1205 A:e8d5                                    ; path refresh
+ 1206 A:e8d5  20 12 e0                           jsr fat32_open_cd
+ 1207 A:e8d8                                    ; load
+ 1208 A:e8d8  a6 1c                              ldx savepoint
+ 1209 A:e8da  a4 1d                              ldy savepoint+1
+ 1210 A:e8dc                                    ; find it
+ 1211 A:e8dc  20 e4 de                           jsr fat32_finddirent
+ 1212 A:e8df  90 03                              bcc gotit
+ 1213 A:e8e1  4c 0e e9                           jmp mvfail
+ 1214 A:e8e4                           gotit     
+ 1214 A:e8e4                                    
+ 1215 A:e8e4                                    ; carry already clear
+ 1216 A:e8e4                                    ; get the folder to move it to
+ 1217 A:e8e4  a9 00                              lda #<INPUT
+ 1218 A:e8e6  65 23                              adc ARGINDEX+3
+ 1219 A:e8e8  85 11                              sta folderpointer
+ 1220 A:e8ea  a9 02                              lda #>INPUT
+ 1221 A:e8ec  85 12                              sta folderpointer+1
+ 1222 A:e8ee  20 33 e9                           jsr overf
+ 1223 A:e8f1                                    ; convert it to SHORT
+ 1224 A:e8f1  20 28 e5                           jsr shortconvert
+ 1225 A:e8f4  a5 11                              lda folderpointer
+ 1226 A:e8f6  85 1c                              sta savepoint
+ 1227 A:e8f8  a5 12                              lda folderpointer+1
+ 1228 A:e8fa  85 1d                              sta savepoint+1
+ 1229 A:e8fc                                    ; Now, for the copy
+ 1230 A:e8fc                                    ; Store the dirent temporaraly
+ 1231 A:e8fc  a0 00                              ldy #0
+ 1232 A:e8fe                           stlp      
+ 1233 A:e8fe  b1 48                              lda (zp_sd_address),y
+ 1234 A:e900  99 00 02                           sta INPUT,y
+ 1235 A:e903  c8                                 iny 
+ 1236 A:e904  c0 20                              cpy #$20
+ 1237 A:e906  d0 f6                              bne stlp
+ 1238 A:e908                                    ; Now, mark it as a deleted file
+ 1239 A:e908  20 fb de                           jsr fat32_markdeleted
+ 1240 A:e90b  20 12 e0                           jsr fat32_open_cd
+ 1241 A:e90e                                    ; Find the directory
+ 1242 A:e90e                                    ;lda backdir
+ 1243 A:e90e                                    ;beq nono ;TODO CHECK
+ 1244 A:e90e                                    ;nono
+ 1244 A:e90e                                    
+ 1245 A:e90e                                    ;  ldx savepoint
+ 1246 A:e90e                                    ;  ldy savepoint+1
+ 1247 A:e90e                                    ;  jsr fat32_finddirent
+ 1248 A:e90e                                    ;  bcc mvgotdirent 
+ 1249 A:e90e                           mvfail    
+ 1250 A:e90e                                    ; The directory was not found
+ 1251 A:e90e  20 44 e3                           jsr rlerror
+ 1252 A:e911  fa                                 plx 
+ 1253 A:e912  60                                 rts 
+ 1254 A:e913                           mvgotdirent 
+ 1255 A:e913                                    ; It was, open it.
+ 1256 A:e913  20 5d dd                           jsr fat32_opendirent
+ 1257 A:e916                                    ; Ok. now we need to find a free entry
+ 1258 A:e916                           mvlp      
+ 1259 A:e916  20 ae de                           jsr fat32_readdirent
+ 1260 A:e919  90 fb                              bcc mvlp
+ 1261 A:e91b                                    ; Got it. now paste the file here
+ 1262 A:e91b  a0 00                              ldy #0
+ 1263 A:e91d                           mvpaste   
+ 1264 A:e91d  b9 00 02                           lda INPUT,y
+ 1265 A:e920  91 48                              sta (zp_sd_address),y
+ 1266 A:e922  c8                                 iny 
+ 1267 A:e923  c0 20                              cpy #$20
+ 1268 A:e925  d0 f6                              bne mvpaste
+ 1269 A:e927                                    ; Just to be sure, zero out the next entry.
+ 1270 A:e927  a9 00                              lda #0
+ 1271 A:e929  91 48                              sta (zp_sd_address),y
+ 1272 A:e92b                                    ; Now write the sector
+ 1273 A:e92b  20 84 de                           jsr fat32_wrcurrent
+ 1274 A:e92e                                    ; Done!
+ 1275 A:e92e  20 10 e3                           jsr refreshpath
+ 1276 A:e931  fa                                 plx 
+ 1277 A:e932  60                                 rts 
+ 1278 A:e933                           overf     
+ 1278 A:e933                                    
+ 1279 A:e933                                    ; copy it to the buffer so we don't overwrite the foldername
+ 1280 A:e933  a0 00                              ldy #0
+ 1281 A:e935                           mvff      
+ 1282 A:e935  b1 11                              lda (folderpointer),y
+ 1283 A:e937  99 18 03                           sta fnstash,y
+ 1284 A:e93a  c8                                 iny 
+ 1285 A:e93b  c0 0d                              cpy #13
+ 1286 A:e93d  d0 f6                              bne mvff
+ 1287 A:e93f                           mvdn      
+ 1287 A:e93f                                    
+ 1288 A:e93f                                    ; store location
+ 1289 A:e93f  a9 18                              lda #<fnstash
+ 1290 A:e941  85 11                              sta folderpointer
+ 1291 A:e943  a9 03                              lda #>fnstash
+ 1292 A:e945  85 12                              sta folderpointer+1
+ 1293 A:e947  60                                 rts 
+ 1294 A:e948                                     .) 
+
+ 1296 A:e948                           submsg    
+ 1297 A:e948  52 6f 6f 74 20 4e 6f ...           .byt "Root Not Found!",$0d,$0a,$00
+ 1298 A:e95a                           filmsg    
+ 1299 A:e95a  27 6c 6f 61 64 61 64 ...           .byt "'loadaddr.sar' Not Found!",$0d,$0a,$00
+ 1300 A:e976                           filmsg2   
+ 1301 A:e976  27 63 6f 64 65 2e 78 ...           .byt "'code.xpl' Not Found!",$0d,$0a,$00
+ 1302 A:e98e                           lds       
+ 1303 A:e98e  4c 6f 61 64 69 6e 67 ...           .byt "Loading SD Handler...",$00
+ 1304 A:e9a4                           savemsg   
+ 1304 A:e9a4                                    
+ 1305 A:e9a4  53 61 76 69 6e 67 2e ...           .byt "Saving...",$00
+ 1306 A:e9ae                           ends      
+ 1307 A:e9ae  44 6f 6e 65 2e 0d 0a 00            .byt "Done.",$0d,$0a,$00
+ 1308 A:e9b6                           femsg     
+ 1308 A:e9b6                                    
+ 1309 A:e9b6  46 69 6c 65 20 65 78 ...           .byt "File exists. Overwrite? (y/n): ",$00
+ 1310 A:e9d6                           foldermsg 
+ 1310 A:e9d6                                    
+ 1311 A:e9d6  4e 6f 20 73 75 63 68 ...           .byt "No such file or directory.",$0d,$0a,$00
+
+ 1313 A:e9f3                                    ; THE FOLLOWING MESSAGES ARE ALREADY IN TAPE.A65!
+ 1314 A:e9f3                                    ;loadedmsg
+ 1314 A:e9f3                                    
+ 1315 A:e9f3                                    ;  .byte "Loaded from ", $00
+ 1316 A:e9f3                                    ;tomsg
+ 1316 A:e9f3                                    
+ 1317 A:e9f3                                    ;  .byte " to ", $00
 
 main.a65
 
 
- 2648 A:e9a2                                    ; goofy ahh fake vi
+ 2648 A:e9f3                                    ; goofy ahh fake vi
 
 vi65s.a65
 
-    1 A:e9a2                                    ; VI
-    2 A:e9a2                                    ; requires xplDOS
-    3 A:e9a2                                    ;
+    1 A:e9f3                                    ; VI
+    2 A:e9f3                                    ; requires xplDOS
+    3 A:e9f3                                    ;
 
-    5 A:e9a2                           vicmd     
-    5 A:e9a2                                    
-    6 A:e9a2                                     .( 
-    7 A:e9a2  da                                 phx 
-    8 A:e9a3  20 5e e0                           jsr cleardisplay
-    9 A:e9a6  a9 0f                              lda #$0f
-   10 A:e9a8  20 71 e0                           jsr print_chara
-   11 A:e9ab  a9 18                              lda #24
-   12 A:e9ad  20 71 e0                           jsr print_chara
-   13 A:e9b0  a9 02                              lda #$02
-   14 A:e9b2  20 71 e0                           jsr print_chara
-   15 A:e9b5  a9 00                              lda #0
-   16 A:e9b7  20 71 e0                           jsr print_chara
-   17 A:e9ba                                    ;; check arguments
-   18 A:e9ba  a5 20                              lda ARGINDEX
-   19 A:e9bc  c9 02                              cmp #2             ; if there's two arguments, edit the typed file
-   20 A:e9be  f0 0c                              beq processparam
-   21 A:e9c0  a5 20                              lda ARGINDEX
-   22 A:e9c2  c9 01                              cmp #1             ; if there's only one argument, edit an unnamed file
-   23 A:e9c4  d0 03                              bne jer
-   24 A:e9c6  4c 39 ea                           jmp vnf
-   25 A:e9c9                           jer       
-   25 A:e9c9                                    
-   26 A:e9c9  4c 07 e4                           jmp error
-   27 A:e9cc                           processparam                  ; process the filename parameter
-   28 A:e9cc  18                                 clc 
-   29 A:e9cd  a9 00                              lda #<INPUT
-   30 A:e9cf  65 22                              adc ARGINDEX+2
-   31 A:e9d1  85 11                              sta folderpointer
-   32 A:e9d3  aa                                 tax 
-   33 A:e9d4  a0 02                              ldy #>INPUT
-   34 A:e9d6  84 12                              sty folderpointer+1
-   35 A:e9d8  da                                 phx 
-   36 A:e9d9  5a                                 phy 
-   37 A:e9da                                    ; print filename
-   38 A:e9da  a9 22                              lda #$22
-   39 A:e9dc  20 71 e0                           jsr print_chara
-   40 A:e9df  7a                                 ply 
-   41 A:e9e0  fa                                 plx 
-   42 A:e9e1  20 82 e0                           jsr w_acia_full
-   43 A:e9e4  a9 22                              lda #$22
-   44 A:e9e6  20 71 e0                           jsr print_chara
-   45 A:e9e9  a9 20                              lda #$20
-   46 A:e9eb  20 71 e0                           jsr print_chara
-   47 A:e9ee                                    ; convert to SHORT
-   48 A:e9ee  20 cf e4                           jsr shortconvert
-   49 A:e9f1                                    ; refresh
-   50 A:e9f1  20 0d e3                           jsr refreshpath
-   51 A:e9f4                                    ; chech if the file exists
-   52 A:e9f4  a6 11                              ldx folderpointer
-   53 A:e9f6  a4 12                              ldy folderpointer+1
-   54 A:e9f8  20 e1 de                           jsr fat32_finddirent
-   55 A:e9fb  b0 3c                              bcs vnf
-   56 A:e9fd                                    ; if it exists, load it to $0900
-   57 A:e9fd                                    ; WARNING this will overwrite RAM! 
-   58 A:e9fd  20 5a dd                           jsr fat32_opendirent
-   59 A:ea00  a9 09                              lda #$09
-   60 A:ea02  85 5d                              sta fat32_address+1
-   61 A:ea04  64 5c                              stz fat32_address
-   62 A:ea06  20 a0 df                           jsr fat32_file_read
-   63 A:ea09                                    ; now print first part to screen
-   64 A:ea09                                    ; BUG files can go past the screen limit, and glitch the viewer.
-   65 A:ea09  20 7a e0                           jsr ascii_home
-   66 A:ea0c  a2 00                              ldx #0
-   67 A:ea0e  a0 00                              ldy #0
-   68 A:ea10  64 1a                              stz viaddr
-   69 A:ea12  a9 09                              lda #$09
-   70 A:ea14  85 1b                              sta viaddr+1
-   71 A:ea16                           vcplp     
-   71 A:ea16                                    
-   72 A:ea16  b2 1a                              lda (viaddr)
-   73 A:ea18  f0 28                              beq veof
-   74 A:ea1a  c9 0d                              cmp #$0d
-   75 A:ea1c  f0 15                              beq cr
-   76 A:ea1e  c8                                 iny 
-   77 A:ea1f  c0 50                              cpy #80
-   78 A:ea21  f0 10                              beq cr
-   79 A:ea23                           otherv    
-   79 A:ea23                                    
-   80 A:ea23  20 71 e0                           jsr print_chara
-   81 A:ea26  f0 3a                              beq startcsr                ; file displayed, no eof yet
-   82 A:ea28  e6 1a                              inc viaddr
-   83 A:ea2a  a5 1a                              lda viaddr
-   84 A:ea2c  d0 02                              bne nnon
-   85 A:ea2e  e6 1b                              inc viaddr+1
-   86 A:ea30                           nnon      
-   86 A:ea30                                    
-   87 A:ea30  4c 16 ea                           jmp vcplp
-   88 A:ea33                           cr        
-   88 A:ea33                                    
-   89 A:ea33  e8                                 inx 
-   90 A:ea34  a0 00                              ldy #0
-   91 A:ea36  4c 23 ea                           jmp otherv
-   92 A:ea39                           vnf       
-   92 A:ea39                                    
-   93 A:ea39  a2 d1                              ldx #<nfm
-   94 A:ea3b  a0 ea                              ldy #>nfm
-   95 A:ea3d  20 82 e0                           jsr w_acia_full
-   96 A:ea40  a2 00                              ldx #0
-   97 A:ea42                           veof      
-   97 A:ea42                                    
-   98 A:ea42                                    ; eof reached. fill the screen with ~
-   99 A:ea42  e8                                 inx 
-  100 A:ea43  86 1e                              stx vif_end
-  101 A:ea45                           vinlp     
-  101 A:ea45                                    
-  102 A:ea45  a9 0f                              lda #$0f
-  103 A:ea47  20 71 e0                           jsr print_chara
-  104 A:ea4a  8a                                 txa 
-  105 A:ea4b  20 71 e0                           jsr print_chara
-  106 A:ea4e  a9 0e                              lda #$0e
-  107 A:ea50  20 71 e0                           jsr print_chara
-  108 A:ea53  a9 00                              lda #0
-  109 A:ea55  20 71 e0                           jsr print_chara
-  110 A:ea58  a9 7e                              lda #'~'
-  111 A:ea5a  20 71 e0                           jsr print_chara
-  112 A:ea5d  e8                                 inx 
-  113 A:ea5e  e0 18                              cpx #24
-  114 A:ea60  d0 e3                              bne vinlp
-  115 A:ea62                           startcsr  
-  115 A:ea62                                    
-  116 A:ea62  a9 0e                              lda #$0e
-  117 A:ea64  20 71 e0                           jsr print_chara
-  118 A:ea67  a9 46                              lda #70
-  119 A:ea69  20 71 e0                           jsr print_chara
-  120 A:ea6c  a9 0f                              lda #$0f
-  121 A:ea6e  20 71 e0                           jsr print_chara
-  122 A:ea71  a9 18                              lda #24
-  123 A:ea73  20 71 e0                           jsr print_chara
-  124 A:ea76  a9 30                              lda #'0'
-  125 A:ea78  20 71 e0                           jsr print_chara
-  126 A:ea7b  a9 2c                              lda #','
-  127 A:ea7d  20 71 e0                           jsr print_chara
-  128 A:ea80  a9 30                              lda #'0'
-  129 A:ea82  20 71 e0                           jsr print_chara
-  130 A:ea85  20 7a e0                           jsr ascii_home
-  131 A:ea88  a9 02                              lda #$02
-  132 A:ea8a  20 71 e0                           jsr print_chara
-  133 A:ea8d  a9 db                              lda #$db
-  134 A:ea8f  20 71 e0                           jsr print_chara
-  135 A:ea92  64 1c                              stz cursor_x
-  136 A:ea94  64 1d                              stz cursor_y
-  137 A:ea96                           vlp       
-  137 A:ea96                                    
-  138 A:ea96                                    ; wait until key pressed
-  139 A:ea96  20 53 f5                           jsr rxpoll
-  140 A:ea99  ad 00 80                           lda $8000
-  141 A:ea9c                                    ; parse arrow keys
-  142 A:ea9c  c9 18                              cmp #$18
-  143 A:ea9e  f0 11                              beq vi_down
-  144 A:eaa0  c9 05                              cmp #$05
-  145 A:eaa2  f0 15                              beq vi_up
-  146 A:eaa4  c9 10                              cmp #$10
-  147 A:eaa6  f0 19                              beq vi_left
-  148 A:eaa8  c9 04                              cmp #$04
-  149 A:eaaa  f0 1d                              beq vi_right
-  150 A:eaac  4c 96 ea                           jmp vlp
-  151 A:eaaf  fa                                 plx 
-  152 A:eab0  60                                 rts 
-  153 A:eab1                           vi_down   
-  153 A:eab1                                    
-  154 A:eab1  a9 1f                              lda #$1f
-  155 A:eab3  20 71 e0                           jsr print_chara
-  156 A:eab6  4c 96 ea                           jmp vlp
-  157 A:eab9                           vi_up     
-  157 A:eab9                                    
-  158 A:eab9  a9 1e                              lda #$1e
-  159 A:eabb  20 71 e0                           jsr print_chara
-  160 A:eabe  4c 96 ea                           jmp vlp
-  161 A:eac1                           vi_left   
-  161 A:eac1                                    
-  162 A:eac1  a9 1d                              lda #$1d
-  163 A:eac3  20 71 e0                           jsr print_chara
-  164 A:eac6  4c 96 ea                           jmp vlp
-  165 A:eac9                           vi_right  
-  165 A:eac9                                    
-  166 A:eac9  a9 1c                              lda #$1c
-  167 A:eacb  20 71 e0                           jsr print_chara
-  168 A:eace  4c 96 ea                           jmp vlp
-  169 A:ead1                                     .) 
+    5 A:e9f3                           vicmd     
+    5 A:e9f3                                    
+    6 A:e9f3                                     .( 
+    7 A:e9f3  da                                 phx 
+    8 A:e9f4  20 61 e0                           jsr cleardisplay
+    9 A:e9f7  a9 0f                              lda #$0f
+   10 A:e9f9  20 74 e0                           jsr print_chara
+   11 A:e9fc  a9 18                              lda #24
+   12 A:e9fe  20 74 e0                           jsr print_chara
+   13 A:ea01  a9 02                              lda #$02
+   14 A:ea03  20 74 e0                           jsr print_chara
+   15 A:ea06  a9 00                              lda #0
+   16 A:ea08  20 74 e0                           jsr print_chara
+   17 A:ea0b                                    ;; check arguments
+   18 A:ea0b  a5 20                              lda ARGINDEX
+   19 A:ea0d  c9 02                              cmp #2             ; if there's two arguments, edit the typed file
+   20 A:ea0f  f0 0c                              beq processparam
+   21 A:ea11  a5 20                              lda ARGINDEX
+   22 A:ea13  c9 01                              cmp #1             ; if there's only one argument, edit an unnamed file
+   23 A:ea15  d0 03                              bne jer
+   24 A:ea17  4c 8a ea                           jmp vnf
+   25 A:ea1a                           jer       
+   25 A:ea1a                                    
+   26 A:ea1a  4c 0a e4                           jmp error
+   27 A:ea1d                           processparam                  ; process the filename parameter
+   28 A:ea1d  18                                 clc 
+   29 A:ea1e  a9 00                              lda #<INPUT
+   30 A:ea20  65 22                              adc ARGINDEX+2
+   31 A:ea22  85 11                              sta folderpointer
+   32 A:ea24  aa                                 tax 
+   33 A:ea25  a0 02                              ldy #>INPUT
+   34 A:ea27  84 12                              sty folderpointer+1
+   35 A:ea29  da                                 phx 
+   36 A:ea2a  5a                                 phy 
+   37 A:ea2b                                    ; print filename
+   38 A:ea2b  a9 22                              lda #$22
+   39 A:ea2d  20 74 e0                           jsr print_chara
+   40 A:ea30  7a                                 ply 
+   41 A:ea31  fa                                 plx 
+   42 A:ea32  20 85 e0                           jsr w_acia_full
+   43 A:ea35  a9 22                              lda #$22
+   44 A:ea37  20 74 e0                           jsr print_chara
+   45 A:ea3a  a9 20                              lda #$20
+   46 A:ea3c  20 74 e0                           jsr print_chara
+   47 A:ea3f                                    ; convert to SHORT
+   48 A:ea3f  20 28 e5                           jsr shortconvert
+   49 A:ea42                                    ; refresh
+   50 A:ea42  20 10 e3                           jsr refreshpath
+   51 A:ea45                                    ; chech if the file exists
+   52 A:ea45  a6 11                              ldx folderpointer
+   53 A:ea47  a4 12                              ldy folderpointer+1
+   54 A:ea49  20 e4 de                           jsr fat32_finddirent
+   55 A:ea4c  b0 3c                              bcs vnf
+   56 A:ea4e                                    ; if it exists, load it to $0900
+   57 A:ea4e                                    ; WARNING this will overwrite RAM! 
+   58 A:ea4e  20 5d dd                           jsr fat32_opendirent
+   59 A:ea51  a9 09                              lda #$09
+   60 A:ea53  85 5d                              sta fat32_address+1
+   61 A:ea55  64 5c                              stz fat32_address
+   62 A:ea57  20 a3 df                           jsr fat32_file_read
+   63 A:ea5a                                    ; now print first part to screen
+   64 A:ea5a                                    ; BUG files can go past the screen limit, and glitch the viewer.
+   65 A:ea5a  20 7d e0                           jsr ascii_home
+   66 A:ea5d  a2 00                              ldx #0
+   67 A:ea5f  a0 00                              ldy #0
+   68 A:ea61  64 1a                              stz viaddr
+   69 A:ea63  a9 09                              lda #$09
+   70 A:ea65  85 1b                              sta viaddr+1
+   71 A:ea67                           vcplp     
+   71 A:ea67                                    
+   72 A:ea67  b2 1a                              lda (viaddr)
+   73 A:ea69  f0 28                              beq veof
+   74 A:ea6b  c9 0d                              cmp #$0d
+   75 A:ea6d  f0 15                              beq cr
+   76 A:ea6f  c8                                 iny 
+   77 A:ea70  c0 50                              cpy #80
+   78 A:ea72  f0 10                              beq cr
+   79 A:ea74                           otherv    
+   79 A:ea74                                    
+   80 A:ea74  20 74 e0                           jsr print_chara
+   81 A:ea77  f0 3a                              beq startcsr                ; file displayed, no eof yet
+   82 A:ea79  e6 1a                              inc viaddr
+   83 A:ea7b  a5 1a                              lda viaddr
+   84 A:ea7d  d0 02                              bne nnon
+   85 A:ea7f  e6 1b                              inc viaddr+1
+   86 A:ea81                           nnon      
+   86 A:ea81                                    
+   87 A:ea81  4c 67 ea                           jmp vcplp
+   88 A:ea84                           cr        
+   88 A:ea84                                    
+   89 A:ea84  e8                                 inx 
+   90 A:ea85  a0 00                              ldy #0
+   91 A:ea87  4c 74 ea                           jmp otherv
+   92 A:ea8a                           vnf       
+   92 A:ea8a                                    
+   93 A:ea8a  a2 22                              ldx #<nfm
+   94 A:ea8c  a0 eb                              ldy #>nfm
+   95 A:ea8e  20 85 e0                           jsr w_acia_full
+   96 A:ea91  a2 00                              ldx #0
+   97 A:ea93                           veof      
+   97 A:ea93                                    
+   98 A:ea93                                    ; eof reached. fill the screen with ~
+   99 A:ea93  e8                                 inx 
+  100 A:ea94  86 1e                              stx vif_end
+  101 A:ea96                           vinlp     
+  101 A:ea96                                    
+  102 A:ea96  a9 0f                              lda #$0f
+  103 A:ea98  20 74 e0                           jsr print_chara
+  104 A:ea9b  8a                                 txa 
+  105 A:ea9c  20 74 e0                           jsr print_chara
+  106 A:ea9f  a9 0e                              lda #$0e
+  107 A:eaa1  20 74 e0                           jsr print_chara
+  108 A:eaa4  a9 00                              lda #0
+  109 A:eaa6  20 74 e0                           jsr print_chara
+  110 A:eaa9  a9 7e                              lda #'~'
+  111 A:eaab  20 74 e0                           jsr print_chara
+  112 A:eaae  e8                                 inx 
+  113 A:eaaf  e0 18                              cpx #24
+  114 A:eab1  d0 e3                              bne vinlp
+  115 A:eab3                           startcsr  
+  115 A:eab3                                    
+  116 A:eab3  a9 0e                              lda #$0e
+  117 A:eab5  20 74 e0                           jsr print_chara
+  118 A:eab8  a9 46                              lda #70
+  119 A:eaba  20 74 e0                           jsr print_chara
+  120 A:eabd  a9 0f                              lda #$0f
+  121 A:eabf  20 74 e0                           jsr print_chara
+  122 A:eac2  a9 18                              lda #24
+  123 A:eac4  20 74 e0                           jsr print_chara
+  124 A:eac7  a9 30                              lda #'0'
+  125 A:eac9  20 74 e0                           jsr print_chara
+  126 A:eacc  a9 2c                              lda #','
+  127 A:eace  20 74 e0                           jsr print_chara
+  128 A:ead1  a9 30                              lda #'0'
+  129 A:ead3  20 74 e0                           jsr print_chara
+  130 A:ead6  20 7d e0                           jsr ascii_home
+  131 A:ead9  a9 02                              lda #$02
+  132 A:eadb  20 74 e0                           jsr print_chara
+  133 A:eade  a9 db                              lda #$db
+  134 A:eae0  20 74 e0                           jsr print_chara
+  135 A:eae3  64 1c                              stz cursor_x
+  136 A:eae5  64 1d                              stz cursor_y
+  137 A:eae7                           vlp       
+  137 A:eae7                                    
+  138 A:eae7                                    ; wait until key pressed
+  139 A:eae7  20 a4 f5                           jsr rxpoll
+  140 A:eaea  ad 00 80                           lda $8000
+  141 A:eaed                                    ; parse arrow keys
+  142 A:eaed  c9 18                              cmp #$18
+  143 A:eaef  f0 11                              beq vi_down
+  144 A:eaf1  c9 05                              cmp #$05
+  145 A:eaf3  f0 15                              beq vi_up
+  146 A:eaf5  c9 10                              cmp #$10
+  147 A:eaf7  f0 19                              beq vi_left
+  148 A:eaf9  c9 04                              cmp #$04
+  149 A:eafb  f0 1d                              beq vi_right
+  150 A:eafd  4c e7 ea                           jmp vlp
+  151 A:eb00  fa                                 plx 
+  152 A:eb01  60                                 rts 
+  153 A:eb02                           vi_down   
+  153 A:eb02                                    
+  154 A:eb02  a9 1f                              lda #$1f
+  155 A:eb04  20 74 e0                           jsr print_chara
+  156 A:eb07  4c e7 ea                           jmp vlp
+  157 A:eb0a                           vi_up     
+  157 A:eb0a                                    
+  158 A:eb0a  a9 1e                              lda #$1e
+  159 A:eb0c  20 74 e0                           jsr print_chara
+  160 A:eb0f  4c e7 ea                           jmp vlp
+  161 A:eb12                           vi_left   
+  161 A:eb12                                    
+  162 A:eb12  a9 1d                              lda #$1d
+  163 A:eb14  20 74 e0                           jsr print_chara
+  164 A:eb17  4c e7 ea                           jmp vlp
+  165 A:eb1a                           vi_right  
+  165 A:eb1a                                    
+  166 A:eb1a  a9 1c                              lda #$1c
+  167 A:eb1c  20 74 e0                           jsr print_chara
+  168 A:eb1f  4c e7 ea                           jmp vlp
+  169 A:eb22                                     .) 
 
-  171 A:ead1                           nfm       
-  171 A:ead1  5b 4e 65 77 20 46 69 ...           .byt "[New File]",0
+  171 A:eb22                           nfm       
+  171 A:eb22  5b 4e 65 77 20 46 69 ...           .byt "[New File]",0
 
 main.a65
 
 
- 2652 A:eadc                                    ;; memory copy
- 2653 A:eadc                                    ;; copies from (mem_source) to (mem_copy), all the way to (mem_end).
- 2654 A:eadc                           memcopy   
- 2654 A:eadc                                    
- 2655 A:eadc                                     .( 
- 2656 A:eadc  a0 00                              ldy #0
- 2657 A:eade                           loopbring 
- 2658 A:eade  b1 0a                              lda (mem_source),y  
- 2659 A:eae0  91 0c                              sta (mem_copy),y
- 2660 A:eae2  e6 0a                              inc mem_source
- 2661 A:eae4  d0 02                              bne dontinc
- 2662 A:eae6  e6 0b                              inc mem_source+1
- 2663 A:eae8                           dontinc   
- 2664 A:eae8  e6 0c                              inc mem_copy
- 2665 A:eaea  d0 02                              bne calc
- 2666 A:eaec  e6 0d                              inc mem_copy+1
- 2667 A:eaee                           calc      
- 2668 A:eaee  a5 0d                              lda mem_copy+1
- 2669 A:eaf0  c5 0f                              cmp mem_end+1
- 2670 A:eaf2  d0 ea                              bne loopbring
- 2671 A:eaf4  a5 0c                              lda mem_copy
- 2672 A:eaf6  c5 0e                              cmp mem_end
- 2673 A:eaf8  d0 e4                              bne loopbring
- 2674 A:eafa  60                                 rts 
- 2675 A:eafb                                     .) 
+ 2652 A:eb2d                                    ;; memory copy
+ 2653 A:eb2d                                    ;; copies from (mem_source) to (mem_copy), all the way to (mem_end).
+ 2654 A:eb2d                           memcopy   
+ 2654 A:eb2d                                    
+ 2655 A:eb2d                                     .( 
+ 2656 A:eb2d  a0 00                              ldy #0
+ 2657 A:eb2f                           loopbring 
+ 2658 A:eb2f  b1 0a                              lda (mem_source),y  
+ 2659 A:eb31  91 0c                              sta (mem_copy),y
+ 2660 A:eb33  e6 0a                              inc mem_source
+ 2661 A:eb35  d0 02                              bne dontinc
+ 2662 A:eb37  e6 0b                              inc mem_source+1
+ 2663 A:eb39                           dontinc   
+ 2664 A:eb39  e6 0c                              inc mem_copy
+ 2665 A:eb3b  d0 02                              bne calc
+ 2666 A:eb3d  e6 0d                              inc mem_copy+1
+ 2667 A:eb3f                           calc      
+ 2668 A:eb3f  a5 0d                              lda mem_copy+1
+ 2669 A:eb41  c5 0f                              cmp mem_end+1
+ 2670 A:eb43  d0 ea                              bne loopbring
+ 2671 A:eb45  a5 0c                              lda mem_copy
+ 2672 A:eb47  c5 0e                              cmp mem_end
+ 2673 A:eb49  d0 e4                              bne loopbring
+ 2674 A:eb4b  60                                 rts 
+ 2675 A:eb4c                                     .) 
 
- 2677 A:eafb                                    ;; memory test
- 2678 A:eafb                                    ;; the process is, for each page of memory (and MEMTESTBASE points
- 2679 A:eafb                                    ;; to the starting point), we write the number of that page into
- 2680 A:eafb                                    ;; each byte of that page (ie, each byte on page $1200 gets written
- 2681 A:eafb                                    ;; with $12, each byte on page $4600 gets written with $46).
- 2682 A:eafb                                    ;; then we read back and report errors. Leave the memory as it
- 2683 A:eafb                                    ;; is at the end of the test so that I can poke around with the
- 2684 A:eafb                                    ;; monitor later
- 2685 A:eafb                                    ;;
- 2686 A:eafb                           memtestcmd 
- 2687 A:eafb  da                                 phx                    ; preserve the stack, we're going to need x...
- 2688 A:eafc                                    ;; stage one is the write
- 2689 A:eafc                           writetest 
- 2690 A:eafc  64 46                              stz MEMTESTBASE
- 2691 A:eafe  a9 05                              lda #$05             ;; we start at page $05
- 2692 A:eb00  85 47                              sta MEMTESTBASE+1
+ 2677 A:eb4c                                    ;; memory test
+ 2678 A:eb4c                                    ;; the process is, for each page of memory (and MEMTESTBASE points
+ 2679 A:eb4c                                    ;; to the starting point), we write the number of that page into
+ 2680 A:eb4c                                    ;; each byte of that page (ie, each byte on page $1200 gets written
+ 2681 A:eb4c                                    ;; with $12, each byte on page $4600 gets written with $46).
+ 2682 A:eb4c                                    ;; then we read back and report errors. Leave the memory as it
+ 2683 A:eb4c                                    ;; is at the end of the test so that I can poke around with the
+ 2684 A:eb4c                                    ;; monitor later
+ 2685 A:eb4c                                    ;;
+ 2686 A:eb4c                           memtestcmd 
+ 2687 A:eb4c  da                                 phx                    ; preserve the stack, we're going to need x...
+ 2688 A:eb4d                                    ;; stage one is the write
+ 2689 A:eb4d                           writetest 
+ 2690 A:eb4d  64 46                              stz MEMTESTBASE
+ 2691 A:eb4f  a9 05                              lda #$05             ;; we start at page $05
+ 2692 A:eb51  85 47                              sta MEMTESTBASE+1
 
- 2694 A:eb02                                    ;; for page x, write x into each byte
- 2695 A:eb02                                     .( 
- 2696 A:eb02                           fillpage  
- 2697 A:eb02  a0 00                              ldy #$00
- 2698 A:eb04  a5 47                              lda MEMTESTBASE+1          ; load bit pattern
- 2699 A:eb06                           loop      
- 2700 A:eb06  91 46                              sta (MEMTESTBASE),y
- 2701 A:eb08  c8                                 iny 
- 2702 A:eb09  d0 fb                              bne loop
+ 2694 A:eb53                                    ;; for page x, write x into each byte
+ 2695 A:eb53                                     .( 
+ 2696 A:eb53                           fillpage  
+ 2697 A:eb53  a0 00                              ldy #$00
+ 2698 A:eb55  a5 47                              lda MEMTESTBASE+1          ; load bit pattern
+ 2699 A:eb57                           loop      
+ 2700 A:eb57  91 46                              sta (MEMTESTBASE),y
+ 2701 A:eb59  c8                                 iny 
+ 2702 A:eb5a  d0 fb                              bne loop
 
- 2704 A:eb0b                                    ;; move onto the next page, as long as we're still in the RAM
- 2705 A:eb0b                           nextpage  
- 2706 A:eb0b                                    ;lda BASE+1
- 2707 A:eb0b  1a                                 inc                    ; accumulator still holds page numner
- 2708 A:eb0c  c9 80                              cmp #$80             ; stop when we hit the upper half of memory
- 2709 A:eb0e  f0 04                              beq readtest
- 2710 A:eb10  85 47                              sta MEMTESTBASE+1
- 2711 A:eb12  80 ee                              bra fillpage
- 2712 A:eb14                                     .) 
+ 2704 A:eb5c                                    ;; move onto the next page, as long as we're still in the RAM
+ 2705 A:eb5c                           nextpage  
+ 2706 A:eb5c                                    ;lda BASE+1
+ 2707 A:eb5c  1a                                 inc                    ; accumulator still holds page numner
+ 2708 A:eb5d  c9 80                              cmp #$80             ; stop when we hit the upper half of memory
+ 2709 A:eb5f  f0 04                              beq readtest
+ 2710 A:eb61  85 47                              sta MEMTESTBASE+1
+ 2711 A:eb63  80 ee                              bra fillpage
+ 2712 A:eb65                                     .) 
 
- 2714 A:eb14                                    ;; stage two. read it back and check.
- 2715 A:eb14                           readtest  
- 2716 A:eb14                                    ;; start at the beginning again
- 2717 A:eb14  64 46                              stz MEMTESTBASE
- 2718 A:eb16  a9 05                              lda #$05
- 2719 A:eb18  85 47                              sta MEMTESTBASE+1
+ 2714 A:eb65                                    ;; stage two. read it back and check.
+ 2715 A:eb65                           readtest  
+ 2716 A:eb65                                    ;; start at the beginning again
+ 2717 A:eb65  64 46                              stz MEMTESTBASE
+ 2718 A:eb67  a9 05                              lda #$05
+ 2719 A:eb69  85 47                              sta MEMTESTBASE+1
 
- 2721 A:eb1a                                     .( 
- 2722 A:eb1a                                    ;; each byte should be the same as the page
- 2723 A:eb1a                           nextpage  
- 2724 A:eb1a  a0 00                              ldy #$00
- 2725 A:eb1c                           loop      
- 2726 A:eb1c  b1 46                              lda (MEMTESTBASE),y
- 2727 A:eb1e  c5 47                              cmp MEMTESTBASE+1
- 2728 A:eb20  d0 0e                              bne testerr
- 2729 A:eb22  c8                                 iny 
- 2730 A:eb23  d0 f7                              bne loop
+ 2721 A:eb6b                                     .( 
+ 2722 A:eb6b                                    ;; each byte should be the same as the page
+ 2723 A:eb6b                           nextpage  
+ 2724 A:eb6b  a0 00                              ldy #$00
+ 2725 A:eb6d                           loop      
+ 2726 A:eb6d  b1 46                              lda (MEMTESTBASE),y
+ 2727 A:eb6f  c5 47                              cmp MEMTESTBASE+1
+ 2728 A:eb71  d0 0e                              bne testerr
+ 2729 A:eb73  c8                                 iny 
+ 2730 A:eb74  d0 f7                              bne loop
 
- 2732 A:eb25  a5 47                              lda MEMTESTBASE+1
- 2733 A:eb27  1a                                 inc 
- 2734 A:eb28  c9 80                              cmp #$80
- 2735 A:eb2a  f0 10                              beq exit
- 2736 A:eb2c  85 47                              sta MEMTESTBASE+1
- 2737 A:eb2e  80 ea                              bra nextpage
- 2738 A:eb30                           testerr   
- 2739 A:eb30  a5 47                              lda MEMTESTBASE+1
- 2740 A:eb32  20 6d d6                           jsr putax
- 2741 A:eb35  98                                 tya 
- 2742 A:eb36  20 6d d6                           jsr putax
- 2743 A:eb39  20 3e eb                           jsr memtesterr
- 2744 A:eb3c                           exit      
- 2745 A:eb3c  fa                                 plx 
- 2746 A:eb3d  60                                 rts 
- 2747 A:eb3e                                     .) 
+ 2732 A:eb76  a5 47                              lda MEMTESTBASE+1
+ 2733 A:eb78  1a                                 inc 
+ 2734 A:eb79  c9 80                              cmp #$80
+ 2735 A:eb7b  f0 10                              beq exit
+ 2736 A:eb7d  85 47                              sta MEMTESTBASE+1
+ 2737 A:eb7f  80 ea                              bra nextpage
+ 2738 A:eb81                           testerr   
+ 2739 A:eb81  a5 47                              lda MEMTESTBASE+1
+ 2740 A:eb83  20 6d d6                           jsr putax
+ 2741 A:eb86  98                                 tya 
+ 2742 A:eb87  20 6d d6                           jsr putax
+ 2743 A:eb8a  20 8f eb                           jsr memtesterr
+ 2744 A:eb8d                           exit      
+ 2745 A:eb8d  fa                                 plx 
+ 2746 A:eb8e  60                                 rts 
+ 2747 A:eb8f                                     .) 
 
- 2750 A:eb3e                           memtesterr 
- 2751 A:eb3e  a0 00                              ldy #0
- 2752 A:eb40                                     .( 
- 2753 A:eb40                           next_char 
- 2754 A:eb40                           wait_txd_empty 
- 2755 A:eb40  ad 01 80                           lda ACIA_STATUS
- 2756 A:eb43  29 10                              and #$10
- 2757 A:eb45  f0 f9                              beq wait_txd_empty
- 2758 A:eb47  b9 a5 f4                           lda memerrstr,y
- 2759 A:eb4a  f0 06                              beq endstr
- 2760 A:eb4c  8d 00 80                           sta ACIA_DATA
- 2761 A:eb4f  c8                                 iny 
- 2762 A:eb50  80 ee                              bra next_char
- 2763 A:eb52                           endstr    
- 2764 A:eb52  20 45 d6                           jsr crlf
- 2765 A:eb55                                     .) 
- 2766 A:eb55  60                                 rts 
+ 2750 A:eb8f                           memtesterr 
+ 2751 A:eb8f  a0 00                              ldy #0
+ 2752 A:eb91                                     .( 
+ 2753 A:eb91                           next_char 
+ 2754 A:eb91                           wait_txd_empty 
+ 2755 A:eb91  ad 01 80                           lda ACIA_STATUS
+ 2756 A:eb94  29 10                              and #$10
+ 2757 A:eb96  f0 f9                              beq wait_txd_empty
+ 2758 A:eb98  b9 f6 f4                           lda memerrstr,y
+ 2759 A:eb9b  f0 06                              beq endstr
+ 2760 A:eb9d  8d 00 80                           sta ACIA_DATA
+ 2761 A:eba0  c8                                 iny 
+ 2762 A:eba1  80 ee                              bra next_char
+ 2763 A:eba3                           endstr    
+ 2764 A:eba3  20 45 d6                           jsr crlf
+ 2765 A:eba6                                     .) 
+ 2766 A:eba6  60                                 rts 
 
- 2769 A:eb56                                    ;;; print the string pointed to at PRINTVEC
- 2770 A:eb56                                    ;;;
- 2771 A:eb56                           printvecstr 
- 2772 A:eb56  a0 00                              ldy #0
- 2773 A:eb58                                     .( 
- 2774 A:eb58                           next_char 
- 2775 A:eb58                           wait_txd_empty 
- 2776 A:eb58  ad 01 80                           lda ACIA_STATUS
- 2777 A:eb5b  29 10                              and #$10             ;; if you have a wdc 65c51 installed, replace this 
- 2778 A:eb5d  f0 f9                              beq wait_txd_empty                ;; with a loop.
- 2779 A:eb5f  b1 42                              lda (PRINTVEC),y            ;;
- 2780 A:eb61  f0 06                              beq endstr                ;; be sure to also change the code in acia.a65!
- 2781 A:eb63  8d 00 80                           sta ACIA_DATA
- 2782 A:eb66  c8                                 iny 
- 2783 A:eb67  80 ef                              bra next_char
- 2784 A:eb69                           endstr    
- 2785 A:eb69                                     .) 
- 2786 A:eb69  60                                 rts 
+ 2769 A:eba7                                    ;;; print the string pointed to at PRINTVEC
+ 2770 A:eba7                                    ;;;
+ 2771 A:eba7                           printvecstr 
+ 2772 A:eba7  a0 00                              ldy #0
+ 2773 A:eba9                                     .( 
+ 2774 A:eba9                           next_char 
+ 2775 A:eba9                           wait_txd_empty 
+ 2776 A:eba9  ad 01 80                           lda ACIA_STATUS
+ 2777 A:ebac  29 10                              and #$10             ;; if you have a wdc 65c51 installed, replace this 
+ 2778 A:ebae  f0 f9                              beq wait_txd_empty                ;; with a loop.
+ 2779 A:ebb0  b1 42                              lda (PRINTVEC),y            ;;
+ 2780 A:ebb2  f0 06                              beq endstr                ;; be sure to also change the code in acia.a65!
+ 2781 A:ebb4  8d 00 80                           sta ACIA_DATA
+ 2782 A:ebb7  c8                                 iny 
+ 2783 A:ebb8  80 ef                              bra next_char
+ 2784 A:ebba                           endstr    
+ 2785 A:ebba                                     .) 
+ 2786 A:ebba  60                                 rts 
 
- 2788 A:eb6a                                    ;;; print a string bigger than 256 bytes. 
- 2789 A:eb6a                                    ;;; start at PRINTVEC and end at ENDVEC
- 2790 A:eb6a                                    ;;;
- 2791 A:eb6a                           printveclong 
- 2791 A:eb6a                                    
- 2792 A:eb6a                                     .( 
- 2793 A:eb6a  da                                 phx 
- 2794 A:eb6b                           lp        
- 2794 A:eb6b                                    
- 2795 A:eb6b  b2 42                              lda (PRINTVEC)
- 2796 A:eb6d  20 71 e0                           jsr print_chara
- 2797 A:eb70  e6 42                              inc PRINTVEC
- 2798 A:eb72  d0 02                              bne pvl
- 2799 A:eb74  e6 43                              inc PRINTVEC+1
- 2800 A:eb76                           pvl       
- 2800 A:eb76                                    
- 2801 A:eb76  a5 42                              lda PRINTVEC
- 2802 A:eb78  c5 0e                              cmp ENDVEC
- 2803 A:eb7a  d0 ef                              bne lp
- 2804 A:eb7c  a5 43                              lda PRINTVEC+1
- 2805 A:eb7e  c5 0f                              cmp ENDVEC+1
- 2806 A:eb80  d0 e9                              bne lp
- 2807 A:eb82  fa                                 plx 
- 2808 A:eb83  60                                 rts 
- 2809 A:eb84                                     .) 
+ 2788 A:ebbb                                    ;;; print a string bigger than 256 bytes. 
+ 2789 A:ebbb                                    ;;; start at PRINTVEC and end at ENDVEC
+ 2790 A:ebbb                                    ;;;
+ 2791 A:ebbb                           printveclong 
+ 2791 A:ebbb                                    
+ 2792 A:ebbb                                     .( 
+ 2793 A:ebbb  da                                 phx 
+ 2794 A:ebbc                           lp        
+ 2794 A:ebbc                                    
+ 2795 A:ebbc  b2 42                              lda (PRINTVEC)
+ 2796 A:ebbe  20 74 e0                           jsr print_chara
+ 2797 A:ebc1  e6 42                              inc PRINTVEC
+ 2798 A:ebc3  d0 02                              bne pvl
+ 2799 A:ebc5  e6 43                              inc PRINTVEC+1
+ 2800 A:ebc7                           pvl       
+ 2800 A:ebc7                                    
+ 2801 A:ebc7  a5 42                              lda PRINTVEC
+ 2802 A:ebc9  c5 0e                              cmp ENDVEC
+ 2803 A:ebcb  d0 ef                              bne lp
+ 2804 A:ebcd  a5 43                              lda PRINTVEC+1
+ 2805 A:ebcf  c5 0f                              cmp ENDVEC+1
+ 2806 A:ebd1  d0 e9                              bne lp
+ 2807 A:ebd3  fa                                 plx 
+ 2808 A:ebd4  60                                 rts 
+ 2809 A:ebd5                                     .) 
 
- 2812 A:eb84                                    ;;;
- 2813 A:eb84                                    ;;; Various string constants
- 2814 A:eb84                                    ;;;
+ 2812 A:ebd5                                    ;;;
+ 2813 A:ebd5                                    ;;; Various string constants
+ 2814 A:ebd5                                    ;;;
 
- 2816 A:eb84                           hextable  
- 2816 A:eb84  30 31 32 33 34 35 36 ...           .byt "0123456789ABCDEF"
- 2817 A:eb94                           greeting  
- 2817 A:eb94  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor",$0d,$0a,$00
- 2818 A:eba5                           prompt    
- 2818 A:eba5  3e                                 .byt ">"
- 2819 A:eba6                           aboutstring 
- 2819 A:eba6  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor - a command prompt for the XPL-32.",$0d,$0a
- 2820 A:ebd9  54 68 69 73 20 70 72 ...           .byt "This program was original developed by Paul Dourish, and it was called Mitemon.",$0d,$0a
- 2821 A:ec2a  49 6e 20 74 68 69 73 ...           .byt "In this version, I have added XPL-32 support, and a couple new commands.",$0d,$0a,$0d,$0a
- 2822 A:ec76  43 6f 70 79 72 69 67 ...           .byt "Copyright (C) 2023  Waverider & Paul Dourish",$0d,$0a,$0d,$0a
- 2823 A:eca6  54 68 69 73 20 70 72 ...           .byt "This program is free software: you can redistribute it and/or modify",$0d,$0a
- 2824 A:ecec  69 74 20 75 6e 64 65 ...           .byt "it under the terms of the GNU General Public License as published by",$0d,$0a
- 2825 A:ed32  74 68 65 20 46 72 65 ...           .byt "the Free Software Foundation, either version 3 of the License, or",$0d,$0a
- 2826 A:ed75  28 61 74 20 79 6f 75 ...           .byt "(at your option) any later version.",$0d,$0a,$0d,$0a
- 2827 A:ed9c  54 68 69 73 20 70 72 ...           .byt "This program is distributed in the hope that it will be useful,",$0d,$0a
- 2828 A:eddd  62 75 74 20 57 49 54 ...           .byt "but WITHOUT ANY WARRANTY",$3b," without even the implied warranty of",$0d,$0a
- 2829 A:ee1d  4d 45 52 43 48 41 4e ...           .byt "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",$0d,$0a
- 2830 A:ee5c  47 4e 55 20 47 65 6e ...           .byt "GNU General Public License for more details.",$0d,$0a,$0d,$0a
- 2831 A:ee8c  59 6f 75 20 73 68 6f ...           .byt "You should have received a copy of the GNU General Public License",$0d,$0a
- 2832 A:eecf  61 6c 6f 6e 67 20 77 ...           .byt "along with this program.  If not, see <https://www.gnu.org/licenses/>.",$0d,$0a
- 2833 A:ef17                           aboutstringend 
- 2833 A:ef17  00                                 .byt $00
- 2834 A:ef18                           helpstring 
- 2834 A:ef18  43 6f 6d 6d 61 6e 64 ...           .byt "Commands available:",$0d,$0a,$0d,$0a
- 2835 A:ef2f  65 63 68 6f 09 20 2d ...           .byt "echo",$09," - Echos a string to the screen.",$0d,$0a
- 2836 A:ef56  68 65 6c 70 09 20 2d ...           .byt "help",$09," - displays this screen",$0d,$0a
- 2837 A:ef74  61 62 6f 75 74 09 20 ...           .byt "about",$09," - displays information about this software",$0d,$0a
- 2838 A:efa7  64 75 6d 70 09 20 2d ...           .byt "dump",$09," - dumps memory contents at a specific address",$0d,$0a
- 2839 A:efdc  70 6f 6b 65 09 20 2d ...           .byt "poke",$09," - puts a value at an address",$0d,$0a,$00
- 2840 A:f001  7a 65 72 6f 09 20 2d ...           .byt "zero",$09," - fills a memory range with zeros",$0d,$0a
- 2841 A:f02a  67 6f 09 20 2d 20 6a ...           .byt "go",$09," - jumps to an address",$0d,$0a
- 2842 A:f045  78 72 65 63 65 69 76 ...           .byt "xreceive - receive from the serial port with xmodem to a specified address",$0d,$0a
- 2843 A:f091  64 69 73 09 20 2d 20 ...           .byt "dis",$09," - disassembles machine code a memory range into assembly, and prints that onto the screen",$0d,$0a,$00
- 2844 A:f0f2  69 6e 70 75 74 09 20 ...           .byt "input",$09," - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.",$0d,$0a
- 2845 A:f155  6d 65 6d 74 65 73 74 ...           .byt "memtest  - tests memory integrity",$0d,$0a
- 2846 A:f178                                    ;.byte "receive  - like xreceive, but no protocol is used", $0d, $0a
- 2847 A:f178  76 69 09 20 2d 20 65 ...           .byt "vi",$09," - edits a file on the sd card (NOT DONE)",$0d,$0a
- 2848 A:f1a6  6c 6f 61 64 09 20 2d ...           .byt "load",$09," - load a memory card's automatic loading system - also can load the specified file",$0d,$0a
- 2849 A:f200  73 61 76 65 09 20 2d ...           .byt "save",$09," - saves a file to the memory card",$0d,$0a
- 2850 A:f229  6c 73 09 20 2d 20 6c ...           .byt "ls",$09," - list the current directory",$0d,$0a
- 2851 A:f24b  63 64 09 20 2d 20 63 ...           .byt "cd",$09," - change to the specified directory",$0d,$0a
- 2852 A:f274  63 61 74 09 20 2d 20 ...           .byt "cat",$09," - dumps a file directly to the screen",$0d,$0a
- 2853 A:f2a0  72 6d 09 20 2d 20 72 ...           .byt "rm",$09," - removes a file",$0d,$0a
- 2854 A:f2b6  6d 76 09 20 2d 20 6d ...           .byt "mv",$09," - moves a file",$0d,$0a
- 2855 A:f2ca  63 6c 65 61 72 09 20 ...           .byt "clear",$09," - clears the screen",$0d,$0a
- 2856 A:f2e6  74 6c 6f 61 64 09 20 ...           .byt "tload",$09," - loads a file from the tape system",$0d,$0a
- 2857 A:f312  74 73 61 76 65 09 20 ...           .byt "tsave",$09," - saves a file to the tape system",$0d,$0a
- 2858 A:f33c  72 74 69 09 20 2d 20 ...           .byt "rti",$09," - return from any pending interuppts. warning-might crash",$0d,$0a
- 2859 A:f37c                           helpstringend 
- 2859 A:f37c  00                                 .byt $00
- 2860 A:f37d                           nocmderrstr 
- 2860 A:f37d  43 6f 6d 6d 61 6e 64 ...           .byt "Command not recognized",$0d,$0a,$00
- 2861 A:f396                           implementstring 
- 2861 A:f396  4e 6f 74 20 79 65 74 ...           .byt "Not yet implemented",$0d,$0a,$00
- 2862 A:f3ac                           dumperrstring 
- 2862 A:f3ac  55 73 61 67 65 3a 20 ...           .byt "Usage: dump hexaddress [count:10]",$00
- 2863 A:f3ce                           pokeerrstring 
- 2863 A:f3ce  55 73 61 67 65 3a 20 ...           .byt "Usage: poke hexaddress hexvalue",$00
- 2864 A:f3ee                           goerrstring 
- 2864 A:f3ee  55 73 61 67 65 3a 20 ...           .byt "Usage: go hexaddress",$00
- 2865 A:f403                           zeroerrstring 
- 2865 A:f403  55 73 61 67 65 3a 20 ...           .byt "Usage: zero hexaddress [count:10]",$00
- 2866 A:f425                           xrecverrstring 
- 2866 A:f425  55 73 61 67 65 3a 20 ...           .byt "Usage: xreceive hexaddress",$00
- 2867 A:f440                           tsaveerrstring 
- 2867 A:f440  55 73 61 67 65 3a 20 ...           .byt "Usage: tsave startaddr endaddr",$00
- 2868 A:f45f                           inputhelpstring 
- 2868 A:f45f  45 6e 74 65 72 20 74 ...           .byt "Enter two-digit hex bytes. Blank line to end.",$00
- 2869 A:f48d                           inputerrstring 
- 2869 A:f48d  55 73 61 67 65 3a 20 ...           .byt "Usage: input hexaddress",$00
- 2870 A:f4a5                           memerrstr 
- 2870 A:f4a5  4d 65 6d 6f 72 79 20 ...           .byt "Memory test failed",$00
- 2871 A:f4b8                           diserrorstring 
- 2871 A:f4b8  55 73 61 67 65 3a 20 ...           .byt "Usage: dis hexaddress [count: 10]",$00
- 2872 A:f4da                                    ; transferstring
- 2872 A:f4da  53 65 72 69 61 6c 20 ...           .byt "Serial [S] or Memory Card [M] Transfer?",$0d,$0a,$00
- 2873 A:f504                           serialstring 
- 2873 A:f504  53 74 61 72 74 20 53 ...           .byt "Start Serial Load.",$0d,$0a,$00
- 2874 A:f519                           loaddonestring 
- 2874 A:f519  4c 6f 61 64 20 43 6f ...           .byt "Load Complete.",$0d,$0a,$00
- 2875 A:f52a                           char      
- 2875 A:f52a  2e                                 .byt "."
- 2876 A:f52b                           sd_error  
- 2876 A:f52b  53 44 20 43 61 72 64 ...           .byt "SD Card failed to initialize",$0d,$0a,$00
- 2877 A:f54a                           errormsg  
- 2877 A:f54a  45 72 72 6f 72 21 0d ...           .byt "Error!",$0d,$0a,$00
+ 2816 A:ebd5                           hextable  
+ 2816 A:ebd5  30 31 32 33 34 35 36 ...           .byt "0123456789ABCDEF"
+ 2817 A:ebe5                           greeting  
+ 2817 A:ebe5  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor",$0d,$0a,$00
+ 2818 A:ebf6                           prompt    
+ 2818 A:ebf6  3e                                 .byt ">"
+ 2819 A:ebf7                           aboutstring 
+ 2819 A:ebf7  58 50 4c 2d 33 32 20 ...           .byt "XPL-32 monitor - a command prompt for the XPL-32.",$0d,$0a
+ 2820 A:ec2a  54 68 69 73 20 70 72 ...           .byt "This program was original developed by Paul Dourish, and it was called Mitemon.",$0d,$0a
+ 2821 A:ec7b  49 6e 20 74 68 69 73 ...           .byt "In this version, I have added XPL-32 support, and a couple new commands.",$0d,$0a,$0d,$0a
+ 2822 A:ecc7  43 6f 70 79 72 69 67 ...           .byt "Copyright (C) 2023  Waverider & Paul Dourish",$0d,$0a,$0d,$0a
+ 2823 A:ecf7  54 68 69 73 20 70 72 ...           .byt "This program is free software: you can redistribute it and/or modify",$0d,$0a
+ 2824 A:ed3d  69 74 20 75 6e 64 65 ...           .byt "it under the terms of the GNU General Public License as published by",$0d,$0a
+ 2825 A:ed83  74 68 65 20 46 72 65 ...           .byt "the Free Software Foundation, either version 3 of the License, or",$0d,$0a
+ 2826 A:edc6  28 61 74 20 79 6f 75 ...           .byt "(at your option) any later version.",$0d,$0a,$0d,$0a
+ 2827 A:eded  54 68 69 73 20 70 72 ...           .byt "This program is distributed in the hope that it will be useful,",$0d,$0a
+ 2828 A:ee2e  62 75 74 20 57 49 54 ...           .byt "but WITHOUT ANY WARRANTY",$3b," without even the implied warranty of",$0d,$0a
+ 2829 A:ee6e  4d 45 52 43 48 41 4e ...           .byt "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",$0d,$0a
+ 2830 A:eead  47 4e 55 20 47 65 6e ...           .byt "GNU General Public License for more details.",$0d,$0a,$0d,$0a
+ 2831 A:eedd  59 6f 75 20 73 68 6f ...           .byt "You should have received a copy of the GNU General Public License",$0d,$0a
+ 2832 A:ef20  61 6c 6f 6e 67 20 77 ...           .byt "along with this program.  If not, see <https://www.gnu.org/licenses/>.",$0d,$0a
+ 2833 A:ef68                           aboutstringend 
+ 2833 A:ef68  00                                 .byt $00
+ 2834 A:ef69                           helpstring 
+ 2834 A:ef69  43 6f 6d 6d 61 6e 64 ...           .byt "Commands available:",$0d,$0a,$0d,$0a
+ 2835 A:ef80  65 63 68 6f 09 20 2d ...           .byt "echo",$09," - Echos a string to the screen.",$0d,$0a
+ 2836 A:efa7  68 65 6c 70 09 20 2d ...           .byt "help",$09," - displays this screen",$0d,$0a
+ 2837 A:efc5  61 62 6f 75 74 09 20 ...           .byt "about",$09," - displays information about this software",$0d,$0a
+ 2838 A:eff8  64 75 6d 70 09 20 2d ...           .byt "dump",$09," - dumps memory contents at a specific address",$0d,$0a
+ 2839 A:f02d  70 6f 6b 65 09 20 2d ...           .byt "poke",$09," - puts a value at an address",$0d,$0a,$00
+ 2840 A:f052  7a 65 72 6f 09 20 2d ...           .byt "zero",$09," - fills a memory range with zeros",$0d,$0a
+ 2841 A:f07b  67 6f 09 20 2d 20 6a ...           .byt "go",$09," - jumps to an address",$0d,$0a
+ 2842 A:f096  78 72 65 63 65 69 76 ...           .byt "xreceive - receive from the serial port with xmodem to a specified address",$0d,$0a
+ 2843 A:f0e2  64 69 73 09 20 2d 20 ...           .byt "dis",$09," - disassembles machine code a memory range into assembly, and prints that onto the screen",$0d,$0a,$00
+ 2844 A:f143  69 6e 70 75 74 09 20 ...           .byt "input",$09," - inputs hexadecimal bytes from the keyboard to an address. terminated by a double return.",$0d,$0a
+ 2845 A:f1a6  6d 65 6d 74 65 73 74 ...           .byt "memtest  - tests memory integrity",$0d,$0a
+ 2846 A:f1c9                                    ;.byte "receive  - like xreceive, but no protocol is used", $0d, $0a
+ 2847 A:f1c9  76 69 09 20 2d 20 65 ...           .byt "vi",$09," - edits a file on the sd card (NOT DONE)",$0d,$0a
+ 2848 A:f1f7  6c 6f 61 64 09 20 2d ...           .byt "load",$09," - load a memory card's automatic loading system - also can load the specified file",$0d,$0a
+ 2849 A:f251  73 61 76 65 09 20 2d ...           .byt "save",$09," - saves a file to the memory card",$0d,$0a
+ 2850 A:f27a  6c 73 09 20 2d 20 6c ...           .byt "ls",$09," - list the current directory",$0d,$0a
+ 2851 A:f29c  63 64 09 20 2d 20 63 ...           .byt "cd",$09," - change to the specified directory",$0d,$0a
+ 2852 A:f2c5  63 61 74 09 20 2d 20 ...           .byt "cat",$09," - dumps a file directly to the screen",$0d,$0a
+ 2853 A:f2f1  72 6d 09 20 2d 20 72 ...           .byt "rm",$09," - removes a file",$0d,$0a
+ 2854 A:f307  6d 76 09 20 2d 20 6d ...           .byt "mv",$09," - moves a file",$0d,$0a
+ 2855 A:f31b  63 6c 65 61 72 09 20 ...           .byt "clear",$09," - clears the screen",$0d,$0a
+ 2856 A:f337  74 6c 6f 61 64 09 20 ...           .byt "tload",$09," - loads a file from the tape system",$0d,$0a
+ 2857 A:f363  74 73 61 76 65 09 20 ...           .byt "tsave",$09," - saves a file to the tape system",$0d,$0a
+ 2858 A:f38d  72 74 69 09 20 2d 20 ...           .byt "rti",$09," - return from any pending interuppts. warning-might crash",$0d,$0a
+ 2859 A:f3cd                           helpstringend 
+ 2859 A:f3cd  00                                 .byt $00
+ 2860 A:f3ce                           nocmderrstr 
+ 2860 A:f3ce  43 6f 6d 6d 61 6e 64 ...           .byt "Command not recognized",$0d,$0a,$00
+ 2861 A:f3e7                           implementstring 
+ 2861 A:f3e7  4e 6f 74 20 79 65 74 ...           .byt "Not yet implemented",$0d,$0a,$00
+ 2862 A:f3fd                           dumperrstring 
+ 2862 A:f3fd  55 73 61 67 65 3a 20 ...           .byt "Usage: dump hexaddress [count:10]",$00
+ 2863 A:f41f                           pokeerrstring 
+ 2863 A:f41f  55 73 61 67 65 3a 20 ...           .byt "Usage: poke hexaddress hexvalue",$00
+ 2864 A:f43f                           goerrstring 
+ 2864 A:f43f  55 73 61 67 65 3a 20 ...           .byt "Usage: go hexaddress",$00
+ 2865 A:f454                           zeroerrstring 
+ 2865 A:f454  55 73 61 67 65 3a 20 ...           .byt "Usage: zero hexaddress [count:10]",$00
+ 2866 A:f476                           xrecverrstring 
+ 2866 A:f476  55 73 61 67 65 3a 20 ...           .byt "Usage: xreceive hexaddress",$00
+ 2867 A:f491                           tsaveerrstring 
+ 2867 A:f491  55 73 61 67 65 3a 20 ...           .byt "Usage: tsave startaddr endaddr",$00
+ 2868 A:f4b0                           inputhelpstring 
+ 2868 A:f4b0  45 6e 74 65 72 20 74 ...           .byt "Enter two-digit hex bytes. Blank line to end.",$00
+ 2869 A:f4de                           inputerrstring 
+ 2869 A:f4de  55 73 61 67 65 3a 20 ...           .byt "Usage: input hexaddress",$00
+ 2870 A:f4f6                           memerrstr 
+ 2870 A:f4f6  4d 65 6d 6f 72 79 20 ...           .byt "Memory test failed",$00
+ 2871 A:f509                           diserrorstring 
+ 2871 A:f509  55 73 61 67 65 3a 20 ...           .byt "Usage: dis hexaddress [count: 10]",$00
+ 2872 A:f52b                                    ; transferstring
+ 2872 A:f52b  53 65 72 69 61 6c 20 ...           .byt "Serial [S] or Memory Card [M] Transfer?",$0d,$0a,$00
+ 2873 A:f555                           serialstring 
+ 2873 A:f555  53 74 61 72 74 20 53 ...           .byt "Start Serial Load.",$0d,$0a,$00
+ 2874 A:f56a                           loaddonestring 
+ 2874 A:f56a  4c 6f 61 64 20 43 6f ...           .byt "Load Complete.",$0d,$0a,$00
+ 2875 A:f57b                           char      
+ 2875 A:f57b  2e                                 .byt "."
+ 2876 A:f57c                           sd_error  
+ 2876 A:f57c  53 44 20 43 61 72 64 ...           .byt "SD Card failed to initialize",$0d,$0a,$00
+ 2877 A:f59b                           errormsg  
+ 2877 A:f59b  45 72 72 6f 72 21 0d ...           .byt "Error!",$0d,$0a,$00
 
- 2879 A:f553                           rxpoll    
- 2879 A:f553                                    
- 2880 A:f553  ad 01 80                           lda ACIA_STATUS
- 2881 A:f556  29 08                              and #$08
- 2882 A:f558  f0 f9                              beq rxpoll
- 2883 A:f55a  60                                 rts 
+ 2879 A:f5a4                           rxpoll    
+ 2879 A:f5a4                                    
+ 2880 A:f5a4  ad 01 80                           lda ACIA_STATUS
+ 2881 A:f5a7  29 08                              and #$08
+ 2882 A:f5a9  f0 f9                              beq rxpoll
+ 2883 A:f5ab  60                                 rts 
 
- 2885 A:f55b                           interrupt 
- 2886 A:f55b  6c fe 7f                           jmp ($7ffe)
- 2887 A:f55e  40                                 rti 
+ 2885 A:f5ac                           interrupt 
+ 2886 A:f5ac  6c fe 7f                           jmp ($7ffe)
+ 2887 A:f5af  40                                 rti 
 
- 2889 A:f55f  00 ff 2f 0a 00 64 2c ...           .dsb 2607,$00
+ 2889 A:f5b0  00 ff de 09 00 64 2c ...           .dsb 2526,$00
 
  2891 A:ff8e                                    ; ----KERNAL----
 
@@ -8437,39 +8500,39 @@ main.a65
  2898 A:ff91                                    ;fat
  2899 A:ff91                           KERNAL_fat32_writenextsector 
  2899 A:ff91                                    
- 2900 A:ff91  20 49 db                           jsr fat32_writenextsector
+ 2900 A:ff91  20 4c db                           jsr fat32_writenextsector
  2901 A:ff94                           KERNAL_fat32_allocatecluster 
  2901 A:ff94                                    
- 2902 A:ff94  20 19 dc                           jsr fat32_allocatecluster
+ 2902 A:ff94  20 1c dc                           jsr fat32_allocatecluster
  2903 A:ff97                           KERNAL_fat32_findnextfreecluster 
  2903 A:ff97                                    
- 2904 A:ff97  20 0b dd                           jsr fat32_findnextfreecluster
+ 2904 A:ff97  20 0e dd                           jsr fat32_findnextfreecluster
  2905 A:ff9a                           KERNAL_fat32_writedirent 
  2905 A:ff9a                                    
- 2906 A:ff9a  20 c2 dd                           jsr fat32_writedirent
+ 2906 A:ff9a  20 c5 dd                           jsr fat32_writedirent
  2907 A:ff9d                           KERNAL_fat32_deletefile 
  2907 A:ff9d                                    
- 2908 A:ff9d  20 21 df                           jsr fat32_deletefile
+ 2908 A:ff9d  20 24 df                           jsr fat32_deletefile
  2909 A:ffa0                           KERNAL_fat32_file_write 
  2909 A:ffa0                                    
- 2910 A:ffa0  20 c0 df                           jsr fat32_file_write
+ 2910 A:ffa0  20 c3 df                           jsr fat32_file_write
 
  2912 A:ffa3                                    ; DOS commands
  2913 A:ffa3                           KERNAL_save 
  2913 A:ffa3                                    
- 2914 A:ffa3  4c ae e7                           jmp savekernal
+ 2914 A:ffa3  4c ff e7                           jmp savekernal
  2915 A:ffa6                           KERNAL_cd 
  2915 A:ffa6                                    
- 2916 A:ffa6  4c f0 e3                           jmp cdsub
+ 2916 A:ffa6  4c f3 e3                           jmp cdsub
  2917 A:ffa9                           KERNAL_ls 
  2917 A:ffa9                                    
- 2918 A:ffa9  4c db e5                           jmp list
+ 2918 A:ffa9  4c 2c e6                           jmp list
 
  2920 A:ffac                                    ; inits
 
  2922 A:ffac                           KERNAL_acia_init 
  2922 A:ffac                                    
- 2923 A:ffac  4c 3a e0                           jmp acia_init
+ 2923 A:ffac  4c 3d e0                           jmp acia_init
  2924 A:ffaf                           KERNAL_via_init 
  2924 A:ffaf                                    
  2925 A:ffaf  4c f0 d6                           jmp via_init
@@ -8484,29 +8547,29 @@ main.a65
 
  2933 A:ffb8                           KERNAL_print_hex_acia 
  2933 A:ffb8                                    
- 2934 A:ffb8  4c 47 e0                           jmp print_hex_acia
+ 2934 A:ffb8  4c 4a e0                           jmp print_hex_acia
  2935 A:ffbb                           KERNAL_crlf 
  2935 A:ffbb                                    
  2936 A:ffbb  4c 45 d6                           jmp crlf
  2937 A:ffbe                           KERNAL_cleardisplay 
  2937 A:ffbe                                    
- 2938 A:ffbe  4c 5e e0                           jmp cleardisplay
+ 2938 A:ffbe  4c 61 e0                           jmp cleardisplay
  2939 A:ffc1                           KERNAL_rxpoll 
  2939 A:ffc1                                    
- 2940 A:ffc1  4c 53 f5                           jmp rxpoll
+ 2940 A:ffc1  4c a4 f5                           jmp rxpoll
  2941 A:ffc4                           KERNAL_txpoll 
  2941 A:ffc4                                    
- 2942 A:ffc4  4c 69 e0                           jmp txpoll
+ 2942 A:ffc4  4c 6c e0                           jmp txpoll
  2943 A:ffc7                           KERNAL_print_chara 
  2943 A:ffc7                                    
  2944 A:ffc7                           KERNAL_print_char_acia 
  2944 A:ffc7                                    
- 2945 A:ffc7  4c 71 e0                           jmp print_chara
+ 2945 A:ffc7  4c 74 e0                           jmp print_chara
  2946 A:ffca                           KERNAL_ascii_home 
  2946 A:ffca                                    
- 2947 A:ffca  4c 7a e0                           jmp ascii_home
+ 2947 A:ffca  4c 7d e0                           jmp ascii_home
  2948 A:ffcd                           KERNAL_w_acia_full 
- 2949 A:ffcd  4c 82 e0                           jmp w_acia_full
+ 2949 A:ffcd  4c 85 e0                           jmp w_acia_full
 
  2951 A:ffd0                                    ; fat32
 
@@ -8514,24 +8577,24 @@ main.a65
  2953 A:ffd0                                    
  2954 A:ffd0  4c 19 da                           jmp fat32_seekcluster
  2955 A:ffd3                           KERNAL_fat32_readnextsector 
- 2956 A:ffd3  4c 07 db                           jmp fat32_readnextsector
+ 2956 A:ffd3  4c 0a db                           jmp fat32_readnextsector
  2957 A:ffd6                           KERNAL_fat32_openroot 
  2957 A:ffd6                                    
- 2958 A:ffd6  4c f4 db                           jmp fat32_openroot
+ 2958 A:ffd6  4c f7 db                           jmp fat32_openroot
  2959 A:ffd9                           KERNAL_fat32_opendirent 
  2959 A:ffd9                                    
- 2960 A:ffd9  4c 5a dd                           jmp fat32_opendirent
+ 2960 A:ffd9  4c 5d dd                           jmp fat32_opendirent
  2961 A:ffdc                           KERNAL_fat32_readdirent 
- 2962 A:ffdc  4c ab de                           jmp fat32_readdirent
+ 2962 A:ffdc  4c ae de                           jmp fat32_readdirent
  2963 A:ffdf                           KERNAL_fat32_finddirent 
  2963 A:ffdf                                    
- 2964 A:ffdf  4c e1 de                           jmp fat32_finddirent
+ 2964 A:ffdf  4c e4 de                           jmp fat32_finddirent
  2965 A:ffe2                           KERNAL_fat32_file_readbyte 
  2965 A:ffe2                                    
- 2966 A:ffe2  4c 5f df                           jmp fat32_file_readbyte
+ 2966 A:ffe2  4c 62 df                           jmp fat32_file_readbyte
  2967 A:ffe5                           KERNAL_fat32_file_read 
  2967 A:ffe5                                    
- 2968 A:ffe5  4c a0 df                           jmp fat32_file_read
+ 2968 A:ffe5  4c a3 df                           jmp fat32_file_read
 
  2970 A:ffe8                                    ; sd
 
@@ -8549,7 +8612,7 @@ main.a65
 
  2981 A:fff1                           KERNAL_loadcmd 
  2981 A:fff1                                    
- 2982 A:fff1  4c a0 e6                           jmp loadone
+ 2982 A:fff1  4c f1 e6                           jmp loadone
  2983 A:fff4                           KERNAL_tsave 
  2983 A:fff4                                    
  2984 A:fff4  4c 04 ca                           jmp tsavecmd+94
@@ -8558,6 +8621,6 @@ main.a65
  2986 A:fff7  4c d3 cb                           jmp tload_kernal
 
  2988 A:fffa                                     *= $fffa
- 2989 A:fffa  5b f5                              .word interrupt
+ 2989 A:fffa  ac f5                              .word interrupt
  2990 A:fffc  00 c0                              .word reset
- 2991 A:fffe  5b f5                              .word interrupt
+ 2991 A:fffe  ac f5                              .word interrupt

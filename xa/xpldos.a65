@@ -381,8 +381,9 @@ cmppath:
 .(
   phx
   pha
-  ldx #0
+  ldx #$ff
 lp
+  inx
   lda path,x
   cmp buffer,x
   bne ne
@@ -403,33 +404,43 @@ ne
 
 ; strips the file off of the input path 
 ; (eg. /test/folder/myfile.txt -> /test/folder/)
-; set carry if in same folder
+; set carry if in same folder (eg. file.txt)
+; also stores the last slash pos in last_slash_pos
+; this can be used if you want to get the file name 
+; by adding 1 do this value
+; and then using that as an index to the file name
+
 stripfile:
 .(
-  ; find the last slash
-  ldx #0
   ldy #0
-find_last_slash:
-  lda folderpointer,x
-  beq stdn              ; end of string
-  cmp #'/'              ; is it a slash?
+  lda #$FF
+  sta last_slash_pos    ; default = not found
+
+find_slash:
+  lda (folderpointer),y
+  beq check_result
+  cmp #'/'              
   bne not_slash
-  ldy #1
-  stx last_slash_pos    ; save last slash index
-not_slash:
-  inx
-  bne find_last_slash   ; loop
-  
-stdn:
-  ; overwrite the character after the last slash with null terminator
-  ldx last_slash_pos
-  lda #0
-  sta folderpointer,x
   tya
-  beq ogg
+  sta last_slash_pos    ; save Y as last slash position
+
+not_slash:
+  iny
+  bne find_slash
+
+check_result:
+  lda last_slash_pos
+  cmp #$FF
+  beq no_slash_found    ; no slash → SEC, RTS
+
+  lda last_slash_pos
+  tay                   ; restore index of last slash
+  lda #0
+  sta (folderpointer),y
   clc
   rts
-ogg:
+
+no_slash_found:
   sec
   rts
 .)
@@ -453,10 +464,57 @@ cdf:
   sta folderpointer
   lda #>INPUT
   sta folderpointer+1
-  ; Convert to SHORT
+
+  jsr stripfile
+  bcc path_has_slash
+same_folder
+  ; normal operation
   jsr shortconvert
-  ; Refresh Path
-  jsr fat32_open_cd
+  jsr refreshpath
+  bcc find_and_print_file
+  rts
+path_has_slash
+  ; there's a slash 
+  ; in the path. 
+  lda folderpointer
+  sta stackaccess
+  lda folderpointer+1
+  sta stackaccess+1
+  jsr push16
+
+  jsr stashpath
+  jsr resolvepath
+  jsr cmppath
+  bcc different_folder
+
+  ; same folder
+  ; restore pointer
+  jsr pop16 
+  lda stackaccess
+  sta folderpointer
+  lda stackaccess+1
+  sta folderpointer+1
+  jmp same_folder
+  
+different_folder: 
+  jsr refreshpath
+  jsr extract_and_list
+  jsr restorepath
+  jsr refreshpath
+  jmp pop16
+
+extract_and_list:
+  inc folderpointer
+  clc 
+  lda folderpointer
+  adc last_slash_pos  
+  sta folderpointer
+  lda folderpointer+1
+  adc #0                  
+  sta folderpointer+1
+  jsr shortconvert
+  ; pass through
+find_and_print_file:
   ; Find the file
   ldx folderpointer
   ldy folderpointer+1
@@ -465,12 +523,14 @@ cdf:
 
   ; Open the file
   jsr fat32_opendirent
+
   ; Read file contents into buffer
   lda #<buffer
   sta fat32_address
   lda #>buffer
   sta fat32_address+1
-redlp:
+
+readlp:
   jsr fat32_file_readbyte
   beq catd
   cmp #$0d
@@ -489,7 +549,7 @@ notcr:
   jmp unix
 notunix:
   jsr print_chara
-  jmp redlp
+  jmp readlp
 catd:
   ; CR+LF
   jsr crlf
@@ -657,13 +717,13 @@ cdf:
   lda ARGINDEX
   cmp #1	       ; if there's only one argument (ls) then list current directory 
   bne jmperror
+ll:
   jsr fat32_open_cd
   jsr list
   jmp fat32_open_cd
 jmperror:
   jmp error
 processparam           ; process the filename parameter
-  stz backdir
   clc
   lda #<INPUT
   adc ARGINDEX+2
@@ -673,12 +733,8 @@ processparam           ; process the filename parameter
   jsr stashpath
   jsr resolvepath 
   jsr cmppath
-  bcs listres
+  bcs ll
   jsr refreshpath
-  jmp dolist
-listres
-  jsr fat32_open_cd
-dolist
   jsr list
   jsr restorepath
   jmp refreshpath

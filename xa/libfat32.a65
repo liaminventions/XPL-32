@@ -434,7 +434,10 @@ spcshiftloopdone:
   ; It's EOC
   lda #$FF
   sta fat32_nextcluster+3
+  sec
+  rts
 notendofchain:
+  clc
   rts
 .)
 

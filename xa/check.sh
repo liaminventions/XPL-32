@@ -1,2 +1,3 @@
 #!/bin/sh
-stat -c%s xpl.BIN
+qalc "$(stat -c%s xpl.BIN) - 0x4000" 
+
