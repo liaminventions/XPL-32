@@ -51,7 +51,7 @@ I use [Pulseview](https://sigrok.org/wiki/PulseView) with [this logic analyzer (
 
 It was an absolute pain to set up...
 
-Also, the SDcard-SPI decoder in libsigrokdecode was completly broken for me. (it always expected a CRC...) My fix was to make [my own custom version of the decoder](https://github.com/liaminventions/XPL-32/tree/main/debug/sdcard_spi)
+Also, the SDcard-SPI decoder in libsigrokdecode was completly broken for me. (it always expected a CRC...) My fix was to make [my own custom version of the decoder](https://github.com/liaminventions/XPL-32/tree/main/debug/decoders/sdcard_spi)
 
 The custom version is still slightly broken, but I am working on it.
 
